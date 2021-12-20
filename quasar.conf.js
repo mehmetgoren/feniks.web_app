@@ -21,7 +21,8 @@ module.exports = configure(function (ctx) {
         },
       }
     },
-
+    // dev: true,
+    // prod: false,
     // https://quasar.dev/quasar-cli/prefetch-feature
     // preFetch: true,
 
@@ -85,7 +86,8 @@ module.exports = configure(function (ctx) {
         type: 'http'
       },
       port: 8080,
-      open: true // opens browser window automatically
+      open: true, // opens browser window automatically
+      // vueDevtools: true
     },
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework

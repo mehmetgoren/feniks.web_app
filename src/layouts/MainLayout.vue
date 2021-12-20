@@ -156,9 +156,15 @@
   </q-layout>
 </template>
 
-<script>
+<script lang='ts'>
 import { ref } from 'vue'
 import { fasGlobeAmericas, fasFlask } from '@quasar/extras/fontawesome-v5'
+// import router from 'src/router'
+//
+// function onMenuClick(link: any){
+//   router.push(link.id)
+//   alert(JSON.stringify(link))
+// }
 
 export default {
   name: 'GoogleNewsLayout',
@@ -182,18 +188,14 @@ export default {
       byDate.value = 'Any time'
     }
 
-    function changeDate (option) {
+    function changeDate(option: any) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       byDate.value = option
       showDateOptions.value = false
     }
 
-    function toggleLeftDrawer () {
+    function toggleLeftDrawer() {
       leftDrawerOpen.value = !leftDrawerOpen.value
-    }
-
-    function onMenuClick(link){
-      alert(JSON.stringify(link))
     }
 
     return {
@@ -209,7 +211,7 @@ export default {
 
       links1: [
         { icon: 'web', text: 'Dashboard', id:'dashboard' },
-        { icon: 'person', text: 'For you' },
+        { icon: 'add_box', text: 'Add Node', id:'add_node' },
         { icon: 'star_border', text: 'Favourites' },
         { icon: 'search', text: 'Saved searches' }
       ],
@@ -236,7 +238,13 @@ export default {
       onClear,
       changeDate,
       toggleLeftDrawer,
-      onMenuClick
+      // onMenuClick
+    }
+  },
+  methods:{
+    onMenuClick(link: any){
+      const me: any = this;
+      me.$router.push(link.id);
     }
   }
 }

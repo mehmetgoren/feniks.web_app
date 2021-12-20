@@ -4,7 +4,14 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
-    children: [{ path: '', component: () => import('pages/Index.vue') }],
+    children: [
+      { path: '', component: () => import('pages/Index.vue') },
+      { path: 'dashboard', component: () => import('pages/Dashboard.vue') },
+      { path: 'add_node', component: () => import('pages/AddNode.vue') },
+      // //no lazy loading version is :
+      // { path: '', component: Index },
+      // { path: 'dashboard', component: Dashboard }
+    ],
   },
 
   // Always leave this as last one,
