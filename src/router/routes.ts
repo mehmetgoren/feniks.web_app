@@ -1,13 +1,15 @@
 import { RouteRecordRaw } from 'vue-router';
+import Node from 'src/pages/Node.vue'
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/Index.vue') },
-      { path: 'dashboard', component: () => import('pages/Dashboard.vue') },
-      { path: 'add_node', component: () => import('pages/AddNode.vue') },
+      { path: 'home', component: () => import('pages/Index.vue') },
+      { path: 'home-nodes', component: () => import('pages/Nodes.vue') },
+      { path: 'home-hub', component: () => import('pages/Hub.vue') },
+      { path: 'node', component: Node }
       // //no lazy loading version is :
       // { path: '', component: Index },
       // { path: 'dashboard', component: Dashboard }

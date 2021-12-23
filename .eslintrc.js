@@ -76,6 +76,7 @@ module.exports = {
   // add your custom rules here
   rules: {
     'prefer-promise-reject-errors': 'off',
+    'vue/multi-word-component-names': 'off',
 
     // TypeScript
     quotes: ['warn', 'single', { avoidEscape: true }],
@@ -92,5 +93,7 @@ module.exports = {
     '@typescript-eslint/no-unsafe-return':'off',
     '@typescript-eslint/restrict-plus-operands':'off',
     '@typescript-eslint/await-thenable:':'off',
+    '@typescript-eslint/restrict-template-expressions':'off',
+    '@typescript-eslint/no-unsafe-argument':'off',
   }
 }

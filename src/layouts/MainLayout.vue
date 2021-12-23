@@ -18,7 +18,7 @@
         </q-toolbar-title>
 
         <q-space />
-
+        <!--search panel-->
         <q-input class="GNL__toolbar-input" outlined dense v-model="search" color="bg-grey-7 shadow-1" placeholder="Search for topics, locations & sources">
           <template v-slot:prepend>
             <q-icon v-if="search === ''" name="search" />
@@ -79,7 +79,7 @@
         </q-input>
 
         <q-space />
-
+        <!--  left panel panel-->
         <div class="q-gutter-sm row items-center no-wrap">
           <q-btn v-if="$q.screen.gt.sm" round dense flat color="text-grey-7" icon="apps">
             <q-tooltip>Google Apps</q-tooltip>
@@ -97,7 +97,19 @@
             <q-tooltip>Account</q-tooltip>
           </q-btn>
         </div>
+
       </q-toolbar>
+      <!--Node will sit here-->
+      <q-tabs align="left" v-if='tabs'>
+        <q-route-tab to="home" label="Home" key='home' id='home' @click='onTabClick("home")' />
+        <q-route-tab v-for='tab in tabs' :key='tab.node_address' :to="'node?n=' + tab.node_address" :label="tab.name"
+                     @click='onTabClick("node?n=" + tab.node_address)'/>
+<!--        <q-route-tab to="home" label="Home" />-->
+<!--        <q-route-tab to="/" label="Dev PC" />-->
+<!--        <q-route-tab to="/" label="Legacy Pc" />-->
+<!--        <q-route-tab to="/" label="Jetson Nano" />-->
+<!--        <q-route-tab to="/" label="Raspi 4" />-->
+      </q-tabs>
     </q-header>
 
     <q-drawer
@@ -109,43 +121,28 @@
     >
       <q-scroll-area class="fit">
         <q-list padding class="text-grey-8">
-          <q-item class="GNL__drawer-item" v-ripple v-for="link in links1" :key="link.text" clickable @click='onMenuClick(link)'>
-            <q-item-section avatar>
-              <q-icon :name="link.icon" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>{{ link.text }}</q-item-label>
-            </q-item-section>
-          </q-item>
+          <div v-for="(menu, index) in menus" :key='index'>
+            <q-item class="GNL__drawer-item" v-ripple v-for="link in menu" :key="link.text" clickable @click='onHomeMenuClick(link)'>
+              <q-item-section avatar>
+                <q-icon :name="link.icon" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>{{ link.text }}</q-item-label>
+              </q-item-section>
+            </q-item>
 
-          <q-separator inset class="q-my-sm" />
-
-          <q-item class="GNL__drawer-item" v-ripple v-for="link in links2" :key="link.text" clickable @click='onMenuClick(link)'>
-            <q-item-section avatar>
-              <q-icon :name="link.icon" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>{{ link.text }}</q-item-label>
-            </q-item-section>
-          </q-item>
-
-          <q-separator inset class="q-my-sm" />
-
-          <q-item class="GNL__drawer-item" v-ripple v-for="link in links3" :key="link.text" clickable @click='onMenuClick(link)'>
-            <q-item-section>
-              <q-item-label>{{ link.text }} <q-icon v-if="link.icon" :name="link.icon" /></q-item-label>
-            </q-item-section>
-          </q-item>
-
-          <div class="q-mt-md">
-            <div class="flex flex-center q-gutter-xs">
-              <a class="GNL__drawer-footer-link" href="javascript:void(0)" aria-label="Privacy">Privacy</a>
-              <span> · </span>
-              <a class="GNL__drawer-footer-link" href="javascript:void(0)" aria-label="Terms">Terms</a>
-              <span> · </span>
-              <a class="GNL__drawer-footer-link" href="javascript:void(0)" aria-label="About">About Google</a>
-            </div>
+            <q-separator inset class="q-my-sm" />
           </div>
+          <!--footer-->
+<!--          <div class="q-mt-md">-->
+<!--            <div class="flex flex-center q-gutter-xs">-->
+<!--              <a class="GNL__drawer-footer-link" href="javascript:void(0)" aria-label="Privacy">Privacy</a>-->
+<!--              <span> · </span>-->
+<!--              <a class="GNL__drawer-footer-link" href="javascript:void(0)" aria-label="Terms">Terms</a>-->
+<!--              <span> · </span>-->
+<!--              <a class="GNL__drawer-footer-link" href="javascript:void(0)" aria-label="About">About Ionix</a>-->
+<!--            </div>-->
+<!--          </div>-->
         </q-list>
       </q-scroll-area>
     </q-drawer>
@@ -157,19 +154,20 @@
 </template>
 
 <script lang='ts'>
-import { ref } from 'vue'
-import { fasGlobeAmericas, fasFlask } from '@quasar/extras/fontawesome-v5'
-// import router from 'src/router'
-//
-// function onMenuClick(link: any){
-//   router.push(link.id)
-//   alert(JSON.stringify(link))
-// }
+import { computed, onMounted, ref } from 'vue';
+import { useStore } from 'src/store';
+import { useRoute } from 'vue-router';
+import { NodeRepository } from 'src/utils/db';
+import { NodeService } from 'src/utils/services/node-service';
+import { MenuItem, MenuLink } from 'src/store/module-settings/state';
 
 export default {
-  name: 'GoogleNewsLayout',
+  name: 'Ionix Layout',
 
   setup () {
+    const route=useRoute();
+    const path = computed(() =>route.path)
+    const $store = useStore();
     const leftDrawerOpen = ref(false)
     const search = ref('')
     const showAdvanced = ref(false)
@@ -179,6 +177,52 @@ export default {
     const excludeWords = ref('')
     const byWebsite = ref('')
     const byDate = ref('Any time')
+    const nodeRep = ref(new NodeRepository());
+    const nodeService = ref(new NodeService());
+
+    const tabs = ref();
+    onMounted(async () => {
+      tabs.value = await nodeRep.value.getAll();
+    });
+    const getPureMenuPath = () => {
+      let path_str: any = path.value;
+      path_str = path_str.split('-')[0];
+      path_str = path_str.replace('/', '');
+      return path_str
+    };
+    const menus = ref($store.getters['settings/menu'][getPureMenuPath()]);
+
+    const onTabClick = async (route: string) => {
+      const menu = $store.getters['settings/menu'];
+      if (!menu[route]) {
+        const nodeAddress = route.split('=')[1];
+        const nodes = await nodeService.value.getPlugins(nodeAddress);
+        const menuLink:MenuLink[]  = [];
+        for (const node of nodes) {
+          const source: MenuLink = {
+            route : route + '&source='  + node.name,
+            icon : 'camera',
+            text : node.name
+          };
+          menuLink.push(source);
+        }
+        const menuObject: MenuItem  = {};
+        menuObject['config'] = [
+          {
+            route : route + '&config=general',
+            icon : 'settings',
+            text : 'Configuration'
+          }
+        ];
+        menuObject['cameras'] = menuLink
+
+        $store.commit('settings/addMenu', {
+          name:route,
+          menu:menuObject
+        })
+      }
+      menus.value = menu[route];
+    };
 
     function onClear () {
       exactPhrase.value = ''
@@ -189,7 +233,6 @@ export default {
     }
 
     function changeDate(option: any) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       byDate.value = option
       showDateOptions.value = false
     }
@@ -208,43 +251,26 @@ export default {
       excludeWords,
       byWebsite,
       byDate,
-
-      links1: [
-        { icon: 'web', text: 'Dashboard', id:'dashboard' },
-        { icon: 'add_box', text: 'Add Node', id:'add_node' },
-        { icon: 'star_border', text: 'Favourites' },
-        { icon: 'search', text: 'Saved searches' }
-      ],
-      links2: [
-        { icon: 'flag', text: 'Canada' },
-        { icon: fasGlobeAmericas, text: 'World' },
-        { icon: 'place', text: 'Local' },
-        { icon: 'domain', text: 'Business' },
-        { icon: 'memory', text: 'Technology' },
-        { icon: 'local_movies', text: 'Entertainment' },
-        { icon: 'directions_bike', text: 'Sports' },
-        { icon: fasFlask, text: 'Science' },
-        { icon: 'fitness_center', text: 'Health ' }
-      ],
-      links3: [
-        { icon: '', text: 'Language & region' },
-        { icon: '', text: 'Settings' },
-        { icon: 'open_in_new', text: 'Get the Android app' },
-        { icon: 'open_in_new', text: 'Get the iOS app' },
-        { icon: '', text: 'Send feedback' },
-        { icon: 'open_in_new', text: 'Help' }
-      ],
-
+      menus,
       onClear,
       changeDate,
       toggleLeftDrawer,
-      // onMenuClick
+      tabs,
+      onTabClick,
     }
   },
   methods:{
-    onMenuClick(link: any){
+    onHomeMenuClick(link: any){
       const me: any = this;
-      me.$router.push(link.id);
+      // if (link.route === 'node') {
+      //   me.$router.push('node-' +  link.route);
+      // }
+      if (link.route) {
+        me.$router.push(link.route);
+      }
+      else if (link.href){
+        window.open(link.href, '_blank');
+      }
     }
   }
 }

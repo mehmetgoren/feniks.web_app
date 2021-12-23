@@ -1,49 +1,31 @@
 <template>
-  <q-page class="row items-center justify-evenly">
-    <example-component
-      title="Example component"
-      active
-      :todos="todos"
-      :meta="meta"
-    ></example-component>
-  </q-page>
+  <DoughnutChart :chartData="testData" />
 </template>
 
 <script lang="ts">
-import { Todo, Meta } from 'components/models';
-import ExampleComponent from 'components/CompositionComponent.vue';
-import { defineComponent, ref } from 'vue';
+import {
+  defineComponent,
+} from 'vue';
+import { DoughnutChart } from 'vue-chart-3';
+import { Chart, registerables } from 'chart.js';
 
+Chart.register(...registerables);
 export default defineComponent({
-  name: 'PageIndex',
-  components: { ExampleComponent },
+  name: 'Dashboard',
+  components: { DoughnutChart },
   setup() {
-    const todos = ref<Todo[]>([
-      {
-        id: 1,
-        content: 'ct1'
-      },
-      {
-        id: 2,
-        content: 'ct2'
-      },
-      {
-        id: 3,
-        content: 'ct3'
-      },
-      {
-        id: 4,
-        content: 'ct4'
-      },
-      {
-        id: 5,
-        content: 'ct5'
-      }
-    ]);
-    const meta = ref<Meta>({
-      totalCount: 1200
-    });
-    return { todos, meta };
-  }
+    const testData = {
+      labels: ['Paris', 'Nîmes', 'Toulon', 'Perpignan', 'Autre'],
+      datasets: [
+        {
+          data: [30, 40, 60, 70, 5],
+          backgroundColor: ['#77CEFF', '#0079AF', '#123E6B', '#97B0C4', '#A5C8ED'],
+        },
+      ],
+    };
+
+    return { testData };
+  },
 });
 </script>
+
