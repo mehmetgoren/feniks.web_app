@@ -10,6 +10,9 @@ const mutation: MutationTree<ISettingsState> = {
     state.menu[obj.name] = obj.menu;
   },
 
+  setActiveTab (state: ISettingsState, value: string) {
+    state.activeTab = value;
+  },
 };
 
 export default mutation;

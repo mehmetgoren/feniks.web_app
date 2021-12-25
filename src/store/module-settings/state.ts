@@ -16,6 +16,7 @@ export interface MenuObject {
 export interface ISettingsState {
   dense: boolean;
   menu: MenuObject;
+  activeTab: string;
 }
 
 function state(): ISettingsState {
@@ -38,7 +39,8 @@ function state(): ISettingsState {
     menu: {
       'home': links,
       '': links,
-    }
+    },
+    activeTab: 'home',
   };
 }
 

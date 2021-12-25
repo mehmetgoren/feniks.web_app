@@ -1,75 +1,78 @@
 <template>
-  <q-layout view="hHh lpR fFf" class="bg-grey-1">
-    <q-header elevated class="bg-white text-grey-8" height-hint="64">
-      <q-toolbar class="GNL__toolbar">
+  <q-layout view='hHh lpR fFf' class='bg-grey-1'>
+    <q-header elevated class='bg-white text-grey-8' height-hint='64'>
+      <q-toolbar class='GNL__toolbar'>
         <q-btn
           flat
           dense
           round
-          @click="toggleLeftDrawer"
-          aria-label="Menu"
-          icon="menu"
-          class="q-mr-sm"
+          @click='toggleLeftDrawer'
+          aria-label='Menu'
+          icon='menu'
+          class='q-mr-sm'
         />
 
-        <q-toolbar-title v-if="$q.screen.gt.xs" shrink class="row items-center no-wrap">
-          <img src="../../public/icons/logo-xs.png">
-          <span class="q-ml-sm"></span>
+        <q-toolbar-title v-if='$q.screen.gt.xs' shrink class='row items-center no-wrap'>
+          <img src='../../public/icons/logo-xs.png'>
+          <span class='q-ml-sm'></span>
         </q-toolbar-title>
 
         <q-space />
         <!--search panel-->
-        <q-input class="GNL__toolbar-input" outlined dense v-model="search" color="bg-grey-7 shadow-1" placeholder="Search for topics, locations & sources">
+        <q-input class='GNL__toolbar-input' outlined dense v-model='search' color='bg-grey-7 shadow-1'
+                 placeholder='Search for topics, locations & sources'>
           <template v-slot:prepend>
-            <q-icon v-if="search === ''" name="search" />
-            <q-icon v-else name="clear" class="cursor-pointer" @click="search = ''" />
+            <q-icon v-if="search === ''" name='search' />
+            <q-icon v-else name='clear' class='cursor-pointer' @click="search = ''" />
           </template>
           <template v-slot:append>
             <q-btn
               flats
               dense
               round
-              aria-label="Menu"
-              icon="arrow_drop_down"
+              aria-label='Menu'
+              icon='arrow_drop_down'
             >
-              <q-menu anchor="bottom end" self="top end">
-                <div class="q-pa-md" style="width: 400px">
-                  <div class="text-body2 text-grey q-mb-md">
+              <q-menu anchor='bottom end' self='top end'>
+                <div class='q-pa-md' style='width: 400px'>
+                  <div class='text-body2 text-grey q-mb-md'>
                     Narrow your search results
                   </div>
 
-                  <div class="row items-center">
-                    <div class="col-3 text-subtitle2 text-grey">
+                  <div class='row items-center'>
+                    <div class='col-3 text-subtitle2 text-grey'>
                       Exact phrase
                     </div>
-                    <div class="col-9 q-pl-md">
-                      <q-input dense v-model="exactPhrase" />
+                    <div class='col-9 q-pl-md'>
+                      <q-input dense v-model='exactPhrase' />
                     </div>
 
-                    <div class="col-3 text-subtitle2 text-grey">
+                    <div class='col-3 text-subtitle2 text-grey'>
                       Has words
                     </div>
-                    <div class="col-9 q-pl-md">
-                      <q-input dense v-model="hasWords" />
+                    <div class='col-9 q-pl-md'>
+                      <q-input dense v-model='hasWords' />
                     </div>
 
-                    <div class="col-3 text-subtitle2 text-grey">
+                    <div class='col-3 text-subtitle2 text-grey'>
                       Exclude words
                     </div>
-                    <div class="col-9 q-pl-md">
-                      <q-input dense v-model="excludeWords" />
+                    <div class='col-9 q-pl-md'>
+                      <q-input dense v-model='excludeWords' />
                     </div>
 
-                    <div class="col-3 text-subtitle2 text-grey">
+                    <div class='col-3 text-subtitle2 text-grey'>
                       Website
                     </div>
-                    <div class="col-9 q-pl-md">
-                      <q-input dense v-model="byWebsite" />
+                    <div class='col-9 q-pl-md'>
+                      <q-input dense v-model='byWebsite' />
                     </div>
 
-                    <div class="col-12 q-pt-lg row justify-end">
-                      <q-btn flat dense no-caps color="grey-7" size="md" style="min-width: 68px;" label="Search" v-close-popup />
-                      <q-btn flat dense no-caps color="grey-7" size="md" style="min-width: 68px;" @click="onClear" label="Clear" v-close-popup />
+                    <div class='col-12 q-pt-lg row justify-end'>
+                      <q-btn flat dense no-caps color='grey-7' size='md' style='min-width: 68px;' label='Search'
+                             v-close-popup />
+                      <q-btn flat dense no-caps color='grey-7' size='md' style='min-width: 68px;' @click='onClear'
+                             label='Clear' v-close-popup />
                     </div>
                   </div>
                 </div>
@@ -80,19 +83,19 @@
 
         <q-space />
         <!--  left panel panel-->
-        <div class="q-gutter-sm row items-center no-wrap">
-          <q-btn v-if="$q.screen.gt.sm" round dense flat color="text-grey-7" icon="apps">
+        <div class='q-gutter-sm row items-center no-wrap'>
+          <q-btn v-if='$q.screen.gt.sm' round dense flat color='text-grey-7' icon='apps'>
             <q-tooltip>Google Apps</q-tooltip>
           </q-btn>
-          <q-btn round dense flat color="grey-8" icon="notifications">
-            <q-badge color="red" text-color="white" floating>
+          <q-btn round dense flat color='grey-8' icon='notifications'>
+            <q-badge color='red' text-color='white' floating>
               2
             </q-badge>
             <q-tooltip>Notifications</q-tooltip>
           </q-btn>
           <q-btn round flat>
-            <q-avatar size="26px">
-              <img src="https://cdn.quasar.dev/img/boy-avatar.png">
+            <q-avatar size='26px'>
+              <img src='https://cdn.quasar.dev/img/boy-avatar.png'>
             </q-avatar>
             <q-tooltip>Account</q-tooltip>
           </q-btn>
@@ -100,49 +103,50 @@
 
       </q-toolbar>
       <!--Node will sit here-->
-      <q-tabs align="left" v-if='tabs'>
-        <q-route-tab to="home" label="Home" key='home' id='home' @click='onTabClick("home")' />
-        <q-route-tab v-for='tab in tabs' :key='tab.node_address' :to="'node?n=' + tab.node_address" :label="tab.name"
-                     @click='onTabClick("node?n=" + tab.node_address)'/>
-<!--        <q-route-tab to="home" label="Home" />-->
-<!--        <q-route-tab to="/" label="Dev PC" />-->
-<!--        <q-route-tab to="/" label="Legacy Pc" />-->
-<!--        <q-route-tab to="/" label="Jetson Nano" />-->
-<!--        <q-route-tab to="/" label="Raspi 4" />-->
+      <q-tabs align='left' v-if='tabs'>
+        <q-route-tab to='home' label='Home' key='home' id='home' @click='onTabClick({node_address:"home"})' />
+        <q-route-tab v-for='tab in tabs' :key='tab.node_address' :to="'node?n=' + tab.node_address" :label='tab.name'
+                     @click='onTabClick(tab)' />
+        <!--        <q-route-tab to="home" label="Home" />-->
+        <!--        <q-route-tab to="/" label="Dev PC" />-->
+        <!--        <q-route-tab to="/" label="Legacy Pc" />-->
+        <!--        <q-route-tab to="/" label="Jetson Nano" />-->
+        <!--        <q-route-tab to="/" label="Raspi 4" />-->
       </q-tabs>
     </q-header>
 
     <q-drawer
-      v-model="leftDrawerOpen"
+      v-model='leftDrawerOpen'
       show-if-above
       bordered
-      class="bg-white"
-      :width="280"
+      class='bg-white'
+      :width='280'
     >
-      <q-scroll-area class="fit">
-        <q-list padding class="text-grey-8">
-          <div v-for="(menu, index) in menus" :key='index'>
-            <q-item class="GNL__drawer-item" v-ripple v-for="link in menu" :key="link.text" clickable @click='onHomeMenuClick(link)'>
+      <q-scroll-area class='fit'>
+        <q-list padding class='text-grey-8'>
+          <div v-for='(menu, index) in menus' :key='index'>
+            <q-item class='GNL__drawer-item' v-ripple v-for='link in menu' :key='link.text' clickable
+                    @click='onHomeMenuClick(link)'>
               <q-item-section avatar>
-                <q-icon :name="link.icon" />
+                <q-icon :name='link.icon' />
               </q-item-section>
               <q-item-section>
                 <q-item-label>{{ link.text }}</q-item-label>
               </q-item-section>
             </q-item>
 
-            <q-separator inset class="q-my-sm" />
+            <q-separator inset class='q-my-sm' />
           </div>
           <!--footer-->
-<!--          <div class="q-mt-md">-->
-<!--            <div class="flex flex-center q-gutter-xs">-->
-<!--              <a class="GNL__drawer-footer-link" href="javascript:void(0)" aria-label="Privacy">Privacy</a>-->
-<!--              <span> · </span>-->
-<!--              <a class="GNL__drawer-footer-link" href="javascript:void(0)" aria-label="Terms">Terms</a>-->
-<!--              <span> · </span>-->
-<!--              <a class="GNL__drawer-footer-link" href="javascript:void(0)" aria-label="About">About Ionix</a>-->
-<!--            </div>-->
-<!--          </div>-->
+          <!--          <div class="q-mt-md">-->
+          <!--            <div class="flex flex-center q-gutter-xs">-->
+          <!--              <a class="GNL__drawer-footer-link" href="javascript:void(0)" aria-label="Privacy">Privacy</a>-->
+          <!--              <span> · </span>-->
+          <!--              <a class="GNL__drawer-footer-link" href="javascript:void(0)" aria-label="Terms">Terms</a>-->
+          <!--              <span> · </span>-->
+          <!--              <a class="GNL__drawer-footer-link" href="javascript:void(0)" aria-label="About">About Ionix</a>-->
+          <!--            </div>-->
+          <!--          </div>-->
         </q-list>
       </q-scroll-area>
     </q-drawer>
@@ -164,19 +168,19 @@ import { MenuItem, MenuLink } from 'src/store/module-settings/state';
 export default {
   name: 'Ionix Layout',
 
-  setup () {
-    const route=useRoute();
-    const path = computed(() =>route.path)
+  setup() {
+    const route = useRoute();
+    const path = computed(() => route.path);
     const $store = useStore();
-    const leftDrawerOpen = ref(false)
-    const search = ref('')
-    const showAdvanced = ref(false)
-    const showDateOptions = ref(false)
-    const exactPhrase = ref('')
-    const hasWords = ref('')
-    const excludeWords = ref('')
-    const byWebsite = ref('')
-    const byDate = ref('Any time')
+    const leftDrawerOpen = ref(false);
+    const search = ref('');
+    const showAdvanced = ref(false);
+    const showDateOptions = ref(false);
+    const exactPhrase = ref('');
+    const hasWords = ref('');
+    const excludeWords = ref('');
+    const byWebsite = ref('');
+    const byDate = ref('Any time');
     const nodeRep = ref(new NodeRepository());
     const nodeService = ref(new NodeService());
 
@@ -188,57 +192,62 @@ export default {
       let path_str: any = path.value;
       path_str = path_str.split('-')[0];
       path_str = path_str.replace('/', '');
-      return path_str
+      return path_str;
     };
     const menus = ref($store.getters['settings/menu'][getPureMenuPath()]);
 
-    const onTabClick = async (route: string) => {
+    const onTabClick = async (tab: any) => {
       const menu = $store.getters['settings/menu'];
+      if (tab.node_address === 'home') {
+        menus.value = menu[''];
+        return;
+      }
+      const route = 'node?n=' + tab.node_address;
       if (!menu[route]) {
-        const nodeAddress = route.split('=')[1];
-        const nodes = await nodeService.value.getPlugins(nodeAddress);
-        const menuLink:MenuLink[]  = [];
+        const nodes = await nodeService.value.getPlugins(tab.node_address);
+        const menuLink: MenuLink[] = [];
         for (const node of nodes) {
           const source: MenuLink = {
-            route : route + '&source='  + node.name,
-            icon : 'camera',
-            text : node.name
+            route: route + '&source=' + node.name,
+            icon: 'camera',
+            text: node.name
           };
           menuLink.push(source);
         }
-        const menuObject: MenuItem  = {};
+        const menuObject: MenuItem = {};
         menuObject['config'] = [
           {
-            route : route + '&config=general',
-            icon : 'settings',
-            text : 'Configuration'
+            route: route + '&config=general',
+            icon: 'settings',
+            text: 'Configuration'
           }
         ];
-        menuObject['cameras'] = menuLink
+        menuObject['cameras'] = menuLink;
 
         $store.commit('settings/addMenu', {
-          name:route,
-          menu:menuObject
-        })
+          name: route,
+          menu: menuObject
+        });
+        $store.commit('settings/setActiveTab', tab.name);
       }
       menus.value = menu[route];
     };
 
-    function onClear () {
-      exactPhrase.value = ''
-      hasWords.value = ''
-      excludeWords.value = ''
-      byWebsite.value = ''
-      byDate.value = 'Any time'
+    function onClear() {
+      exactPhrase.value = '';
+      hasWords.value = '';
+      excludeWords.value = '';
+      byWebsite.value = '';
+      byDate.value = 'Any time';
     }
 
     function changeDate(option: any) {
-      byDate.value = option
-      showDateOptions.value = false
+      byDate.value = option;
+      showDateOptions.value = false;
     }
 
     function toggleLeftDrawer() {
-      leftDrawerOpen.value = !leftDrawerOpen.value
+      leftDrawerOpen.value = !leftDrawerOpen.value;
     }
 
     return {
@@ -256,27 +265,26 @@ export default {
       changeDate,
       toggleLeftDrawer,
       tabs,
-      onTabClick,
-    }
+      onTabClick
+    };
   },
-  methods:{
-    onHomeMenuClick(link: any){
+  methods: {
+    onHomeMenuClick(link: any) {
       const me: any = this;
       // if (link.route === 'node') {
       //   me.$router.push('node-' +  link.route);
       // }
       if (link.route) {
         me.$router.push(link.route);
-      }
-      else if (link.href){
+      } else if (link.href) {
         window.open(link.href, '_blank');
       }
     }
   }
-}
+};
 </script>
 
-<style lang="sass">
+<style lang='sass'>
 .GNL
 
   &__toolbar
