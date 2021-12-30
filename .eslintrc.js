@@ -95,5 +95,6 @@ module.exports = {
     '@typescript-eslint/await-thenable:':'off',
     '@typescript-eslint/restrict-template-expressions':'off',
     '@typescript-eslint/no-unsafe-argument':'off',
+    '@typescript-eslint/ban-ts-comment':'off',
   }
 }

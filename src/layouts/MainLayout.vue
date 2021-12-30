@@ -126,7 +126,7 @@
         <q-list padding class='text-grey-8'>
           <div v-for='(menu, index) in menus' :key='index'>
             <q-item class='GNL__drawer-item' v-ripple v-for='link in menu' :key='link.text' clickable
-                    @click='onHomeMenuClick(link)'>
+                    @click='onLeftMenuClick(link)'>
               <q-item-section avatar>
                 <q-icon :name='link.icon' />
               </q-item-section>
@@ -137,16 +137,6 @@
 
             <q-separator inset class='q-my-sm' />
           </div>
-          <!--footer-->
-          <!--          <div class="q-mt-md">-->
-          <!--            <div class="flex flex-center q-gutter-xs">-->
-          <!--              <a class="GNL__drawer-footer-link" href="javascript:void(0)" aria-label="Privacy">Privacy</a>-->
-          <!--              <span> · </span>-->
-          <!--              <a class="GNL__drawer-footer-link" href="javascript:void(0)" aria-label="Terms">Terms</a>-->
-          <!--              <span> · </span>-->
-          <!--              <a class="GNL__drawer-footer-link" href="javascript:void(0)" aria-label="About">About Ionix</a>-->
-          <!--            </div>-->
-          <!--          </div>-->
         </q-list>
       </q-scroll-area>
     </q-drawer>
@@ -197,6 +187,7 @@ export default {
     const menus = ref($store.getters['settings/menu'][getPureMenuPath()]);
 
     const onTabClick = async (tab: any) => {
+      $store.commit('settings/setActiveTab', tab.name || 'home');
       const menu = $store.getters['settings/menu'];
       if (tab.node_address === 'home') {
         menus.value = menu[''];
@@ -228,7 +219,6 @@ export default {
           name: route,
           menu: menuObject
         });
-        $store.commit('settings/setActiveTab', tab.name);
       }
       menus.value = menu[route];
     };
@@ -269,12 +259,13 @@ export default {
     };
   },
   methods: {
-    onHomeMenuClick(link: any) {
+    onLeftMenuClick(link: any) {
       const me: any = this;
       // if (link.route === 'node') {
       //   me.$router.push('node-' +  link.route);
       // }
       if (link.route) {
+        me.$store.commit('settings/setActiveLeftMenu', link.route);
         me.$router.push(link.route);
       } else if (link.href) {
         window.open(link.href, '_blank');

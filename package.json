@@ -10,6 +10,8 @@
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
+    "@cloudgeek/playcore-hls": "^0.1.3",
+    "@cloudgeek/vue3-video-player": "^0.3.7",
     "@quasar/extras": "^1.12.2",
     "axios": "^0.24.0",
     "core-js": "^3.20.0",

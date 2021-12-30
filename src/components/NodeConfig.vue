@@ -301,7 +301,6 @@ export default {
   }
 };
 
-
 function getDeviceServices(config: MlConfig | any): any[] {
   const all =
     new List([{ value: 1, label: 'Stream-Reading' }, { value: 2, label: 'Detection' }, {

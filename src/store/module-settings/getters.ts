@@ -12,6 +12,9 @@ const getters: GetterTree<ISettingsState, IState> = {
   activeTab(state : ISettingsState) {
     return state.activeTab;
   },
+  activeLeftMenu(state : ISettingsState) {
+    return state.activeLeftMenu;
+  },
 };
 
 export default getters;

@@ -17,6 +17,7 @@ export interface ISettingsState {
   dense: boolean;
   menu: MenuObject;
   activeTab: string;
+  activeLeftMenu: string;
 }
 
 function state(): ISettingsState {
@@ -41,6 +42,7 @@ function state(): ISettingsState {
       '': links,
     },
     activeTab: 'home',
+    activeLeftMenu:'',
   };
 }
 
