@@ -1,5 +1,5 @@
 import { api } from 'boot/axios';
-import { MlConfig, Plugin } from 'src/utils/entities';
+import { MlConfig, Source } from 'src/utils/entities';
 import { BaseService } from 'src/utils/services/base-service';
 import { List } from 'linqts';
 
@@ -12,10 +12,10 @@ export class NodeService extends BaseService {
     this._defaultPort = '2072';
   }
 
-  public async getPlugins(nodeAddress: string): Promise<Plugin[]> {
-    const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/plugins';
+  public async getSources(nodeAddress: string): Promise<Source[]> {
+    const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/sources';
     const resp = await api.get(address);
-    return new List(<Plugin[]>resp.data).OrderBy(x => x.name).ToArray();
+    return new List(<Source[]>resp.data).OrderBy(x => x.name).ToArray();
   }
 
   public async getMlConfig(nodeAddress: string): Promise<MlConfig> {

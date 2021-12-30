@@ -195,7 +195,7 @@ export default {
       }
       const route = 'node?n=' + tab.node_address;
       if (!menu[route]) {
-        const nodes = await nodeService.value.getPlugins(tab.node_address);
+        const nodes = await nodeService.value.getSources(tab.node_address);
         const menuLink: MenuLink[] = [];
         for (const node of nodes) {
           const source: MenuLink = {

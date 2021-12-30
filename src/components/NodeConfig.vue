@@ -85,19 +85,19 @@
         <q-space style='height: 10px;' />
         <q-card class='my-card' style='margin:0 5px 0 5px;'>
           <q-card-section class='bg-purple text-white'>
-            <div class='text-subtitle2'>Plugin Hub Config</div>
+            <div class='text-subtitle2'>Source Hub Config</div>
           </q-card-section>
           <q-card-actions align='left'>
             <q-form style='max-width: 500px' id='frm7' class='q-pa-xs'>
-              <q-input v-model='pluginHub.buffer_size' type='number' filled :dense='dense' label='Buffer Size' />
+              <q-input v-model='sourceHub.buffer_size' type='number' filled :dense='dense' label='Buffer Size' />
               <q-space style='height: 10px;' />
-              <q-input v-model='pluginHub.fps' type='number' filled :dense='dense' label='Fps' />
+              <q-input v-model='sourceHub.fps' type='number' filled :dense='dense' label='Fps' />
               <q-space style='height: 10px;' />
-              <q-toggle v-model='pluginHub.kill_starter_proc' filled :dense='dense' label='Kill Starter Proc' />
+              <q-toggle v-model='sourceHub.kill_starter_proc' filled :dense='dense' label='Kill Starter Proc' />
               <q-space style='height: 10px;' />
-              <q-input v-model='pluginHub.max_retry' type='number' filled :dense='dense' label='Max Retry' />
+              <q-input v-model='sourceHub.max_retry' type='number' filled :dense='dense' label='Max Retry' />
               <q-space style='height: 10px;' />
-              <q-input v-model='pluginHub.max_retry_in' type='number' filled :dense='dense' label='Max RetryIn' />
+              <q-input v-model='sourceHub.max_retry_in' type='number' filled :dense='dense' label='Max RetryIn' />
             </q-form>
           </q-card-actions>
         </q-card>
@@ -191,7 +191,7 @@
 <script lang='ts'>
 import { NodeService } from 'src/utils/services/node-service';
 import { computed, onMounted, ref, watch } from 'vue';
-import { MlConfig, Handler, Jetson, DeviceConfig, Torch, OnceDetector, PluginHub, Redis } from 'src/utils/entities';
+import { MlConfig, Handler, Jetson, DeviceConfig, Torch, OnceDetector, SourceHub, Redis } from 'src/utils/entities';
 import { useStore } from 'src/store';
 import { List } from 'linqts';
 
@@ -215,7 +215,7 @@ export default {
     const optServices = ref();
     const optDeviceTypes = ref(getDeviceTypes());
     const onceDetector = ref<OnceDetector>();
-    const pluginHub = ref<PluginHub>();
+    const sourceHub = ref<SourceHub>();
     const redis = ref<Redis>();
 
     //jetson
@@ -234,7 +234,7 @@ export default {
       deviceConfig.value = c.device_config;
       handler.value = c.handler;
       onceDetector.value = c.once_detector;
-      pluginHub.value = c.plugin_hub;
+      sourceHub.value = c.source_hub;
       redis.value = c.redis;
     };
 
@@ -292,7 +292,7 @@ export default {
     };
 
     return {
-      config, deviceConfig, handler, optDeviceTypes, onceDetector, pluginHub, redis,
+      config, deviceConfig, handler, optDeviceTypes, onceDetector, sourceHub, redis,
       jetson, coco91, jetsonWhiteListSelected, jetsonFilter,
       torch, coco80, torchWhiteListSelected, torchFilter,
       dense, modelMultiple, optServices, columns, onSave, onRestore,

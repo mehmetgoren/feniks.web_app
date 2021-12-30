@@ -18,7 +18,7 @@ export interface CameraDto extends Camera {
   modelName?: string | null;
 }
 
-export interface Plugin {
+export interface Source {
   type_name?: string | null;
   name?: string | null;
   brand?: string | null;
@@ -56,7 +56,7 @@ export interface OnceDetector {
   ssim_threshold: number;
 }
 
-export interface PluginHub {
+export interface SourceHub {
   buffer_size: number;
   fps: number;
   kill_starter_proc: boolean;
@@ -82,7 +82,7 @@ export interface MlConfig {
   heartbeat: Heartbeat;
   jetson: Jetson;
   once_detector: OnceDetector;
-  plugin_hub: PluginHub;
+  source_hub: SourceHub;
   redis: Redis;
   torch: Torch;
 }
