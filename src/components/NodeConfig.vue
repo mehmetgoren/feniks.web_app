@@ -85,19 +85,22 @@
         <q-space style='height: 10px;' />
         <q-card class='my-card' style='margin:0 5px 0 5px;'>
           <q-card-section class='bg-purple text-white'>
-            <div class='text-subtitle2'>Source Hub Config</div>
+            <div class='text-subtitle2'>Source Reader Config</div>
           </q-card-section>
           <q-card-actions align='left'>
             <q-form style='max-width: 500px' id='frm7' class='q-pa-xs'>
-              <q-input v-model='sourceHub.buffer_size' type='number' filled :dense='dense' label='Buffer Size' />
+              <q-input v-model='sourceReader.buffer_size' type='number' filled :dense='dense' label='Buffer Size' />
               <q-space style='height: 10px;' />
-              <q-input v-model='sourceHub.fps' type='number' filled :dense='dense' label='Fps' />
+              <q-input v-model='sourceReader.fps' type='number' filled :dense='dense' label='Fps' />
               <q-space style='height: 10px;' />
-              <q-toggle v-model='sourceHub.kill_starter_proc' filled :dense='dense' label='Kill Starter Proc' />
+              <q-toggle v-model='sourceReader.kill_starter_proc' filled :dense='dense' label='Kill Starter Proc' />
               <q-space style='height: 10px;' />
-              <q-input v-model='sourceHub.max_retry' type='number' filled :dense='dense' label='Max Retry' />
+              <q-input v-model='sourceReader.max_retry' type='number' filled :dense='dense' label='Max Retry' />
               <q-space style='height: 10px;' />
-              <q-input v-model='sourceHub.max_retry_in' type='number' filled :dense='dense' label='Max RetryIn' />
+              <q-input v-model='sourceReader.max_retry_in' type='number' filled :dense='dense' label='Max RetryIn' />
+              <q-space style='height: 10px;' />
+              <q-select style='max-width: 300px' emit-value map-options filled
+                        v-model='sourceReader.reader_type' :options='optReaderTypes' label='Reader Type' />
             </q-form>
           </q-card-actions>
         </q-card>
@@ -178,11 +181,11 @@
 
     </div>
   </div>
-  <div class="q-pa-md q-gutter-sm">
-    <q-banner inline-actions rounded class="bg-purple text-white">
+  <div class='q-pa-md q-gutter-sm'>
+    <q-banner inline-actions rounded class='bg-purple text-white'>
       <template v-slot:action>
-        <q-btn flat label="Restore to Default" icon='redo' @click='onRestore'/>
-        <q-btn flat label="Save" icon='save' @click='onSave' />
+        <q-btn flat label='Restore to Default' icon='redo' @click='onRestore' />
+        <q-btn flat label='Save' icon='save' @click='onSave' />
       </template>
     </q-banner>
   </div>
@@ -191,7 +194,7 @@
 <script lang='ts'>
 import { NodeService } from 'src/utils/services/node-service';
 import { computed, onMounted, ref, watch } from 'vue';
-import { MlConfig, Handler, Jetson, DeviceConfig, Torch, OnceDetector, SourceHub, Redis } from 'src/utils/entities';
+import { MlConfig, Handler, Jetson, DeviceConfig, Torch, OnceDetector, SourceReader, Redis } from 'src/utils/entities';
 import { useStore } from 'src/store';
 import { List } from 'linqts';
 
@@ -214,8 +217,9 @@ export default {
     const modelMultiple = ref();
     const optServices = ref();
     const optDeviceTypes = ref(getDeviceTypes());
+    const optReaderTypes = ref(getReaderTypes());
     const onceDetector = ref<OnceDetector>();
-    const sourceHub = ref<SourceHub>();
+    const sourceReader = ref<SourceReader>();
     const redis = ref<Redis>();
 
     //jetson
@@ -230,11 +234,11 @@ export default {
     const torchWhiteListSelected = ref<any>([]);
     const torchFilter = ref<string>();
 
-    const setConfigValue = (c : MlConfig) => {
+    const setConfigValue = (c: MlConfig) => {
       deviceConfig.value = c.device_config;
       handler.value = c.handler;
       onceDetector.value = c.once_detector;
-      sourceHub.value = c.source_hub;
+      sourceReader.value = c.source_reader;
       redis.value = c.redis;
     };
 
@@ -292,7 +296,7 @@ export default {
     };
 
     return {
-      config, deviceConfig, handler, optDeviceTypes, onceDetector, sourceHub, redis,
+      config, deviceConfig, handler, optDeviceTypes, optReaderTypes, onceDetector, sourceReader, redis,
       jetson, coco91, jetsonWhiteListSelected, jetsonFilter,
       torch, coco80, torchWhiteListSelected, torchFilter,
       dense, modelMultiple, optServices, columns, onSave, onRestore,
@@ -320,6 +324,11 @@ function getDeviceServices(config: MlConfig | any): any[] {
 function getDeviceTypes() {
   return [{ value: 0, label: 'PC' }, { value: 1, label: 'IoT' }];
 }
+
+function getReaderTypes() {
+  return [{ value: 0, label: 'OpenCV' }, { value: 1, label: 'FFmpeg' }];
+}
+
 
 const columns = [
   { name: 'label', align: 'left', label: 'Name', field: 'label' }

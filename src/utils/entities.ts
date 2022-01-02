@@ -56,12 +56,13 @@ export interface OnceDetector {
   ssim_threshold: number;
 }
 
-export interface SourceHub {
+export interface SourceReader {
   buffer_size: number;
   fps: number;
   kill_starter_proc: boolean;
   max_retry: number;
   max_retry_in: number;
+  reader_type: number;
 }
 
 export interface Redis {
@@ -82,7 +83,7 @@ export interface MlConfig {
   heartbeat: Heartbeat;
   jetson: Jetson;
   once_detector: OnceDetector;
-  source_hub: SourceHub;
+  source_reader: SourceReader;
   redis: Redis;
   torch: Torch;
 }
