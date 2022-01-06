@@ -1,17 +1,33 @@
 <template>
-  <DoughnutChart :chartData="testData" />
+
+  <DoughnutChart :chartData='testData' />
+  <div style="width: 100%; max-width: 400px">
+    <q-chat-message
+      :text='client'
+      sent
+    />
+    <q-chat-message
+      :text='server'
+    />
+  </div>
+  <div>
+    <input id='btn' type='button' value='Send' @click='onSend' />
+    <input type='text' v-model='msg' size='64' autofocus />
+  </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import {
   defineComponent,
+  onMounted, ref
 } from 'vue';
 import { DoughnutChart } from 'vue-chart-3';
 import { Chart, registerables } from 'chart.js';
+import { WsConnection } from 'src/utils/ws/connection';
 
 Chart.register(...registerables);
 export default defineComponent({
-  name: 'Dashboard',
+  name: 'Index',
   components: { DoughnutChart },
   setup() {
     const testData = {
@@ -19,13 +35,40 @@ export default defineComponent({
       datasets: [
         {
           data: [30, 40, 60, 70, 5],
-          backgroundColor: ['#77CEFF', '#0079AF', '#123E6B', '#97B0C4', '#A5C8ED'],
-        },
-      ],
+          backgroundColor: ['#77CEFF', '#0079AF', '#123E6B', '#97B0C4', '#A5C8ED']
+        }
+      ]
     };
 
-    return { testData };
-  },
+    const client = ref<string[]>([]);
+    const server = ref<string[]>([]);
+    const msg = ref<string>('');
+
+    let conn: WsConnection | null = null;
+
+    const onSend = () => {
+      if (!conn) {
+        return;
+      }
+      if (!msg.value) {
+        return;
+      }
+      conn.send(msg.value);
+      client.value.push(msg.value);
+    };
+
+    onMounted(() => {
+      conn = new WsConnection('wschat', (evt: MessageEvent) => {
+        const messages = evt.data.split('\n');
+        for (let i = 0; i < messages.length; ++i) {
+          server.value.push(messages[i]);
+        }
+      });
+    });
+
+    return { testData, client, server, msg, onSend };
+  }
 });
+
 </script>
 

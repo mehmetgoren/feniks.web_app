@@ -23,6 +23,7 @@ export interface Source {
   name?: string | null;
   brand?: string | null;
   rtsp_address?: string | null;
+  id?: string | null;
 }
 
 export interface DeviceConfig {
@@ -86,4 +87,8 @@ export interface MlConfig {
   source_reader: SourceReader;
   redis: Redis;
   torch: Torch;
+}
+
+export interface StreamingEvent extends Source{
+  folder_path: string
 }

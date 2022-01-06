@@ -1,8 +1,12 @@
+import { Source } from 'src/utils/entities';
+
 export interface MenuLink {
   route?: string | null;
   text?: string | null;
   icon?: string;
   href?:string;
+  id?:string | null;
+  source?:Source | null;
 }
 
 export interface MenuItem {
@@ -17,7 +21,7 @@ export interface ISettingsState {
   dense: boolean;
   menu: MenuObject;
   activeTab: string;
-  activeLeftMenu: string;
+  activeLeftMenu: MenuLink | null;
 }
 
 function state(): ISettingsState {
@@ -42,7 +46,7 @@ function state(): ISettingsState {
       '': links,
     },
     activeTab: 'home',
-    activeLeftMenu:'',
+    activeLeftMenu:null,
   };
 }
 

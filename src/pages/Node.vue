@@ -4,7 +4,7 @@
       {{ activeTab }}
     </q-banner>
     <NodeConfig node-address='127.0.0.1' v-if='showConfig' />
-    <LiveStream v-if='!showConfig'  />
+    <LiveStream v-if='!showConfig' />
   </div>
 </template>
 
@@ -13,7 +13,9 @@ import NodeConfig from 'components/NodeConfig.vue';
 import LiveStream from 'components/LiveStream.vue';
 import { computed, ref, watch } from 'vue';
 import { useStore } from 'src/store';
-import {parseQs} from 'src/utils/utils';
+import { parseQs } from 'src/utils/utils';
+import { MenuLink } from 'src/store/module-settings/state';
+import { NodeService } from 'src/utils/services/node-service';
 
 export default {
   name: 'Node',
@@ -23,16 +25,24 @@ export default {
     const activeTab = computed(() => $store.getters['settings/activeTab']);//active node ip
     const activeLeftMenu = computed(() => $store.getters['settings/activeLeftMenu']);//active node ip
     const showConfig = ref<boolean>(false);
+    const nodeService = new NodeService();
 
     watch(activeTab, (newValue) => {
       console.log('activeTab: ' + newValue);
     });
 
-    watch(activeLeftMenu, (newValue) => {
-      console.log('activeLeftMenu: ' + newValue);
-      console.log('activeLeftMenuJson: ' + JSON.stringify(parseQs(newValue)));
-      const qs = parseQs(newValue)
+    watch(activeLeftMenu, (newValue: MenuLink) => {
+      console.log('activeLeftMenu: ' + JSON.stringify(newValue));
+      console.log('activeLeftMenuJson: ' + JSON.stringify(parseQs(<any>newValue.route)));
+      const qs = parseQs(<any>newValue.route);
       showConfig.value = qs.config === 'general';
+      if (!showConfig.value){
+        nodeService.startStreaming('localhost', <any>newValue.source).then(() => {
+          console.log('streaming started');
+        }).catch((err) => {
+          console.log('streaming error: ' + err);
+        });
+      }
     });
 
     return { activeTab, showConfig };

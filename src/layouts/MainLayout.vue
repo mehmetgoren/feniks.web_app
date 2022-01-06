@@ -201,7 +201,9 @@ export default {
           const source: MenuLink = {
             route: route + '&source=' + node.name,
             icon: 'camera',
-            text: node.name
+            text: node.name,
+            id: node.id,
+            source: node,
           };
           menuLink.push(source);
         }
@@ -259,13 +261,13 @@ export default {
     };
   },
   methods: {
-    onLeftMenuClick(link: any) {
+    onLeftMenuClick(link: MenuLink) {
       const me: any = this;
       // if (link.route === 'node') {
       //   me.$router.push('node-' +  link.route);
       // }
       if (link.route) {
-        me.$store.commit('settings/setActiveLeftMenu', link.route);
+        me.$store.commit('settings/setActiveLeftMenu', link);
         me.$router.push(link.route);
       } else if (link.href) {
         window.open(link.href, '_blank');

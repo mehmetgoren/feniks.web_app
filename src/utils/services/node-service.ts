@@ -2,6 +2,7 @@ import { api } from 'boot/axios';
 import { MlConfig, Source } from 'src/utils/entities';
 import { BaseService } from 'src/utils/services/base-service';
 import { List } from 'linqts';
+import { NodeMngrPort } from 'src/utils/utils';
 
 
 export class NodeService extends BaseService {
@@ -9,7 +10,7 @@ export class NodeService extends BaseService {
 
   constructor() {
     super();
-    this._defaultPort = '2072';
+    this._defaultPort = NodeMngrPort;
   }
 
   public async getSources(nodeAddress: string): Promise<Source[]> {
@@ -34,6 +35,11 @@ export class NodeService extends BaseService {
     const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/restoremlconfig';
     const resp = await api.get(address);
     return resp.data;
+  }
+
+  public async startStreaming(nodeAddress: string, source: Source):Promise<void> {
+    const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/startstreaming';
+    await api.post(address, source);
   }
 
   public getCoco80Names() {

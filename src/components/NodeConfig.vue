@@ -12,10 +12,10 @@
             <q-form style='max-width: 500px' id='frm1' class='q-pa-xs'>
               <q-input v-model='deviceConfig.device_name' filled :dense='dense' label='Device Name' disable />
               <q-space style='height: 10px;' />
-              <q-select style='max-width: 300px' emit-value map-options filled disable
+              <q-select style='max-width: 300px' emit-value map-options filled disable dense='dense'
                         v-model='deviceConfig.device_type' :options='optDeviceTypes' label='Device Type' />
               <q-space style='height: 10px;' />
-              <q-select style='max-width: 300px' filled v-model='modelMultiple' multiple :options='optServices'
+              <q-select style='max-width: 300px' filled v-model='modelMultiple' multiple :options='optServices' dense='dense'
                         use-chips stack-label label='Running Services' disable />
             </q-form>
           </q-card-actions>
@@ -99,7 +99,7 @@
               <q-space style='height: 10px;' />
               <q-input v-model='sourceReader.max_retry_in' type='number' filled :dense='dense' label='Max RetryIn' />
               <q-space style='height: 10px;' />
-              <q-select style='max-width: 300px' emit-value map-options filled
+              <q-select style='max-width: 300px' emit-value map-options filled dense='dense' transition-show='flip-up' transition-hide='flip-down'
                         v-model='sourceReader.reader_type' :options='optReaderTypes' label='Reader Type' />
             </q-form>
           </q-card-actions>

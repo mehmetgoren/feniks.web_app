@@ -1,5 +1,5 @@
 import { MutationTree } from 'vuex';
-import { ISettingsState, MenuItem } from './state';
+import { ISettingsState, MenuItem, MenuLink } from './state';
 
 const mutation: MutationTree<ISettingsState> = {
   changeDense(state: ISettingsState, value: boolean) {
@@ -14,7 +14,7 @@ const mutation: MutationTree<ISettingsState> = {
     state.activeTab = value;
   },
 
-  setActiveLeftMenu(state: ISettingsState, value: string) {
+  setActiveLeftMenu(state: ISettingsState, value: MenuLink) {
     state.activeLeftMenu = value;
   },
 };
