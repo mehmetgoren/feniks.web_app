@@ -1,19 +1,11 @@
 import { boot } from 'quasar/wrappers';
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import Vue3VideoPlayer from '@cloudgeek/vue3-video-player'
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-// import HLSCore from '@cloudgeek/playcore-hls'
+import Vue3VideoPlayer from '@cloudgeek/vue3-video-player';
 
 
 export default boot(({ app }) => {
-  // app.component('Vue3VideoPlayer', Vue3VideoPlayer)
-  // app.component('hlc-core', HLSCore)
-  app.use(Vue3VideoPlayer)
-  // app.use(HLSCore)
+  app.use(Vue3VideoPlayer);
 });
 
 export { Vue3VideoPlayer };

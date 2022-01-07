@@ -1,10 +1,5 @@
 <template>
-  <div>
-    <Vue3VideoPlayer v-if='src' :title='"test title"' :core='HLSCore' :src='src' :muted='true' :autoplay='true'
-                     :preload='"metadata"'></Vue3VideoPlayer>
-    <!--    <Vue3VideoPlayer :title='"test title"' :core="HLSCore" src="http://localhost:2072/livestream/stream.m3u8" :muted='true' :autoplay='true' :preload='"metadata"'></Vue3VideoPlayer>-->
-
-  </div>
+  <StreamPlayer1 :src='src' />
 </template>
 
 <script lang='ts'>
@@ -12,14 +7,15 @@ import {
   onMounted, ref
 } from 'vue';
 import { useQuasar } from 'quasar';
-// @ts-ignore
-import HLSCore from '@cloudgeek/playcore-hls';
-import '@cloudgeek/vue3-video-player/dist/vue3-video-player.css';
 import { WsConnection } from 'src/utils/ws/connection';
 import { StreamingEvent } from 'src/utils/entities';
+import StreamPlayer1 from 'components/StreamPlayer1.vue';
 
 export default {
   name: 'LiveStream',
+  components: {
+    StreamPlayer1
+  },
   setup() {
     const $q = useQuasar();
     const src = ref<string>('');
@@ -39,26 +35,25 @@ export default {
         ]
       });
     };
+
+    // const playerOptions = ref();
     onMounted(() => {
       new WsConnection('wsstreaming', (event: MessageEvent) => {
         const source: StreamingEvent = JSON.parse(event.data);
         showNotify(JSON.stringify(source));
         console.warn(typeof source);
         console.warn(source);
-        console.log(JSON.stringify(source));
-        console.error(source.output_file);
+        console.warn('http://localhost:2072/livestream/' + source.output_file)
+        // console.log(JSON.stringify(source));
+        // console.error(source.output_file);
         //:src="http://localhost:2072/livestream/stream.m3u8"
         src.value = 'http://localhost:2072/livestream/' + source.output_file;
       });
     });
+
     return {
-      HLSCore,
-      src
+      src,
     };
   }
 };
 </script>
-
-<style scoped>
-
-</style>
