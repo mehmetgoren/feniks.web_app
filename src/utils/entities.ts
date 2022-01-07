@@ -90,5 +90,5 @@ export interface MlConfig {
 }
 
 export interface StreamingEvent extends Source{
-  folder_path: string
+  output_file: string
 }
