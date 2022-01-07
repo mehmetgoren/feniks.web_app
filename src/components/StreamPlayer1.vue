@@ -1,11 +1,10 @@
 <template>
-  <div>
     <Artplayer v-if='show' :id='id' @get-instance='getInstance' :option='videoPlayerOptions' :style='videoPlayerStyle' />
-  </div>
 </template>
 
 <script lang='ts'>
 import {
+  onMounted,
   ref, watch
 } from 'vue';
 //@ts-ignore
@@ -17,7 +16,8 @@ export default {
   props: {
     src: {
       type: String,
-      required: true
+      required: true,
+      default:'',
     }
   },
   components: {
@@ -29,7 +29,7 @@ export default {
     let instance = null;
 
     const videoPlayerOptions = ref({
-      url: 'https://artplayer.org/assets/sample/video.mp4',
+      url: '',
       isLive: true,
       autoplay: true,
       autoSize: true,
@@ -69,6 +69,13 @@ export default {
         const element: any = document.getElementById(id.value);
         element.parentNode.removeChild(element);
       }, 1000);
+    });
+
+    onMounted(() => {
+      if (props.src !== ''){
+        videoPlayerOptions.value.url = props.src;
+        show.value = true;
+      }
     });
 
     return {
