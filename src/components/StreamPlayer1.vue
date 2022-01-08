@@ -26,7 +26,7 @@ export default {
   setup(props: any) {
     const show = ref<boolean>(false);
     const id = ref<string>(nanoid(11));
-    let instance = null;
+  //  let instance = null;
 
     const videoPlayerOptions = ref({
       url: '',
@@ -52,7 +52,7 @@ export default {
     const getInstance = (art: any) => {
       console.log('get instance: ');
       console.log(art);
-      instance = art;
+     // instance = art;
     };
 
     watch(() => props.src, (new_value, old_value) => {
