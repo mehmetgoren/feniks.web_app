@@ -267,6 +267,7 @@ export default {
       //   me.$router.push('node-' +  link.route);
       // }
       if (link.route) {
+        console.log('MenuLayout says: active menu is ' +  link.route);
         me.$store.commit('settings/setActiveLeftMenu', link);
         me.$router.push(link.route);
       } else if (link.href) {

@@ -22,7 +22,8 @@
     "linqts": "^1.14.4",
     "quasar": "^2.3.4",
     "vue-chart-3": "^3.0.4",
-    "vuex": "^4.0.2"
+    "vuex": "^4.0.2",
+    "gridstack": "^4.4.1"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.16.5",

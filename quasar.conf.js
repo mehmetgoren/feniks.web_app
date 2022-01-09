@@ -9,6 +9,7 @@
 /* eslint-env node */
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { configure } = require('quasar/wrappers');
+const path = require('path')
 
 module.exports = configure(function (ctx) {
   return {
@@ -78,6 +79,18 @@ module.exports = configure(function (ctx) {
       // "chain" is a webpack-chain object https://github.com/neutrinojs/webpack-chain
       chainWebpack (/* chain */) {
         //
+      },
+      extendWebpack (cfg, { isServer, isClient }) {
+        cfg.resolve.alias = {
+          ...cfg.resolve.alias, // This adds the existing alias
+
+          // Add your own alias like this
+          // myalias: path.resolve(__dirname, './src/somefolder'),
+          'jquery': path.resolve(__dirname, './node_modules/gridstack/dist/jq/jquery.js'),
+          'jquery-ui': path.resolve(__dirname, './node_modules/gridstack/dist/jq/jquery-ui.js'),
+          'jquery.ui': path.resolve(__dirname, './node_modules/gridstack/dist/jq/jquery-ui.js'),
+          'jquery.ui.touch-punch': path.resolve(__dirname, './node_modules/gridstack/dist/jq/jquery.ui.touch-punch.js'),
+        }
       },
     },
 
