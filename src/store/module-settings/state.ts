@@ -22,6 +22,7 @@ export interface ISettingsState {
   menu: MenuObject;
   activeTab: string;
   activeLeftMenu: MenuLink | null;
+  sourceLoading: boolean;
 }
 
 function state(): ISettingsState {
@@ -47,6 +48,7 @@ function state(): ISettingsState {
     },
     activeTab: 'home',
     activeLeftMenu:null,
+    sourceLoading:false,
   };
 }
 

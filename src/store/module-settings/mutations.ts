@@ -17,6 +17,9 @@ const mutation: MutationTree<ISettingsState> = {
   setActiveLeftMenu(state: ISettingsState, value: MenuLink) {
     state.activeLeftMenu = value;
   },
+  setSourceLoading(state: ISettingsState, value: boolean) {
+    state.sourceLoading = value;
+  },
 };
 
 export default mutation;

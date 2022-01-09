@@ -15,6 +15,9 @@ const getters: GetterTree<ISettingsState, IState> = {
   activeLeftMenu(state : ISettingsState): MenuLink | null {
     return state.activeLeftMenu;
   },
+  sourceLoading(state : ISettingsState): boolean {
+    return state.sourceLoading;
+  },
 };
 
 export default getters;

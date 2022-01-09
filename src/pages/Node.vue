@@ -34,14 +34,15 @@ export default {
     watch(activeLeftMenu, (newValue: MenuLink) => {
       console.log('activeLeftMenu: ' + JSON.stringify(newValue));
       console.log('activeLeftMenuJson: ' + JSON.stringify(parseQs(<any>newValue.route)));
-      const qs = parseQs(<any>newValue.route);
-      showConfig.value = qs.config === 'general';
+      const queryStr = parseQs(<any>newValue.route);
+      showConfig.value = queryStr.config === 'general';
       nextTick().then(() => {
         if (!showConfig.value){
+          $store.commit('settings/setSourceLoading', true);
           nodeService.startStreaming('localhost', <any>newValue.source).then(() => {
-            console.log('streaming started');
+            console.log('streaming request has been started');
           }).catch((err) => {
-            console.log('streaming error: ' + err);
+            console.log('streaming request had an error: ' + err);
           });
         }
       }).catch(console.log);

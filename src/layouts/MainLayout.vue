@@ -148,12 +148,13 @@
 </template>
 
 <script lang='ts'>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useStore } from 'src/store';
 import { useRoute } from 'vue-router';
 import { NodeRepository } from 'src/utils/db';
 import { NodeService } from 'src/utils/services/node-service';
 import { MenuItem, MenuLink } from 'src/store/module-settings/state';
+import { useQuasar } from 'quasar';
 
 export default {
   name: 'Ionix Layout',
@@ -225,6 +226,18 @@ export default {
       menus.value = menu[route];
     };
 
+    const $q = useQuasar()
+    const sourceLoading = computed(() => $store.getters['settings/sourceLoading']);
+    watch(sourceLoading, (value: boolean) => {
+      if (value) {
+        $q.loading.show({
+          message: 'Source is now being loading. Hang on...'
+        })
+      }else{
+        $q.loading.hide()
+      }
+    });
+
     function onClear() {
       exactPhrase.value = '';
       hasWords.value = '';
@@ -232,7 +245,6 @@ export default {
       byWebsite.value = '';
       byDate.value = 'Any time';
     }
-
     function changeDate(option: any) {
       byDate.value = option;
       showDateOptions.value = false;

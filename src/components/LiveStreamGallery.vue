@@ -26,6 +26,7 @@ import 'gridstack/dist/h5/gridstack-dd-native';
 import 'gridstack/dist/gridstack-h5.js';
 // // OR to get legacy jquery-ui drag&drop (support Mobile touch devices, h5 does not yet)
 import 'gridstack/dist/jq/gridstack-dd-jqueryui';
+import { useStore } from 'src/store';
 
 export default {
   name: 'LiveStreamGallery',
@@ -33,6 +34,7 @@ export default {
     StreamPlayer
   },
   setup() {
+    const $store = useStore();
     const open = ref<boolean>(false);
     const sourceList = reactive<Array<Source>>([]);
 
@@ -54,8 +56,11 @@ export default {
               );
               grid.compact();
               console.log(JSON.stringify(sourceList));
+              $store.commit('settings/setSourceLoading', false);
             }).catch(console.error);
           }, 250);
+        }else{
+          $store.commit('settings/setSourceLoading', false);
         }
       }
 
