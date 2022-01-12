@@ -1,5 +1,5 @@
 <template>
-  <div class='video-player' v-if='reseted'>
+  <div class='video-player' v-if='reset'>
     <video class='video-js' ref='video'>
       <track v-for='crtTrack in trackList' :kind='crtTrack.kind' :label='crtTrack.label' :src='crtTrack.src'
              :key='crtTrack.src'
@@ -12,6 +12,7 @@
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
 //https://github.com/surmon-china/vue-video-player/blob/master/src/player.vue
+//or https://docs.videojs.com/tutorial-vue.html
 // as of videojs 6.6.0
 const DEFAULT_EVENTS = [
   'loadeddata',
@@ -24,6 +25,7 @@ const DEFAULT_EVENTS = [
   'ended',
   'error'
 ];
+
 export default {
   name: 'StreamPlayer',
   props: {
@@ -43,10 +45,6 @@ export default {
       type: String,
       default: 'statechanged'
     },
-    src: {
-      type: String,
-      required: true
-    },
     events: {
       type: Array,
       default: () => []
@@ -56,12 +54,12 @@ export default {
       default: () => ({
         // autoplay: false,
         controls: true,
-        // preload: 'auto',
-        // fluid: false,
-        // muted: false,
+        preload: 'auto',
+        fluid: false,
+        muted: false,
         controlBar: {
           remainingTimeDisplay: false,
-          playToggle: {},
+          playToggle: false,
           progressControl: {},
           fullscreenToggle: {},
           volumeMenuButton: {
@@ -69,6 +67,7 @@ export default {
             vertical: true
           }
         },
+        // controlBar: false,
         techOrder: ['html5'],
         plugins: {}
       })
@@ -80,12 +79,20 @@ export default {
     trackList: {
       type: Array,
       default: () => []
-    }
+    },
+    src: {
+      type: String,
+      required: true
+    },
+    srcId: {
+      type: String,
+      default: ''
+    },
   },
   data() {
     return {
       player: null,
-      reseted: true,
+      reset: true,
       options: {
         autoplay: true,
         muted: true,
@@ -100,17 +107,18 @@ export default {
   },
   mounted() {
     if (!this.player) {
+      this.options.sources[0].src = this.src;
       this.initialize();
     }
   },
   beforeUnmount() {
     if (this.player) {
       this.dispose();
+      console.info('Stream Player was destroyed');
     }
   },
   methods: {
     initialize() {
-      this.options.sources[0].src = this.src;
       const videoOptions = Object.assign({}, this.globalOptions, this.options);
       // ios fullscreen
       if (this.playsinline) {
@@ -138,12 +146,10 @@ export default {
       if (videoOptions.plugins) {
         delete videoOptions.plugins.__ob__;
       }
-      // videoOptions
-      // console.log('videoOptions', videoOptions)
 
       // player
       const self = this;
-      this.player = videojs(this.$refs.video, videoOptions, function() {
+      self.player = videojs(this.$refs.video, videoOptions, function() {
         // events
         const events = DEFAULT_EVENTS.concat(self.events).concat(self.globalEvents);
         // watch events
@@ -162,9 +168,42 @@ export default {
         this.on('timeupdate', function() {
           emitPlayerState('timeupdate', this.currentTime());
         });
-        // player readied
+        // player ready
         self.$emit('ready', this);
       });
+      self.player.player_.handleTechClick_ = function() {
+        console.log('the player was clicked but we\'re ignoring it');
+      };
+
+      self.player.on('error', () => {
+        console.log(self.srcId +  ' omg error oldu!!!');
+        self.$emit('needReload', self.srcId, 'error')
+      });
+      self.player.on('waiting', ()=> {
+        console.log(self.srcId +  ' omg waiting oldu!!!');
+        self.$emit('needReload', self.srcId, 'waiting')
+      });
+      self.player.on('suspend', ()=> {
+        console.log(self.srcId +  ' omg suspend oldu!!!');
+      });
+      self.player.on('emptied', ()=> {
+        console.log(self.srcId +  ' omg emptied oldu!!!');
+      });
+      self.player.on('stalled', ()=> {
+        console.log(self.srcId +  ' omg stalled oldu!!!');
+      });
+      self.player.on('seeking', ()=> {
+        console.log(self.srcId +  ' omg seeking oldu!!!');
+      });
+      self.player.on('seeked', ()=> {
+        console.log(self.srcId +  ' omg seeked oldu!!!');
+      });
+      self.player.on('durationchange', ()=> {
+        console.log(self.srcId +  ' omg durationchange oldu!!!');
+      });
+      // self.player.on('timeupdate', ()=> {
+      //   console.log(self.srcId +  ' omg timeupdate oldu!!!');
+      // });
     },
     dispose(callback) {
       if (this.player && this.player.dispose) {
@@ -174,21 +213,14 @@ export default {
         this.player.dispose();
         this.player = null;
         this.$nextTick(() => {
-          this.reseted = false;
+          this.reset = false;
           this.$nextTick(() => {
-            this.reseted = true;
+            this.reset = true;
             this.$nextTick(() => {
               callback && callback();
             });
           });
         });
-        /*
-        if (!this.$el.children.length) {
-          const video = document.createElement('video')
-          video.className = 'video-js'
-          this.$el.appendChild(video)
-        }
-        */
       }
     }
   },
@@ -205,12 +237,9 @@ export default {
     },
     src: {
       handler(src) {
-        const me = this;
-        me.reseted = false;
-        setTimeout(() => {
-          me.options.src = src;
-          me.reseted = true;
-        }, 1000);
+        if (this.options && this.options.sources && this.options.sources.length) {
+          this.options.sources[0].src = src;
+        }
       }
     }
   }
@@ -218,5 +247,11 @@ export default {
 </script>
 
 <style scoped>
+.vjs-tech {
+  pointer-events: none;
+}
 
+.video-js.vjs-playing .vjs-tech {
+  pointer-events: none;
+}
 </style>
