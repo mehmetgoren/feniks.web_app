@@ -90,5 +90,19 @@ export interface MlConfig {
 }
 
 export interface StreamingEvent extends Source{
-  output_file: string
+  output_file: string;
+}
+
+export interface RecordingEvent extends StreamingEvent{
+  output_file: string;
+  duration: number;
+}
+
+export interface VideoFile{
+  source_id: string;
+  name: string;
+  path: string;
+  size: number;
+  created_at: string;
+  modified_at: string;
 }

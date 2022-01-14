@@ -39,6 +39,7 @@ export default {
       nextTick().then(() => {
         if (!showConfig.value){
           $store.commit('settings/setSourceLoading', true);
+          // todo: localhost should be replaced with real node ip
           nodeService.startStreaming('localhost', <any>newValue.source).then(() => {
             console.log('streaming request has been started');
           }).catch((err) => {

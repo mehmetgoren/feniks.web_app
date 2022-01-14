@@ -201,7 +201,7 @@ export default {
         for (const node of nodes) {
           const source: MenuLink = {
             route: route + '&source=' + node.name,
-            icon: 'camera',
+            icon: 'videocam',
             text: node.name,
             id: node.id,
             source: node,

@@ -1,5 +1,5 @@
 import { api } from 'boot/axios';
-import { MlConfig, Source } from 'src/utils/entities';
+import { MlConfig, Source, VideoFile } from 'src/utils/entities';
 import { BaseService } from 'src/utils/services/base-service';
 import { List } from 'linqts';
 import { NodeMngrPort } from 'src/utils/utils';
@@ -11,6 +11,16 @@ export class NodeService extends BaseService {
   constructor() {
     super();
     this._defaultPort = NodeMngrPort;
+  }
+
+  public async startStreaming(nodeAddress: string, source: Source):Promise<void> {
+    const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/startstreaming';
+    await api.post(address, source);
+  }
+
+  public async startRecording(nodeAddress: string, source: Source):Promise<void> {
+    const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/startrecording';
+    await api.post(address, source);
   }
 
   public async getSources(nodeAddress: string): Promise<Source[]> {
@@ -37,9 +47,10 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
-  public async startStreaming(nodeAddress: string, source: Source):Promise<void> {
-    const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/startstreaming';
-    await api.post(address, source);
+  public async getVideos(nodeAddress: string, sourceId: string): Promise<VideoFile[]> {
+    const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/videos' + '/' + sourceId;
+    const resp = await api.get(address);
+    return resp.data;
   }
 
   public getCoco80Names() {

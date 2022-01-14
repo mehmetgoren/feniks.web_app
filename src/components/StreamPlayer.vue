@@ -205,6 +205,7 @@ export default {
       //   console.log(self.srcId +  ' omg timeupdate oldu!!!');
       // });
     },
+
     dispose(callback) {
       if (this.player && this.player.dispose) {
         if (this.player.techName_ !== 'Flash') {
@@ -222,6 +223,10 @@ export default {
           });
         });
       }
+    },
+
+    fullScreen(){
+      this.player.requestFullscreen();
     }
   },
   watch: {

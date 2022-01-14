@@ -122,6 +122,8 @@ module.exports = configure(function (ctx) {
       plugins: [
         'Notify',
         'Loading',
+        // 'BottomSheet',
+        // 'Dialog',
       ]
     },
 
