@@ -41,8 +41,8 @@
     </q-card>
   </q-dialog>
 
-  <q-dialog v-model="showRecording"  full-width transition-show="flip-down" transition-hide="flip-up">
-    <SourceRecordings :source='source' />
+  <q-dialog v-model="showRecording" transition-show="flip-down" transition-hide="flip-up">
+    <SourceRecordings :source='source' style="width: 45%; max-width: 80vw; height: 68%;" />
   </q-dialog>
 
 

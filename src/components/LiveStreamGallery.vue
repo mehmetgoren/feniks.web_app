@@ -1,7 +1,7 @@
 <template>
   <div class='grid-stack' v-if='open'>
     <div class='newWidget grid-stack-item ui-draggable ui-resizable ui-resizable-autohide' v-for='source in sourceList'
-         :key='source.id' gs-w='4' gs-h='3' :gs-id='source.id'>
+         :key='source.id' gs-w='3' gs-h='2' :gs-id='source.id'>
       <div class='grid-stack-item-content' style='overflow: hidden !important;'>
         <StreamPlayer v-if='source.show' :src='source.src' :src-id='source.id' :ref='setStreamPlayers'
                       v-on:need-reload='needReload' />

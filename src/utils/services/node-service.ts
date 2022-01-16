@@ -1,5 +1,5 @@
 import { api } from 'boot/axios';
-import { MlConfig, Source, VideoFile } from 'src/utils/entities';
+import { MlConfig, Recording, Source, VideoFile } from 'src/utils/entities';
 import { BaseService } from 'src/utils/services/base-service';
 import { List } from 'linqts';
 import { NodeMngrPort } from 'src/utils/utils';
@@ -49,6 +49,12 @@ export class NodeService extends BaseService {
 
   public async getVideos(nodeAddress: string, sourceId: string): Promise<VideoFile[]> {
     const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/videos' + '/' + sourceId;
+    const resp = await api.get(address);
+    return resp.data;
+  }
+
+  public async getRecording(nodeAddress: string, sourceId: string): Promise<Recording> {
+    const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/recording' + '/' + sourceId;
     const resp = await api.get(address);
     return resp.data;
   }

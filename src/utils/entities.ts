@@ -106,3 +106,16 @@ export interface VideoFile{
   created_at: string;
   modified_at: string;
 }
+
+export interface Recording{
+  id: any;
+  name: string;
+  brand: string;
+  rtsp_address: string;
+  pid: string;
+  output_file: string;
+  failed_count: string;
+  created_at: string;
+  duration: string;
+  args: string;
+}

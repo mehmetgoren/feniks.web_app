@@ -4,7 +4,7 @@
       <q-toolbar>
         <q-btn flat round dense icon='dvr' />
         <q-toolbar-title>
-          Recording List
+          Recording List ({{source.name}})
         </q-toolbar-title>
         <q-space />
         <q-btn dense flat icon='close' v-close-popup>
@@ -16,16 +16,17 @@
     <q-page-container>
       <q-page padding style='background-color: whitesmoke;'>
         <q-toggle
-          v-model='record'
+          v-model='recordingEnabled'
           checked-icon='check'
           color='red'
           :label='"Recording " + (record ? "On" : "Off")'
         />
         <q-table
           ref='tableRef'
-          title='Treats'
+          title='Videos'
           :rows='rows'
           :columns='columns'
+          :pagination='pagination'
           row-key='name'
           selection='multiple'
           :selected='selected'
@@ -38,17 +39,17 @@
 
 <script lang='ts'>
 import { useQuasar } from 'quasar';
-import { onMounted, ref, watch } from 'vue';
-import { RecordingEvent, VideoFile } from 'src/utils/entities';
+import { computed, onMounted, ref, watch } from 'vue';
+import { Recording, RecordingEvent, VideoFile } from 'src/utils/entities';
 import { WsConnection } from 'src/utils/ws/connection';
 import { NodeService } from 'src/utils/services/node-service';
 
 const columns = [
-  { name: 'name', align: 'center', label: 'Name', field: 'name' },
-  { name: 'path', align: 'center', label: 'Path', field: 'path' },
-  { name: 'size', align: 'center', label: 'Size', field: 'size' },
-  { name: 'created_at', align: 'center', label: 'Created Time', field: 'created_at' },
-  { name: 'modified_at', align: 'center', label: 'Modified Time', field: 'modified_at' },
+  { name: 'name', align: 'center', label: 'Name', field: 'name', sortable: true },
+  { name: 'path', align: 'center', label: 'Path', field: 'path', sortable: true },
+  { name: 'size', align: 'center', label: 'Size (MB)', field: 'size', sortable: true },
+  { name: 'created_at', align: 'center', label: 'Created Time', field: 'created_at', sortable: true },
+  { name: 'modified_at', align: 'center', label: 'Modified Time', field: 'modified_at', sortable: true },
 ];
 
 export default {
@@ -61,11 +62,21 @@ export default {
   },
   setup(props: any) {
     const $q = useQuasar();
-    const record = ref<boolean>(false);
+    const record = ref<Recording>(<any>{});
     const nodeService = new NodeService();
+    const pagination = ref({
+      sortBy: 'desc',
+      descending: false,
+      page: 1,
+      rowsPerPage: 10
+      // rowsNumber: xx if getting data from a server
+    })
     const rows = ref<VideoFile[]>([]);
+    const recordingEnabled = computed(() => {
+      return record.value.id !== null
+    });
 
-    watch(record, (newValue: boolean) => {
+    watch(record, (newValue: Recording) => {
       console.log(`record enable: ${newValue}`);
       if (record.value) {
         nodeService.startRecording('localhost', props.source).then(() => {
@@ -77,7 +88,9 @@ export default {
     });
 
     onMounted(async () => {
+
       // todo: localhost should be replaced with real node ip
+      record.value = await nodeService.getRecording('localhost', props.source.id);
       rows.value = await nodeService.getVideos('localhost', props.source.id);
 
       function onMessage(event: MessageEvent) {
@@ -122,7 +135,13 @@ export default {
       tableRef,
 
       columns,
+      pagination,
       rows,
+      recordingEnabled,
+
+      pagesNumber: computed(() => {
+        return Math.ceil(rows.value.length / pagination.value.rowsPerPage)
+      }),
 
       //@ts-ignore
       onSelection({ rows, added, evt }) {
