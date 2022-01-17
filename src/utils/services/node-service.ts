@@ -1,27 +1,10 @@
 import { api } from 'boot/axios';
-import { MlConfig, Recording, Source, VideoFile } from 'src/utils/entities';
+import { MlConfig, RecordingModel, Source, VideoFile } from 'src/utils/entities';
 import { BaseService } from 'src/utils/services/base-service';
 import { List } from 'linqts';
-import { NodeMngrPort } from 'src/utils/utils';
 
 
 export class NodeService extends BaseService {
-  private readonly _defaultPort: string;
-
-  constructor() {
-    super();
-    this._defaultPort = NodeMngrPort;
-  }
-
-  public async startStreaming(nodeAddress: string, source: Source):Promise<void> {
-    const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/startstreaming';
-    await api.post(address, source);
-  }
-
-  public async startRecording(nodeAddress: string, source: Source):Promise<void> {
-    const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/startrecording';
-    await api.post(address, source);
-  }
 
   public async getSources(nodeAddress: string): Promise<Source[]> {
     const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/sources';
@@ -53,7 +36,7 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
-  public async getRecording(nodeAddress: string, sourceId: string): Promise<Recording> {
+  public async getRecording(nodeAddress: string, sourceId: string): Promise<RecordingModel> {
     const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/recording' + '/' + sourceId;
     const resp = await api.get(address);
     return resp.data;

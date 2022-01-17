@@ -1,7 +1,7 @@
 <template>
   <div class='grid-stack' v-if='open'>
     <div class='newWidget grid-stack-item ui-draggable ui-resizable ui-resizable-autohide' v-for='source in sourceList'
-         :key='source.id' gs-w='3' gs-h='2' :gs-id='source.id'>
+         :key='source.id' gs-w='4' gs-h='3' :gs-id='source.id'>
       <div class='grid-stack-item-content' style='overflow: hidden !important;'>
         <StreamPlayer v-if='source.show' :src='source.src' :src-id='source.id' :ref='setStreamPlayers'
                       v-on:need-reload='needReload' />
@@ -17,8 +17,7 @@ import {
   onMounted, reactive, ref, nextTick,
   onBeforeUpdate, onUpdated
 } from 'vue';
-import { WsConnection } from 'src/utils/ws/connection';
-import { StreamingEvent } from 'src/utils/entities';
+import { StreamingModel } from 'src/utils/entities';
 import { List } from 'linqts';
 import StreamPlayer from 'components/StreamPlayer.vue';
 import SourceSettingsBar from 'components/SourceSettingsBar.vue';
@@ -30,6 +29,7 @@ import 'gridstack/dist/gridstack-h5.js';
 // // OR to get legacy jquery-ui drag&drop (support Mobile touch devices, h5 does not yet)
 import 'gridstack/dist/jq/gridstack-dd-jqueryui';
 import { useStore } from 'src/store';
+import { WebsocketService } from 'src/utils/services/websocket-service';
 // https://v3.vuejs.org/guide/migration/array-refs.html
 export default {
   name: 'LiveStreamGallery',
@@ -40,6 +40,7 @@ export default {
   setup() {
     const $store = useStore();
     const open = ref<boolean>(false);
+    const websocketService = new WebsocketService();
 
     //
     let streamPlayers: any[] = [];
@@ -93,12 +94,13 @@ export default {
 
     onMounted(() => {
       function onMessage(event: MessageEvent) {
-        const source: StreamingEvent = JSON.parse(event.data);
-        console.log('fcuk')
-        console.log(JSON.stringify(source));
-        const url = 'http://localhost:2072/livestream/' + source.output_file;
+        const streamingModel: StreamingModel = JSON.parse(event.data);
+        const url = 'http://localhost:2072/livestream/' + streamingModel.output_file;
         if (new List<any>(sourceList).FirstOrDefault(x => x.src == url) == null) {
-          sourceList.push({ src: url, id: source.id, name: source.name, show: true, rtsp_address: source.rtsp_address });
+          const source :Source = <any>streamingModel;
+          source.src = url;
+          source.show = true;
+          sourceList.push(source);
           open.value = false;
           setTimeout(() => {
             open.value = true;
@@ -110,7 +112,6 @@ export default {
                 '.newWidget'
               );
               grid.compact();
-              console.log(JSON.stringify(sourceList));
               $store.commit('settings/setSourceLoading', false);
             }).catch(console.error);
           }, 250);
@@ -119,7 +120,7 @@ export default {
         }
       }
 
-      new WsConnection('wsstreaming', onMessage);
+      websocketService.openStreamingConnection(onMessage);
     });
 
     return {
@@ -132,12 +133,9 @@ export default {
   }
 };
 
-interface Source {
-  id: string | null | undefined;
-  rtsp_address: any
+interface Source extends StreamingModel{
   src: string;
   show: boolean;
-  name?: string | null;
   thumb?: string | null;
   size?: string | null;
 }

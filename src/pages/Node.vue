@@ -15,7 +15,7 @@ import { computed, ref, watch, nextTick } from 'vue';
 import { useStore } from 'src/store';
 import { parseQs } from 'src/utils/utils';
 import { MenuLink } from 'src/store/module-settings/state';
-import { NodeService } from 'src/utils/services/node-service';
+import { WebsocketService } from 'src/utils/services/websocket-service';
 
 export default {
   name: 'Node',
@@ -25,7 +25,7 @@ export default {
     const activeTab = computed(() => $store.getters['settings/activeTab']);//active node ip
     const activeLeftMenu = computed(() => $store.getters['settings/activeLeftMenu']);//active node ip
     const showConfig = ref<boolean>(true);
-    const nodeService = new NodeService();
+    const websocketService = new WebsocketService();
 
     watch(activeTab, (newValue) => {
       console.log('activeTab: ' + newValue);
@@ -40,7 +40,7 @@ export default {
         if (!showConfig.value){
           $store.commit('settings/setSourceLoading', true);
           // todo: localhost should be replaced with real node ip
-          nodeService.startStreaming('localhost', <any>newValue.source).then(() => {
+          websocketService.startStreaming('localhost', <any>newValue.source).then(() => {
             console.log('streaming request has been started');
           }).catch((err) => {
             console.log('streaming request had an error: ' + err);

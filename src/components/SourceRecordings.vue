@@ -4,7 +4,7 @@
       <q-toolbar>
         <q-btn flat round dense icon='dvr' />
         <q-toolbar-title>
-          Recording List ({{source.name}})
+          Recording List ({{ source.name }})
         </q-toolbar-title>
         <q-space />
         <q-btn dense flat icon='close' v-close-popup>
@@ -16,10 +16,11 @@
     <q-page-container>
       <q-page padding style='background-color: whitesmoke;'>
         <q-toggle
-          v-model='recordingEnabled'
+          v-model='recordEnabled'
           checked-icon='check'
           color='red'
-          :label='"Recording " + (record ? "On" : "Off")'
+          @update:model-value='onRecordEnabledChanged'
+          :label='"Recording " + (recordEnabled ? "On" : "Off")'
         />
         <q-table
           ref='tableRef'
@@ -39,9 +40,9 @@
 
 <script lang='ts'>
 import { useQuasar } from 'quasar';
-import { computed, onMounted, ref, watch } from 'vue';
-import { Recording, RecordingEvent, VideoFile } from 'src/utils/entities';
-import { WsConnection } from 'src/utils/ws/connection';
+import { computed, onMounted, ref } from 'vue';
+import { RecordingModel, VideoFile } from 'src/utils/entities';
+import { WebsocketService } from 'src/utils/services/websocket-service';
 import { NodeService } from 'src/utils/services/node-service';
 
 const columns = [
@@ -49,7 +50,7 @@ const columns = [
   { name: 'path', align: 'center', label: 'Path', field: 'path', sortable: true },
   { name: 'size', align: 'center', label: 'Size (MB)', field: 'size', sortable: true },
   { name: 'created_at', align: 'center', label: 'Created Time', field: 'created_at', sortable: true },
-  { name: 'modified_at', align: 'center', label: 'Modified Time', field: 'modified_at', sortable: true },
+  { name: 'modified_at', align: 'center', label: 'Modified Time', field: 'modified_at', sortable: true }
 ];
 
 export default {
@@ -62,65 +63,62 @@ export default {
   },
   setup(props: any) {
     const $q = useQuasar();
-    const record = ref<Recording>(<any>{});
+    const recordEnabled = ref<boolean>(false);
+    const recordModel = ref<RecordingModel | null>(null);
+    const websocketService = new WebsocketService();
     const nodeService = new NodeService();
     const pagination = ref({
       sortBy: 'desc',
       descending: false,
       page: 1,
       rowsPerPage: 10
-      // rowsNumber: xx if getting data from a server
-    })
-    const rows = ref<VideoFile[]>([]);
-    const recordingEnabled = computed(() => {
-      return record.value.id !== null
     });
+    const rows = ref<VideoFile[]>([]);
 
-    watch(record, (newValue: Recording) => {
-      console.log(`record enable: ${newValue}`);
-      if (record.value) {
-        nodeService.startRecording('localhost', props.source).then(() => {
+    const onRecordEnabledChanged = (newValue: boolean) => {
+      console.log(`onRecordEnabledChanged: ${newValue}`);
+      if (recordEnabled.value) {
+        websocketService.startRecording('localhost', props.source).then(() => {
           console.log('recording request has been started');
         }).catch((err) => {
           console.log('recording request had an error: ' + err);
         });
+      } else {
+        websocketService.stopRecording('localhost', props.source).then(() => {
+          console.log('recording request has been stopped');
+        }).catch((err) => {
+          console.log('recording request had an error: ' + err);
+        });
       }
-    });
+    };
 
     onMounted(async () => {
-
+      console.log('fcukkkk ' + JSON.stringify(props.source));
       // todo: localhost should be replaced with real node ip
-      record.value = await nodeService.getRecording('localhost', props.source.id);
+      recordModel.value = await nodeService.getRecording('localhost', props.source.id);
+      recordEnabled.value = recordModel.value !== null;
       rows.value = await nodeService.getVideos('localhost', props.source.id);
 
-      function onMessage(event: MessageEvent) {
-        const source: RecordingEvent = JSON.parse(event.data);
-        console.log('wsrecording.onMessage occurred');
-        console.log(source);
-        // const url = 'http://localhost:2072/livestream/' + source.output_file;
-        // if (new List<any>(sourceList).FirstOrDefault(x => x.src == url) == null) {
-        //   sourceList.push({ src: url, id: source.id, name: source.name, show: true });
-        //   open.value = false;
-        //   setTimeout(() => {
-        //     open.value = true;
-        //     nextTick().then(() => {
-        //       const grid = GridStack.init({
-        //         float: true
-        //       });
-        //       GridStack.setupDragIn(
-        //         '.newWidget'
-        //       );
-        //       grid.compact();
-        //       console.log(JSON.stringify(sourceList));
-        //       $store.commit('settings/setSourceLoading', false);
-        //     }).catch(console.error);
-        //   }, 250);
-        // } else {
-        //   $store.commit('settings/setSourceLoading', false);
-        // }
-      }
+      function onStartRecordingMessage(event: MessageEvent) {
+        recordModel.value = JSON.parse(event.data);
 
-      new WsConnection('wsrecording', onMessage);
+        $q.notify({
+          message: 'Recording has been started',
+          caption: 'Recording Status',
+          color: 'secondary'
+        });
+      }
+      websocketService.openStartRecordingConnection(onStartRecordingMessage);
+
+      function onStopRecordingMessage(event: MessageEvent) {
+        console.log('onStopRecordingMessage: ' + event.data);
+        $q.notify({
+          message: 'Recording has been stopped',
+          caption: 'Recording Status',
+          color: 'secondary'
+        });
+      }
+      websocketService.openStopRecordingConnection(onStopRecordingMessage);
     });
 
 
@@ -129,7 +127,6 @@ export default {
     const tableRef = ref(null);
 
     return {
-      record,
       selected,
       lastIndex,
       tableRef,
@@ -137,10 +134,11 @@ export default {
       columns,
       pagination,
       rows,
-      recordingEnabled,
+      recordEnabled,
+      onRecordEnabledChanged,
 
       pagesNumber: computed(() => {
-        return Math.ceil(rows.value.length / pagination.value.rowsPerPage)
+        return Math.ceil(rows.value.length / pagination.value.rowsPerPage);
       }),
 
       //@ts-ignore

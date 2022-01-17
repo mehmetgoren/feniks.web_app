@@ -12,6 +12,9 @@
     <q-btn color="secondary" rounded glossy icon="power" >
       <q-tooltip class="bg-secondary">Reconnect</q-tooltip>
     </q-btn>
+    <q-btn color="deep-orange" rounded glossy icon="block" >
+      <q-tooltip class="bg-deep-orange">Stop</q-tooltip>
+    </q-btn>
     <q-btn color="purple" rounded glossy icon="dvr" @click='onRecordingClick'>
       <q-tooltip class="bg-accent">Playback</q-tooltip>
     </q-btn>
