@@ -6,7 +6,7 @@
         <StreamPlayer v-if='source.show' :src='source.src' :src-id='source.id' :ref='setStreamPlayers'
                       v-on:need-reload='needReload' />
         <q-separator style='margin-bottom: 5px;' />
-        <SourceSettingsBar :source='source' @full-screen='onFullScreen' />
+        <SourceSettingsBar :source='source' @full-screen='onFullScreen' @streaming-stop='onStreamingStop'/>
       </div>
     </div>
   </div>
@@ -58,6 +58,9 @@ export default {
         player.fullScreen();
       }
     };
+    const onStreamingStop = (source: Source) => {
+      void websocketService.stopStreaming('localhost', source);
+    };
     onUpdated(() => {
       console.log(streamPlayers);
     });
@@ -93,7 +96,7 @@ export default {
     //
 
     onMounted(() => {
-      function onMessage(event: MessageEvent) {
+      function openStartStreamingMessage(event: MessageEvent) {
         const streamingModel: StreamingModel = JSON.parse(event.data);
         const url = 'http://localhost:2072/livestream/' + streamingModel.output_file;
         if (new List<any>(sourceList).FirstOrDefault(x => x.src == url) == null) {
@@ -119,8 +122,17 @@ export default {
           $store.commit('settings/setSourceLoading', false);
         }
       }
+      websocketService.openStartStreamingConnection(openStartStreamingMessage);
 
-      websocketService.openStreamingConnection(onMessage);
+      function openStopStreamingMessage(event: MessageEvent){
+        const streamingModel: StreamingModel = JSON.parse(event.data);
+        console.warn('sikk çabuk ' + JSON.stringify(streamingModel));
+        const player = new List(streamPlayers).FirstOrDefault(x => x.srcId === streamingModel.id);
+        if (player) {
+          player.pause();
+        }
+      }
+      websocketService.openStopStreamingConnection(openStopStreamingMessage)
     });
 
     return {
@@ -129,6 +141,7 @@ export default {
       needReload,
       setStreamPlayers,
       onFullScreen,
+      onStreamingStop,
     };
   }
 };

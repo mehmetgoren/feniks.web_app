@@ -149,7 +149,7 @@ export default {
 
       // player
       const self = this;
-      self.player = videojs(this.$refs.video, videoOptions, function() {
+      this.player = videojs(this.$refs.video, videoOptions, function() {
         // events
         const events = DEFAULT_EVENTS.concat(self.events).concat(self.globalEvents);
         // watch events
@@ -171,37 +171,37 @@ export default {
         // player ready
         self.$emit('ready', this);
       });
-      self.player.player_.handleTechClick_ = function() {
+      this.player.player_.handleTechClick_ = function() {
         console.log('the player was clicked but we\'re ignoring it');
       };
 
-      self.player.on('error', () => {
+      this.player.on('error', () => {
         console.log(self.srcId +  ' omg error oldu!!!');
         self.$emit('needReload', self.srcId, 'error')
       });
-      self.player.on('waiting', ()=> {
+      this.player.on('waiting', ()=> {
         console.log(self.srcId +  ' omg waiting oldu!!!');
         self.$emit('needReload', self.srcId, 'waiting')
       });
-      self.player.on('suspend', ()=> {
+      this.player.on('suspend', ()=> {
         console.log(self.srcId +  ' omg suspend oldu!!!');
       });
-      self.player.on('emptied', ()=> {
+      this.player.on('emptied', ()=> {
         console.log(self.srcId +  ' omg emptied oldu!!!');
       });
-      self.player.on('stalled', ()=> {
+      this.player.on('stalled', ()=> {
         console.log(self.srcId +  ' omg stalled oldu!!!');
       });
-      self.player.on('seeking', ()=> {
+      this.player.on('seeking', ()=> {
         console.log(self.srcId +  ' omg seeking oldu!!!');
       });
-      self.player.on('seeked', ()=> {
+      this.player.on('seeked', ()=> {
         console.log(self.srcId +  ' omg seeked oldu!!!');
       });
-      self.player.on('durationchange', ()=> {
+      this.player.on('durationchange', ()=> {
         console.log(self.srcId +  ' omg durationchange oldu!!!');
       });
-      // self.player.on('timeupdate', ()=> {
+      // this.player.on('timeupdate', ()=> {
       //   console.log(self.srcId +  ' omg timeupdate oldu!!!');
       // });
     },
@@ -227,7 +227,10 @@ export default {
 
     fullScreen(){
       this.player.requestFullscreen();
-    }
+    },
+    pause(){
+      this.player.pause();
+    },
   },
   watch: {
     options: {

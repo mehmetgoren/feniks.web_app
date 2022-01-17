@@ -4,11 +4,6 @@ import { BaseService } from 'src/utils/services/base-service';
 import { WsConnection } from 'src/utils/ws/connection';
 
 export class WebsocketService extends BaseService{
-  public async startStreaming(nodeAddress: string, source: Source):Promise<void> {
-    const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/startstreaming';
-    await api.post(address, source);
-  }
-
   public async startRecording(nodeAddress: string, source: Source):Promise<void> {
     const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/startrecording';
     await api.post(address, source);
@@ -19,12 +14,18 @@ export class WebsocketService extends BaseService{
     await api.post(address, source);
   }
 
-  public openChatConnection(onMessage: ((this: WebSocket, ev: MessageEvent) => any)) : WsConnection{
-     return new WsConnection('wschat', onMessage);
+  public async startStreaming(nodeAddress: string, source: Source):Promise<void> {
+    const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/startstreaming';
+    await api.post(address, source);
   }
 
-  public openStreamingConnection(onMessage: ((this: WebSocket, ev: MessageEvent) => any)) : WsConnection{
-    return new WsConnection('wsstreaming', onMessage);
+  public async stopStreaming(nodeAddress: string, source: Source):Promise<void> {
+    const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/stopstreaming';
+    await api.post(address, source);
+  }
+
+  public openChatConnection(onMessage: ((this: WebSocket, ev: MessageEvent) => any)) : WsConnection{
+     return new WsConnection('wschat', onMessage);
   }
 
   public openStartRecordingConnection(onMessage: ((this: WebSocket, ev: MessageEvent) => any)) : WsConnection{
@@ -33,5 +34,13 @@ export class WebsocketService extends BaseService{
 
   public openStopRecordingConnection(onMessage: ((this: WebSocket, ev: MessageEvent) => any)) : WsConnection{
     return new WsConnection('wsstoprecording', onMessage);
+  }
+
+  public openStartStreamingConnection(onMessage: ((this: WebSocket, ev: MessageEvent) => any)) : WsConnection{
+    return new WsConnection('wsstartstreaming', onMessage);
+  }
+
+  public openStopStreamingConnection(onMessage: ((this: WebSocket, ev: MessageEvent) => any)) : WsConnection{
+    return new WsConnection('wsstopstreaming', onMessage);
   }
 }

@@ -12,7 +12,7 @@
     <q-btn color="secondary" rounded glossy icon="power" >
       <q-tooltip class="bg-secondary">Reconnect</q-tooltip>
     </q-btn>
-    <q-btn color="deep-orange" rounded glossy icon="block" >
+    <q-btn color="deep-orange" rounded glossy icon="block" @click='onStreamingStop'>
       <q-tooltip class="bg-deep-orange">Stop</q-tooltip>
     </q-btn>
     <q-btn color="purple" rounded glossy icon="dvr" @click='onRecordingClick'>
@@ -62,7 +62,7 @@ export default {
     SourceSettings,
     SourceRecordings
   },
-  emits: ['full-screen'],
+  emits: ['full-screen', 'streaming-stop'],
   props: {
     source: {
       type: Object,
@@ -84,6 +84,9 @@ export default {
     return {
       onFullScreenClick() {
         emit('full-screen', props.source);
+      },
+      onStreamingStop(){
+        emit('streaming-stop', props.source);
       },
       showSettings,
       onSettingsClick,
