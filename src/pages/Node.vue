@@ -13,7 +13,7 @@ import NodeConfig from 'components/NodeConfig.vue';
 import LiveStreamGallery from 'components/LiveStreamGallery.vue';
 import { computed, ref, watch, nextTick } from 'vue';
 import { useStore } from 'src/store';
-import { parseQs } from 'src/utils/utils';
+import { parseQs, startStreaming } from 'src/utils/utils';
 import { MenuLink } from 'src/store/module-settings/state';
 import { WebsocketService } from 'src/utils/services/websocket-service';
 
@@ -38,13 +38,7 @@ export default {
       showConfig.value = queryStr.config === 'general';
       nextTick().then(() => {
         if (!showConfig.value){
-          $store.commit('settings/setSourceLoading', true);
-          // todo: localhost should be replaced with real node ip
-          websocketService.startStreaming('localhost', <any>newValue.source).then(() => {
-            console.log('streaming request has been started');
-          }).catch((err) => {
-            console.log('streaming request had an error: ' + err);
-          });
+          startStreaming($store, websocketService, <any>newValue.source)
         }
       }).catch(console.log);
     });

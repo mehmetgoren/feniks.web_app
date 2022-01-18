@@ -6,7 +6,8 @@
         <StreamPlayer v-if='source.show' :src='source.src' :src-id='source.id' :ref='setStreamPlayers'
                       v-on:need-reload='needReload' />
         <q-separator style='margin-bottom: 5px;' />
-        <SourceSettingsBar :source='source' @full-screen='onFullScreen' @streaming-stop='onStreamingStop'/>
+        <SourceSettingsBar :source='source' @full-screen='onFullScreen' @streaming-stop='onStreamingStop'
+        @connect='onConnect' />
       </div>
     </div>
   </div>
@@ -31,6 +32,7 @@ import 'gridstack/dist/jq/gridstack-dd-jqueryui';
 import { useStore } from 'src/store';
 import { WebsocketService } from 'src/utils/services/websocket-service';
 import { WsConnection } from 'src/utils/ws/connection';
+import { startStreaming } from 'src/utils/utils';
 // https://v3.vuejs.org/guide/migration/array-refs.html
 export default {
   name: 'LiveStreamGallery',
@@ -75,9 +77,13 @@ export default {
     const needReload = (srcId: string, opName: string) => {
       let prevEvent = prevEvents[srcId];
       if (!prevEvent) {
-        prevEvent = { opName: opName, count: 0 };
+        prevEvent = { opName: opName, count: 0, createdAt: new Date() };
         prevEvents[srcId] = prevEvent;
       }
+      // if (prevEvent.opName === opName && prevEvent.count < 5) {
+      // if (prevEvent.createdAt.getTime() - new Date().getTime() < 1000) {
+      //   return
+      // }
       if (prevEvent.opName === opName && prevEvent.count < 5) {
         return;
       }
@@ -98,33 +104,41 @@ export default {
     };
     //
 
-    onMounted(() => {
-      function openStartStreamingMessage(event: MessageEvent) {
-        const streamingModel: StreamingModel = JSON.parse(event.data);
-        const url = 'http://localhost:2072/livestream/' + streamingModel.output_file;
-        if (new List<any>(sourceList).FirstOrDefault(x => x.src == url) == null) {
-          const source :Source = <any>streamingModel;
-          source.src = url;
-          source.show = true;
-          sourceList.push(source);
-          open.value = false;
-          setTimeout(() => {
-            open.value = true;
-            nextTick().then(() => {
-              const grid = GridStack.init({
-                float: true
-              });
-              GridStack.setupDragIn(
-                '.newWidget'
-              );
-              grid.compact();
-              $store.commit('settings/setSourceLoading', false);
-            }).catch(console.error);
-          }, 250);
-        } else {
-          $store.commit('settings/setSourceLoading', false);
-        }
+    function openStartStreamingMessage(event: MessageEvent) {
+      console.log('openStartStreamingMessage(event) called');
+      const streamingModel: StreamingModel = JSON.parse(event.data);
+      const url = 'http://localhost:2072/livestream/' + streamingModel.output_file;
+      if (new List<any>(sourceList).FirstOrDefault(x => x.src == url) == null) {
+        const source :Source = <any>streamingModel;
+        source.src = url;
+        source.show = true;
+        sourceList.push(source);
+        open.value = false;
+        setTimeout(() => {
+          open.value = true;
+          nextTick().then(() => {
+            const grid = GridStack.init({
+              float: true
+            });
+            GridStack.setupDragIn(
+              '.newWidget'
+            );
+            grid.compact();
+            $store.commit('settings/setSourceLoading', false);
+          }).catch(console.error);
+        }, 250);
+      } else {
+        $store.commit('settings/setSourceLoading', false);
       }
+    }
+    function onConnect(source: Source) {
+      const list = new List<any>(sourceList)
+      const sourceItem = list.FirstOrDefault(x => x.src == source.src);
+      list.Remove(sourceItem);
+      startStreaming($store, websocketService, source);
+    }
+
+    onMounted(() => {
       connStartStreaming = websocketService.openStartStreamingConnection(openStartStreamingMessage);
 
       function openStopStreamingMessage(event: MessageEvent){
@@ -154,6 +168,7 @@ export default {
       setStreamPlayers,
       onFullScreen,
       onStreamingStop,
+      onConnect,
     };
   }
 };
