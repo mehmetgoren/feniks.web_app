@@ -4,11 +4,13 @@ export class WsConnection {
   private _ws: WebSocket | null;
   private readonly _endPoint: string;
   private readonly _onMessage: ((this: WebSocket, ev: MessageEvent) => any) | null;
+  private _closedByMe: boolean;
 
   constructor(endPoint: string, onMessage: ((this: WebSocket, ev: MessageEvent) => any) | null) {
     this._ws = null;
     this._endPoint = endPoint;
     this._onMessage = onMessage;
+    this._closedByMe = false;
     this._init();
   }
 
@@ -26,7 +28,9 @@ export class WsConnection {
       console.info('[WS] Closed, status: ' + ev.code);
       me._ws = null;
       setTimeout(() => {
-        me._init();
+        if (!me._closedByMe) {
+          me._init();
+        }
       }, 2000);
     };
     this._ws.onmessage = this._onMessage;
@@ -35,6 +39,15 @@ export class WsConnection {
   public send(message: string) {
     if (this._ws) {
       this._ws.send(message);
+    }
+  }
+
+  public close() {
+    if (this._ws) {
+      this._ws.close();
+      this._closedByMe = true;
+      this._ws = null;
+      console.info('[WS] Closed by me');
     }
   }
 }

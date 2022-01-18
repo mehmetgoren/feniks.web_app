@@ -40,10 +40,11 @@
 
 <script lang='ts'>
 import { useQuasar } from 'quasar';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, onBeforeUnmount } from 'vue';
 import { RecordingModel, VideoFile } from 'src/utils/entities';
 import { WebsocketService } from 'src/utils/services/websocket-service';
 import { NodeService } from 'src/utils/services/node-service';
+import { WsConnection } from 'src/utils/ws/connection';
 
 const columns = [
   { name: 'name', align: 'center', label: 'Name', field: 'name', sortable: true },
@@ -67,6 +68,8 @@ export default {
     const recordModel = ref<RecordingModel | null>(null);
     const websocketService = new WebsocketService();
     const nodeService = new NodeService();
+    let connStartRecording: WsConnection | null = null;
+    let connStopRecording: WsConnection | null = null;
     const pagination = ref({
       sortBy: 'desc',
       descending: false,
@@ -108,7 +111,7 @@ export default {
           color: 'secondary'
         });
       }
-      websocketService.openStartRecordingConnection(onStartRecordingMessage);
+      connStartRecording = websocketService.openStartRecordingConnection(onStartRecordingMessage);
 
       function onStopRecordingMessage(event: MessageEvent) {
         console.log('onStopRecordingMessage: ' + event.data);
@@ -118,7 +121,17 @@ export default {
           color: 'secondary'
         });
       }
-      websocketService.openStopRecordingConnection(onStopRecordingMessage);
+      connStopRecording = websocketService.openStopRecordingConnection(onStopRecordingMessage);
+    });
+
+    onBeforeUnmount(() => {
+      console.log('web socket connections will be closed');
+      if (connStartRecording) {
+        connStartRecording.close();
+      }
+      if (connStopRecording) {
+        connStopRecording.close();
+      }
     });
 
 

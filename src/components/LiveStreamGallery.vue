@@ -15,7 +15,7 @@
 <script lang='ts'>
 import {
   onMounted, reactive, ref, nextTick,
-  onBeforeUpdate, onUpdated
+  onBeforeUpdate, onUpdated, onBeforeUnmount
 } from 'vue';
 import { StreamingModel } from 'src/utils/entities';
 import { List } from 'linqts';
@@ -30,6 +30,7 @@ import 'gridstack/dist/gridstack-h5.js';
 import 'gridstack/dist/jq/gridstack-dd-jqueryui';
 import { useStore } from 'src/store';
 import { WebsocketService } from 'src/utils/services/websocket-service';
+import { WsConnection } from 'src/utils/ws/connection';
 // https://v3.vuejs.org/guide/migration/array-refs.html
 export default {
   name: 'LiveStreamGallery',
@@ -41,6 +42,8 @@ export default {
     const $store = useStore();
     const open = ref<boolean>(false);
     const websocketService = new WebsocketService();
+    let connStartStreaming: WsConnection | null = null;
+    let connStopStreaming: WsConnection | null = null;
 
     //
     let streamPlayers: any[] = [];
@@ -122,7 +125,7 @@ export default {
           $store.commit('settings/setSourceLoading', false);
         }
       }
-      websocketService.openStartStreamingConnection(openStartStreamingMessage);
+      connStartStreaming = websocketService.openStartStreamingConnection(openStartStreamingMessage);
 
       function openStopStreamingMessage(event: MessageEvent){
         const streamingModel: StreamingModel = JSON.parse(event.data);
@@ -132,7 +135,16 @@ export default {
           player.pause();
         }
       }
-      websocketService.openStopStreamingConnection(openStopStreamingMessage)
+      connStopStreaming = websocketService.openStopStreamingConnection(openStopStreamingMessage)
+    });
+
+    onBeforeUnmount(() => {
+      if (connStartStreaming) {
+        connStartStreaming.close();
+      }
+      if (connStopStreaming) {
+        connStopStreaming.close();
+      }
     });
 
     return {
