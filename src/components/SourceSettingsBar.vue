@@ -18,7 +18,7 @@
     <q-btn color="purple" rounded glossy icon="dvr" @click='onRecordingClick'>
       <q-tooltip class="bg-accent">Playback</q-tooltip>
     </q-btn>
-    <q-btn color="purple" rounded glossy icon="photo_camera" >
+    <q-btn color="purple" rounded glossy icon="photo_camera" @click='onTakeScreenshot'>
       <q-tooltip class="bg-accent">Take a screenshot</q-tooltip>
     </q-btn>
     <q-btn color="purple" rounded glossy icon="cast"  @click='onFullScreenClick'>
@@ -62,7 +62,7 @@ export default {
     SourceSettings,
     SourceRecordings
   },
-  emits: ['full-screen', 'streaming-stop', 'connect'],
+  emits: ['full-screen', 'streaming-stop', 'connect', 'take-screenshot'],
   props: {
     source: {
       type: Object,
@@ -90,6 +90,9 @@ export default {
       },
       onConnectClick(){
         emit('connect', props.source);
+      },
+      onTakeScreenshot(){
+        emit('take-screenshot', props.source);
       },
       showSettings,
       onSettingsClick,

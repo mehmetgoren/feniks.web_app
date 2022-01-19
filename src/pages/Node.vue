@@ -15,7 +15,7 @@ import { computed, ref, watch, nextTick } from 'vue';
 import { useStore } from 'src/store';
 import { parseQs, startStreaming } from 'src/utils/utils';
 import { MenuLink } from 'src/store/module-settings/state';
-import { WebsocketService } from 'src/utils/services/websocket-service';
+import { PublishService } from 'src/utils/services/websocket-services';
 
 export default {
   name: 'Node',
@@ -25,7 +25,7 @@ export default {
     const activeTab = computed(() => $store.getters['settings/activeTab']);//active node ip
     const activeLeftMenu = computed(() => $store.getters['settings/activeLeftMenu']);//active node ip
     const showConfig = ref<boolean>(true);
-    const websocketService = new WebsocketService();
+    const publishService = new PublishService();
 
     watch(activeTab, (newValue) => {
       console.log('activeTab: ' + newValue);
@@ -38,7 +38,7 @@ export default {
       showConfig.value = queryStr.config === 'general';
       nextTick().then(() => {
         if (!showConfig.value){
-          startStreaming($store, websocketService, <any>newValue.source)
+          startStreaming($store, publishService, <any>newValue.source)
         }
       }).catch(console.log);
     });

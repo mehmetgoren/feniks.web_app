@@ -24,7 +24,7 @@ import {
 import { DoughnutChart } from 'vue-chart-3';
 import { Chart, registerables } from 'chart.js';
 import { WsConnection } from 'src/utils/ws/connection';
-import { WebsocketService } from 'src/utils/services/websocket-service';
+import { SubscribeService } from 'src/utils/services/websocket-services';
 
 Chart.register(...registerables);
 export default defineComponent({
@@ -44,7 +44,7 @@ export default defineComponent({
     const client = ref<string[]>([]);
     const server = ref<string[]>([]);
     const msg = ref<string>('');
-    const websocketService = new WebsocketService()
+    const subscribeService = new SubscribeService()
 
     let conn: WsConnection | null = null;
 
@@ -60,7 +60,7 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      conn = websocketService.openChatConnection((evt: MessageEvent) => {
+      conn = subscribeService.subscribeChat((evt: MessageEvent) => {
         const messages = evt.data.split('\n');
         for (let i = 0; i < messages.length; ++i) {
           server.value.push(messages[i]);

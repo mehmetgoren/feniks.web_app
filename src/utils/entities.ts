@@ -106,3 +106,15 @@ export interface VideoFile{
   created_at: string;
   modified_at: string;
 }
+
+export interface EditorEvent{
+  source: Source;
+  event_type: number;
+  response_json?:string
+}
+
+export interface EditorImageResponseModel{
+  source: Source;
+  event_type: number;
+  image_base64: string;
+}

@@ -42,7 +42,7 @@
 import { useQuasar } from 'quasar';
 import { computed, onMounted, ref, onBeforeUnmount } from 'vue';
 import { RecordingModel, VideoFile } from 'src/utils/entities';
-import { WebsocketService } from 'src/utils/services/websocket-service';
+import { PublishService, SubscribeService } from 'src/utils/services/websocket-services';
 import { NodeService } from 'src/utils/services/node-service';
 import { WsConnection } from 'src/utils/ws/connection';
 
@@ -66,7 +66,8 @@ export default {
     const $q = useQuasar();
     const recordEnabled = ref<boolean>(false);
     const recordModel = ref<RecordingModel | null>(null);
-    const websocketService = new WebsocketService();
+    const publishService = new PublishService();
+    const subscribeService = new SubscribeService();
     const nodeService = new NodeService();
     let connStartRecording: WsConnection | null = null;
     let connStopRecording: WsConnection | null = null;
@@ -81,13 +82,13 @@ export default {
     const onRecordEnabledChanged = (newValue: boolean) => {
       console.log(`onRecordEnabledChanged: ${newValue}`);
       if (recordEnabled.value) {
-        websocketService.startRecording('localhost', props.source).then(() => {
+        publishService.publishStartRecording('localhost', props.source).then(() => {
           console.log('recording request has been started');
         }).catch((err) => {
           console.log('recording request had an error: ' + err);
         });
       } else {
-        websocketService.stopRecording('localhost', props.source).then(() => {
+        publishService.publishStopRecording('localhost', props.source).then(() => {
           console.log('recording request has been stopped');
         }).catch((err) => {
           console.log('recording request had an error: ' + err);
@@ -111,7 +112,7 @@ export default {
           color: 'secondary'
         });
       }
-      connStartRecording = websocketService.openStartRecordingConnection(onStartRecordingMessage);
+      connStartRecording = subscribeService.subscribeStartRecording(onStartRecordingMessage);
 
       function onStopRecordingMessage(event: MessageEvent) {
         console.log('onStopRecordingMessage: ' + event.data);
@@ -121,7 +122,7 @@ export default {
           color: 'secondary'
         });
       }
-      connStopRecording = websocketService.openStopRecordingConnection(onStopRecordingMessage);
+      connStopRecording = subscribeService.subscribeStopRecording(onStopRecordingMessage);
     });
 
     onBeforeUnmount(() => {

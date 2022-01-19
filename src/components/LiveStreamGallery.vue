@@ -7,7 +7,7 @@
                       v-on:need-reload='needReload' />
         <q-separator style='margin-bottom: 5px;' />
         <SourceSettingsBar :source='source' @full-screen='onFullScreen' @streaming-stop='onStreamingStop'
-        @connect='onConnect' />
+        @connect='onConnect' @take-screenshot='onTakeScreenshot'/>
       </div>
     </div>
   </div>
@@ -18,7 +18,7 @@ import {
   onMounted, reactive, ref, nextTick,
   onBeforeUpdate, onUpdated, onBeforeUnmount
 } from 'vue';
-import { StreamingModel } from 'src/utils/entities';
+import { EditorImageResponseModel, StreamingModel } from 'src/utils/entities';
 import { List } from 'linqts';
 import StreamPlayer from 'components/StreamPlayer.vue';
 import SourceSettingsBar from 'components/SourceSettingsBar.vue';
@@ -30,7 +30,7 @@ import 'gridstack/dist/gridstack-h5.js';
 // // OR to get legacy jquery-ui drag&drop (support Mobile touch devices, h5 does not yet)
 import 'gridstack/dist/jq/gridstack-dd-jqueryui';
 import { useStore } from 'src/store';
-import { WebsocketService } from 'src/utils/services/websocket-service';
+import { PublishService, SubscribeService } from 'src/utils/services/websocket-services';
 import { WsConnection } from 'src/utils/ws/connection';
 import { startStreaming } from 'src/utils/utils';
 // https://v3.vuejs.org/guide/migration/array-refs.html
@@ -43,9 +43,11 @@ export default {
   setup() {
     const $store = useStore();
     const open = ref<boolean>(false);
-    const websocketService = new WebsocketService();
+    const publishService = new PublishService();
+    const subscribeService = new SubscribeService();
     let connStartStreaming: WsConnection | null = null;
     let connStopStreaming: WsConnection | null = null;
+    let connTakeScreenshot: WsConnection | null = null;
 
     //
     let streamPlayers: any[] = [];
@@ -64,7 +66,7 @@ export default {
       }
     };
     const onStreamingStop = (source: Source) => {
-      void websocketService.stopStreaming('localhost', source);
+      void publishService.publishStopStreaming('localhost', source);
     };
     onUpdated(() => {
       console.log(streamPlayers);
@@ -135,11 +137,15 @@ export default {
       const list = new List<any>(sourceList)
       const sourceItem = list.FirstOrDefault(x => x.src == source.src);
       list.Remove(sourceItem);
-      startStreaming($store, websocketService, source);
+      startStreaming($store, publishService, source);
+    }
+
+    function onTakeScreenshot(source: Source){
+      void publishService.publishEditor('localhost', {source:source, event_type:1});
     }
 
     onMounted(() => {
-      connStartStreaming = websocketService.openStartStreamingConnection(openStartStreamingMessage);
+      connStartStreaming = subscribeService.subscribeStartStreaming(openStartStreamingMessage);
 
       function openStopStreamingMessage(event: MessageEvent){
         const streamingModel: StreamingModel = JSON.parse(event.data);
@@ -149,7 +155,13 @@ export default {
           player.pause();
         }
       }
-      connStopStreaming = websocketService.openStopStreamingConnection(openStopStreamingMessage)
+      connStopStreaming = subscribeService.subscribeStopStreaming(openStopStreamingMessage)
+
+      connTakeScreenshot = subscribeService.subscribeEditor((event: MessageEvent) => {
+        console.log('openStartStreamingMessage(event) called');
+        const responseModel: EditorImageResponseModel = JSON.parse(event.data);
+        window.location.href = 'data:application/octet-stream;base64,' + responseModel.image_base64;
+      });
     });
 
     onBeforeUnmount(() => {
@@ -158,6 +170,9 @@ export default {
       }
       if (connStopStreaming) {
         connStopStreaming.close();
+      }
+      if (connTakeScreenshot){
+        connTakeScreenshot.close();
       }
     });
 
@@ -169,6 +184,7 @@ export default {
       onFullScreen,
       onStreamingStop,
       onConnect,
+      onTakeScreenshot,
     };
   }
 };
