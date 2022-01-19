@@ -84,7 +84,7 @@ export default {
       type: String,
       required: true
     },
-    srcId: {
+    sourceId: {
       type: String,
       default: ''
     },
@@ -176,33 +176,33 @@ export default {
       };
 
       this.player.on('error', () => {
-        console.log(self.srcId +  ' omg error oldu!!!');
-        self.$emit('needReload', self.srcId, 'error')
+        console.log(self.sourceId +  ' omg error oldu!!!');
+        self.$emit('needReload', self.sourceId, 'error')
       });
       this.player.on('waiting', ()=> {
-        console.log(self.srcId +  ' omg waiting oldu!!!');
-        self.$emit('needReload', self.srcId, 'waiting')
+        console.log(self.sourceId +  ' omg waiting oldu!!!');
+        self.$emit('needReload', self.sourceId, 'waiting')
       });
       this.player.on('suspend', ()=> {
-        console.log(self.srcId +  ' omg suspend oldu!!!');
+        console.log(self.sourceId +  ' omg suspend oldu!!!');
       });
       this.player.on('emptied', ()=> {
-        console.log(self.srcId +  ' omg emptied oldu!!!');
+        console.log(self.sourceId +  ' omg emptied oldu!!!');
       });
       this.player.on('stalled', ()=> {
-        console.log(self.srcId +  ' omg stalled oldu!!!');
+        console.log(self.sourceId +  ' omg stalled oldu!!!');
       });
       this.player.on('seeking', ()=> {
-        console.log(self.srcId +  ' omg seeking oldu!!!');
+        console.log(self.sourceId +  ' omg seeking oldu!!!');
       });
       this.player.on('seeked', ()=> {
-        console.log(self.srcId +  ' omg seeked oldu!!!');
+        console.log(self.sourceId +  ' omg seeked oldu!!!');
       });
       this.player.on('durationchange', ()=> {
-        console.log(self.srcId +  ' omg durationchange oldu!!!');
+        console.log(self.sourceId +  ' omg durationchange oldu!!!');
       });
       // this.player.on('timeupdate', ()=> {
-      //   console.log(self.srcId +  ' omg timeupdate oldu!!!');
+      //   console.log(self.sourceId +  ' omg timeupdate oldu!!!');
       // });
     },
 

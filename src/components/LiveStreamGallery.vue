@@ -3,11 +3,11 @@
     <div class='newWidget grid-stack-item ui-draggable ui-resizable ui-resizable-autohide' v-for='source in sourceList'
          :key='source.id' gs-w='4' gs-h='3' :gs-id='source.id'>
       <div class='grid-stack-item-content' style='overflow: hidden !important;'>
-        <StreamPlayer v-if='source.show' :src='source.src' :src-id='source.id' :ref='setStreamPlayers'
+        <StreamPlayer v-if='source.show' :src='source.src' :source-id='source.id' :ref='setStreamPlayers'
                       v-on:need-reload='needReload' />
         <q-separator style='margin-bottom: 5px;' />
         <SourceSettingsBar :source='source' @full-screen='onFullScreen' @streaming-stop='onStreamingStop'
-        @connect='onConnect' @take-screenshot='onTakeScreenshot'/>
+        @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh'/>
       </div>
     </div>
   </div>
@@ -60,7 +60,7 @@ export default {
       streamPlayers = [];
     });
     const onFullScreen = (source: Source) =>{
-      const player = new List(streamPlayers).FirstOrDefault(x => x.srcId === source.id);
+      const player = new List(streamPlayers).FirstOrDefault(x => x.sourceId === source.id);
       if (player) {
         player.fullScreen();
       }
@@ -76,31 +76,32 @@ export default {
     //
     const sourceList = reactive<Array<Source>>([]);
     const prevEvents: any = {};
-    const needReload = (srcId: string, opName: string) => {
-      let prevEvent = prevEvents[srcId];
+    const needReload = (sourceId: string, opName: string) => {
+      console.log('needReload called for ' + sourceId + ' ' + opName);
+      let prevEvent = prevEvents[sourceId];
       if (!prevEvent) {
         prevEvent = { opName: opName, count: 0, createdAt: new Date() };
-        prevEvents[srcId] = prevEvent;
+        prevEvents[sourceId] = prevEvent;
       }
       // if (prevEvent.opName === opName && prevEvent.count < 5) {
-      // if (prevEvent.createdAt.getTime() - new Date().getTime() < 1000) {
-      //   return
+      const diff = new Date().getTime() - prevEvent.createdAt.getTime()
+      prevEvent.createdAt = new Date();
+      console.warn('diff: ' + diff);
+      if (opName !== 'error' && diff < 1000) {
+        console.log('needReload no call due to 1 second limit for ' + sourceId + ' ' + opName + '. diff: ' + diff);
+        return
+      }
+      // if (prevEvent.opName === opName && prevEvent.count < 5) {
+      //   return;
       // }
-      if (prevEvent.opName === opName && prevEvent.count < 5) {
-        return;
-      }
-      if (prevEvent.count === 5) {
-        prevEvent.count = 0;
-      }
+      // if (prevEvent.count === 5) {
+      //   prevEvent.count = 0;
+      // }
       ++prevEvent.count;
       sourceList.forEach(source => {
-        if (source.id === srcId) {
-          console.log(srcId + ' will be reloaded');
-          //@ts-ignore
-          source.show = false;
-          setTimeout(() => {
-            source.show = true;
-          }, 250);
+        if (source.id === sourceId) {
+          console.log('needReload executing for ' + sourceId + ' ' + opName);
+          onRefresh(source);
         }
       });
     };
@@ -144,13 +145,20 @@ export default {
       void publishService.publishEditor('localhost', {source:source, event_type:1});
     }
 
+    function onRefresh(source: Source) {
+      source.show = false;
+      setTimeout(() => {
+        source.show = true;
+      }, 250);
+    }
+
     onMounted(() => {
       connStartStreaming = subscribeService.subscribeStartStreaming(openStartStreamingMessage);
 
       function openStopStreamingMessage(event: MessageEvent){
         const streamingModel: StreamingModel = JSON.parse(event.data);
         console.warn('sikk çabuk ' + JSON.stringify(streamingModel));
-        const player = new List(streamPlayers).FirstOrDefault(x => x.srcId === streamingModel.id);
+        const player = new List(streamPlayers).FirstOrDefault(x => x.sourceId === streamingModel.id);
         if (player) {
           player.pause();
         }
@@ -185,6 +193,7 @@ export default {
       onStreamingStop,
       onConnect,
       onTakeScreenshot,
+      onRefresh,
     };
   }
 };

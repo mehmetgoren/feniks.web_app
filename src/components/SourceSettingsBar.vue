@@ -6,7 +6,7 @@
     <q-btn color="amber" rounded glossy icon="settings" :label='source.name' @click='onSettingsClick'>
       <q-tooltip class="bg-warning">Settings</q-tooltip>
     </q-btn>
-    <q-btn color="secondary" rounded glossy icon="sync" >
+    <q-btn color="secondary" rounded glossy icon="sync" @click='onRefresh'>
       <q-tooltip class="bg-secondary">Refresh</q-tooltip>
     </q-btn>
     <q-btn color="secondary" rounded glossy icon="power" @click='onConnectClick'>
@@ -62,7 +62,7 @@ export default {
     SourceSettings,
     SourceRecordings
   },
-  emits: ['full-screen', 'streaming-stop', 'connect', 'take-screenshot'],
+  emits: ['full-screen', 'streaming-stop', 'connect', 'take-screenshot', 'refresh'],
   props: {
     source: {
       type: Object,
@@ -94,6 +94,9 @@ export default {
       onTakeScreenshot(){
         emit('take-screenshot', props.source);
       },
+      onRefresh(){
+        emit('refresh', props.source);
+      },
       showSettings,
       onSettingsClick,
       showRecording,
@@ -101,10 +104,6 @@ export default {
     }
   }
 };
-// interface Source{
-//   id: string;
-//   name: string;
-// }
 </script>
 
 <style scoped>
