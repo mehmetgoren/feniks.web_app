@@ -1,6 +1,7 @@
 import { GetterTree } from 'vuex';
 import { IState } from '../index';
 import { ISettingsState, MenuLink, MenuObject } from './state';
+import { Node } from 'src/utils/entities';
 
 const getters: GetterTree<ISettingsState, IState> = {
   dense(state : ISettingsState): boolean {
@@ -9,7 +10,7 @@ const getters: GetterTree<ISettingsState, IState> = {
   menu(state : ISettingsState): MenuObject {
     return state.menu;
   },
-  activeTab(state : ISettingsState): string {
+  activeTab(state : ISettingsState): Node {
     return state.activeTab;
   },
   activeLeftMenu(state : ISettingsState): MenuLink | null {

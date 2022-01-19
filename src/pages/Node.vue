@@ -1,7 +1,7 @@
 <template>
   <div class='q-pa-sm'>
     <q-banner class='bg-primary text-white'>
-      {{ activeTab }}
+      {{ activeTab.name }}
     </q-banner>
     <NodeConfig node-address='127.0.0.1' v-if='showConfig' />
     <LiveStreamGallery v-if='!showConfig' />
@@ -28,12 +28,12 @@ export default {
     const publishService = new PublishService();
 
     watch(activeTab, (newValue) => {
-      console.log('activeTab: ' + newValue);
+      console.log('activeTab: ' + newValue.name);
     });
 
     watch(activeLeftMenu, (newValue: MenuLink) => {
-      console.log('activeLeftMenu: ' + JSON.stringify(newValue));
-      console.log('activeLeftMenuJson: ' + JSON.stringify(parseQs(<any>newValue.route)));
+      // console.log('activeLeftMenu: ' + JSON.stringify(newValue));
+      // console.log('activeLeftMenuJson: ' + JSON.stringify(parseQs(<any>newValue.route)));
       const queryStr = parseQs(<any>newValue.route);
       showConfig.value = queryStr.config === 'general';
       nextTick().then(() => {

@@ -127,11 +127,24 @@
           <div v-for='(menu, index) in menus' :key='index'>
             <q-item class='GNL__drawer-item' v-ripple v-for='link in menu' :key='link.text' clickable
                     @click='onLeftMenuClick(link)'>
-              <q-item-section avatar>
-                <q-icon :name='link.icon' />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>{{ link.text }}</q-item-label>
+                <q-item-section avatar v-if='!link.thumbnail'>
+                  <q-icon v-if='!link.thumbnail' :name='link.icon' />
+                </q-item-section>
+                <q-item-section v-if='!link.thumbnail'>
+                  <q-item-label>{{ link.text }}</q-item-label>
+                </q-item-section>
+                <q-item-section v-if='link.thumbnail'>
+                  <q-img :src="'data:image/png;base64, ' + link.thumbnail"
+                         spinner-color="white"
+                         style="height: 170px; max-width: 300px"
+                         img-class="my-custom-image"
+                         class="rounded-borders"
+                  >
+                    <div class="absolute-bottom text-subtitle1 text-center">
+                      <q-icon :name='link.icon' />
+                      {{link.text}}
+                    </div>
+                  </q-img>
               </q-item-section>
             </q-item>
 
@@ -155,6 +168,9 @@ import { NodeRepository } from 'src/utils/db';
 import { NodeService } from 'src/utils/services/node-service';
 import { MenuItem, MenuLink } from 'src/store/module-settings/state';
 import { useQuasar } from 'quasar';
+import { PublishService, SubscribeService } from 'src/utils/services/websocket-services';
+import { EditorImageResponseModel } from 'src/utils/entities';
+// import { List } from 'linqts';
 
 export default {
   name: 'Ionix Layout',
@@ -174,10 +190,20 @@ export default {
     const byDate = ref('Any time');
     const nodeRep = ref(new NodeRepository());
     const nodeService = ref(new NodeService());
+    const publishService = new PublishService();
+    const subscribeService = new SubscribeService();
 
     const tabs = ref();
     onMounted(async () => {
       tabs.value = await nodeRep.value.getAll();
+
+      subscribeService.subscribeEditor((event: MessageEvent) => {
+        const responseModel: EditorImageResponseModel = JSON.parse(event.data);
+        $store.commit('settings/setSourceThumbnail', {
+          sourceId: responseModel.source.id,
+          thumbnail: responseModel.image_base64
+        });
+      });
     });
     const getPureMenuPath = () => {
       let path_str: any = path.value;
@@ -188,7 +214,7 @@ export default {
     const menus = ref($store.getters['settings/menu'][getPureMenuPath()]);
 
     const onTabClick = async (tab: any) => {
-      $store.commit('settings/setActiveTab', tab.name || 'home');
+      $store.commit('settings/setActiveTab', tab || { name: 'home'});
       const menu = $store.getters['settings/menu'];
       if (tab.node_address === 'home') {
         menus.value = menu[''];
@@ -199,12 +225,16 @@ export default {
         const nodes = await nodeService.value.getSources(tab.node_address);
         const menuLink: MenuLink[] = [];
         for (const node of nodes) {
+          publishService.publishEditor(tab.node_address, {source:node, event_type:2}).then().catch(console.error);
+          console.log('publishService called')
           const source: MenuLink = {
             route: route + '&source=' + node.name,
             icon: 'videocam',
             text: node.name,
             id: node.id,
             source: node,
+            isSource: true,
+            thumbnail: null
           };
           menuLink.push(source);
         }

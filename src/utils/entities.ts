@@ -1,3 +1,10 @@
+export interface Node {
+  node_address: string;
+  name: string;
+  description?: string;
+  enabled: boolean;
+}
+
 export interface BaseEntity {
   id?: string | null;
   createdAt?: string | null;

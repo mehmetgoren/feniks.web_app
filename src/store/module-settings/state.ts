@@ -1,4 +1,4 @@
-import { Source } from 'src/utils/entities';
+import { Node, Source } from 'src/utils/entities';
 
 export interface MenuLink {
   route?: string | null;
@@ -7,6 +7,8 @@ export interface MenuLink {
   href?:string;
   id?:string | null;
   source?:Source | null;
+  isSource?:boolean | null;
+  thumbnail?:string | null;
 }
 
 export interface MenuItem {
@@ -20,7 +22,7 @@ export interface MenuObject {
 export interface ISettingsState {
   dense: boolean;
   menu: MenuObject;
-  activeTab: string;
+  activeTab: Node;
   activeLeftMenu: MenuLink | null;
   sourceLoading: boolean;
 }
@@ -46,7 +48,7 @@ function state(): ISettingsState {
       'home': links,
       '': links,
     },
-    activeTab: 'home',
+    activeTab: { name: 'home', description:'', enabled:true, node_address:'' },
     activeLeftMenu:null,
     sourceLoading:false,
   };

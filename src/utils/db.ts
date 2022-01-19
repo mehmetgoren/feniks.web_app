@@ -1,4 +1,5 @@
 import Dexie from 'dexie';
+import {Node} from './entities';
 
 const db = new Dexie('nodes');
 
@@ -8,14 +9,6 @@ db.version(1).stores({
 
 
 console.log('Using Dexie v' + Dexie.semVer);
-
-
-export interface Node {
-  node_address: string;
-  name: string;
-  description?: string;
-  enabled: boolean;
-}
 
 export class NodeRepository {
   private readonly db : any;

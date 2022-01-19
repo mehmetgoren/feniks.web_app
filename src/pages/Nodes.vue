@@ -80,9 +80,10 @@
 </template>
 
 <script lang='ts'>
-import { NodeRepository, Node } from 'src/utils/db';
+import { NodeRepository } from 'src/utils/db';
 import { ref, onMounted, computed, watch } from 'vue';
 import { useStore } from 'src/store';
+import {Node} from '../utils/entities';
 
 export default {
   name: 'AddNode',
