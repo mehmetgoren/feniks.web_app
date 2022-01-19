@@ -13,6 +13,32 @@ export function parseQs(qs = window.location.search) {
   return params;
 }
 
+export function myDateToJsDate(dateString: string): Date {
+  if (dateString){
+    const splits = dateString.split('-');
+    if (splits.length && splits.length > 5){
+      const year = parseInt(splits[0]);
+      const month = parseInt(splits[1]);
+      const day = parseInt(splits[2]);
+      const hour = parseInt(splits[3]);
+      const minute = parseInt(splits[4]);
+      const second = parseInt(splits[5]);
+      return new Date(year, month, day, hour, minute, second);
+    }
+  }
+  return new Date(0);
+}
+
+export function fixArrayDates(list: any[], ...fields: string[]) {
+  list.forEach(item => {
+    fields.forEach(field => {
+      if (item[field]) {
+        item[field] = myDateToJsDate(item[field]);
+      }
+    });
+  });
+}
+
 export function startStreaming($store: Store<IState>, publishService: PublishService, source: Source) {
   $store.commit('settings/setSourceLoading', true);
   // todo: localhost should be replaced with real node ip

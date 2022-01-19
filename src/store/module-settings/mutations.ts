@@ -7,10 +7,10 @@ const mutation: MutationTree<ISettingsState> = {
   changeDense(state: ISettingsState, value: boolean) {
     state.dense = value;
   },
-  addMenu(state: ISettingsState, obj: {name: string, menu: MenuItem}) {
+  addMenu(state: ISettingsState, obj: { name: string, menu: MenuItem }) {
     state.menu[obj.name] = obj.menu;
   },
-  setSourceThumbnail(state: ISettingsState, obj: {sourceId: string, thumbnail: string}) {
+  setSourceThumbnail(state: ISettingsState, obj: { sourceId: string, thumbnail: string }) {
     const key = 'node?n=' + state.activeTab.node_address;
     const sources = state.menu[key]['cameras'];
     const source = new List<MenuLink>(<any>sources).FirstOrDefault(x => x?.id === obj.sourceId);
@@ -26,7 +26,7 @@ const mutation: MutationTree<ISettingsState> = {
   },
   setSourceLoading(state: ISettingsState, value: boolean) {
     state.sourceLoading = value;
-  },
+  }
 };
 
 export default mutation;
