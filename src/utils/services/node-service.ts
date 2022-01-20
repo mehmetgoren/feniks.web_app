@@ -1,5 +1,5 @@
 import { api } from 'boot/axios';
-import { MlConfig, RecordingModel, Source, VideoFile } from 'src/utils/entities';
+import { Config, RecordingModel, Source, VideoFile } from 'src/utils/entities';
 import { BaseService } from 'src/utils/services/base-service';
 import { List } from 'linqts';
 
@@ -12,20 +12,20 @@ export class NodeService extends BaseService {
     return new List(<Source[]>resp.data).OrderBy(x => x.name).ToArray();
   }
 
-  public async getMlConfig(nodeAddress: string): Promise<MlConfig> {
-    const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/mlconfig';
+  public async getConfig(nodeAddress: string): Promise<Config> {
+    const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/config';
     const resp = await api.get(address);
     return resp.data;
   }
 
-  public async saveMlConfig(nodeAddress: string, config: MlConfig): Promise<MlConfig>{
-    const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/mlconfig';
+  public async saveConfig(nodeAddress: string, config: Config): Promise<Config>{
+    const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/config';
     const resp = await api.post(address, config);
     return resp.data;
   }
 
-  public async restoreMlConfig(nodeAddress: string): Promise<MlConfig> {
-    const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/restoremlconfig';
+  public async restoreConfig(nodeAddress: string): Promise<Config> {
+    const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/restoreconfig';
     const resp = await api.get(address);
     return resp.data;
   }

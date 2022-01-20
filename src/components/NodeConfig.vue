@@ -54,6 +54,19 @@
           </q-card-actions>
         </q-card>
 
+        <q-space style='height: 10px;' />
+        <q-card class='my-card' style='margin:0 5px 0 5px;'>
+          <q-card-section class='bg-purple text-white'>
+            <div class='text-subtitle2'>Recording Config</div>
+          </q-card-section>
+          <q-card-actions align='left'>
+            <q-form style='max-width: 500px' id='frmRecording' class='q-pa-xs'>
+              <q-input v-model='config.recording.folder_path' filled :dense='dense'
+                       label='Folder Path' />
+            </q-form>
+          </q-card-actions>
+        </q-card>
+
       </div>
 
       <div class='col-4'>
@@ -194,7 +207,7 @@
 <script lang='ts'>
 import { NodeService } from 'src/utils/services/node-service';
 import { computed, onMounted, ref, watch } from 'vue';
-import { MlConfig, Handler, Jetson, DeviceConfig, Torch, OnceDetector, SourceReader, Redis } from 'src/utils/entities';
+import { Config, Handler, Jetson, DeviceConfig, Torch, OnceDetector, SourceReader, Redis } from 'src/utils/entities';
 import { useStore } from 'src/store';
 import { List } from 'linqts';
 
@@ -210,7 +223,7 @@ export default {
     const $store = useStore();
     const dense = computed(() => $store.getters['settings/dense']);
     const nodeService = new NodeService();
-    const config = ref<MlConfig>();
+    const config = ref<Config>();
     const deviceConfig = ref<DeviceConfig>();
     const handler = ref<Handler>();
 
@@ -234,7 +247,7 @@ export default {
     const torchWhiteListSelected = ref<any>([]);
     const torchFilter = ref<string>();
 
-    const setConfigValue = (c: MlConfig) => {
+    const setConfigValue = (c: Config) => {
       deviceConfig.value = c.device_config;
       handler.value = c.handler;
       onceDetector.value = c.once_detector;
@@ -243,7 +256,7 @@ export default {
     };
 
     onMounted(async () => {
-      config.value = await nodeService.getMlConfig(props.nodeAddress);
+      config.value = await nodeService.getConfig(props.nodeAddress);
       const services = getDeviceServices(config.value);
       modelMultiple.value = services;
       optServices.value = services;
@@ -287,11 +300,11 @@ export default {
     });
 
     const onSave = async () => {
-      await nodeService.saveMlConfig(props.nodeAddress, <any>config.value);
+      await nodeService.saveConfig(props.nodeAddress, <any>config.value);
     };
 
     const onRestore = async () => {
-      config.value = await nodeService.restoreMlConfig(props.nodeAddress);
+      config.value = await nodeService.restoreConfig(props.nodeAddress);
       setConfigValue(config.value);
     };
 
@@ -305,7 +318,7 @@ export default {
   }
 };
 
-function getDeviceServices(config: MlConfig | any): any[] {
+function getDeviceServices(config: Config | any): any[] {
   const all =
     new List([{ value: 1, label: 'Stream-Reading' }, { value: 2, label: 'Detection' }, {
       value: 4,

@@ -85,7 +85,11 @@ export interface Torch {
   white_list: number[];
 }
 
-export interface MlConfig {
+export interface Recording{
+  folder_path: string;
+}
+
+export interface Config {
   device_config: DeviceConfig;
   handler: Handler;
   heartbeat: Heartbeat;
@@ -94,6 +98,7 @@ export interface MlConfig {
   source_reader: SourceReader;
   redis: Redis;
   torch: Torch;
+  recording: Recording;
 }
 
 export interface StreamingModel extends Source{
