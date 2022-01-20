@@ -44,6 +44,20 @@
                   </div>
                 </q-td>
               </template>
+              <template v-slot:body-cell-download="props">
+                <q-td :props="props">
+                  <div>
+                    <q-btn round color="teal" icon="download" @click='onDownload(props.row)'/>
+                  </div>
+                </q-td>
+              </template>
+              <template v-slot:body-cell-delete="props">
+                <q-td :props="props">
+                  <div>
+                    <q-btn round color="deep-orange" icon="delete" @click='onDelete(props.row)'/>
+                  </div>
+                </q-td>
+              </template>
             </q-table>
           </div>
         </div>
@@ -56,7 +70,6 @@
         <div class="text-h6">{{selectedVideo.name}}</div>
       </q-card-section>
       <q-card-section class="q-pt-none" >
-<!--        <p> {{JSON.stringify(selectedVideo)}}</p>-->
         <VideoPlayer :src="'http://localhost:2072' + selectedVideo.path"/>
       </q-card-section>
     </q-card>
@@ -73,6 +86,7 @@ import { WsConnection } from 'src/utils/ws/connection';
 import DateTimeSelect from 'src/components/DateTimeSelect.vue';
 import VideoPlayer from 'src/components/VideoPlayer.vue';
 import { fixArrayDates } from 'src/utils/utils';
+import axios from 'axios';
 
 const columns = [
   // //@ts-ignore
@@ -83,7 +97,9 @@ const columns = [
   // //@ts-ignore
   // { name: 'path', align: 'center', label: 'File', field: row => row.path.replace(/^.*[\\\/]/, ''), sortable: true },
   { name: 'size', align: 'center', label: 'Size (MB)', field: 'size', sortable: true },
-  {name:'play', align: 'center', label:'Play', field:'play'}
+  {name:'play', align: 'center', label:'Play', field:'play'},
+  {name:'download', align: 'center', label:'Download', field:'download'},
+  {name:'delete', align: 'center', label:'Delete', field:'delete'}
 ];
 
 export default {
@@ -140,7 +156,6 @@ export default {
       recordEnabled.value = recordModel.value !== null;
       const videos = await nodeService.getVideos('localhost', props.source.id);
       fixArrayDates(videos, 'created_at', 'modified_at');
-      console.log('videos: ' + JSON.stringify(videos));
       rows.value = videos;
 
       function onStartRecordingMessage(event: MessageEvent) {
@@ -184,6 +199,28 @@ export default {
       showPlayer.value = true
       selectedVideo.value = video
     }
+    function onDownload(video: VideoFile){
+      console.log('downloading: ' + video.path)
+      axios({
+        url: 'http://localhost:2072' + video.path,
+        method: 'GET',
+        responseType: 'blob', // important
+      }).then((response: any) => {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        require('downloadjs')(response.data, video.name, 'video/mp4');
+      }).catch(console.error);
+    }
+    function onDelete(video: VideoFile){
+      nodeService.deleteVideos('localhost', video.source_id, [video.name])
+      .then(() => {
+        $q.notify({
+          message: 'Video has been deleted',
+          caption: 'Video Status',
+          color: 'secondary'
+        });
+        rows.value = rows.value.filter((row: VideoFile) => row.name !== video.name);
+      }).catch(console.error);
+    }
 
     return {
       selected,
@@ -196,6 +233,8 @@ export default {
       recordEnabled,
       onRecordEnabledChanged,
       onPlay,
+      onDownload,
+      onDelete,
       showPlayer,
       selectedVideo,
 

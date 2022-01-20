@@ -199,6 +199,9 @@ export default {
 
       subscribeService.subscribeEditor((event: MessageEvent) => {
         const responseModel: EditorImageResponseModel = JSON.parse(event.data);
+        if (responseModel.event_type != 2) {
+          return;
+        }
         $store.commit('settings/setSourceThumbnail', {
           sourceId: responseModel.source.id,
           thumbnail: responseModel.image_base64

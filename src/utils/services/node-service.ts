@@ -36,6 +36,12 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
+  public async deleteVideos(nodeAddress: string, sourceId: string, videoIds: string[]): Promise<void> {
+    const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/videos' + '/' + sourceId;
+    const resp = await api.delete(address, { data: videoIds });
+    return resp.data;
+  }
+
   public async getRecording(nodeAddress: string, sourceId: string): Promise<RecordingModel> {
     const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/recording' + '/' + sourceId;
     const resp = await api.get(address);

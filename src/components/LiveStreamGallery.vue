@@ -166,8 +166,11 @@ export default {
       connStopStreaming = subscribeService.subscribeStopStreaming(openStopStreamingMessage)
 
       connTakeScreenshot = subscribeService.subscribeEditor((event: MessageEvent) => {
-        console.log('openStartStreamingMessage(event) called');
+        console.log('subscribeEditor(event) called');
         const responseModel: EditorImageResponseModel = JSON.parse(event.data);
+        if (responseModel.event_type != 1) {
+          return;
+        }
         window.location.href = 'data:application/octet-stream;base64,' + responseModel.image_base64;
       });
     });
