@@ -213,10 +213,11 @@ function createRtspTransport() {
 
 function createLogLevels() {
   return [
-    { value: 0, label: 'Silent' },
-    { value: 1, label: 'Warning' },
-    { value: 2, label: 'Error' },
-    { value: 3, label: 'Fatal' }
+    { value: 0, label: 'Info'},
+    { value: 1, label: 'Silent' },
+    { value: 2, label: 'Warning' },
+    { value: 3, label: 'Error' },
+    { value: 4, label: 'Fatal' }
   ];
 }
 
@@ -250,7 +251,9 @@ function createVideoDecoders() {
 
 function createStreamTypes() {
   return [
-    { value: 0, label: 'HLS' }
+    { value: 0, label: 'HLS' },
+    { value:1, label: 'MP4'},
+    { value:2, label: 'HEVC (H.265)'},
   ];
 }
 
