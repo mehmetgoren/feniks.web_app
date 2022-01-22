@@ -26,11 +26,11 @@ export interface CameraDto extends Camera {
 }
 
 export interface Source {
-  type_name?: string | null;
+  id?: string | null;
   name?: string | null;
   brand?: string | null;
   rtsp_address?: string | null;
-  id?: string | null;
+  description?: string | null;
 }
 
 export interface DeviceConfig {
@@ -129,4 +129,31 @@ export interface EditorImageResponseModel{
   source: Source;
   event_type: number;
   image_base64: string;
+}
+
+export interface SourceSettings extends Source{
+  enabled?: boolean | null;
+  recording?: boolean | null;
+  input_type?: number | null;
+  rtsp_transport?: number | null;
+  analyzation_duration?: number | null;
+  probe_size?: number | null;
+  log_level?: number | null;
+  fps?: number | null;
+  use_camera_timestamp?: boolean | null;
+  use_hwaccel?: boolean | null;
+  hwaccel_engine?: number | null;
+  video_decoder?: number | null;
+  hwaccel_device?:string | null;
+  stream_type?: number | null;
+  stream_video_codec?: number | null;
+  hls_time?: number | null;
+  hls_list_size?: number | null;
+  hls_preset?: number | null;
+  stream_quality?: number | null;
+  stream_width?: number | null;
+  stream_height?: number | null;
+  stream_rotate?: number | null;
+  stream_video_filter?: string | null;
+  stream_audio_codec?: number | null;
 }

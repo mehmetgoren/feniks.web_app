@@ -244,9 +244,16 @@ export default {
         const menuObject: MenuItem = {};
         menuObject['config'] = [
           {
-            route: route + '&config=general',
+            route: route + '&x=config',
             icon: 'settings',
             text: 'Configuration'
+          }
+        ];
+        menuObject['add_source'] = [
+          {
+            route: route + '&x=add_source',
+            icon: 'add_box',
+            text: 'Add Source'
           }
         ];
         menuObject['cameras'] = menuLink;
