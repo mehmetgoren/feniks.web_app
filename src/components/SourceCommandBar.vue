@@ -1,10 +1,10 @@
 <template>
   <!--  <q-separator />-->
   <!--  <q-space />-->
-  <q-btn-group rounded>
+  <q-btn-group>
     <!--    <q-btn color="primary" rounded glossy icon="PhotoSizeSelectActual"/>-->
     <q-btn color='cyan' rounded glossy icon-right='settings' :label='source.name' @click='onSettingsClick'>
-      <q-tooltip class='bg-warning'>Settings</q-tooltip>
+      <q-tooltip class='bg-cyan'>Settings</q-tooltip>
     </q-btn>
     <q-btn color='secondary' rounded glossy icon='sync' @click='onRefresh'>
       <q-tooltip class='bg-secondary'>Refresh</q-tooltip>

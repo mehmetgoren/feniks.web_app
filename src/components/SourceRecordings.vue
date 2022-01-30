@@ -141,7 +141,6 @@ export default {
     const selectedVideo = ref<VideoFile | null>(null);
 
     onMounted(async () => {
-      console.error(JSON.stringify(props.source));
       const streamingModel: StreamingModel = props.source;
       recordEnabled.value = streamingModel.recording
       // streamingModel.value = await nodeService.getStreaming(props.source.id);
