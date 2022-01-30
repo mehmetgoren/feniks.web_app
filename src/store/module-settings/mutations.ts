@@ -2,6 +2,8 @@ import { MutationTree } from 'vuex';
 import { ISettingsState, MenuItem, MenuLink } from './state';
 import { List } from 'linqts';
 import { Node } from 'src/utils/entities';
+import { SourceModel } from 'src/utils/models/source_model';
+import { LocalService } from 'src/utils/services/local-service';
 
 const mutation: MutationTree<ISettingsState> = {
   changeDense(state: ISettingsState, value: boolean) {
@@ -20,12 +22,40 @@ const mutation: MutationTree<ISettingsState> = {
   },
   setActiveTab(state: ISettingsState, value: Node) {
     state.activeTab = value;
+    new LocalService().setActiveTab(value);
   },
   setActiveLeftMenu(state: ISettingsState, value: MenuLink) {
     state.activeLeftMenu = value;
   },
   setSourceLoading(state: ISettingsState, value: boolean) {
     state.sourceLoading = value;
+  },
+  addSourceToLeftMenu(state: ISettingsState, source: SourceModel){
+    const route = 'node?n=' + source.rtsp_address;
+    const menuLink: MenuLink = {
+      route: route + '&source=' + source.id,
+      icon: 'videocam',
+      text: source.name,
+      id: source.id,
+      source: source,
+      isSource: true,
+      thumbnail: null
+    };
+    state.menu['node?n=' + state.activeTab.node_address]['cameras'].push(menuLink);
+  },
+  updateSourceToLeftMenu(state: ISettingsState, source: SourceModel){
+    const cameras = [...state.menu['node?n=' + state.activeTab.node_address]['cameras']];
+    for (let j = 0; j < cameras.length; ++j){
+      if (cameras[j].id === source.id){
+        cameras[j].text = source.name;
+        cameras[j].source = source;
+        break;
+      }
+    }
+  },
+  removeSourceFromLeftMenu(state: ISettingsState, sourceId: string){
+    const cameras = [...state.menu['node?n=' + state.activeTab.node_address]['cameras']];
+    state.menu['node?n=' + state.activeTab.node_address]['cameras'] = cameras.filter(x => x.id != sourceId);
   }
 };
 

@@ -2,15 +2,7 @@
   <q-layout view='hHh lpR fFf' class='bg-grey-1'>
     <q-header elevated class='bg-white text-grey-8' height-hint='64'>
       <q-toolbar class='GNL__toolbar'>
-        <q-btn
-          flat
-          dense
-          round
-          @click='toggleLeftDrawer'
-          aria-label='Menu'
-          icon='menu'
-          class='q-mr-sm'
-        />
+        <q-btn flat dense round @click='toggleLeftDrawer' aria-label='Menu' icon='menu' class='q-mr-sm' />
 
         <q-toolbar-title v-if='$q.screen.gt.xs' shrink class='row items-center no-wrap'>
           <img src='../../public/icons/logo-xs.png'>
@@ -103,15 +95,10 @@
 
       </q-toolbar>
       <!--Node will sit here-->
-      <q-tabs align='left' v-if='tabs'>
-        <q-route-tab to='home' label='Home' key='home' id='home' @click='onTabClick({node_address:"home"})' />
-        <q-route-tab v-for='tab in tabs' :key='tab.node_address' :to="'node?n=' + tab.node_address" :label='tab.name'
-                     @click='onTabClick(tab)' />
-        <!--        <q-route-tab to="home" label="Home" />-->
-        <!--        <q-route-tab to="/" label="Dev PC" />-->
-        <!--        <q-route-tab to="/" label="Legacy Pc" />-->
-        <!--        <q-route-tab to="/" label="Jetson Nano" />-->
-        <!--        <q-route-tab to="/" label="Raspi 4" />-->
+      <q-tabs v-model='tab' align='left' v-if='tabs' @update:model-value='onFuck'>
+        <q-tab label='Home' key='home' name='home' id='home' @click='onTabClick(homeNode)' />
+        <q-tab v-for='tab in tabs' :key='tab.node_address' :label='tab.name' :name='tab.node_address'
+               @click='onTabClick(tab)' />
       </q-tabs>
     </q-header>
 
@@ -127,24 +114,24 @@
           <div v-for='(menu, index) in menus' :key='index'>
             <q-item class='GNL__drawer-item' v-ripple v-for='link in menu' :key='link.text' clickable
                     @click='onLeftMenuClick(link)'>
-                <q-item-section avatar v-if='!link.thumbnail'>
-                  <q-icon v-if='!link.thumbnail' :name='link.icon' />
-                </q-item-section>
-                <q-item-section v-if='!link.thumbnail'>
-                  <q-item-label>{{ link.text }}</q-item-label>
-                </q-item-section>
-                <q-item-section v-if='link.thumbnail'>
-                  <q-img :src="'data:image/png;base64, ' + link.thumbnail"
-                         spinner-color="white"
-                         style="height: 170px; max-width: 300px"
-                         img-class="my-custom-image"
-                         class="rounded-borders"
-                  >
-                    <div class="absolute-bottom text-subtitle1 text-center">
-                      <q-icon :name='link.icon' />
-                      {{link.text}}
-                    </div>
-                  </q-img>
+              <q-item-section avatar v-if='!link.thumbnail'>
+                <q-icon v-if='!link.thumbnail' :name='link.icon' />
+              </q-item-section>
+              <q-item-section v-if='!link.thumbnail'>
+                <q-item-label>{{ link.text }}</q-item-label>
+              </q-item-section>
+              <q-item-section v-if='link.thumbnail'>
+                <q-img :src="'data:image/png;base64, ' + link.thumbnail"
+                       spinner-color='white'
+                       style='height: 170px; max-width: 300px'
+                       img-class='my-custom-image'
+                       class='rounded-borders'
+                >
+                  <div class='absolute-bottom text-subtitle1 text-center'>
+                    <q-icon :name='link.icon' />
+                    {{ link.text }}
+                  </div>
+                </q-img>
               </q-item-section>
             </q-item>
 
@@ -163,19 +150,22 @@
 <script lang='ts'>
 import { computed, onMounted, ref, watch } from 'vue';
 import { useStore } from 'src/store';
-import { useRoute } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { NodeRepository } from 'src/utils/db';
 import { NodeService } from 'src/utils/services/node-service';
 import { MenuItem, MenuLink } from 'src/store/module-settings/state';
 import { useQuasar } from 'quasar';
 import { PublishService, SubscribeService } from 'src/utils/services/websocket-services';
-import { EditorImageResponseModel } from 'src/utils/entities';
+import { EditorImageResponseModel, Node } from 'src/utils/entities';
 // import { List } from 'linqts';
 
 export default {
   name: 'Ionix Layout',
 
   setup() {
+    const homeNode: Node = { node_address: '', name: 'home', description: '', enabled: true };
+    const tab = ref<string>('home');
+    const router = useRouter();
     const route = useRoute();
     const path = computed(() => route.path);
     const $store = useStore();
@@ -203,7 +193,7 @@ export default {
           return;
         }
         $store.commit('settings/setSourceThumbnail', {
-          sourceId: responseModel.source.id,
+          sourceId: responseModel.id,
           thumbnail: responseModel.image_base64
         });
       });
@@ -216,20 +206,27 @@ export default {
     };
     const menus = ref($store.getters['settings/menu'][getPureMenuPath()]);
 
-    const onTabClick = async (tab: any) => {
-      $store.commit('settings/setActiveTab', tab || { name: 'home'});
+    const onTabClick = async (tab: Node) => {
+      $store.commit('settings/setActiveTab', tab);
       const menu = $store.getters['settings/menu'];
-      if (tab.node_address === 'home') {
+      if (tab.name === 'home') {
         menus.value = menu[''];
+        await router.push('home');
         return;
       }
       const route = 'node?n=' + tab.node_address;
       if (!menu[route]) {
-        const nodes = await nodeService.value.getSources(tab.node_address);
+        const nodes = await nodeService.value.getSources();
         const menuLink: MenuLink[] = [];
         for (const node of nodes) {
-          publishService.publishEditor(tab.node_address, {source:node, event_type:2}).then().catch(console.error);
-          console.log('publishService called')
+          publishService.publishEditor({
+            id: node.id,
+            brand: node.brand,
+            name: node.name,
+            rtsp_address: node.rtsp_address,
+            event_type: 2
+          }).then().catch(console.error);
+          console.log('publishService called');
           const source: MenuLink = {
             route: route + '&source=' + node.name,
             icon: 'videocam',
@@ -264,17 +261,18 @@ export default {
         });
       }
       menus.value = menu[route];
+      await router.push('node?n=' + tab.node_address);
     };
 
-    const $q = useQuasar()
+    const $q = useQuasar();
     const sourceLoading = computed(() => $store.getters['settings/sourceLoading']);
     watch(sourceLoading, (value: boolean) => {
       if (value) {
         $q.loading.show({
           message: 'Source is now being loading. Hang on...'
-        })
-      }else{
-        $q.loading.hide()
+        });
+      } else {
+        $q.loading.hide();
       }
     });
 
@@ -285,6 +283,7 @@ export default {
       byWebsite.value = '';
       byDate.value = 'Any time';
     }
+
     function changeDate(option: any) {
       byDate.value = option;
       showDateOptions.value = false;
@@ -295,6 +294,8 @@ export default {
     }
 
     return {
+      homeNode,
+      tab,
       leftDrawerOpen,
       search,
       showAdvanced,
@@ -309,7 +310,10 @@ export default {
       changeDate,
       toggleLeftDrawer,
       tabs,
-      onTabClick
+      onTabClick,
+      onFuck(e: any) {
+        console.error('fuck: ' + JSON.stringify(e));
+      }
     };
   },
   methods: {
@@ -319,7 +323,7 @@ export default {
       //   me.$router.push('node-' +  link.route);
       // }
       if (link.route) {
-        console.log('MenuLayout says: active menu is ' +  link.route);
+        console.log('MenuLayout says: active menu is ' + link.route);
         me.$store.commit('settings/setActiveLeftMenu', link);
         me.$router.push(link.route);
       } else if (link.href) {

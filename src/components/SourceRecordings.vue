@@ -1,6 +1,6 @@
 <template>
   <q-layout view='lHh lpr lFf' container style='height: 600px' class='shadow-2 rounded-borders'>
-    <q-header elevated class='bg-cyan'>
+    <q-header elevated class='bg-purple'>
       <q-toolbar>
         <q-btn flat round dense icon='dvr' />
         <q-toolbar-title>
@@ -17,13 +17,8 @@
       <q-page padding style='background-color: whitesmoke;'>
         <div class='row'>
           <div class='col-3'>
-            <q-toggle
-              v-model='recordEnabled'
-              checked-icon='check'
-              color='red'
-              @update:model-value='onRecordEnabledChanged'
-              :label='"Recording " + (recordEnabled ? "On" : "Off")'
-            />
+            <q-toggle v-model='recordEnabled' disable checked-icon='check' color='red'
+                      :label='"Recording " + (recordEnabled ? "On" : "Off")' />
             <DateTimeSelect />
           </div>
           <div class='col-9'>
@@ -37,24 +32,24 @@
               selection='multiple'
               :selected='selected'
               @selection='onSelection'>
-              <template v-slot:body-cell-play="props">
-                <q-td :props="props">
+              <template v-slot:body-cell-play='props'>
+                <q-td :props='props'>
                   <div>
-                    <q-btn round color="cyan" icon="play_arrow" @click='onPlay(props.row)'/>
+                    <q-btn round color='purple' icon='play_arrow' @click='onPlay(props.row)' />
                   </div>
                 </q-td>
               </template>
-              <template v-slot:body-cell-download="props">
-                <q-td :props="props">
+              <template v-slot:body-cell-download='props'>
+                <q-td :props='props'>
                   <div>
-                    <q-btn round color="teal" icon="download" @click='onDownload(props.row)'/>
+                    <q-btn round color='teal' icon='download' @click='onDownload(props.row)' />
                   </div>
                 </q-td>
               </template>
-              <template v-slot:body-cell-delete="props">
-                <q-td :props="props">
+              <template v-slot:body-cell-delete='props'>
+                <q-td :props='props'>
                   <div>
-                    <q-btn round color="deep-orange" icon="delete" @click='onDelete(props.row)'/>
+                    <q-btn round color='deep-orange' icon='delete' @click='onDelete(props.row)' />
                   </div>
                 </q-td>
               </template>
@@ -64,13 +59,13 @@
       </q-page>
     </q-page-container>
   </q-layout>
-  <q-dialog v-model="showPlayer" transition-show="rotate" transition-hide="rotate">
-    <q-card style="width: 50%; max-width: 80vw;">
+  <q-dialog v-model='showPlayer' transition-show='rotate' transition-hide='rotate'>
+    <q-card style='width: 50%; max-width: 80vw;'>
       <q-card-section>
-        <div class="text-h6">{{selectedVideo.name}}</div>
+        <div class='text-h6'>{{ selectedVideo.name }}</div>
       </q-card-section>
-      <q-card-section class="q-pt-none" >
-        <VideoPlayer :src="'http://localhost:2072' + selectedVideo.path"/>
+      <q-card-section class='q-pt-none'>
+        <VideoPlayer :src="'http://localhost:2072' + selectedVideo.path" />
       </q-card-section>
     </q-card>
   </q-dialog>
@@ -79,34 +74,48 @@
 <script lang='ts'>
 import { useQuasar } from 'quasar';
 import { computed, onMounted, ref, onBeforeUnmount } from 'vue';
-import { RecordingModel, VideoFile } from 'src/utils/entities';
-import { PublishService, SubscribeService } from 'src/utils/services/websocket-services';
+import { VideoFile } from 'src/utils/entities';
 import { NodeService } from 'src/utils/services/node-service';
 import { WsConnection } from 'src/utils/ws/connection';
 import DateTimeSelect from 'src/components/DateTimeSelect.vue';
 import VideoPlayer from 'src/components/VideoPlayer.vue';
 import { fixArrayDates } from 'src/utils/utils';
 import axios from 'axios';
+import { StreamingModel } from 'src/utils/models/streaming_model';
 
 const columns = [
   // //@ts-ignore
   // {align: 'center', label:'Finished', field: row =>((row.modified_at.getTime() - row.created_at.getTime()) / 60000 ).toString() + ' ago'},
-  { name: 'created_at', align: 'center', label: 'Created', field: 'created_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true },
-  { name: 'modified_at', align: 'center', label: 'Ended', field: 'modified_at',format: (val: any) => `${val.toLocaleString()}`, sortable: true },
+  {
+    name: 'created_at',
+    align: 'center',
+    label: 'Created',
+    field: 'created_at',
+    format: (val: any) => `${val.toLocaleString()}`,
+    sortable: true
+  },
+  {
+    name: 'modified_at',
+    align: 'center',
+    label: 'Ended',
+    field: 'modified_at',
+    format: (val: any) => `${val.toLocaleString()}`,
+    sortable: true
+  },
   { name: 'name', align: 'center', label: 'File Name', field: 'name', sortable: true },
   // //@ts-ignore
   // { name: 'path', align: 'center', label: 'File', field: row => row.path.replace(/^.*[\\\/]/, ''), sortable: true },
   { name: 'size', align: 'center', label: 'Size (MB)', field: 'size', sortable: true },
-  {name:'play', align: 'center', label:'Play', field:'play'},
-  {name:'download', align: 'center', label:'Download', field:'download'},
-  {name:'delete', align: 'center', label:'Delete', field:'delete'}
+  { name: 'play', align: 'center', label: 'Play', field: 'play' },
+  { name: 'download', align: 'center', label: 'Download', field: 'download' },
+  { name: 'delete', align: 'center', label: 'Delete', field: 'delete' }
 ];
 
 export default {
   name: 'SourceRecordings',
-  components:{
+  components: {
     DateTimeSelect,
-    VideoPlayer,
+    VideoPlayer
   },
   props: {
     source: {
@@ -117,9 +126,7 @@ export default {
   setup(props: any) {
     const $q = useQuasar();
     const recordEnabled = ref<boolean>(false);
-    const recordModel = ref<RecordingModel | null>(null);
-    const publishService = new PublishService();
-    const subscribeService = new SubscribeService();
+    // const streamingModel = ref<StreamingModel | null>(null);
     const nodeService = new NodeService();
     let connStartRecording: WsConnection | null = null;
     let connStopRecording: WsConnection | null = null;
@@ -131,53 +138,16 @@ export default {
     });
     const rows = ref<VideoFile[]>([]);
     const showPlayer = ref<boolean>(false);
-    const selectedVideo = ref<VideoFile|null>(null);
-    const onRecordEnabledChanged = (newValue: boolean) => {
-      console.log(`onRecordEnabledChanged: ${newValue}`);
-      if (recordEnabled.value) {
-        publishService.publishStartRecording('localhost', props.source).then(() => {
-          console.log('recording request has been started');
-        }).catch((err) => {
-          console.log('recording request had an error: ' + err);
-        });
-      } else {
-        publishService.publishStopRecording('localhost', props.source).then(() => {
-          console.log('recording request has been stopped');
-        }).catch((err) => {
-          console.log('recording request had an error: ' + err);
-        });
-      }
-    };
+    const selectedVideo = ref<VideoFile | null>(null);
 
     onMounted(async () => {
-      console.log('fcukkkk ' + JSON.stringify(props.source));
-      // todo: localhost should be replaced with real node ip
-      recordModel.value = await nodeService.getRecording('localhost', props.source.id);
-      recordEnabled.value = recordModel.value !== null;
-      const videos = await nodeService.getVideos('localhost', props.source.id);
+      console.error(JSON.stringify(props.source));
+      const streamingModel: StreamingModel = props.source;
+      recordEnabled.value = streamingModel.recording
+      // streamingModel.value = await nodeService.getStreaming(props.source.id);
+      const videos = await nodeService.getVideos(props.source.id);
       fixArrayDates(videos, 'created_at', 'modified_at');
       rows.value = videos;
-
-      function onStartRecordingMessage(event: MessageEvent) {
-        recordModel.value = JSON.parse(event.data);
-
-        $q.notify({
-          message: 'Recording has been started',
-          caption: 'Recording Status',
-          color: 'secondary'
-        });
-      }
-      connStartRecording = subscribeService.subscribeStartRecording(onStartRecordingMessage);
-
-      function onStopRecordingMessage(event: MessageEvent) {
-        console.log('onStopRecordingMessage: ' + event.data);
-        $q.notify({
-          message: 'Recording has been stopped',
-          caption: 'Recording Status',
-          color: 'secondary'
-        });
-      }
-      connStopRecording = subscribeService.subscribeStopRecording(onStopRecordingMessage);
     });
 
     onBeforeUnmount(() => {
@@ -190,36 +160,37 @@ export default {
       }
     });
 
-
     const selected = ref([]);
     const lastIndex = ref(null);
     const tableRef = ref(null);
 
-    function onPlay(video: VideoFile){
-      showPlayer.value = true
-      selectedVideo.value = video
+    function onPlay(video: VideoFile) {
+      showPlayer.value = true;
+      selectedVideo.value = video;
     }
-    function onDownload(video: VideoFile){
-      console.log('downloading: ' + video.path)
+
+    function onDownload(video: VideoFile) {
+      console.log('downloading: ' + video.path);
       axios({
         url: 'http://localhost:2072' + video.path,
         method: 'GET',
-        responseType: 'blob', // important
+        responseType: 'blob' // important
       }).then((response: any) => {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         require('downloadjs')(response.data, video.name, 'video/mp4');
       }).catch(console.error);
     }
-    function onDelete(video: VideoFile){
-      nodeService.deleteVideos('localhost', video.source_id, [video.name])
-      .then(() => {
-        $q.notify({
-          message: 'Video has been deleted',
-          caption: 'Video Status',
-          color: 'secondary'
-        });
-        rows.value = rows.value.filter((row: VideoFile) => row.name !== video.name);
-      }).catch(console.error);
+
+    function onDelete(video: VideoFile) {
+      nodeService.deleteVideos(video.source_id, [video.name])
+        .then(() => {
+          $q.notify({
+            message: 'Video has been deleted',
+            caption: 'Video Status',
+            color: 'secondary'
+          });
+          rows.value = rows.value.filter((row: VideoFile) => row.name !== video.name);
+        }).catch(console.error);
     }
 
     return {
@@ -231,7 +202,6 @@ export default {
       pagination,
       rows,
       recordEnabled,
-      onRecordEnabledChanged,
       onPlay,
       onDownload,
       onDelete,

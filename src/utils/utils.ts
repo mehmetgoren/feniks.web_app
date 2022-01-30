@@ -1,7 +1,7 @@
 import { IState } from 'src/store';
 import { PublishService } from 'src/utils/services/websocket-services';
 import { Store } from 'vuex';
-import { Source } from 'src/utils/entities';
+import { SourceModel } from 'src/utils/models/source_model';
 
 export const NodeMngrPort = '2072';
 export const NodeMngrAddress = 'localhost:' + NodeMngrPort;
@@ -39,10 +39,15 @@ export function fixArrayDates(list: any[], ...fields: string[]) {
   });
 }
 
-export function startStreaming($store: Store<IState>, publishService: PublishService, source: Source) {
+export function isNullEmpty(val: string){
+  if (val === undefined || val === null)
+    return true;
+  return val.length == 0;
+}
+
+export function startStreaming($store: Store<IState>, publishService: PublishService, source: SourceModel) {
   $store.commit('settings/setSourceLoading', true);
-  // todo: localhost should be replaced with real node ip
-  publishService.publishStartStreaming('localhost', source).then(() => {
+  publishService.publishStartStreaming(source).then(() => {
     console.log('streaming request has been started');
   }).catch((err) => {
     console.log('streaming request had an error: ' + err);

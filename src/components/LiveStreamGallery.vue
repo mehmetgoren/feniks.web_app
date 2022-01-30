@@ -3,11 +3,11 @@
     <div class='newWidget grid-stack-item ui-draggable ui-resizable ui-resizable-autohide' v-for='source in sourceList'
          :key='source.id' gs-w='4' gs-h='3' :gs-id='source.id'>
       <div class='grid-stack-item-content' style='overflow: hidden !important;'>
-        <StreamPlayer v-if='source.show' :src='source.src' :source-id='source.id' :ref='setStreamPlayers'
-                      v-on:need-reload='needReload' />
+        <HlsPlayer v-if='source.show' :src='source.src' :source-id='source.id' :ref='setStreamPlayers'
+                   v-on:need-reload='needReload' />
         <q-separator style='margin-bottom: 5px;' />
-        <SourceSettingsBar :source='source' @full-screen='onFullScreen' @streaming-stop='onStreamingStop'
-        @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh'/>
+        <SourceCommandBar :source='source' @full-screen='onFullScreen' @streaming-stop='onStreamingStop'
+                          @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh' />
       </div>
     </div>
   </div>
@@ -18,10 +18,11 @@ import {
   onMounted, reactive, ref, nextTick,
   onBeforeUpdate, onUpdated, onBeforeUnmount
 } from 'vue';
-import { EditorImageResponseModel, StreamingModel } from 'src/utils/entities';
+import { StreamingModel } from 'src/utils/models/streaming_model';
+import { EditorImageResponseModel } from 'src/utils/entities';
 import { List } from 'linqts';
-import StreamPlayer from 'components/StreamPlayer.vue';
-import SourceSettingsBar from 'components/SourceSettingsBar.vue';
+import HlsPlayer from 'components/HlsPlayer.vue';
+import SourceCommandBar from 'components/SourceCommandBar.vue';
 import 'gridstack/dist/gridstack.min.css';
 import { GridStack } from 'gridstack';
 // THEN to get HTML5 drag&drop
@@ -37,8 +38,8 @@ import { startStreaming } from 'src/utils/utils';
 export default {
   name: 'LiveStreamGallery',
   components: {
-    StreamPlayer,
-    SourceSettingsBar,
+    HlsPlayer,
+    SourceCommandBar
   },
   setup() {
     const $store = useStore();
@@ -59,14 +60,14 @@ export default {
     onBeforeUpdate(() => {
       streamPlayers = [];
     });
-    const onFullScreen = (source: Source) =>{
+    const onFullScreen = (source: Source) => {
       const player = new List(streamPlayers).FirstOrDefault(x => x.sourceId === source.id);
       if (player) {
         player.fullScreen();
       }
     };
     const onStreamingStop = (source: Source) => {
-      void publishService.publishStopStreaming('localhost', source);
+      void publishService.publishStopStreaming(source);
     };
     onUpdated(() => {
       console.log(streamPlayers);
@@ -84,12 +85,12 @@ export default {
         prevEvents[sourceId] = prevEvent;
       }
       // if (prevEvent.opName === opName && prevEvent.count < 5) {
-      const diff = new Date().getTime() - prevEvent.createdAt.getTime()
+      const diff = new Date().getTime() - prevEvent.createdAt.getTime();
       prevEvent.createdAt = new Date();
       console.warn('diff: ' + diff);
       if (opName !== 'error' && diff < 1000) {
         console.log('needReload no call due to 1 second limit for ' + sourceId + ' ' + opName + '. diff: ' + diff);
-        return
+        return;
       }
       // if (prevEvent.opName === opName && prevEvent.count < 5) {
       //   return;
@@ -105,14 +106,15 @@ export default {
         }
       });
     };
+
     //
 
     function openStartStreamingMessage(event: MessageEvent) {
       console.log('openStartStreamingMessage(event) called');
       const streamingModel: StreamingModel = JSON.parse(event.data);
-      const url = 'http://localhost:2072/livestream/' + streamingModel.output_file;
+      const url = 'http://localhost:2072/livestream' + streamingModel.hls_output_path;
       if (new List<any>(sourceList).FirstOrDefault(x => x.src == url) == null) {
-        const source :Source = <any>streamingModel;
+        const source: Source = <any>streamingModel;
         source.src = url;
         source.show = true;
         sourceList.push(source);
@@ -134,15 +136,22 @@ export default {
         $store.commit('settings/setSourceLoading', false);
       }
     }
+
     function onConnect(source: Source) {
-      const list = new List<any>(sourceList)
+      const list = new List<any>(sourceList);
       const sourceItem = list.FirstOrDefault(x => x.src == source.src);
       list.Remove(sourceItem);
       startStreaming($store, publishService, source);
     }
 
-    function onTakeScreenshot(source: Source){
-      void publishService.publishEditor('localhost', {source:source, event_type:1});
+    function onTakeScreenshot(source: Source) {
+      void publishService.publishEditor({
+        id: source.id,
+        brand: source.brand,
+        name: source.name,
+        rtsp_address: source.rtsp_address,
+        event_type: 1
+      });
     }
 
     function onRefresh(source: Source) {
@@ -155,15 +164,16 @@ export default {
     onMounted(() => {
       connStartStreaming = subscribeService.subscribeStartStreaming(openStartStreamingMessage);
 
-      function openStopStreamingMessage(event: MessageEvent){
-        const streamingModel: StreamingModel = JSON.parse(event.data);
-        console.warn('sikk çabuk ' + JSON.stringify(streamingModel));
-        const player = new List(streamPlayers).FirstOrDefault(x => x.sourceId === streamingModel.id);
+      function openStopStreamingMessage(event: MessageEvent) {
+        const responseEvent = JSON.parse(event.data);
+        console.warn('sikk çabuk ' + JSON.stringify(responseEvent));
+        const player = new List(streamPlayers).FirstOrDefault(x => x.sourceId === responseEvent.id);
         if (player) {
           player.pause();
         }
       }
-      connStopStreaming = subscribeService.subscribeStopStreaming(openStopStreamingMessage)
+
+      connStopStreaming = subscribeService.subscribeStopStreaming(openStopStreamingMessage);
 
       connTakeScreenshot = subscribeService.subscribeEditor((event: MessageEvent) => {
         console.log('subscribeEditor(event) called');
@@ -182,7 +192,7 @@ export default {
       if (connStopStreaming) {
         connStopStreaming.close();
       }
-      if (connTakeScreenshot){
+      if (connTakeScreenshot) {
         connTakeScreenshot.close();
       }
     });
@@ -196,12 +206,12 @@ export default {
       onStreamingStop,
       onConnect,
       onTakeScreenshot,
-      onRefresh,
+      onRefresh
     };
   }
 };
 
-interface Source extends StreamingModel{
+interface Source extends StreamingModel {
   src: string;
   show: boolean;
   thumb?: string | null;

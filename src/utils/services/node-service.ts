@@ -1,50 +1,69 @@
 import { api } from 'boot/axios';
-import { Config, RecordingModel, Source, VideoFile } from 'src/utils/entities';
+import { Config } from 'src/utils/models/config';
 import { BaseService } from 'src/utils/services/base-service';
 import { List } from 'linqts';
+import { SourceModel } from 'src/utils/models/source_model';
+import { VideoFile } from 'src/utils/entities';
 
 
 export class NodeService extends BaseService {
-
-  public async getSources(nodeAddress: string): Promise<Source[]> {
-    const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/sources';
+  public async getSources(): Promise<SourceModel[]> {
+    const address = 'http://' + this.nodeAddress + ':' + this._defaultPort + '/sources';
     const resp = await api.get(address);
-    return new List(<Source[]>resp.data).OrderBy(x => x.name).ToArray();
+    return new List(<SourceModel[]>resp.data).OrderBy(x => x.name).ToArray();
   }
 
-  public async getConfig(nodeAddress: string): Promise<Config> {
-    const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/config';
+  public async getSource(sourceId: string): Promise<SourceModel>{
+    const address = 'http://' + this.nodeAddress + ':' + this._defaultPort + '/sources/' + sourceId;
     const resp = await api.get(address);
     return resp.data;
   }
 
-  public async saveConfig(nodeAddress: string, config: Config): Promise<Config>{
-    const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/config';
+  public async saveSource(model: SourceModel): Promise<SourceModel>{
+    const address = 'http://' + this.nodeAddress + ':' + this._defaultPort + '/sources';
+    const resp = await api.post(address, model)
+    return resp.data;
+  }
+
+  public async removeSource(sourceId: string):Promise<void>{
+    const address = 'http://' + this.nodeAddress + ':' + this._defaultPort + '/sources/' + sourceId;
+    const resp = await api.delete(address);
+    return resp.data;
+  }
+
+  // public async getStreaming(sourceId: string): Promise<StreamingModel>{
+  //   const address = 'http://' + this.nodeAddress + ':' + this._defaultPort + '/streaming/' + sourceId
+  //   const resp = await api.get(address)
+  //   return resp.data;
+  // }
+
+  public async getConfig(): Promise<Config> {
+    const address = 'http://' + this.nodeAddress + ':' + this._defaultPort + '/config';
+    const resp = await api.get(address);
+    return resp.data;
+  }
+
+  public async saveConfig(config: Config): Promise<Config> {
+    const address = 'http://' + this.nodeAddress + ':' + this._defaultPort + '/config';
     const resp = await api.post(address, config);
     return resp.data;
   }
 
-  public async restoreConfig(nodeAddress: string): Promise<Config> {
-    const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/restoreconfig';
+  public async restoreConfig(): Promise<Config> {
+    const address = 'http://' + this.nodeAddress + ':' + this._defaultPort + '/restoreconfig';
     const resp = await api.get(address);
     return resp.data;
   }
 
-  public async getVideos(nodeAddress: string, sourceId: string): Promise<VideoFile[]> {
-    const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/videos' + '/' + sourceId;
+  public async getVideos(sourceId: string): Promise<VideoFile[]> {
+    const address = 'http://' + this.nodeAddress + ':' + this._defaultPort + '/videos/' + sourceId;
     const resp = await api.get(address);
     return resp.data;
   }
 
-  public async deleteVideos(nodeAddress: string, sourceId: string, videoIds: string[]): Promise<void> {
-    const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/videos' + '/' + sourceId;
+  public async deleteVideos(sourceId: string, videoIds: string[]): Promise<void> {
+    const address = 'http://' + this.nodeAddress + ':' + this._defaultPort + '/videos/' + sourceId;
     const resp = await api.delete(address, { data: videoIds });
-    return resp.data;
-  }
-
-  public async getRecording(nodeAddress: string, sourceId: string): Promise<RecordingModel> {
-    const address = 'http://' + nodeAddress + ':' + this._defaultPort + '/recording' + '/' + sourceId;
-    const resp = await api.get(address);
     return resp.data;
   }
 

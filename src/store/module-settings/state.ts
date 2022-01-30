@@ -1,4 +1,5 @@
-import { Node, Source } from 'src/utils/entities';
+import { Node } from 'src/utils/entities';
+import { SourceModel } from 'src/utils/models/source_model';
 
 export interface MenuLink {
   route?: string | null;
@@ -6,7 +7,7 @@ export interface MenuLink {
   icon?: string;
   href?:string;
   id?:string | null;
-  source?:Source | null;
+  source?:SourceModel | null;
   isSource?:boolean | null;
   thumbnail?:string | null;
 }
@@ -30,11 +31,11 @@ export interface ISettingsState {
 function state(): ISettingsState {
   const links: MenuItem = {
     links1: [
-      { route: 'home', icon: 'web', text: 'Dashboard' },
-      { route: 'home-nodes', icon: 'add_box', text: 'Nodes'},
+      { route: 'home?c=index', icon: 'web', text: 'Dashboard' },
+      { route: 'home?c=nodes', icon: 'add_box', text: 'Nodes'},
     ],
     links2: [
-      { route: 'home-hub', icon: 'domain', text: 'Hub'},
+      { route: 'home?c=hub', icon: 'domain', text: 'Hub'},
     ],
     links3: [
       { icon: 'open_in_new', text: 'Github', href:'https://github.com/mehmetgoren' },

@@ -1,10 +1,7 @@
 <template>
   <div class='q-pa-sm'>
-    <q-banner class='bg-primary text-white'>
-      {{ activeTab.name }}
-    </q-banner>
-    <NodeConfig  v-if='showConfig===0' node-address='127.0.0.1' />
-    <SourceSettings v-if='showConfig===1'/>
+    <NodeConfig v-if='showConfig===0' />
+    <SourceSettings v-if='showConfig===1' />
     <LiveStreamGallery v-if='showConfig===2' />
   </div>
 </template>
@@ -18,6 +15,7 @@ import { useStore } from 'src/store';
 import { parseQs, startStreaming } from 'src/utils/utils';
 import { MenuLink } from 'src/store/module-settings/state';
 import { PublishService } from 'src/utils/services/websocket-services';
+import { SourceModel } from 'src/utils/models/source_model';
 
 export default {
   name: 'Node',
@@ -40,7 +38,7 @@ export default {
       showConfig.value = queryStr.x === 'config' ? 0 : queryStr.x === 'add_source' ? 1: 2;
       nextTick().then(() => {
         if (showConfig.value == 2){
-          startStreaming($store, publishService, <any>newValue.source)
+          startStreaming($store, publishService, <SourceModel>newValue.source)
         }
       }).catch(console.log);
     });

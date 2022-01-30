@@ -27,7 +27,7 @@ const DEFAULT_EVENTS = [
 ];
 
 export default {
-  name: 'StreamPlayer',
+  name: 'HlsPlayer',
   props: {
     start: {
       type: Number,
