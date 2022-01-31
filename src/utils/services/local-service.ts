@@ -144,7 +144,7 @@ export class LocalService {
     ];
   }
 
-  public createRtmpServers(): SelectOption[] {
+  public createRtmpServerTypes(): SelectOption[] {
     return [
       { value: 0, label: 'SRS' },
       { value: 1, label: 'LiveGo' },
@@ -152,7 +152,7 @@ export class LocalService {
     ];
   }
 
-  public createFlvConnectionTypes(): SelectOption[] {
+  public createFlvPlayerConnectionTypes(): SelectOption[] {
     return [
       { value: 0, label: 'HTTP' },
       { value: 1, label: 'Websocket' }

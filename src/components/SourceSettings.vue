@@ -82,12 +82,12 @@
                     :options='streamTypes' label='Stream Type' transition-show='flip-up'
                     transition-hide='flip-down' />
           <q-select v-if='source.stream_type===1' :dense='dense' emit-value map-options filled
-                    v-model='source.stream_rtmp_server' color='cyan'
-                    :options='rtmpServers' label='RTMP Server' transition-show='flip-up'
+                    v-model='source.rtmp_server_type' color='cyan'
+                    :options='rtmpServerTypes' label='RTMP Server' transition-show='flip-up'
                     transition-hide='flip-down' />
-          <q-select v-if='source.stream_type===1' :dense='dense' emit-value map-options filled
-                    v-model='source.stream_connection_type' color='cyan'
-                    :options='flvConnectionTypes' label='Connection Type' transition-show='flip-up'
+          <q-select v-if='source.stream_type===1&&source.rtmp_server_type===2' :dense='dense' emit-value map-options filled
+                    v-model='source.flv_player_connection_type' color='cyan'
+                    :options='flvPlayerConnectionTypes' label='Connection Type' transition-show='flip-up'
                     transition-hide='flip-down' />
           <q-select v-if='source.stream_type !== 2' :dense='dense' emit-value map-options filled
                     v-model='source.stream_video_codec' color='cyan'
@@ -267,12 +267,12 @@ export default {
     const accelerationEngines = ref(localService.createAccelerationEngines());
     const videoDecoders = ref(localService.createVideoDecoders());
     const streamTypes = ref(localService.createStreamTypes());
-    const flvConnectionTypes = ref(localService.createFlvConnectionTypes());
+    const flvPlayerConnectionTypes = ref(localService.createFlvPlayerConnectionTypes());
     const streamVideoCodecs = ref(localService.createStreamVideoCodecs());
     const streamAudioCodecs = ref(localService.createStreamAudioCodecs());
     const hlsPresets = ref(localService.createPresets());
     const streamRotations = ref(localService.createRotations());
-    const rtmpServers = ref(localService.createRtmpServers());
+    const rtmpServerTypes = ref(localService.createRtmpServerTypes());
     const audioChannels = ref(localService.createAudioChannels());
     const audioQualities = ref(localService.createAudioQualities());
     const audioSampleRates = ref(localService.createAudioSampleRates());
@@ -341,11 +341,11 @@ export default {
       videoDecoders,
       streamTypes,
       streamAudioCodecs,
-      flvConnectionTypes,
+      flvPlayerConnectionTypes,
       streamVideoCodecs,
       hlsPresets,
       streamRotations,
-      rtmpServers,
+      rtmpServerTypes,
       audioChannels,
       audioQualities,
       audioSampleRates,
@@ -383,8 +383,8 @@ function createEmptySource(): SourceModel {
     hwaccel_device: '',
 
     stream_type: 0,
-    stream_rtmp_server: 0,
-    stream_connection_type: 0,
+    rtmp_server_type: 0,
+    flv_player_connection_type: 0,
     stream_video_codec: 3, // copy
     stream_audio_codec: 9, // copy
     stream_audio_channel: 0,
