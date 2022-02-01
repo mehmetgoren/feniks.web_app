@@ -58,6 +58,16 @@
           <q-input v-model='config.heartbeat.interval' type='number' filled :dense='dense'
                    label='Heartbeat Interval' />
         </q-form>
+
+        <q-space style='height: 10px;' />
+        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='width: auto;'>
+          <label style='text-transform: uppercase;font-size: medium'>FFmpeg Config</label>
+        </q-toolbar>
+        <q-space style='margin: 2px;' />
+        <q-form id='frm9' class='q-pa-xs'>
+          <q-toggle v-model='config.ffmpeg.use_double_quotes_for_path' filled :dense='dense'
+                    label='Use double quotes on FFmpeg Commands' />
+        </q-form>
       </div>
 
       <div class='col-4'>

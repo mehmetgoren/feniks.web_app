@@ -56,6 +56,10 @@ export interface PathConfig {
   reading: string;
 }
 
+export interface FFmpegConfig{
+  use_double_quotes_for_path: boolean;
+}
+
 export interface Config {
   device: DeviceConfig;
   heartbeat: HeartbeatConfig;
@@ -66,4 +70,5 @@ export interface Config {
   handler: HandlerConfig;
   source_reader: SourceReaderConfig;
   path: PathConfig;
+  ffmpeg: FFmpegConfig;
 }
