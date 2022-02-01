@@ -12,6 +12,8 @@
   "dependencies": {
     "nanoid": "^3.1.30",
     "video.js": "^7.17.0",
+    "flv.js": "^1.6.2",
+    "videojs-flvjs-es6": "^1.0.1",
     "@quasar/extras": "^1.12.4",
     "axios": "^0.24.0",
     "core-js": "^3.20.0",

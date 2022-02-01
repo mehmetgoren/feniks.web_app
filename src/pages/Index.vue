@@ -12,6 +12,9 @@
         :text='server'
       />
     </div>
+<!--    <div style='width: 640px;'>-->
+<!--      <FlvPlayer :src='"http://localhost:9001/live/STREAM_NAME.flv"' />-->
+<!--    </div>-->
     <div>
       <input id='btn' type='button' value='Send' @click='onSend' />
       <input type='text' v-model='msg' size='64' autofocus />

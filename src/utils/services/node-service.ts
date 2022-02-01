@@ -8,25 +8,25 @@ import { VideoFile } from 'src/utils/entities';
 
 export class NodeService extends BaseService {
   public async getSources(): Promise<SourceModel[]> {
-    const address = 'http://' + this.nodeAddress + ':' + this._defaultPort + '/sources';
+    const address = `${this.nodeHttpProtocol}://${this.nodeAddress}:${this.defaultPort}/sources`;
     const resp = await api.get(address);
     return new List(<SourceModel[]>resp.data).OrderBy(x => x.name).ToArray();
   }
 
   public async getSource(sourceId: string): Promise<SourceModel>{
-    const address = 'http://' + this.nodeAddress + ':' + this._defaultPort + '/sources/' + sourceId;
+    const address = `${this.nodeHttpProtocol}://${this.nodeAddress}:${this.defaultPort}/sources/${sourceId}`;
     const resp = await api.get(address);
     return resp.data;
   }
 
   public async saveSource(model: SourceModel): Promise<SourceModel>{
-    const address = 'http://' + this.nodeAddress + ':' + this._defaultPort + '/sources';
+    const address = `${this.nodeHttpProtocol}://${this.nodeAddress}:${this.defaultPort}/sources`;
     const resp = await api.post(address, model)
     return resp.data;
   }
 
   public async removeSource(sourceId: string):Promise<void>{
-    const address = 'http://' + this.nodeAddress + ':' + this._defaultPort + '/sources/' + sourceId;
+    const address = `${this.nodeHttpProtocol}://${this.nodeAddress}:${this.defaultPort}/sources/${sourceId}`;
     const resp = await api.delete(address);
     return resp.data;
   }
@@ -38,31 +38,31 @@ export class NodeService extends BaseService {
   // }
 
   public async getConfig(): Promise<Config> {
-    const address = 'http://' + this.nodeAddress + ':' + this._defaultPort + '/config';
+    const address = `${this.nodeHttpProtocol}://${this.nodeAddress}:${this.defaultPort}/config`;
     const resp = await api.get(address);
     return resp.data;
   }
 
   public async saveConfig(config: Config): Promise<Config> {
-    const address = 'http://' + this.nodeAddress + ':' + this._defaultPort + '/config';
+    const address = `${this.nodeHttpProtocol}://${this.nodeAddress}:${this.defaultPort}/config`;
     const resp = await api.post(address, config);
     return resp.data;
   }
 
   public async restoreConfig(): Promise<Config> {
-    const address = 'http://' + this.nodeAddress + ':' + this._defaultPort + '/restoreconfig';
+    const address = `${this.nodeHttpProtocol}://${this.nodeAddress}:${this.defaultPort}/restoreconfig`;
     const resp = await api.get(address);
     return resp.data;
   }
 
   public async getVideos(sourceId: string): Promise<VideoFile[]> {
-    const address = 'http://' + this.nodeAddress + ':' + this._defaultPort + '/videos/' + sourceId;
+    const address = `${this.nodeHttpProtocol}://${this.nodeAddress}:${this.defaultPort}/videos/${sourceId}`;
     const resp = await api.get(address);
     return resp.data;
   }
 
   public async deleteVideos(sourceId: string, videoIds: string[]): Promise<void> {
-    const address = 'http://' + this.nodeAddress + ':' + this._defaultPort + '/videos/' + sourceId;
+    const address = `${this.nodeHttpProtocol}://${this.nodeAddress}:${this.defaultPort}/videos/${sourceId}`;
     const resp = await api.delete(address, { data: videoIds });
     return resp.data;
   }

@@ -1,6 +1,11 @@
 import { Node } from 'src/utils/entities';
+import { NodeMngrAddress } from 'src/utils/utils';
 
 export class LocalService {
+
+  public getVideoAddress(){
+    return `http://${NodeMngrAddress}/livestream`;
+  }
 
   public getActiveTab(): Node | null {
     const json = sessionStorage.getItem('setActiveTab');

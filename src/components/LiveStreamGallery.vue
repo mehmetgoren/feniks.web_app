@@ -3,8 +3,9 @@
     <div class='newWidget grid-stack-item ui-draggable ui-resizable ui-resizable-autohide' v-for='source in sourceList'
          :key='source.id' gs-w='4' gs-h='3' :gs-id='source.id'>
       <div class='grid-stack-item-content' style='overflow: hidden !important;'>
-        <HlsPlayer v-if='source.show' :src='source.src' :source-id='source.id' :ref='setStreamPlayers'
+        <HlsPlayer v-if='source.show&&source.streaming_type===0' :src='source.src' :source-id='source.id' :ref='setStreamPlayers'
                    v-on:need-reload='needReload' />
+        <FlvPlayer v-if='source.show&&source.streaming_type===1' :src='source.src' :source-id='source.id' :ref='setStreamPlayers'/>
         <q-separator style='margin-bottom: 5px;' />
         <SourceCommandBar :source='source' @full-screen='onFullScreen' @streaming-stop='onStreamingStop'
                           @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh' />
@@ -22,6 +23,7 @@ import { StreamingModel } from 'src/utils/models/streaming_model';
 import { EditorImageResponseModel } from 'src/utils/entities';
 import { List } from 'linqts';
 import HlsPlayer from 'components/HlsPlayer.vue';
+import FlvPlayer from 'components/FlvPlayer.vue';
 import SourceCommandBar from 'components/SourceCommandBar.vue';
 import 'gridstack/dist/gridstack.min.css';
 import { GridStack } from 'gridstack';
@@ -34,11 +36,13 @@ import { useStore } from 'src/store';
 import { PublishService, SubscribeService } from 'src/utils/services/websocket-services';
 import { WsConnection } from 'src/utils/ws/connection';
 import { startStreaming } from 'src/utils/utils';
+import { LocalService } from 'src/utils/services/local-service';
 // https://v3.vuejs.org/guide/migration/array-refs.html
 export default {
   name: 'LiveStreamGallery',
   components: {
     HlsPlayer,
+    FlvPlayer,
     SourceCommandBar
   },
   setup() {
@@ -49,6 +53,7 @@ export default {
     let connStartStreaming: WsConnection | null = null;
     let connStopStreaming: WsConnection | null = null;
     let connTakeScreenshot: WsConnection | null = null;
+    const localService = new LocalService();
 
     //
     let streamPlayers: any[] = [];
@@ -112,7 +117,15 @@ export default {
     function openStartStreamingMessage(event: MessageEvent) {
       console.log('openStartStreamingMessage(event) called');
       const streamingModel: StreamingModel = JSON.parse(event.data);
-      const url = 'http://localhost:2072/livestream' + streamingModel.hls_output_path;
+      let url = '';
+      if (streamingModel.streaming_type == 0){ //HLS
+        url = localService.getVideoAddress() + streamingModel.hls_output_path;
+      }else if (streamingModel.streaming_type == 1){ //FLV
+        url = streamingModel.rtmp_flv_address;
+      }else{
+        throw new Error('not supported');
+      }
+
       if (new List<any>(sourceList).FirstOrDefault(x => x.src == url) == null) {
         const source: Source = <any>streamingModel;
         source.src = url;
