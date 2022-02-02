@@ -4,6 +4,8 @@ import { BaseService } from 'src/utils/services/base-service';
 import { List } from 'linqts';
 import { SourceModel } from 'src/utils/models/source_model';
 import { VideoFile } from 'src/utils/entities';
+import { isNullEmpty } from 'src/utils/utils';
+import { StreamingModel } from 'src/utils/models/streaming_model';
 
 
 export class NodeService extends BaseService {
@@ -13,29 +15,32 @@ export class NodeService extends BaseService {
     return new List(<SourceModel[]>resp.data).OrderBy(x => x.name).ToArray();
   }
 
-  public async getSource(sourceId: string): Promise<SourceModel>{
+  public async getSource(sourceId: string): Promise<SourceModel> {
     const address = `${this.nodeHttpProtocol}://${this.nodeAddress}:${this.defaultPort}/sources/${sourceId}`;
     const resp = await api.get(address);
     return resp.data;
   }
 
-  public async saveSource(model: SourceModel): Promise<SourceModel>{
+  public async saveSource(model: SourceModel): Promise<SourceModel> {
     const address = `${this.nodeHttpProtocol}://${this.nodeAddress}:${this.defaultPort}/sources`;
-    const resp = await api.post(address, model)
+    const resp = await api.post(address, model);
     return resp.data;
   }
 
-  public async removeSource(sourceId: string):Promise<void>{
+  public async removeSource(sourceId: string): Promise<boolean> {
+    if (isNullEmpty(sourceId)) {
+      return false;
+    }
     const address = `${this.nodeHttpProtocol}://${this.nodeAddress}:${this.defaultPort}/sources/${sourceId}`;
-    const resp = await api.delete(address);
-    return resp.data;
+    await api.delete(address);
+    return true;
   }
 
-  // public async getStreaming(sourceId: string): Promise<StreamingModel>{
-  //   const address = 'http://' + this.nodeAddress + ':' + this._defaultPort + '/streaming/' + sourceId
-  //   const resp = await api.get(address)
-  //   return resp.data;
-  // }
+  public async getStreaming(sourceId: string): Promise<StreamingModel> {
+    const address = `${this.nodeHttpProtocol}://${this.nodeAddress}:${this.defaultPort}/streaming/${sourceId}`;
+    const resp = await api.get(address);
+    return resp.data;
+  }
 
   public async getConfig(): Promise<Config> {
     const address = `${this.nodeHttpProtocol}://${this.nodeAddress}:${this.defaultPort}/config`;

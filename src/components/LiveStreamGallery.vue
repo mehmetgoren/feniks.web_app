@@ -6,9 +6,9 @@
         <HlsPlayer v-if='source.show&&source.streaming_type===0' :src='source.src' :source-id='source.id' :ref='setStreamPlayers'
                    v-on:need-reload='needReload' />
         <FlvPlayer v-if='source.show&&source.streaming_type===1' :src='source.src' :source-id='source.id' :ref='setStreamPlayers'/>
-        <q-separator style='margin-bottom: 5px;' />
         <SourceCommandBar :source='source' @full-screen='onFullScreen' @streaming-stop='onStreamingStop'
-                          @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh' />
+                          @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh'
+                          @source-deleted='onSourceDeleted'/>
       </div>
     </div>
   </div>
@@ -35,8 +35,9 @@ import 'gridstack/dist/jq/gridstack-dd-jqueryui';
 import { useStore } from 'src/store';
 import { PublishService, SubscribeService } from 'src/utils/services/websocket-services';
 import { WsConnection } from 'src/utils/ws/connection';
-import { startStreaming } from 'src/utils/utils';
+import { isNullOrUndefined, startStreaming } from 'src/utils/utils';
 import { LocalService } from 'src/utils/services/local-service';
+import { NodeService } from 'src/utils/services/node-service';
 // https://v3.vuejs.org/guide/migration/array-refs.html
 export default {
   name: 'LiveStreamGallery',
@@ -54,6 +55,7 @@ export default {
     let connStopStreaming: WsConnection | null = null;
     let connTakeScreenshot: WsConnection | null = null;
     const localService = new LocalService();
+    const nodeService = new NodeService();
 
     //
     let streamPlayers: any[] = [];
@@ -150,11 +152,15 @@ export default {
       }
     }
 
-    function onConnect(source: Source) {
+    async function onConnect(source: Source) {
+      if (isNullOrUndefined(source)){
+        return;
+      }
       const list = new List<any>(sourceList);
       const sourceItem = list.FirstOrDefault(x => x.src == source.src);
       list.Remove(sourceItem);
-      startStreaming($store, publishService, source);
+      const sourceModel = await nodeService.getSource(source.id);
+      startStreaming($store, publishService, sourceModel);
     }
 
     function onTakeScreenshot(source: Source) {
@@ -172,6 +178,20 @@ export default {
       setTimeout(() => {
         source.show = true;
       }, 250);
+    }
+
+    function onSourceDeleted(source: Source){
+      let index = -1;
+      for (let j = 0; j < sourceList.length; ++j){
+        if (sourceList[j].id == source.id){
+          index = j;
+          break;
+        }
+      }
+      if (index > -1){
+        sourceList.splice(index, 1);
+        onRefresh(source);
+      }
     }
 
     onMounted(() => {
@@ -219,7 +239,8 @@ export default {
       onStreamingStop,
       onConnect,
       onTakeScreenshot,
-      onRefresh
+      onRefresh,
+      onSourceDeleted
     };
   }
 };

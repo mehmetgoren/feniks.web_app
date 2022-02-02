@@ -39,13 +39,20 @@ export function fixArrayDates(list: any[], ...fields: string[]) {
   });
 }
 
-export function isNullEmpty(val: string){
-  if (val === undefined || val === null)
-    return true;
-  return val.length == 0;
+export function isNullOrUndefined(val: any){
+  return val === undefined || val === null;
+}
+
+export function isNullEmpty(val: string | undefined | null){
+  //@ts-ignore
+  return isNullOrUndefined(val) ? true : val.length === 0;
 }
 
 export function startStreaming($store: Store<IState>, publishService: PublishService, source: SourceModel) {
+  if (isNullEmpty(source?.id)){
+    console.error('invalid source object. Streamin request will not ben sent');
+    return;
+  }
   $store.commit('settings/setSourceLoading', true);
   publishService.publishStartStreaming(source).then(() => {
     console.log('streaming request has been started');
