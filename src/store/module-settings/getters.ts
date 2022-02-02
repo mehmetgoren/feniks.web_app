@@ -19,6 +19,9 @@ const getters: GetterTree<ISettingsState, IState> = {
   sourceLoading(state : ISettingsState): boolean {
     return state.sourceLoading;
   },
+  addSourceClicked(state: ISettingsState): boolean{
+    return state.addSourceClicked;
+  }
 };
 
 export default getters;

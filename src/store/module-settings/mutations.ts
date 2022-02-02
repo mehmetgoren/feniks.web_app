@@ -56,6 +56,9 @@ const mutation: MutationTree<ISettingsState> = {
   removeSourceFromLeftMenu(state: ISettingsState, sourceId: string){
     const cameras = [...state.menu['node?n=' + state.activeTab.node_address]['cameras']];
     state.menu['node?n=' + state.activeTab.node_address]['cameras'] = cameras.filter(x => x.id != sourceId);
+  },
+  addSourceClicked(state: ISettingsState){
+    state.addSourceClicked = !state.addSourceClicked;
   }
 };
 

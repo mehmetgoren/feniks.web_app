@@ -67,6 +67,8 @@
         <q-form id='frm9' class='q-pa-xs'>
           <q-toggle v-model='config.ffmpeg.use_double_quotes_for_path' filled :dense='dense'
                     label='Use double quotes on FFmpeg Commands' />
+          <q-input v-model='config.ffmpeg.max_operation_retry_count' type='number' filled :dense='dense'
+                   label='Max retry count' />
         </q-form>
       </div>
 

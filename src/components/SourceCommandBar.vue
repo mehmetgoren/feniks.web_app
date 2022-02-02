@@ -1,9 +1,11 @@
 <template>
-  <!--  <q-separator />-->
-  <!--  <q-space />-->
+  <div>
+    <q-chip square color='primary' text-color='white' icon='videocam'>
+      {{ source.name }} ({{ streamType }})
+    </q-chip>
+  </div>
   <q-btn-group>
-    <!--    <q-btn color="primary" rounded glossy icon="PhotoSizeSelectActual"/>-->
-    <q-btn color='cyan' rounded glossy icon-right='settings' :label='source.name' @click='onSettingsClick'>
+    <q-btn color='cyan' rounded glossy icon-right='settings' @click='onSettingsClick'>
       <q-tooltip class='bg-cyan'>Settings</q-tooltip>
     </q-btn>
     <q-btn color='secondary' rounded glossy icon='sync' @click='onRefresh'>
@@ -30,26 +32,7 @@
   </q-btn-group>
 
   <q-dialog v-model='showSettings' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
-    <q-layout view='lHh lpr lFf' container style='height: 600px' class='shadow-2 rounded-borders'>
-      <q-header elevated class='bg-cyan'>
-        <q-toolbar>
-          <q-btn flat round dense icon='dvr' />
-          <q-toolbar-title>
-            <label style='text-transform: uppercase;font-size: medium'> {{ source.name }}</label>
-          </q-toolbar-title>
-          <q-space />
-          <q-btn dense flat icon='close' v-close-popup>
-            <q-tooltip class='bg-white text-primary'>Close</q-tooltip>
-          </q-btn>
-        </q-toolbar>
-      </q-header>
-
-      <q-page-container>
-        <q-page padding style='background-color: whitesmoke;'>
-          <SourceSettings :edit-source='source' />
-        </q-page>
-      </q-page-container>
-    </q-layout>
+    <SourceSettings :edit-source='source' @on-save='onSourceSettingsSave' @on-delete='onSourceSettingsDelete' />
   </q-dialog>
 
   <q-dialog v-model='showRecording' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
@@ -60,13 +43,15 @@
 </template>
 
 <script lang='ts'>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import SourceSettings from 'components/SourceSettings.vue';
 import SourceRecordings from 'components/SourceRecordings.vue';
 import { PublishService } from 'src/utils/services/websocket-services';
 import { NodeService } from 'src/utils/services/node-service';
 import { SourceModel } from 'src/utils/models/source_model';
 import { StreamingModel } from 'src/utils/models/streaming_model';
+import { LocalService, SelectOption } from 'src/utils/services/local-service';
+import { List } from 'linqts';
 
 export default {
   name: 'SourceCommandBar',
@@ -74,7 +59,7 @@ export default {
     SourceSettings,
     SourceRecordings
   },
-  emits: ['full-screen', 'streaming-stop', 'connect', 'take-screenshot', 'refresh'],
+  emits: ['full-screen', 'streaming-stop', 'connect', 'take-screenshot', 'refresh', 'source-deleted'],
   props: {
     source: {
       type: Object, // type is StreamingModel
@@ -84,6 +69,13 @@ export default {
   //@ts-ignore
   setup(props: any, { emit }) {
     const showSettings = ref<boolean>(false);
+    const localService = new LocalService();
+    const streamType = computed(() => {
+      // alert(JSON.stringify(props.source))
+      // alert(props.source.stream_type);
+      return new List<SelectOption>(localService.createStreamTypes())
+        .FirstOrDefault(x => x?.value == props.source.streaming_type)?.label ?? '';
+    });
     const publishService = new PublishService();
     const nodeService = new NodeService();
 
@@ -113,12 +105,20 @@ export default {
       onRefresh() {
         emit('refresh', props.source);
       },
+      onSourceSettingsSave() {
+        showSettings.value = false;
+      },
+      onSourceSettingsDelete() {
+        emit('source-deleted', props.source);
+        showSettings.value = false;
+      },
       showSettings,
       onSettingsClick() {
         showSettings.value = true;
       },
       showRecording,
-      onRecordingClick
+      onRecordingClick,
+      streamType
     };
   }
 };

@@ -95,7 +95,7 @@
 
       </q-toolbar>
       <!--Node will sit here-->
-      <q-tabs v-model='tab' align='left' v-if='tabs' @update:model-value='onFuck'>
+      <q-tabs v-model='tab' align='left' v-if='tabs'>
         <q-tab label='Home' key='home' name='home' id='home' @click='onTabClick(homeNode)' />
         <q-tab v-for='tab in tabs' :key='tab.node_address' :label='tab.name' :name='tab.node_address'
                @click='onTabClick(tab)' />
@@ -107,12 +107,11 @@
       show-if-above
       bordered
       class='bg-white'
-      :width='280'
-    >
+      :width='280'>
       <q-scroll-area class='fit'>
         <q-list padding class='text-grey-8'>
           <div v-for='(menu, index) in menus' :key='index'>
-            <q-item class='GNL__drawer-item' v-ripple v-for='link in menu' :key='link.text' clickable
+            <q-item v-for='link in menu' :key='link.text' class='GNL__drawer-item' v-ripple clickable
                     @click='onLeftMenuClick(link)'>
               <q-item-section avatar v-if='!link.thumbnail'>
                 <q-icon v-if='!link.thumbnail' :name='link.icon' />
@@ -125,8 +124,7 @@
                        spinner-color='white'
                        style='height: 170px; max-width: 300px'
                        img-class='my-custom-image'
-                       class='rounded-borders'
-                >
+                       class='rounded-borders'>
                   <div class='absolute-bottom text-subtitle1 text-center'>
                     <q-icon :name='link.icon' />
                     {{ link.text }}
@@ -134,8 +132,7 @@
                 </q-img>
               </q-item-section>
             </q-item>
-
-            <q-separator inset class='q-my-sm' />
+            <q-separator v-if='menu.length' inset class='q-my-sm' />
           </div>
         </q-list>
       </q-scroll-area>
@@ -157,7 +154,6 @@ import { MenuItem, MenuLink } from 'src/store/module-settings/state';
 import { useQuasar } from 'quasar';
 import { PublishService, SubscribeService } from 'src/utils/services/websocket-services';
 import { EditorImageResponseModel, Node } from 'src/utils/entities';
-// import { List } from 'linqts';
 
 export default {
   name: 'Ionix Layout',
@@ -310,10 +306,7 @@ export default {
       changeDate,
       toggleLeftDrawer,
       tabs,
-      onTabClick,
-      onFuck(e: any) {
-        console.error('fuck: ' + JSON.stringify(e));
-      }
+      onTabClick
     };
   },
   methods: {
@@ -326,6 +319,9 @@ export default {
         console.log('MenuLayout says: active menu is ' + link.route);
         me.$store.commit('settings/setActiveLeftMenu', link);
         me.$router.push(link.route);
+        if (link.text === 'Add Source') {
+          me.$store.commit('settings/addSourceClicked');
+        }
       } else if (link.href) {
         window.open(link.href, '_blank');
       }

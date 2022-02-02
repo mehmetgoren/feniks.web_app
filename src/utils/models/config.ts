@@ -58,6 +58,7 @@ export interface PathConfig {
 
 export interface FFmpegConfig{
   use_double_quotes_for_path: boolean;
+  max_operation_retry_count: number;
 }
 
 export interface Config {
