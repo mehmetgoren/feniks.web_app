@@ -25,8 +25,13 @@ export interface ISettingsState {
   menu: MenuObject;
   activeTab: Node;
   activeLeftMenu: MenuLink | null;
-  sourceLoading: boolean;
+  sourceLoading: LoadingInfo;
   addSourceClicked: boolean;
+}
+
+export interface LoadingInfo{
+  id:string;
+  loading:boolean;
 }
 
 function state(): ISettingsState {
@@ -52,7 +57,7 @@ function state(): ISettingsState {
     },
     activeTab: { name: 'home', description:'', enabled:true, node_address:'' },
     activeLeftMenu:null,
-    sourceLoading:false,
+    sourceLoading: { id:'', loading:false },
     addSourceClicked:false
   };
 }

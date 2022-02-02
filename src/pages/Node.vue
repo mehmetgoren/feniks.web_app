@@ -1,7 +1,7 @@
 <template>
   <div class='q-pa-sm'>
     <NodeConfig v-if='selected===0' />
-    <LiveStreamGallery v-if='selected===2' />
+    <LiveStreamGallery v-if='selected===1' />
   </div>
   <q-dialog v-model='showAddSource' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
     <SourceSettings @on-save='onSourceSettingsSave' />
@@ -28,7 +28,7 @@ export default {
     const activeTab = computed(() => $store.getters['settings/activeTab']);//active node ip
     const activeLeftMenu = computed(() => $store.getters['settings/activeLeftMenu']);//active node ip
     const addSourceClicked = computed(() => $store.getters['settings/addSourceClicked']);
-    const selected = ref<number>(0);
+    const selected = ref<number>(1);
     const showAddSource = ref<boolean>(false);
     const publishService = new PublishService();
 
@@ -47,16 +47,16 @@ export default {
           selected.value = 0;
           break;
         case 'add_source':
-          selected.value = 2;
+          selected.value = 1;
           setTimeout(() => {
             showAddSource.value = true;
           }, 1);
           break;
         default:
-          selected.value = 2
+          selected.value = 1;
       }
       nextTick().then(() => {
-        if (selected.value == 2){
+        if (selected.value ==1){
           if (isNullOrUndefined(newValue.source)){
             return;
           }

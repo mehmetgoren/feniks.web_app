@@ -49,10 +49,7 @@ export default {
       fluid: true
     };
 
-    this.player = videojs(this.$refs.videoPlayer, options, function onPlayerReady() {
-      console.log('onPlayerReady', this);
-    });
-    this.player.play();
+    this.player = videojs(this.$refs.videoPlayer, options);
 
     this.setupTimer();
   },

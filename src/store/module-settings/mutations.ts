@@ -1,5 +1,5 @@
 import { MutationTree } from 'vuex';
-import { ISettingsState, MenuItem, MenuLink } from './state';
+import { ISettingsState, LoadingInfo, MenuItem, MenuLink } from './state';
 import { List } from 'linqts';
 import { Node } from 'src/utils/entities';
 import { SourceModel } from 'src/utils/models/source_model';
@@ -27,7 +27,7 @@ const mutation: MutationTree<ISettingsState> = {
   setActiveLeftMenu(state: ISettingsState, value: MenuLink) {
     state.activeLeftMenu = value;
   },
-  setSourceLoading(state: ISettingsState, value: boolean) {
+  setSourceLoading(state: ISettingsState, value: LoadingInfo) {
     state.sourceLoading = value;
   },
   addSourceToLeftMenu(state: ISettingsState, source: SourceModel){

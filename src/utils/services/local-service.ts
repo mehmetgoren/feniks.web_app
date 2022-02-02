@@ -1,9 +1,26 @@
 import { Node } from 'src/utils/entities';
-import { NodeMngrAddress } from 'src/utils/utils';
+import { isNullEmpty, isNullOrUndefined, NodeMngrAddress } from 'src/utils/utils';
 
 export class LocalService {
 
-  public getVideoAddress(){
+  public saveGsLocation(sourceId: string, option: GsLocation){
+    if (isNullEmpty(sourceId) || isNullOrUndefined(option))
+      return;
+    localStorage.setItem(sourceId, JSON.stringify(option));
+  }
+  public getGsLocation(sourceId: string): GsLocation | null{
+    const json = localStorage.getItem(sourceId);
+    if (json){
+      return JSON.parse(json);
+    }
+    return null;
+  }
+
+  public deleteGsLocation(sourceId: string) {
+    localStorage.removeItem(sourceId);
+  }
+
+  public getVideoAddress() {
     return `http://${NodeMngrAddress}/livestream`;
   }
 
@@ -258,4 +275,11 @@ export class LocalService {
 export interface SelectOption {
   value: any;
   label: string;
+}
+
+export interface GsLocation {
+  w: number;
+  h: number;
+  x: number;
+  y: number;
 }

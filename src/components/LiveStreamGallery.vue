@@ -1,17 +1,18 @@
 <template>
   <div class='grid-stack' v-if='open'>
-    <div class='newWidget grid-stack-item ui-draggable ui-resizable ui-resizable-autohide' v-for='source in sourceList'
-         :key='source.id' gs-w='4' gs-h='3' :gs-id='source.id'>
+    <div class='newWidget grid-stack-item ui-draggable ui-resizable ui-resizable-autohide' v-for='stream in streamList'
+         :key='stream.id' :gs-w='stream.loc.w' :gs-h='stream.loc.h'
+         :gs-x='stream.loc.x' :gs-y='stream.loc.y' :gs-id='stream.id'>
       <div class='grid-stack-item-content' style='overflow: hidden !important;'>
-        <HlsPlayer v-if='source.show&&source.streaming_type===0' :src='source.src' :source-id='source.id'
+        <HlsPlayer v-if='stream.show&&stream.streaming_type===0' :src='stream.src' :source-id='stream.id'
                    :ref='setStreamPlayers' v-on:need-reload='needReload'
-                   :need-reload-interval='source.need_reload_interval' />
-        <FlvPlayer v-if='source.show&&source.streaming_type===1' :src='source.src' :source-id='source.id'
+                   :need-reload-interval='stream.need_reload_interval' />
+        <FlvPlayer v-if='stream.show&&stream.streaming_type===1' :src='stream.src' :source-id='stream.id'
                    :ref='setStreamPlayers' v-on:need-reload='needReload'
-                   :need-reload-interval='source.need_reload_interval' />
-        <SourceCommandBar :source='source' @full-screen='onFullScreen' @streaming-stop='onStreamingStop'
+                   :need-reload-interval='stream.need_reload_interval' />
+        <StreamCommandBar :stream='stream' @full-screen='onFullScreen' @streaming-stop='onStreamingStop'
                           @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh'
-                          @source-deleted='onSourceDeleted' @restart='onRestart' />
+                          @deleted='onSourceDeleted' @restart='onRestart' @close='onStreamClose' />
       </div>
     </div>
   </div>
@@ -27,7 +28,7 @@ import { EditorImageResponseModel } from 'src/utils/entities';
 import { List } from 'linqts';
 import HlsPlayer from 'components/HlsPlayer.vue';
 import FlvPlayer from 'components/FlvPlayer.vue';
-import SourceCommandBar from 'components/SourceCommandBar.vue';
+import StreamCommandBar from 'components/StreamCommandBar.vue';
 import 'gridstack/dist/gridstack.min.css';
 import { GridStack } from 'gridstack';
 // THEN to get HTML5 drag&drop
@@ -39,7 +40,7 @@ import { useStore } from 'src/store';
 import { PublishService, SubscribeService } from 'src/utils/services/websocket-services';
 import { WsConnection } from 'src/utils/ws/connection';
 import { isNullOrUndefined, startStreaming } from 'src/utils/utils';
-import { LocalService } from 'src/utils/services/local-service';
+import { LocalService, GsLocation } from 'src/utils/services/local-service';
 import { NodeService } from 'src/utils/services/node-service';
 // https://v3.vuejs.org/guide/migration/array-refs.html
 export default {
@@ -47,7 +48,7 @@ export default {
   components: {
     HlsPlayer,
     FlvPlayer,
-    SourceCommandBar
+    StreamCommandBar
   },
   setup() {
     const $store = useStore();
@@ -59,6 +60,7 @@ export default {
     let connTakeScreenshot: WsConnection | null = null;
     const localService = new LocalService();
     const nodeService = new NodeService();
+    let grid: GridStack | null = null;
 
     //
     let streamPlayers: any[] = [];
@@ -70,14 +72,14 @@ export default {
     onBeforeUpdate(() => {
       streamPlayers = [];
     });
-    const onFullScreen = (source: Source) => {
-      const player = new List(streamPlayers).FirstOrDefault(x => x.sourceId === source.id);
+    const onFullScreen = (stream: StreamingExtModel) => {
+      const player = new List(streamPlayers).FirstOrDefault(x => x.sourceId === stream.id);
       if (player) {
         player.fullScreen();
       }
     };
-    const onStreamingStop = (source: Source) => {
-      void publishService.publishStopStreaming(<any>source);
+    const onStreamingStop = (stream: StreamingExtModel) => {
+      void publishService.publishStopStreaming(<any>stream);
     };
     onUpdated(() => {
       console.log(streamPlayers);
@@ -85,7 +87,7 @@ export default {
     //
 
     //
-    const sourceList = reactive<Array<Source>>([]);
+    const streamList = reactive<Array<StreamingExtModel>>([]);
     const prevEvents: any = {};
     const needReload = (sourceId: string, opName: string) => {
       console.log('needReload called for ' + sourceId + ' ' + opName);
@@ -109,10 +111,10 @@ export default {
       //   prevEvent.count = 0;
       // }
       ++prevEvent.count;
-      sourceList.forEach(source => {
-        if (source.id === sourceId) {
+      streamList.forEach(stream => {
+        if (stream.id === sourceId) {
           console.log('needReload executing for ' + sourceId + ' ' + opName);
-          onRefresh(source);
+          onRefresh(stream);
         }
       });
     };
@@ -131,84 +133,124 @@ export default {
         throw new Error('not supported');
       }
 
-      if (new List<any>(sourceList).FirstOrDefault(x => x.src == url) == null) {
-        const source: Source = <any>streamingModel;
-        source.src = url;
-        source.show = true;
-        sourceList.push(source);
+      if (new List<any>(streamList).FirstOrDefault(x => x.src == url) == null) {
+        const stream: StreamingExtModel = <any>streamingModel;
+        stream.src = url;
+        stream.show = true;
+        stream.loc = getGsLayout(stream.id);
+        streamList.push(stream);
         open.value = false;
         setTimeout(() => {
           open.value = true;
           nextTick().then(() => {
-            const grid = GridStack.init({
-              float: true
-            });
-            GridStack.setupDragIn(
-              '.newWidget'
-            );
-            grid.compact();
-            // Enable it if you want loading panel...
-            // $store.commit('settings/setSourceLoading', false);
+            initGs();
+            $store.commit('settings/setSourceLoading', {id:stream.id, loading:false});
           }).catch(console.error);
         }, 250);
+      } else {
+        $store.commit('settings/setSourceLoading', {id: streamingModel.id, loading:false});
       }
-      // Enable it if you want loading panel...
-      // else {
-      //   $store.commit('settings/setSourceLoading', false);
-      // }
     }
 
-    function removeSource(source: Source) {
-      const list = new List<any>(sourceList);
-      const sourceItem = list.FirstOrDefault(x => x.src == source.src);
-      list.Remove(sourceItem);
-    }
-
-    async function onConnect(source: Source) {
-      if (isNullOrUndefined(source)) {
-        return;
+    async function initActiveStreams() {
+      const streamingModels: StreamingModel[] = await nodeService.getStreamingList();
+      if (!isNullOrUndefined(streamingModels) && streamingModels.length > 0) {
+        for (const streamingModel of streamingModels) {
+          startStreaming($store, publishService, streamingModel);
+        }
       }
-      removeSource(source);
-      const sourceModel = await nodeService.getSource(source.id);
-      startStreaming($store, publishService, sourceModel);
     }
 
-    function onTakeScreenshot(source: Source) {
-      void publishService.publishEditor({
-        id: source.id,
-        brand: source.brand,
-        name: source.name,
-        rtsp_address: source.rtsp_address,
-        event_type: 1
+    //gs section starts
+    function initGs() {
+      grid = GridStack.init({
+        float: true
       });
+      GridStack.setupDragIn(
+        '.newWidget'
+      );
+      grid.compact();
+      grid.on('added removed change', saveGsLayout);
+      saveGsLayout();
     }
+    function saveGsLayout() {
+      if (grid) {
+        const gridItems = grid.getGridItems();
+        for (const gridItem of gridItems) {
+          const gridStackNode = gridItem.gridstackNode;
+          if (gridStackNode) {
+            localService.saveGsLocation(<string>gridStackNode.id, {
+              w: <number>gridStackNode.w, h: <number>gridStackNode.h,
+              x: <number>gridStackNode.x, y: <number>gridStackNode.y
+            });
+          }
+        }
+      }
+    }
+    function getGsLayout(sourceId: string) {
+      let ret: GsLocation = { w: 4, h: 3, x: 0, y: 0 };
+      const loc = localService.getGsLocation(sourceId);
+      if (loc) {
+        ret = { ...loc };
+      }
+      return ret;
+    }
+    //gs section starts
 
-    function onRefresh(source: Source) {
-      source.show = false;
+    //events starts
+    function onRefresh(stream: StreamingExtModel) {
+      stream.show = false;
       setTimeout(() => {
-        source.show = true;
+        stream.show = true;
       }, 250);
     }
-
-    function onRestart(source: Source) {
-      removeSource(source);
-    }
-
-    function onSourceDeleted(source: Source) {
+    function removeSource(stream: StreamingExtModel): boolean {
       let index = -1;
-      for (let j = 0; j < sourceList.length; ++j) {
-        if (sourceList[j].id == source.id) {
+      for (let j = 0; j < streamList.length; ++j) {
+        if (streamList[j].id == stream.id) {
           index = j;
           break;
         }
       }
       if (index > -1) {
-        sourceList.splice(index, 1);
-        onRefresh(source);
+        streamList.splice(index, 1);
+        localService.deleteGsLocation(stream.id);
+        return true;
+      }
+      return false
+    }
+    async function onConnect(stream: StreamingExtModel) {
+      if (isNullOrUndefined(stream)) {
+        return;
+      }
+      removeSource(stream);
+      const sourceModel = await nodeService.getSource(stream.id);
+      startStreaming($store, publishService, sourceModel);
+    }
+    function onTakeScreenshot(stream: StreamingExtModel) {
+      void publishService.publishEditor({
+        id: stream.id,
+        brand: stream.brand,
+        name: stream.name,
+        rtsp_address: stream.rtsp_address,
+        event_type: 1
+      });
+    }
+    function onRestart(stream: StreamingExtModel) {
+      removeSource(stream);
+    }
+    function onSourceDeleted(stream: StreamingExtModel) {
+      if (removeSource(stream)){
+        onRefresh(stream);
       }
     }
+    function onStreamClose(stream: StreamingExtModel){
+      removeSource(stream);
+    }
 
-    onMounted(() => {
+    //events ends
+
+    onMounted(async () => {
       connStartStreaming = subscribeService.subscribeStartStreaming(onSubscribeStartStreaming);
 
       function openStopStreamingMessage(event: MessageEvent) {
@@ -217,6 +259,7 @@ export default {
         const player = new List(streamPlayers).FirstOrDefault(x => x.sourceId === responseEvent.id);
         if (player) {
           player.pause();
+          removeSource(responseEvent);
         }
       }
 
@@ -230,6 +273,8 @@ export default {
         }
         window.location.href = 'data:application/octet-stream;base64,' + responseModel.image_base64;
       });
+
+      await initActiveStreams();
     });
 
     onBeforeUnmount(() => {
@@ -246,7 +291,7 @@ export default {
 
     return {
       open,
-      sourceList,
+      streamList,
       needReload,
       setStreamPlayers,
       onFullScreen,
@@ -255,17 +300,19 @@ export default {
       onTakeScreenshot,
       onRefresh,
       onSourceDeleted,
-      onRestart
+      onRestart,
+      onStreamClose,
+      getGsLayout
     };
   }
 };
 
-interface Source extends StreamingModel {
+interface StreamingExtModel extends StreamingModel {
   src: string;
   show: boolean;
-  rtmp_server_address: number;
   thumb?: string | null;
   size?: string | null;
+  loc: GsLocation;
 }
 </script>
 <style>

@@ -4,7 +4,7 @@
       <q-toolbar>
         <q-btn flat round dense icon='dvr' />
         <q-toolbar-title>
-          Recording List ({{ source.name }})
+          Recording List ({{ stream.name }})
         </q-toolbar-title>
         <q-space />
         <q-btn dense flat icon='close' v-close-popup>
@@ -118,7 +118,7 @@ export default {
     VideoPlayer
   },
   props: {
-    source: {
+    stream: {
       type: Object,
       required: true
     }
@@ -141,10 +141,10 @@ export default {
     const selectedVideo = ref<VideoFile | null>(null);
 
     onMounted(async () => {
-      const streamingModel: StreamingModel = props.source;
+      const streamingModel: StreamingModel = props.stream;
       recordEnabled.value = streamingModel.recording
-      // streamingModel.value = await nodeService.getStreaming(props.source.id);
-      const videos = await nodeService.getVideos(props.source.id);
+      // streamingModel.value = await nodeService.getStreaming(props.stream.id);
+      const videos = await nodeService.getVideos(props.stream.id);
       fixArrayDates(videos, 'created_at', 'modified_at');
       rows.value = videos;
     });

@@ -9,7 +9,7 @@ import { StreamingModel } from 'src/utils/models/streaming_model';
 
 
 export class NodeService extends BaseService {
-  public async getSources(): Promise<SourceModel[]> {
+  public async getSourceList(): Promise<SourceModel[]> {
     const address = `${this.nodeHttpProtocol}://${this.nodeAddress}:${this.defaultPort}/sources`;
     const resp = await api.get(address);
     return new List(<SourceModel[]>resp.data).OrderBy(x => x.name).ToArray();
@@ -36,7 +36,12 @@ export class NodeService extends BaseService {
     return true;
   }
 
-  public async getStreaming(sourceId: string): Promise<StreamingModel> {
+  public async getStreamingList(): Promise<StreamingModel[]>{
+    const address = `${this.nodeHttpProtocol}://${this.nodeAddress}:${this.defaultPort}/streaming`;
+    const resp = await api.get(address);
+    return resp.data;
+  }
+  public async getStream(sourceId: string): Promise<StreamingModel> {
     const address = `${this.nodeHttpProtocol}://${this.nodeAddress}:${this.defaultPort}/streaming/${sourceId}`;
     const resp = await api.get(address);
     return resp.data;

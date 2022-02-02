@@ -277,7 +277,7 @@ export default {
   components: { CommandBar },
   emits: ['on-save', 'on-delete'],
   props: {
-    editSource: {
+    stream: {
       type: Object,
       required: false,
       default: null
@@ -294,8 +294,8 @@ export default {
     });
     const nodeService = new NodeService();
     onMounted(async () => {
-      if (props.editSource != null) {
-        source.value = await nodeService.getSource(<string>props.editSource.id);
+      if (props.stream != null) {
+        source.value = await nodeService.getSource(<string>props.stream.id);
       }
     });
     const localService = new LocalService();
@@ -420,7 +420,7 @@ function createEmptySource(): SourceModel {
     description: '',
     recording: false,
 
-    rtsp_address: 'rtsp://Admin1:Admin1@192.168.0.15/live0',
+    rtsp_address: 'rtsp://Admin1:Admin1@192.168.1.183/live0',//'rtsp://Admin1:Admin1@192.168.0.15/live0',
     input_type: 0,
     rtsp_transport: 0,
     analyzation_duration: 1000000, // or set to 100000 if you are using RTSP and having stream issues.
@@ -433,7 +433,7 @@ function createEmptySource(): SourceModel {
     hwaccel_device: '',
 
     stream_type: 1,
-    rtmp_server_type: 0,
+    rtmp_server_type: 1,
     flv_player_connection_type: 0,
     rtmp_server_address: '',
     need_reload_interval: 300,

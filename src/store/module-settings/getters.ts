@@ -1,6 +1,6 @@
 import { GetterTree } from 'vuex';
 import { IState } from '../index';
-import { ISettingsState, MenuLink, MenuObject } from './state';
+import { ISettingsState, LoadingInfo, MenuLink, MenuObject } from './state';
 import { Node } from 'src/utils/entities';
 
 const getters: GetterTree<ISettingsState, IState> = {
@@ -16,7 +16,7 @@ const getters: GetterTree<ISettingsState, IState> = {
   activeLeftMenu(state : ISettingsState): MenuLink | null {
     return state.activeLeftMenu;
   },
-  sourceLoading(state : ISettingsState): boolean {
+  sourceLoading(state : ISettingsState): LoadingInfo {
     return state.sourceLoading;
   },
   addSourceClicked(state: ISettingsState): boolean{

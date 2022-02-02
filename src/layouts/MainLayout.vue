@@ -130,6 +130,12 @@
                     {{ link.text }}
                   </div>
                 </q-img>
+                <q-inner-loading v-if="loadingObject[link.id]"
+                  :showing="true"
+                  label="Please wait..."
+                  label-class="text-cyan"
+                  label-style="font-size: 1.1em"
+                />
               </q-item-section>
             </q-item>
             <q-separator v-if='menu.length' inset class='q-my-sm' />
@@ -145,12 +151,12 @@
 </template>
 
 <script lang='ts'>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useStore } from 'src/store';
 import { useRouter, useRoute } from 'vue-router';
 import { NodeRepository } from 'src/utils/db';
 import { NodeService } from 'src/utils/services/node-service';
-import { MenuItem, MenuLink } from 'src/store/module-settings/state';
+import { MenuItem, MenuLink, LoadingInfo } from 'src/store/module-settings/state';
 import { PublishService, SubscribeService } from 'src/utils/services/websocket-services';
 import { EditorImageResponseModel, Node } from 'src/utils/entities';
 
@@ -177,6 +183,7 @@ export default {
     const nodeService = ref(new NodeService());
     const publishService = new PublishService();
     const subscribeService = new SubscribeService();
+    const loadingObject = reactive<any>({});
 
     const tabs = ref();
     onMounted(async () => {
@@ -211,7 +218,7 @@ export default {
       }
       const route = 'node?n=' + tab.node_address;
       if (!menu[route]) {
-        const nodes = await nodeService.value.getSources();
+        const nodes = await nodeService.value.getSourceList();
         const menuLink: MenuLink[] = [];
         for (const node of nodes) {
           publishService.publishEditor({
@@ -231,6 +238,7 @@ export default {
             isSource: true,
             thumbnail: null
           };
+          loadingObject[<string>source.id] = false;
           menuLink.push(source);
         }
         const menuObject: MenuItem = {};
@@ -258,18 +266,11 @@ export default {
       menus.value = menu[route];
       await router.push('node?n=' + tab.node_address);
     };
-    // Enable it if you want loading panel...
-    // const $q = useQuasar();
-    // const sourceLoading = computed(() => $store.getters['settings/sourceLoading']);
-    // watch(sourceLoading, (value: boolean) => {
-    //   if (value) {
-    //     $q.loading.show({
-    //       message: 'Source is now being loading. Hang on...'
-    //     });
-    //   } else {
-    //     $q.loading.hide();
-    //   }
-    // });
+
+    const sourceLoading = computed(() => $store.getters['settings/sourceLoading']);
+    watch(sourceLoading, (obj: LoadingInfo) => {
+      loadingObject[obj.id] = obj.loading;
+    });
 
     function onClear() {
       exactPhrase.value = '';
@@ -305,7 +306,8 @@ export default {
       changeDate,
       toggleLeftDrawer,
       tabs,
-      onTabClick
+      onTabClick,
+      loadingObject
     };
   },
   methods: {

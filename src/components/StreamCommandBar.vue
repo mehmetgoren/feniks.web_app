@@ -1,7 +1,7 @@
 <template>
   <div>
     <q-chip square color='primary' text-color='white' icon='videocam'>
-      {{ source.name }} ({{ streamType }})
+      {{ stream.name }} ({{ streamType }})
     </q-chip>
   </div>
   <q-btn-group>
@@ -17,7 +17,7 @@
     <q-btn color='secondary' rounded glossy icon='restart_alt' @click='onRestartClick'>
       <q-tooltip class='bg-secondary'>Restart</q-tooltip>
     </q-btn>
-    <q-btn color='deep-orange' rounded glossy icon='block' @click='onStreamingStopClick'>
+    <q-btn color='deep-orange' rounded glossy icon='power_off' @click='onStreamingStopClick'>
       <q-tooltip class='bg-deep-orange'>Stop</q-tooltip>
     </q-btn>
     <q-btn color='purple' rounded glossy icon='dvr' @click='onRecordingClick'>
@@ -26,17 +26,20 @@
     <q-btn color='purple' rounded glossy icon='photo_camera' @click='onTakeScreenshot'>
       <q-tooltip class='bg-accent'>Take a screenshot</q-tooltip>
     </q-btn>
-    <q-btn color='purple' rounded glossy icon='cast' @click='onFullScreenClick'>
+    <q-btn v-if='showFullScreenButton' color='purple' rounded glossy icon='cast' @click='onFullScreenClick'>
       <q-tooltip class='bg-accent'>Fullscreen</q-tooltip>
+    </q-btn>
+    <q-btn color='deep-orange' rounded glossy icon='close' @click='onClose'>
+      <q-tooltip class='bg-deep-orange'>Close</q-tooltip>
     </q-btn>
   </q-btn-group>
 
   <q-dialog v-model='showSettings' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
-    <SourceSettings :edit-source='source' @on-save='onSourceSettingsSave' @on-delete='onSourceSettingsDelete' />
+    <SourceSettings :stream='stream' @on-save='onSettingsSave' @on-delete='onSettingsDelete' />
   </q-dialog>
 
   <q-dialog v-model='showRecording' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
-    <SourceRecordings :source='source' />
+    <SourceRecordings :stream='stream' />
   </q-dialog>
 
 
@@ -54,16 +57,20 @@ import { LocalService, SelectOption } from 'src/utils/services/local-service';
 import { List } from 'linqts';
 
 export default {
-  name: 'SourceCommandBar',
+  name: 'StreamCommandBar',
   components: {
     SourceSettings,
     SourceRecordings
   },
-  emits: ['full-screen', 'streaming-stop', 'connect', 'take-screenshot', 'refresh', 'source-deleted', 'restart'],
+  emits: ['full-screen', 'streaming-stop', 'connect', 'take-screenshot', 'refresh', 'deleted', 'restart', 'close'],
   props: {
-    source: {
+    stream: {
       type: Object, // type is StreamingModel
       required: true
+    },
+    showFullScreenButton:{
+      type: Boolean,
+      default:false
     }
   },
   //@ts-ignore
@@ -71,10 +78,8 @@ export default {
     const showSettings = ref<boolean>(false);
     const localService = new LocalService();
     const streamType = computed(() => {
-      // alert(JSON.stringify(props.source))
-      // alert(props.source.stream_type);
       return new List<SelectOption>(localService.createStreamTypes())
-        .FirstOrDefault(x => x?.value == props.source.streaming_type)?.label ?? '';
+        .FirstOrDefault(x => x?.value == props.stream.streaming_type)?.label ?? '';
     });
     const publishService = new PublishService();
     const nodeService = new NodeService();
@@ -86,36 +91,41 @@ export default {
 
     return {
       onFullScreenClick() {
-        emit('full-screen', props.source);
+        emit('full-screen', props.stream);
       },
       onStreamingStopClick() {
-        emit('streaming-stop', props.source);
+        emit('streaming-stop', props.stream);
       },
       onConnectClick() {
-        emit('connect', props.source);
+        emit('connect', props.stream);
       },
       async onRestartClick() {
-        emit('restart', props.source);
-        const streamingModel: StreamingModel = props.source;
+        emit('restart', props.stream);
+        const streamingModel: StreamingModel = props.stream;
         const sourceModel: SourceModel = await nodeService.getSource(streamingModel.id);
         await publishService.publishRestartStreaming(sourceModel);
       },
       onTakeScreenshot() {
-        emit('take-screenshot', props.source);
+        emit('take-screenshot', props.stream);
       },
       onRefresh() {
-        emit('refresh', props.source);
+        emit('refresh', props.stream);
       },
-      onSourceSettingsSave() {
+      onSettingsSave() {
         showSettings.value = false;
+        emit('close', props.stream);
       },
-      onSourceSettingsDelete() {
-        emit('source-deleted', props.source);
+      onSettingsDelete() {
+        emit('deleted', props.stream);
         showSettings.value = false;
       },
       showSettings,
       onSettingsClick() {
         showSettings.value = true;
+      },
+      onClose(){
+        emit('close', props.stream);
+        showSettings.value = false;
       },
       showRecording,
       onRecordingClick,
