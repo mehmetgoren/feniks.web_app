@@ -59,7 +59,7 @@ export default {
     SourceSettings,
     SourceRecordings
   },
-  emits: ['full-screen', 'streaming-stop', 'connect', 'take-screenshot', 'refresh', 'source-deleted'],
+  emits: ['full-screen', 'streaming-stop', 'connect', 'take-screenshot', 'refresh', 'source-deleted', 'restart'],
   props: {
     source: {
       type: Object, // type is StreamingModel
@@ -95,6 +95,7 @@ export default {
         emit('connect', props.source);
       },
       async onRestartClick() {
+        emit('restart', props.source);
         const streamingModel: StreamingModel = props.source;
         const sourceModel: SourceModel = await nodeService.getSource(streamingModel.id);
         await publishService.publishRestartStreaming(sourceModel);

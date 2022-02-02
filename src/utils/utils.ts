@@ -53,7 +53,8 @@ export function startStreaming($store: Store<IState>, publishService: PublishSer
     console.error('invalid source object. Streamin request will not ben sent');
     return;
   }
-  $store.commit('settings/setSourceLoading', true);
+  // Enable it if you want loading panel...
+  // $store.commit('settings/setSourceLoading', true);
   publishService.publishStartStreaming(source).then(() => {
     console.log('streaming request has been started');
   }).catch((err) => {

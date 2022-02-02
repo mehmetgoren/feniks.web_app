@@ -31,6 +31,7 @@
             <q-btn push label='Logging' color='cyan' icon='announcement' @click='step=100' />
           </q-btn-group>
           <q-space style='margin-bottom: 5px;' />
+
           <q-stepper v-model='step' vertical color='cyan' animated>
             <q-step :name='1' color='cyan' title='Source Basic Settings' icon='settings' :done='step > 1'>
               <q-form class='q-gutter-md'>
@@ -39,6 +40,8 @@
                          lazy-rules :rules="[ val => val && val.length > 0 || 'Please type something']" />
                 <q-input :dense='dense' filled v-model.trim='source.brand' label='Brand' color='cyan' />
                 <q-input :dense='dense' filled v-model.trim='source.description' label='Description' color='cyan' />
+                <q-input :dense='dense' filled v-model.number='source.need_reload_interval' type='number'
+                         label='Reload Interval (In Seconds)' color='cyan' />
                 <q-toggle :dense='dense' v-model='source.recording' color='red'
                           :label='"Recording " + (source.recording ? "On" : "Off")' />
               </q-form>
@@ -281,7 +284,7 @@ export default {
     }
   },
   //@ts-ignore
-  setup(props: any,  { emit }) {
+  setup(props: any, { emit }) {
     const $store = useStore();
     const dense = computed(() => $store.getters['settings/dense']);
     const source = ref<SourceModel>(createEmptySource());
@@ -356,11 +359,11 @@ export default {
 
     async function onDelete(e: any) {
       const model = source.value;
-      if (isNullOrUndefined(model)){
+      if (isNullOrUndefined(model)) {
         return;
       }
       const result = await nodeService.removeSource(<string>model.id);
-      if (!result){
+      if (!result) {
         $q.notify({
           message: 'No source has been deleted',
           color: 'green',
@@ -432,6 +435,8 @@ function createEmptySource(): SourceModel {
     stream_type: 1,
     rtmp_server_type: 0,
     flv_player_connection_type: 0,
+    rtmp_server_address: '',
+    need_reload_interval: 300,
     stream_video_codec: 3, // copy
     stream_audio_codec: 9, // copy
     stream_audio_channel: 0,

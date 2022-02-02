@@ -16,6 +16,8 @@ export interface StreamingModel {
   streaming_type: number;
   rtmp_server_initialized: boolean;
   rtmp_server_type: number;
+  flv_player_connection_type: number;
+  need_reload_interval: number;
   rtmp_image_name: string;
   rtmp_container_name: string;
   rtmp_address: string;

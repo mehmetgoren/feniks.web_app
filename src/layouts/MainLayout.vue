@@ -145,13 +145,12 @@
 </template>
 
 <script lang='ts'>
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useStore } from 'src/store';
 import { useRouter, useRoute } from 'vue-router';
 import { NodeRepository } from 'src/utils/db';
 import { NodeService } from 'src/utils/services/node-service';
 import { MenuItem, MenuLink } from 'src/store/module-settings/state';
-import { useQuasar } from 'quasar';
 import { PublishService, SubscribeService } from 'src/utils/services/websocket-services';
 import { EditorImageResponseModel, Node } from 'src/utils/entities';
 
@@ -259,18 +258,18 @@ export default {
       menus.value = menu[route];
       await router.push('node?n=' + tab.node_address);
     };
-
-    const $q = useQuasar();
-    const sourceLoading = computed(() => $store.getters['settings/sourceLoading']);
-    watch(sourceLoading, (value: boolean) => {
-      if (value) {
-        $q.loading.show({
-          message: 'Source is now being loading. Hang on...'
-        });
-      } else {
-        $q.loading.hide();
-      }
-    });
+    // Enable it if you want loading panel...
+    // const $q = useQuasar();
+    // const sourceLoading = computed(() => $store.getters['settings/sourceLoading']);
+    // watch(sourceLoading, (value: boolean) => {
+    //   if (value) {
+    //     $q.loading.show({
+    //       message: 'Source is now being loading. Hang on...'
+    //     });
+    //   } else {
+    //     $q.loading.hide();
+    //   }
+    // });
 
     function onClear() {
       exactPhrase.value = '';

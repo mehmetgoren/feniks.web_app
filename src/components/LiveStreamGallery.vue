@@ -3,12 +3,15 @@
     <div class='newWidget grid-stack-item ui-draggable ui-resizable ui-resizable-autohide' v-for='source in sourceList'
          :key='source.id' gs-w='4' gs-h='3' :gs-id='source.id'>
       <div class='grid-stack-item-content' style='overflow: hidden !important;'>
-        <HlsPlayer v-if='source.show&&source.streaming_type===0' :src='source.src' :source-id='source.id' :ref='setStreamPlayers'
-                   v-on:need-reload='needReload' />
-        <FlvPlayer v-if='source.show&&source.streaming_type===1' :src='source.src' :source-id='source.id' :ref='setStreamPlayers'/>
+        <HlsPlayer v-if='source.show&&source.streaming_type===0' :src='source.src' :source-id='source.id'
+                   :ref='setStreamPlayers' v-on:need-reload='needReload'
+                   :need-reload-interval='source.need_reload_interval' />
+        <FlvPlayer v-if='source.show&&source.streaming_type===1' :src='source.src' :source-id='source.id'
+                   :ref='setStreamPlayers' v-on:need-reload='needReload'
+                   :need-reload-interval='source.need_reload_interval' />
         <SourceCommandBar :source='source' @full-screen='onFullScreen' @streaming-stop='onStreamingStop'
                           @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh'
-                          @source-deleted='onSourceDeleted'/>
+                          @source-deleted='onSourceDeleted' @restart='onRestart' />
       </div>
     </div>
   </div>
@@ -74,7 +77,7 @@ export default {
       }
     };
     const onStreamingStop = (source: Source) => {
-      void publishService.publishStopStreaming(source);
+      void publishService.publishStopStreaming(<any>source);
     };
     onUpdated(() => {
       console.log(streamPlayers);
@@ -116,15 +119,15 @@ export default {
 
     //
 
-    function openStartStreamingMessage(event: MessageEvent) {
-      console.log('openStartStreamingMessage(event) called');
+    function onSubscribeStartStreaming(event: MessageEvent) {
+      console.log('onSubscribeStartStreaming(event) called');
       const streamingModel: StreamingModel = JSON.parse(event.data);
       let url = '';
-      if (streamingModel.streaming_type == 0){ //HLS
+      if (streamingModel.streaming_type == 0) { //HLS
         url = localService.getVideoAddress() + streamingModel.hls_output_path;
-      }else if (streamingModel.streaming_type == 1){ //FLV
+      } else if (streamingModel.streaming_type == 1) { //FLV
         url = streamingModel.rtmp_flv_address;
-      }else{
+      } else {
         throw new Error('not supported');
       }
 
@@ -144,21 +147,28 @@ export default {
               '.newWidget'
             );
             grid.compact();
-            $store.commit('settings/setSourceLoading', false);
+            // Enable it if you want loading panel...
+            // $store.commit('settings/setSourceLoading', false);
           }).catch(console.error);
         }, 250);
-      } else {
-        $store.commit('settings/setSourceLoading', false);
       }
+      // Enable it if you want loading panel...
+      // else {
+      //   $store.commit('settings/setSourceLoading', false);
+      // }
     }
 
-    async function onConnect(source: Source) {
-      if (isNullOrUndefined(source)){
-        return;
-      }
+    function removeSource(source: Source) {
       const list = new List<any>(sourceList);
       const sourceItem = list.FirstOrDefault(x => x.src == source.src);
       list.Remove(sourceItem);
+    }
+
+    async function onConnect(source: Source) {
+      if (isNullOrUndefined(source)) {
+        return;
+      }
+      removeSource(source);
       const sourceModel = await nodeService.getSource(source.id);
       startStreaming($store, publishService, sourceModel);
     }
@@ -180,22 +190,26 @@ export default {
       }, 250);
     }
 
-    function onSourceDeleted(source: Source){
+    function onRestart(source: Source) {
+      removeSource(source);
+    }
+
+    function onSourceDeleted(source: Source) {
       let index = -1;
-      for (let j = 0; j < sourceList.length; ++j){
-        if (sourceList[j].id == source.id){
+      for (let j = 0; j < sourceList.length; ++j) {
+        if (sourceList[j].id == source.id) {
           index = j;
           break;
         }
       }
-      if (index > -1){
+      if (index > -1) {
         sourceList.splice(index, 1);
         onRefresh(source);
       }
     }
 
     onMounted(() => {
-      connStartStreaming = subscribeService.subscribeStartStreaming(openStartStreamingMessage);
+      connStartStreaming = subscribeService.subscribeStartStreaming(onSubscribeStartStreaming);
 
       function openStopStreamingMessage(event: MessageEvent) {
         const responseEvent = JSON.parse(event.data);
@@ -240,7 +254,8 @@ export default {
       onConnect,
       onTakeScreenshot,
       onRefresh,
-      onSourceDeleted
+      onSourceDeleted,
+      onRestart
     };
   }
 };
@@ -248,6 +263,7 @@ export default {
 interface Source extends StreamingModel {
   src: string;
   show: boolean;
+  rtmp_server_address: number;
   thumb?: string | null;
   size?: string | null;
 }

@@ -11,6 +11,7 @@
 <script>
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
+import { isNullOrUndefined } from 'src/utils/utils';
 //https://github.com/surmon-china/vue-video-player/blob/master/src/player.vue
 //or https://docs.videojs.com/tutorial-vue.html
 // as of videojs 6.6.0
@@ -88,6 +89,10 @@ export default {
       type: String,
       default: ''
     },
+    needReloadInterval:{
+      type: Number,
+      default: 300
+    }
   },
   data() {
     return {
@@ -175,35 +180,27 @@ export default {
         console.log('the player was clicked but we\'re ignoring it');
       };
 
-      this.player.on('error', () => {
-        console.log(self.sourceId +  ' omg error oldu!!!');
-        self.$emit('needReload', self.sourceId, 'error')
-      });
-      this.player.on('waiting', ()=> {
-        console.log(self.sourceId +  ' omg waiting oldu!!!');
-        self.$emit('needReload', self.sourceId, 'waiting')
-      });
-      this.player.on('suspend', ()=> {
-        console.log(self.sourceId +  ' omg suspend oldu!!!');
-      });
-      this.player.on('emptied', ()=> {
-        console.log(self.sourceId +  ' omg emptied oldu!!!');
-      });
-      this.player.on('stalled', ()=> {
-        console.log(self.sourceId +  ' omg stalled oldu!!!');
-      });
-      this.player.on('seeking', ()=> {
-        console.log(self.sourceId +  ' omg seeking oldu!!!');
-      });
-      this.player.on('seeked', ()=> {
-        console.log(self.sourceId +  ' omg seeked oldu!!!');
-      });
-      this.player.on('durationchange', ()=> {
-        console.log(self.sourceId +  ' omg durationchange oldu!!!');
-      });
-      // this.player.on('timeupdate', ()=> {
-      //   console.log(self.sourceId +  ' omg timeupdate oldu!!!');
+      this.setupTimer();
+      // Open it if a camera which has a bad connection needs this fix. BUt remember handler 404 HLS error. Otherwise, it stacked refreshing.
+      // this.player.on('error', () => {
+      //   console.log(self.sourceId +  ' omg error oldu!!!');
+      //   self.$emit('needReload', self.sourceId, 'error')
       // });
+      // this.player.on('waiting', ()=> {
+      //   console.log(self.sourceId +  ' omg waiting oldu!!!');
+      //   self.$emit('needReload', self.sourceId, 'waiting')
+      // });
+    },
+
+    setupTimer(){
+      if (isNullOrUndefined(this.needReloadInterval) || this.needReloadInterval < 1){
+        return;
+      }
+      const self = this;
+      const interval = this.needReloadInterval * 1000;
+      setInterval(() => {
+        self.$emit('needReload', self.sourceId, 'needReload')
+      }, interval);
     },
 
     dispose(callback) {
@@ -230,7 +227,7 @@ export default {
     },
     pause(){
       this.player.pause();
-    },
+    }
   },
   watch: {
     options: {

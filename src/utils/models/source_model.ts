@@ -23,6 +23,8 @@ export interface SourceModel{
   stream_type?: number | null;
   rtmp_server_type?: number | null;
   flv_player_connection_type?: number | null;
+  rtmp_server_address?: string | null;
+  need_reload_interval?: number | null;
   stream_video_codec?: number | null;
   hls_time?: number | null;
   hls_list_size?: number | null;

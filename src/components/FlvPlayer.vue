@@ -1,6 +1,6 @@
 <template>
   <div>
-    <video ref='videoPlayer' id='playerOne' class='video-js' controls>
+    <video ref='videoPlayer' id='playerOne' class='video-js' controls preload="auto" >
       <source :src='src' type='video/x-flv'>
     </video>
   </div>
@@ -10,6 +10,7 @@
 import 'video.js/dist/video-js.css';
 import videojs from 'video.js';
 import 'videojs-flvjs-es6';
+import { isNullOrUndefined } from 'src/utils/utils';
 
 export default {
   name: 'FlvPlayer',
@@ -21,6 +22,10 @@ export default {
     sourceId: {
       type: String,
       default: ''
+    },
+    needReloadInterval:{
+      type: Number,
+      default: 300
     }
   },
   data() {
@@ -34,12 +39,12 @@ export default {
         mediaDataSource: {
           isLive: true,
           cors: true,
-          withCredentials: false
+          withCredentials: false,
         }
       },
       controls: 'control',
       preload: 'auto',
-      auto_play: true,
+      autoplay: true,
       muted: true,
       fluid: true
     };
@@ -48,6 +53,8 @@ export default {
       console.log('onPlayerReady', this);
     });
     this.player.play();
+
+    this.setupTimer();
   },
   beforeUnmount() {
     if (this.player) {
@@ -55,6 +62,16 @@ export default {
     }
   },
   methods:{
+    setupTimer(){
+      if (isNullOrUndefined(this.needReloadInterval) || this.needReloadInterval < 1){
+        return;
+      }
+      const self = this;
+      const interval = this.needReloadInterval * 1000;
+      setInterval(() => {
+        self.$emit('needReload', self.sourceId, 'needReload')
+      }, interval);
+    },
     fullScreen(){
       this.player.requestFullscreen();
     },
