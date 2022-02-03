@@ -87,7 +87,8 @@ export default {
     },
     sourceId: {
       type: String,
-      default: ''
+      default: '',
+      required: true
     },
     needReloadInterval:{
       type: Number,

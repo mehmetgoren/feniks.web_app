@@ -43,4 +43,8 @@ export class SubscribeService extends BaseService{
   public subscribeEditor(onMessage: ((this: WebSocket, ev: MessageEvent) => any)): WsConnection {
     return new WsConnection('wseditor', onMessage);
   }
+
+  public subscribeFFmpegRead(onMessage: ((this: WebSocket, ev: MessageEvent) => any)): WsConnection {
+    return new WsConnection('wsffmpegreader', onMessage);
+  }
 }

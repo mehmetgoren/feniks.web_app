@@ -25,6 +25,9 @@ export interface SourceModel{
   flv_player_connection_type?: number | null;
   rtmp_server_address?: string | null;
   need_reload_interval?: number | null;
+  direct_read_frame_rate?:number | null;
+  direct_read_width?:number | null;
+  direct_read_height?:number | null;
   stream_video_codec?: number | null;
   hls_time?: number | null;
   hls_list_size?: number | null;

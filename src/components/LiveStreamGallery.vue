@@ -10,6 +10,8 @@
         <FlvPlayer v-if='stream.show&&stream.streaming_type===1' :src='stream.src' :source-id='stream.id'
                    :ref='setStreamPlayers' v-on:need-reload='needReload'
                    :need-reload-interval='stream.need_reload_interval' />
+        <DirectReadPlayer v-if='stream.show&&stream.streaming_type===2' :source-id='stream.id'
+                          :ref='setStreamPlayers' />
         <StreamCommandBar :stream='stream' @full-screen='onFullScreen' @streaming-stop='onStreamingStop'
                           @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh'
                           @deleted='onSourceDeleted' @restart='onRestart' @close='onStreamClose' />
@@ -28,6 +30,7 @@ import { EditorImageResponseModel } from 'src/utils/entities';
 import { List } from 'linqts';
 import HlsPlayer from 'components/HlsPlayer.vue';
 import FlvPlayer from 'components/FlvPlayer.vue';
+import DirectReadPlayer from 'components/DirectReadPlayer.vue';
 import StreamCommandBar from 'components/StreamCommandBar.vue';
 import 'gridstack/dist/gridstack.min.css';
 import { GridStack } from 'gridstack';
@@ -48,6 +51,7 @@ export default {
   components: {
     HlsPlayer,
     FlvPlayer,
+    DirectReadPlayer,
     StreamCommandBar
   },
   setup() {
@@ -125,12 +129,17 @@ export default {
       console.log('onSubscribeStartStreaming(event) called');
       const streamingModel: StreamingModel = JSON.parse(event.data);
       let url = '';
-      if (streamingModel.streaming_type == 0) { //HLS
-        url = localService.getVideoAddress() + streamingModel.hls_output_path;
-      } else if (streamingModel.streaming_type == 1) { //FLV
-        url = streamingModel.rtmp_flv_address;
-      } else {
-        throw new Error('not supported');
+      switch (streamingModel.streaming_type) {
+        case 0: //HLS
+          url = localService.getVideoAddress() + streamingModel.hls_output_path;
+          break;
+        case 1: //FLV
+          url = streamingModel.rtmp_flv_address;
+          break;
+        case 2: //Direct Read
+          break;
+        default:
+          throw new Error(`Streaming type is not supported: ${streamingModel.streaming_type}`);
       }
 
       if (new List<any>(streamList).FirstOrDefault(x => x.src == url) == null) {
@@ -144,11 +153,11 @@ export default {
           open.value = true;
           nextTick().then(() => {
             initGs();
-            $store.commit('settings/setSourceLoading', {id:stream.id, loading:false});
+            $store.commit('settings/setSourceLoading', { id: stream.id, loading: false });
           }).catch(console.error);
         }, 250);
       } else {
-        $store.commit('settings/setSourceLoading', {id: streamingModel.id, loading:false});
+        $store.commit('settings/setSourceLoading', { id: streamingModel.id, loading: false });
       }
     }
 
@@ -173,6 +182,7 @@ export default {
       grid.on('added removed change', saveGsLayout);
       saveGsLayout();
     }
+
     function saveGsLayout() {
       if (grid) {
         const gridItems = grid.getGridItems();
@@ -187,6 +197,7 @@ export default {
         }
       }
     }
+
     function getGsLayout(sourceId: string) {
       let ret: GsLocation = { w: 4, h: 3, x: 0, y: 0 };
       const loc = localService.getGsLocation(sourceId);
@@ -195,6 +206,7 @@ export default {
       }
       return ret;
     }
+
     //gs section starts
 
     //events starts
@@ -204,6 +216,7 @@ export default {
         stream.show = true;
       }, 250);
     }
+
     function removeSource(stream: StreamingExtModel): boolean {
       let index = -1;
       for (let j = 0; j < streamList.length; ++j) {
@@ -217,8 +230,9 @@ export default {
         localService.deleteGsLocation(stream.id);
         return true;
       }
-      return false
+      return false;
     }
+
     async function onConnect(stream: StreamingExtModel) {
       if (isNullOrUndefined(stream)) {
         return;
@@ -227,6 +241,7 @@ export default {
       const sourceModel = await nodeService.getSource(stream.id);
       startStreaming($store, publishService, sourceModel);
     }
+
     function onTakeScreenshot(stream: StreamingExtModel) {
       void publishService.publishEditor({
         id: stream.id,
@@ -236,15 +251,18 @@ export default {
         event_type: 1
       });
     }
+
     function onRestart(stream: StreamingExtModel) {
       removeSource(stream);
     }
+
     function onSourceDeleted(stream: StreamingExtModel) {
-      if (removeSource(stream)){
+      if (removeSource(stream)) {
         onRefresh(stream);
       }
     }
-    function onStreamClose(stream: StreamingExtModel){
+
+    function onStreamClose(stream: StreamingExtModel) {
       removeSource(stream);
     }
 

@@ -17,11 +17,13 @@ export default {
   props: {
     src: {
       type: String,
-      default: ''
+      default: '',
+      required: true
     },
     sourceId: {
       type: String,
-      default: ''
+      default: '',
+      required:true
     },
     needReloadInterval:{
       type: Number,

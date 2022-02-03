@@ -12,9 +12,11 @@
         :text='server'
       />
     </div>
-<!--    <div style='width: 640px;'>-->
-<!--      <FlvPlayer :src='"http://localhost:9001/live/STREAM_NAME.flv"' />-->
-<!--    </div>-->
+    <!--    <div style='width: 640px;'>-->
+    <!--      <FlvPlayer :src='"http://localhost:9001/live/STREAM_NAME.flv"' />-->
+    <!--    </div>-->
+    <!--    <img :src='readerServiceResult' />-->
+    <!--    <DirectReadPlayer :source-id='"ayufisdvbuw"' />-->
     <div>
       <input id='btn' type='button' value='Send' @click='onSend' />
       <input type='text' v-model='msg' size='64' autofocus />
@@ -27,7 +29,7 @@
 import {
   computed,
   defineComponent,
-  onMounted, ref, watch
+  onMounted, ref, watch, onUnmounted
 } from 'vue';
 import { DoughnutChart } from 'vue-chart-3';
 import { Chart, registerables } from 'chart.js';
@@ -37,6 +39,7 @@ import Nodes from 'pages/Nodes.vue';
 import Hub from 'pages/Hub.vue';
 import { useStore } from 'src/store';
 import { MenuLink } from 'src/store/module-settings/state';
+// import DirectReadPlayer from 'src/components/DirectReadPlayer.vue';
 
 Chart.register(...registerables);
 export default defineComponent({
@@ -65,6 +68,7 @@ export default defineComponent({
     const server = ref<string[]>([]);
     const msg = ref<string>('');
     const subscribeService = new SubscribeService();
+    const readerServiceResult = ref();
 
     let conn: WsConnection | null = null;
 
@@ -88,7 +92,13 @@ export default defineComponent({
       });
     });
 
-    return { testData, client, server, msg, onSend, menu };
+    onUnmounted(() => {
+      if (conn) {
+        conn.close();
+      }
+    });
+
+    return { testData, client, server, msg, onSend, menu, readerServiceResult };
   }
 });
 

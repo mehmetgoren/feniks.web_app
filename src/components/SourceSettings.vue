@@ -112,6 +112,15 @@
                           v-model='source.flv_player_connection_type' color='cyan'
                           :options='flvPlayerConnectionTypes' label='Connection Type' transition-show='flip-up'
                           transition-hide='flip-down' />
+                <q-input v-if='source.stream_type===2' :dense='dense' filled
+                         v-model.number='source.direct_read_frame_rate'
+                         type='number' label='Direct Read Frame Rate' color='cyan' />
+                <q-input v-if='source.stream_type===2' :dense='dense' filled
+                         v-model.number='source.direct_read_width' color='cyan'
+                         type='number' label='Direct Read Width' />
+                <q-input v-if='source.stream_type===2' :dense='dense' filled
+                         v-model.number='source.direct_read_height' color='cyan'
+                         type='number' label='Direct Read Height' />
                 <q-select v-if='source.stream_type !== 2' :dense='dense' emit-value map-options filled
                           v-model='source.stream_video_codec' color='cyan'
                           :options='streamVideoCodecs' label='Video Codec' transition-show='scale'
@@ -131,16 +140,16 @@
                          v-model.number='source.stream_quality' color='cyan'
                          type='number' min='2' max='31'
                          label='Quality' />
-                <q-input v-if='source.stream_type===2 || source.stream_video_codec !== 3' :dense='dense' filled
+                <q-input v-if='source.stream_type !== 2 && source.stream_video_codec !== 3' :dense='dense' filled
                          v-model.number='source.stream_frame_rate' color='cyan'
                          type='number' label='Frame Rate' />
-                <q-input v-if='source.stream_type===2 || source.stream_video_codec !== 3' :dense='dense' filled
+                <q-input v-if='source.stream_type !== 2 && source.stream_video_codec !== 3' :dense='dense' filled
                          v-model.number='source.stream_width' color='cyan'
                          type='number' label='Width' />
-                <q-input v-if='source.stream_type===2 || source.stream_video_codec !== 3' :dense='dense' filled
+                <q-input v-if='source.stream_type !== 2 && source.stream_video_codec !== 3' :dense='dense' filled
                          v-model.number='source.stream_height' color='cyan'
                          type='number' label='Height' />
-                <q-select v-if='source.stream_type!==2 && source.stream_video_codec !== 3' :dense='dense' emit-value
+                <q-select v-if='source.stream_type !== 2 && source.stream_video_codec !== 3' :dense='dense' emit-value
                           map-options filled v-model='source.stream_rotate' color='cyan'
                           :options='streamRotations' label='Rotate' transition-show='scale' transition-hide='scale' />
                 <q-select v-if='source.stream_type !== 2' :dense='dense' emit-value map-options filled
@@ -437,6 +446,9 @@ function createEmptySource(): SourceModel {
     flv_player_connection_type: 0,
     rtmp_server_address: '',
     need_reload_interval: 300,
+    direct_read_frame_rate: 1,
+    direct_read_width: 640,
+    direct_read_height: 360,
     stream_video_codec: 3, // copy
     stream_audio_codec: 9, // copy
     stream_audio_channel: 0,
