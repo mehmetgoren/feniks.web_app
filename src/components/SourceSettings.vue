@@ -188,10 +188,18 @@
                           :label='"Jpeg Snapshot " + (source.jpeg_enabled ? "Enabled" : "Disabled")' />
                 <q-input v-if='source.jpeg_enabled' :dense='dense' filled v-model.number='source.jpeg_frame_rate'
                          type='number' label='Frame Rate' color='cyan' />
+                <q-toggle v-if='source.jpeg_enabled' :dense='dense' v-model='source.jpeg_use_vsync'
+                          checked-icon='check' color='cyan'
+                          :label='"Use Vsync " + (source.jpeg_use_vsync ? "Yes" : "No")' />
+                <q-input v-if='source.jpeg_enabled' :dense='dense' filled v-model.number='source.jpeg_quality'
+                         type='number' label='Quality (2-31 Lower is better)' min='2' max='31' />
                 <q-input v-if='source.jpeg_enabled' :dense='dense' filled v-model.number='source.jpeg_width'
                          type='number' label='Width' />
                 <q-input v-if='source.jpeg_enabled' :dense='dense' filled v-model.number='source.jpeg_height'
                          type='number' label='Height' color='cyan' />
+                <q-toggle v-if='source.jpeg_enabled' :dense='dense' v-model='source.use_disk_image_reader_service'
+                          checked-icon='check' color='cyan'
+                          :label='"Enable Disk Image Reader Service " + (source.use_disk_image_reader_service ? "Yes" : "No")' />
               </q-form>
               <q-stepper-navigation>
                 <q-btn @click='step = source.recording ? 6 : 100' color='cyan' label='Continue' />
@@ -465,9 +473,12 @@ function createEmptySource(): SourceModel {
     stream_rotate: 0,
 
     jpeg_enabled: false,
-    jpeg_frame_rate: 0,
-    jpeg_width: 0,
-    jpeg_height: 0,
+    jpeg_frame_rate: 1,
+    jpeg_use_vsync: false,
+    jpeg_quality: 2, // 2-31. lower value is better.
+    jpeg_width: 1280,
+    jpeg_height: 720,
+    use_disk_image_reader_service: false,
 
     record_file_type: 0,
     record_video_codec: 5,

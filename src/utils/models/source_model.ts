@@ -44,9 +44,12 @@ export interface SourceModel{
   stream_audio_volume?: number | null;
 
   jpeg_enabled?: boolean | null;
+  jpeg_quality?: number | null;
   jpeg_frame_rate?: number | null;
+  jpeg_use_vsync?: boolean | null;
   jpeg_width?: number | null;
   jpeg_height?: number | null;
+  use_disk_image_reader_service?: boolean | null;
 
   record_file_type?: number | null;
   record_video_codec?: number | null;
