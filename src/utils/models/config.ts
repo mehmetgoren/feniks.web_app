@@ -46,8 +46,6 @@ export interface SourceReaderConfig {
   buffer_size: number;
   max_retry: number;
   max_retry_in: number;
-  // todo: remove it.
-  kill_starter_proc: boolean;
 }
 
 export interface PathConfig {
@@ -56,9 +54,14 @@ export interface PathConfig {
   reading: string;
 }
 
-export interface FFmpegConfig{
+export interface FFmpegConfig {
   use_double_quotes_for_path: boolean;
   max_operation_retry_count: number;
+  check_leaky_ffmpeg_processes_interval: number;
+  check_unstopped_containers_interval: number;
+  check_ffmpeg_streaming_running_process_interval: number;
+  check_ffmpeg_recording_running_process_interval: number;
+  start_task_wait_for_interval: number;
 }
 
 export interface Config {

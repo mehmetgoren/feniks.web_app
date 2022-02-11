@@ -29,25 +29,9 @@
         <q-form id='frm8' class='q-pa-xs'>
           <q-input v-model='redis.host' filled :dense='dense' label='Host' />
           <q-space style='height: 10px;' />
-          <q-input v-model='redis.port' type='number' filled :dense='dense' label='Port' />
+          <q-input v-model.number='redis.port' type='number' filled :dense='dense' label='Port' />
         </q-form>
         <q-space style='height: 10px;' />
-
-        <q-space style='height: 10px;' />
-        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='width: auto;'>
-          <label style='text-transform: uppercase;font-size: medium'>Object Detector Config</label>
-        </q-toolbar>
-        <q-space style='margin: 2px;' />
-        <q-form id='frm6' class='q-pa-xs'>
-          <q-input v-model='onceDetector.imagehash_threshold' type='number' filled :dense='dense'
-                   label='Imagehash Threshold' />
-          <q-space style='height: 10px;' />
-          <q-input v-model='onceDetector.psnr_threshold' type='number' filled :dense='dense'
-                   label='Psnr Threshold' />
-          <q-space style='height: 10px;' />
-          <q-input v-model='onceDetector.ssim_threshold' type='number' filled :dense='dense'
-                   label='Ssim Threshold' />
-        </q-form>
 
         <q-space style='height: 10px;' />
         <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='width: auto;'>
@@ -55,7 +39,7 @@
         </q-toolbar>
         <q-space style='margin: 2px;' />
         <q-form id='frm2' class='q-pa-xs'>
-          <q-input v-model='config.heartbeat.interval' type='number' filled :dense='dense'
+          <q-input v-model.number='config.heartbeat.interval' type='number' filled :dense='dense'
                    label='Heartbeat Interval' />
         </q-form>
 
@@ -65,11 +49,41 @@
         </q-toolbar>
         <q-space style='margin: 2px;' />
         <q-form id='frm9' class='q-pa-xs'>
-          <q-toggle v-model='config.ffmpeg.use_double_quotes_for_path' filled :dense='dense'
+          <q-toggle v-model='ffmpeg.use_double_quotes_for_path' filled :dense='dense'
                     label='Use double quotes on FFmpeg Commands' />
-          <q-input v-model='config.ffmpeg.max_operation_retry_count' type='number' filled :dense='dense'
+          <q-space style='height: 10px;' />
+          <q-input v-model.number='ffmpeg.max_operation_retry_count' type='number' filled :dense='dense'
                    label='Max retry count' />
+          <q-space style='height: 10px;' />
+          <q-input v-model.number='ffmpeg.check_leaky_ffmpeg_processes_interval' type='number' filled :dense='dense'
+                   label='Check Leaky FFmpeg Processes Interval' />
+          <q-space style='height: 10px;' />
+          <q-input v-model.number='ffmpeg.check_unstopped_containers_interval' type='number' filled :dense='dense'
+                   label='Check Unstopped Containers Interval' />
+          <q-space style='height: 10px;' />
+          <q-input v-model.number='ffmpeg.check_ffmpeg_streaming_running_process_interval' type='number' filled :dense='dense'
+                   label='Check FFmpeg Streaming Running Process Interval' />
+          <q-space style='height: 10px;' />
+          <q-input v-model.number='ffmpeg.check_ffmpeg_recording_running_process_interval' type='number' filled :dense='dense'
+                   label='Check FFmpeg Recording Running Process Interval' />
+          <q-space style='height: 10px;' />
+          <q-input v-model.number='ffmpeg.start_task_wait_for_interval' type='number' filled :dense='dense'
+                   label='Start Task Wait For Interval' />
         </q-form>
+
+        <q-space style='height: 10px;' />
+        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
+          <label style='text-transform: uppercase;font-size: medium'>Path Config</label>
+        </q-toolbar>
+        <q-space style='margin: 2px;' />
+        <q-form id='frmPath' class='q-pa-xs' style='margin:0 5px 0 5px;'>
+          <q-input v-model.trim='path.streaming' filled :dense='dense' label='HLS Streaming Folder Path' />
+          <q-space style='height: 10px;' />
+          <q-input v-model.trim='path.recording' filled :dense='dense' label='Recording Folder Path' />
+          <q-space style='height: 10px;' />
+          <q-input v-model.trim='path.reading' filled :dense='dense' label='Jpeg Folder Path' />
+        </q-form>
+
       </div>
 
       <div class='col-4'>
@@ -90,8 +104,24 @@
           <q-space style='height: 10px;' />
           <q-toggle v-model='handler.show_image_fullscreen' filled :dense='dense' label='Show Image Fullscreen' />
           <q-space style='height: 10px;' />
-          <q-input v-model='handler.show_image_wait_key' type='number' filled :dense='dense'
+          <q-input v-model.number='handler.show_image_wait_key' type='number' filled :dense='dense'
                    label='Show Image Wait Key' />
+        </q-form>
+
+        <q-space style='height: 10px;' />
+        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='width: auto;'>
+          <label style='text-transform: uppercase;font-size: medium'>Object Detector Config</label>
+        </q-toolbar>
+        <q-space style='margin: 2px;' />
+        <q-form id='frm6' class='q-pa-xs'>
+          <q-input v-model.number='onceDetector.imagehash_threshold' type='number' filled :dense='dense'
+                   label='Imagehash Threshold' />
+          <q-space style='height: 10px;' />
+          <q-input v-model.number='onceDetector.psnr_threshold' type='number' filled :dense='dense'
+                   label='Psnr Threshold' />
+          <q-space style='height: 10px;' />
+          <q-input v-model.number='onceDetector.ssim_threshold' type='number' filled :dense='dense'
+                   label='Ssim Threshold' />
         </q-form>
 
         <q-space style='height: 10px;' />
@@ -100,29 +130,14 @@
         </q-toolbar>
         <q-space style='height: 2px;' />
         <q-form id='frm7' class='q-pa-xs' style='margin:0 5px 0 5px;'>
-          <q-input v-model='sourceReader.buffer_size' type='number' filled :dense='dense' label='Buffer Size' />
+          <q-input v-model.number='sourceReader.buffer_size' type='number' filled :dense='dense' label='Buffer Size' />
           <q-space style='height: 10px;' />
-          <q-input v-model='sourceReader.fps' type='number' filled :dense='dense' label='Fps' />
+          <q-input v-model.number='sourceReader.fps' type='number' filled :dense='dense' label='Fps' />
           <q-space style='height: 10px;' />
-          <q-toggle v-model='sourceReader.kill_starter_proc' filled :dense='dense' label='Kill Starter Proc' />
+          <q-input v-model.number='sourceReader.max_retry' type='number' filled :dense='dense' label='Max Retry' />
           <q-space style='height: 10px;' />
-          <q-input v-model='sourceReader.max_retry' type='number' filled :dense='dense' label='Max Retry' />
+          <q-input v-model.number='sourceReader.max_retry_in' type='number' filled :dense='dense' label='Max RetryIn' />
           <q-space style='height: 10px;' />
-          <q-input v-model='sourceReader.max_retry_in' type='number' filled :dense='dense' label='Max RetryIn' />
-          <q-space style='height: 10px;' />
-        </q-form>
-
-        <q-space style='height: 10px;' />
-        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
-          <label style='text-transform: uppercase;font-size: medium'>Path Config</label>
-        </q-toolbar>
-        <q-space style='margin: 2px;' />
-        <q-form id='frmPath' class='q-pa-xs' style='margin:0 5px 0 5px;'>
-          <q-input v-model='path.streaming' filled :dense='dense' label='HLS Streaming Folder Path' />
-          <q-space style='height: 10px;' />
-          <q-input v-model='path.recording' filled :dense='dense' label='Recording Folder Path' />
-          <q-space style='height: 10px;' />
-          <q-input v-model='path.reading' filled :dense='dense' label='Jpeg Folder Path' />
         </q-form>
       </div>
 
@@ -136,7 +151,7 @@
           <q-space style='height: 10px;' />
           <q-input v-model='torch.model_name_specific' filled :dense='dense' label='Model Specific Name' />
           <q-space style='height: 10px;' />
-          <q-input v-model='torch.threshold' type='number' filled :dense='dense' label='Threshold' />
+          <q-input v-model.number='torch.threshold' type='number' filled :dense='dense' label='Threshold' />
           <q-space style='height: 10px;' />
           <q-table :dense='dense' style='height: 400px' title='Objects' :rows='coco80' :columns='columns'
                    row-key='value'
@@ -164,7 +179,7 @@
         <q-form id='frm4' class='q-pa-xs' style='margin: 0 10px 0 10px'>
           <q-input v-model='jetson.model_name' filled :dense='dense' label='Model Name' />
           <q-space style='height: 10px;' />
-          <q-input v-model='jetson.threshold' type='number' filled :dense='dense' label='Threshold' />
+          <q-input v-model.number='jetson.threshold' type='number' filled :dense='dense' label='Threshold' />
           <q-space style='height: 10px;' />
           <q-table :dense='dense' style='height: 400px' title='Objects' :rows='coco91' :columns='columns'
                    row-key='value'
@@ -197,7 +212,7 @@ import {
   OnceDetectorConfig,
   SourceReaderConfig,
   RedisConfig,
-  PathConfig
+  PathConfig, FFmpegConfig
 } from 'src/utils/models/config';
 import { useStore } from 'src/store';
 import CommandBar from 'src/components/CommandBar.vue';
@@ -221,6 +236,7 @@ export default {
     const onceDetector = ref<OnceDetectorConfig>();
     const sourceReader = ref<SourceReaderConfig>();
     const redis = ref<RedisConfig>();
+    const ffmpeg = ref<FFmpegConfig>();
 
     //jetson
     const jetson = ref<JetsonConfig>();
@@ -241,6 +257,7 @@ export default {
       sourceReader.value = c.source_reader;
       redis.value = c.redis;
       path.value = c.path;
+      ffmpeg.value = c.ffmpeg;
     };
 
     onMounted(async () => {
@@ -298,7 +315,7 @@ export default {
 
     return {
       config, device, handler, optDeviceTypes, onceDetector, sourceReader, redis,
-      jetson, coco91, jetsonWhiteListSelected, jetsonFilter,
+      jetson, coco91, jetsonWhiteListSelected, jetsonFilter, ffmpeg,
       torch, coco80, torchWhiteListSelected, torchFilter,
       dense, modelMultiple, optServices, columns, onSave, onRestore,
       imageExtensions: ['jpg', 'jpeg', 'png', 'bmp', 'gif'],

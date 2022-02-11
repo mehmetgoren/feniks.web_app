@@ -28,12 +28,12 @@
             <q-btn push label='Jpeg Snapshot' color='cyan' icon='image' @click='step=5' />
             <q-btn v-if='source.recording' push label='Recording' color='cyan' icon='radio_button_checked'
                    @click='step=6' />
-            <q-btn push label='Logging' color='cyan' icon='announcement' @click='step=100' />
+            <q-btn push label='Logging' color='cyan' icon='announcement' @click='step=7' />
           </q-btn-group>
           <q-space style='margin-bottom: 5px;' />
 
           <q-stepper v-model='step' vertical color='cyan' animated>
-            <q-step :name='1' color='cyan' title='Source Basic Settings' icon='settings' :done='step > 1'>
+            <q-step id='step1' :name='1' color='cyan' title='Source Basic Settings' icon='settings' :done='step > 1'>
               <q-form class='q-gutter-md'>
                 <q-checkbox :dense='dense' v-model='source.enabled' color='cyan' label='Enable' />
                 <q-input :dense='dense' filled v-model.trim='source.name' label='Name' color='cyan'
@@ -50,7 +50,7 @@
               </q-stepper-navigation>
             </q-step>
 
-            <q-step :name='2' title='Connection' icon='power' color='cyan' :done='step > 2'>
+            <q-step id='step2' :name='2' title='Connection' icon='power' color='cyan' :done='step > 2'>
               <q-form class='q-gutter-md'>
                 <q-input :dense='dense' filled v-model.trim='source.rtsp_address' color='cyan' label='Address'
                          lazy-rules :rules="[ val => val && val.length > 0 || 'Please type something']" />
@@ -67,7 +67,7 @@
               </q-stepper-navigation>
             </q-step>
 
-            <q-step :name='3' title='Input' icon='input' color='cyan' disable>
+            <q-step id='step3' :name='3' title='Input' icon='input' color='cyan'>
               <q-form class='q-gutter-md'>
                 <q-input :dense='dense' filled v-model.number='source.analyzation_duration' type='number'
                          label='Analyzation Duration' color='cyan' />
@@ -97,7 +97,7 @@
               </q-stepper-navigation>
             </q-step>
 
-            <q-step :name='4' title='Stream' caption='Optional' icon='live_tv' color='cyan' :done='step > 4'>
+            <q-step id='step4' :name='4' title='Stream' caption='Optional' icon='live_tv' color='cyan' :done='step > 4'>
               <q-form class='q-gutter-md'>
                 <q-select :dense='dense' emit-value map-options filled
                           v-model='source.stream_type' color='cyan'
@@ -182,7 +182,7 @@
               </q-stepper-navigation>
             </q-step>
 
-            <q-step :name='5' title='Jpeg Snapshot' icon='image' color='cyan' :done='step > 5'>
+            <q-step id='step5' :name='5' title='Jpeg Snapshot' icon='image' color='cyan' :done='step > 5'>
               <q-form class='q-gutter-md'>
                 <q-toggle :dense='dense' v-model='source.jpeg_enabled' checked-icon='check' color='cyan'
                           :label='"Jpeg Snapshot " + (source.jpeg_enabled ? "Enabled" : "Disabled")' />
@@ -202,12 +202,12 @@
                           :label='"Enable Disk Image Reader Service " + (source.use_disk_image_reader_service ? "Yes" : "No")' />
               </q-form>
               <q-stepper-navigation>
-                <q-btn @click='step = source.recording ? 6 : 100' color='cyan' label='Continue' />
+                <q-btn @click='step = source.recording ? 6 : 7' color='cyan' label='Continue' />
                 <q-btn flat @click='step = 4' color='cyan' label='Back' class='q-ml-sm' />
               </q-stepper-navigation>
             </q-step>
 
-            <q-step v-if='source.recording' :name='6' title='Recording' icon='radio_button_checked' color='cyan'
+            <q-step v-if='source.recording' id='step6' :name='6' title='Recording' icon='radio_button_checked' color='cyan'
                     :done='step > 6'>
               <q-form class='q-gutter-md'>
                 <q-select :dense='dense' emit-value map-options filled
@@ -257,12 +257,12 @@
                          label='Audio Volume' color='cyan' />
               </q-form>
               <q-stepper-navigation>
-                <q-btn @click='step = 100' color='cyan' label='Continue' />
+                <q-btn @click='step = 7' color='cyan' label='Continue' />
                 <q-btn flat @click='step = 5' color='cyan' label='Back' class='q-ml-sm' />
               </q-stepper-navigation>
             </q-step>
 
-            <q-step :name='100' title='Logging' icon='announcement' color='cyan'>
+            <q-step id='step7' :name='7' title='Logging' icon='announcement' color='cyan'>
               <q-select :dense='dense' emit-value map-options filled v-model='source.log_level' :options='logLevels'
                         label='Log Level' transition-show='scale' transition-hide='scale' color='cyan' />
               <q-stepper-navigation>
@@ -289,6 +289,7 @@ import { PublishService } from 'src/utils/services/websocket-services';
 import { isNullEmpty, isNullOrUndefined } from 'src/utils/utils';
 import { LocalService } from 'src/utils/services/local-service';
 
+declare var $: any;
 export default {
   name: 'SourceSettings',
   components: { CommandBar },
@@ -309,12 +310,22 @@ export default {
       //@ts-ignore
       return source.value.record_video_codec != 5 && source.value.record_video_codec < 14;
     });
+    const step = ref<number>(1);
     const nodeService = new NodeService();
+
     onMounted(async () => {
       if (props.stream != null) {
         source.value = await nodeService.getSource(<string>props.stream.id);
       }
+      for (let j = 1; j <= 7; ++j) {
+        const div = $(`#step${j}`).find('div');
+        div.css('cursor', 'pointer');
+        div.click(function() {
+          step.value = j;
+        });
+      }
     });
+
     const localService = new LocalService();
     const inputTypes = ref(localService.createInputType());
     const rtspTransports = ref(localService.createRtspTransport());
@@ -401,6 +412,7 @@ export default {
       dense,
       source,
       showRecordingDetail,
+      step,
       inputTypes,
       rtspTransports,
       logLevels,
@@ -421,7 +433,6 @@ export default {
       recordAudioCodecs,
       recordPresets,
       recordRotations,
-      step: ref(1),
       onSave,
       onDelete
     };
@@ -435,9 +446,9 @@ function createEmptySource(): SourceModel {
     brand: '',
     name: 'bitch',
     description: '',
-    recording: false,
+    recording: true,//false
 
-    rtsp_address: 'rtsp://Admin1:Admin1@192.168.1.183/live0',//'rtsp://Admin1:Admin1@192.168.0.15/live0',
+    rtsp_address: 'rtsp://Admin1:Admin1@192.168.0.15/live0', //'rtsp://Admin1:Admin1@192.168.1.183/live0',
     input_type: 0,
     rtsp_transport: 0,
     analyzation_duration: 1000000, // or set to 100000 if you are using RTSP and having stream issues.
@@ -449,7 +460,7 @@ function createEmptySource(): SourceModel {
     video_decoder: 0,
     hwaccel_device: '',
 
-    stream_type: 1,
+    stream_type: 0,
     rtmp_server_type: 1,
     flv_player_connection_type: 0,
     rtmp_server_address: '',
@@ -487,7 +498,7 @@ function createEmptySource(): SourceModel {
     record_frame_rate: 0,
     record_width: 0,
     record_height: 0,
-    record_segment_interval: 15,
+    record_segment_interval: 1,//3
     record_rotate: 0,
     record_audio_codec: 9,
     record_audio_channel: 0,
@@ -495,7 +506,17 @@ function createEmptySource(): SourceModel {
     record_audio_sample_rate: 0,
     record_audio_volume: 100,
 
-    log_level: 0
+    log_level: 5 //Warning
   };
 }
 </script>
+
+<style scoped>
+.q-stepper__tab > .q-icon {
+  cursor: pointer;
+}
+
+.q-icon {
+  cursor: pointer;
+}
+</style>
