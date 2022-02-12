@@ -17,7 +17,7 @@
       <q-page padding style='background-color: whitesmoke;'>
         <div class='row'>
           <div class='col-3'>
-            <q-toggle v-model='recordEnabled' disable checked-icon='check' color='red'
+            <q-toggle v-model='recordEnabled' disable checked-icon='check' color='purple'
                       :label='"Recording " + (recordEnabled ? "On" : "Off")' />
             <DateTimeSelect />
           </div>
@@ -31,6 +31,7 @@
               row-key='name'
               selection='multiple'
               :selected='selected'
+              :filter='filter'
               @selection='onSelection'>
               <template v-slot:body-cell-play='props'>
                 <q-td :props='props'>
@@ -52,6 +53,14 @@
                     <q-btn round color='deep-orange' icon='delete' @click='onDelete(props.row)' />
                   </div>
                 </q-td>
+              </template>
+              <template v-slot:top-right>
+                <q-btn icon="refresh" label="Refresh" glossy color="purple" style='margin-right: 15px;' @click='onRefresh'/>
+                <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
+                  <template v-slot:append>
+                    <q-icon name="search" />
+                  </template>
+                </q-input>
               </template>
             </q-table>
           </div>
@@ -139,14 +148,19 @@ export default {
     const rows = ref<VideoFile[]>([]);
     const showPlayer = ref<boolean>(false);
     const selectedVideo = ref<VideoFile | null>(null);
+    const filter = ref('');
 
-    onMounted(async () => {
+    const dataBind = async () => {
       const streamingModel: StreamingModel = props.stream;
       recordEnabled.value = streamingModel.recording
       // streamingModel.value = await nodeService.getStreaming(props.stream.id);
       const videos = await nodeService.getVideos(props.stream.id);
       fixArrayDates(videos, 'created_at', 'modified_at');
       rows.value = videos;
+    };
+
+    onMounted(async () => {
+      await dataBind();
     });
 
     onBeforeUnmount(() => {
@@ -196,6 +210,7 @@ export default {
       selected,
       lastIndex,
       tableRef,
+      filter,
 
       columns,
       pagination,
@@ -210,6 +225,10 @@ export default {
       pagesNumber: computed(() => {
         return Math.ceil(rows.value.length / pagination.value.rowsPerPage);
       }),
+
+      onRefresh(){
+        void dataBind();
+      },
 
       //@ts-ignore
       onSelection({ rows, added, evt }) {

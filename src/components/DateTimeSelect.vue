@@ -1,14 +1,14 @@
 <template>
   <div class="q-pa-md">
-    <q-date v-model="model" range />
+    <q-date v-model="model" range color='purple' />
   </div>
   <div class="q-pa-md">
     <div class="q-gutter-sm row">
-      <q-input filled v-model="time1" mask="fulltime" :rules="['fulltime']">
+      <q-input filled v-model="time1" mask="fulltime" :rules="['fulltime']" color='purple'>
         <template v-slot:append>
           <q-icon name="access_time" class="cursor-pointer">
             <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-              <q-time
+              <q-time color='purple'
                 v-model="time1"
                 with-seconds
                 format24h
@@ -22,7 +22,7 @@
         </template>
       </q-input>
 
-      <q-input filled v-model="time2" mask="fulltime" :rules="['fulltime']">
+      <q-input filled v-model="time2" mask="fulltime" :rules="['fulltime']" color='purple'>
         <template v-slot:append>
           <q-icon name="access_time" class="cursor-pointer">
             <q-popup-proxy cover transition-show="scale" transition-hide="scale">

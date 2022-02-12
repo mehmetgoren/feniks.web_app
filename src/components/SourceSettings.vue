@@ -97,10 +97,10 @@
               </q-stepper-navigation>
             </q-step>
 
-            <q-step id='step4' :name='4' title='Stream' caption='Optional' icon='live_tv' color='cyan' :done='step > 4'>
+            <q-step id='step4' :name='4' title='Stream' icon='live_tv' color='cyan' :done='step > 4'>
               <q-form class='q-gutter-md'>
                 <q-select :dense='dense' emit-value map-options filled
-                          v-model='source.stream_type' color='cyan'
+                          v-model='source.stream_type' color='cyan' @update:model-value='onStreamTypeChange'
                           :options='streamTypes' label='Stream Type' transition-show='flip-up'
                           transition-hide='flip-down' />
                 <q-select v-if='source.stream_type===1' :dense='dense' emit-value map-options filled
@@ -408,6 +408,10 @@ export default {
       });
     }
 
+    function onStreamTypeChange(){
+      source.value.recording = source.value.stream_type !== 2 // 2 is DirectRead
+    }
+
     return {
       dense,
       source,
@@ -434,7 +438,8 @@ export default {
       recordPresets,
       recordRotations,
       onSave,
-      onDelete
+      onDelete,
+      onStreamTypeChange
     };
   }
 };
