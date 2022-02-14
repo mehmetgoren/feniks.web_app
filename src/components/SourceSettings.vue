@@ -26,7 +26,7 @@
             <q-btn push label='Input' color='cyan' icon='input' @click='step=3' />
             <q-btn push label='Stream' color='cyan' icon='live_tv' @click='step=4' />
             <q-btn push label='Jpeg Snapshot' color='cyan' icon='image' @click='step=5' />
-            <q-btn v-if='source.recording' push label='Recording' color='cyan' icon='radio_button_checked'
+            <q-btn v-if='source.record' push label='Record' color='cyan' icon='radio_button_checked'
                    @click='step=6' />
             <q-btn push label='Logging' color='cyan' icon='announcement' @click='step=7' />
           </q-btn-group>
@@ -42,8 +42,8 @@
                 <q-input :dense='dense' filled v-model.trim='source.description' label='Description' color='cyan' />
                 <q-input :dense='dense' filled v-model.number='source.need_reload_interval' type='number'
                          label='Reload Interval (In Seconds)' color='cyan' />
-                <q-toggle :dense='dense' v-model='source.recording' color='red'
-                          :label='"Recording " + (source.recording ? "On" : "Off")' />
+                <q-toggle :dense='dense' v-model='source.record' color='red' @update:model-value='onRecordChanged'
+                          :label='"Record " + (source.record ? "On" : "Off")' />
               </q-form>
               <q-stepper-navigation>
                 <q-btn @click='step = 2' color='cyan' label='Continue' />
@@ -202,12 +202,12 @@
                           :label='"Enable Disk Image Reader Service " + (source.use_disk_image_reader_service ? "Yes" : "No")' />
               </q-form>
               <q-stepper-navigation>
-                <q-btn @click='step = source.recording ? 6 : 7' color='cyan' label='Continue' />
+                <q-btn @click='step = source.record ? 6 : 7' color='cyan' label='Continue' />
                 <q-btn flat @click='step = 4' color='cyan' label='Back' class='q-ml-sm' />
               </q-stepper-navigation>
             </q-step>
 
-            <q-step v-if='source.recording' id='step6' :name='6' title='Recording' icon='radio_button_checked' color='cyan'
+            <q-step v-if='source.record' id='step6' :name='6' title='Record' icon='radio_button_checked' color='cyan'
                     :done='step > 6'>
               <q-form class='q-gutter-md'>
                 <q-select :dense='dense' emit-value map-options filled
@@ -217,23 +217,23 @@
                 <q-select :dense='dense' emit-value map-options filled v-model='source.record_video_codec'
                           :options='recordVideoCodecs' label='Record Video Codec' color='cyan'
                           transition-show='scale' transition-hide='scale' />
-                <q-input v-if='showRecordingDetail' :dense='dense' filled v-model.number='source.record_quality'
+                <q-input v-if='showRecordDetail' :dense='dense' filled v-model.number='source.record_quality'
                          type='number' label='Record Quality' color='cyan' />
-                <q-select v-if='showRecordingDetail' :dense='dense' emit-value map-options filled
+                <q-select v-if='showRecordDetail' :dense='dense' emit-value map-options filled
                           v-model='source.record_preset' color='cyan'
                           :options='recordPresets' label='Record Preset'
                           transition-show='scale' transition-hide='scale' />
-                <q-input v-if='showRecordingDetail' :dense='dense' filled v-model.number='source.record_frame_rate'
+                <q-input v-if='showRecordDetail' :dense='dense' filled v-model.number='source.record_frame_rate'
                          type='number' label='Video Record Frame Rate' color='cyan' />
-                <q-input v-if='showRecordingDetail' :dense='dense' filled v-model.number='source.record_width'
+                <q-input v-if='showRecordDetail' :dense='dense' filled v-model.number='source.record_width'
                          type='number'
                          label='Record Width' color='cyan' />
-                <q-input v-if='showRecordingDetail' :dense='dense' filled v-model.number='source.record_height'
+                <q-input v-if='showRecordDetail' :dense='dense' filled v-model.number='source.record_height'
                          type='number'
                          label='Record Height' color='cyan' />
                 <q-input :dense='dense' filled v-model.number='source.record_segment_interval'
-                         type='number' label='Recording Segment Interval' color='cyan' />
-                <q-select v-if='showRecordingDetail' :dense='dense' emit-value map-options filled
+                         type='number' label='Record Segment Interval' color='cyan' />
+                <q-select v-if='showRecordDetail' :dense='dense' emit-value map-options filled
                           v-model='source.record_rotate' color='cyan'
                           :options='recordRotations' label='Record Rotate' transition-show='scale'
                           transition-hide='scale' />
@@ -266,7 +266,7 @@
               <q-select :dense='dense' emit-value map-options filled v-model='source.log_level' :options='logLevels'
                         label='Log Level' transition-show='scale' transition-hide='scale' color='cyan' />
               <q-stepper-navigation>
-                <q-btn flat @click='step = source.recording ? 6 : 5' color='cyan' label='Back' class='q-ml-sm' />
+                <q-btn flat @click='step = source.record ? 6 : 5' color='cyan' label='Back' class='q-ml-sm' />
               </q-stepper-navigation>
             </q-step>
           </q-stepper>
@@ -279,7 +279,7 @@
 </template>
 
 <script lang='ts'>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, nextTick } from 'vue';
 import { useStore } from 'src/store';
 import { SourceModel } from 'src/utils/models/source_model';
 import CommandBar from 'src/components/CommandBar.vue';
@@ -306,23 +306,36 @@ export default {
     const $store = useStore();
     const dense = computed(() => $store.getters['settings/dense']);
     const source = ref<SourceModel>(createEmptySource());
-    const showRecordingDetail = computed(() => {
+    const showRecordDetail = computed(() => {
       //@ts-ignore
       return source.value.record_video_codec != 5 && source.value.record_video_codec < 14;
     });
     const step = ref<number>(1);
     const nodeService = new NodeService();
 
+
+    const makeItCursorable = (divIdIndex: number) => {
+      const div = $(`#step${divIdIndex}`).find('div');
+      div.css('cursor', 'pointer');
+      div.click(function() {
+        step.value = divIdIndex;
+      });
+    };
+
+    const onRecordChanged = () => {
+      if (source.value.record) {
+        nextTick().then(() => {
+          makeItCursorable(6);
+        }).catch(console.error);
+      }
+    };
+
     onMounted(async () => {
       if (props.stream != null) {
         source.value = await nodeService.getSource(<string>props.stream.id);
       }
       for (let j = 1; j <= 7; ++j) {
-        const div = $(`#step${j}`).find('div');
-        div.css('cursor', 'pointer');
-        div.click(function() {
-          step.value = j;
-        });
+        makeItCursorable(j);
       }
     });
 
@@ -408,14 +421,14 @@ export default {
       });
     }
 
-    function onStreamTypeChange(){
-      source.value.recording = source.value.stream_type !== 2 // 2 is DirectRead
+    function onStreamTypeChange() {
+      source.value.record = source.value.stream_type !== 2; // 2 is DirectRead
     }
 
     return {
       dense,
       source,
-      showRecordingDetail,
+      showRecordDetail,
       step,
       inputTypes,
       rtspTransports,
@@ -439,7 +452,8 @@ export default {
       recordRotations,
       onSave,
       onDelete,
-      onStreamTypeChange
+      onStreamTypeChange,
+      onRecordChanged
     };
   }
 };
@@ -449,11 +463,11 @@ function createEmptySource(): SourceModel {
     enabled: true,
     id: '',
     brand: '',
-    name: 'bitch',
+    name: '',
     description: '',
-    recording: true,//false
+    record: false,
 
-    rtsp_address: 'rtsp://Admin1:Admin1@192.168.0.15/live0', //'rtsp://Admin1:Admin1@192.168.1.183/live0',
+    rtsp_address: '',
     input_type: 0,
     rtsp_transport: 0,
     analyzation_duration: 1000000, // or set to 100000 if you are using RTSP and having stream issues.
@@ -503,7 +517,7 @@ function createEmptySource(): SourceModel {
     record_frame_rate: 0,
     record_width: 0,
     record_height: 0,
-    record_segment_interval: 1,//3
+    record_segment_interval: 15,
     record_rotate: 0,
     record_audio_codec: 9,
     record_audio_channel: 0,

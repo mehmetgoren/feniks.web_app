@@ -48,15 +48,15 @@ export function isNullEmpty(val: string | undefined | null){
   return isNullOrUndefined(val) ? true : val.length === 0;
 }
 
-export function startStreaming($store: Store<IState>, publishService: PublishService, source: SourceModel) {
+export function startStream($store: Store<IState>, publishService: PublishService, source: SourceModel) {
   if (isNullEmpty(source?.id)){
     console.error('invalid source object. Streamin request will not ben sent');
     return;
   }
   $store.commit('settings/setSourceLoading', {id:source.id, loading: true});
-  publishService.publishStartStreaming(source).then(() => {
-    console.log('streaming request has been started');
+  publishService.publishStartStream(source).then(() => {
+    console.log('stream request has been started');
   }).catch((err) => {
-    console.log('streaming request had an error: ' + err);
+    console.log('stream request had an error: ' + err);
   });
 }

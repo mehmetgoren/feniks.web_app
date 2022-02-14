@@ -6,7 +6,7 @@ export interface SourceModel{
   description?: string | null;
 
   enabled?: boolean | null;
-  recording?: boolean | null;
+  record?: boolean | null;
 
   input_type?: number | null;
   rtsp_transport?: number | null;

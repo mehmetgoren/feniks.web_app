@@ -5,7 +5,7 @@ import { List } from 'linqts';
 import { SourceModel } from 'src/utils/models/source_model';
 import { VideoFile } from 'src/utils/entities';
 import { isNullEmpty } from 'src/utils/utils';
-import { StreamingModel } from 'src/utils/models/streaming_model';
+import { StreamModel } from 'src/utils/models/stream_model';
 
 
 export class NodeService extends BaseService {
@@ -36,13 +36,13 @@ export class NodeService extends BaseService {
     return true;
   }
 
-  public async getStreamingList(): Promise<StreamingModel[]>{
-    const address = `${this.nodeHttpProtocol}://${this.nodeAddress}:${this.defaultPort}/streaming`;
+  public async getStreamList(): Promise<StreamModel[]>{
+    const address = `${this.nodeHttpProtocol}://${this.nodeAddress}:${this.defaultPort}/stream`;
     const resp = await api.get(address);
     return resp.data;
   }
-  public async getStream(sourceId: string): Promise<StreamingModel> {
-    const address = `${this.nodeHttpProtocol}://${this.nodeAddress}:${this.defaultPort}/streaming/${sourceId}`;
+  public async getStream(sourceId: string): Promise<StreamModel> {
+    const address = `${this.nodeHttpProtocol}://${this.nodeAddress}:${this.defaultPort}/stream/${sourceId}`;
     const resp = await api.get(address);
     return resp.data;
   }

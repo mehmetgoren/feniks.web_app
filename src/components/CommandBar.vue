@@ -1,10 +1,10 @@
 <template>
-  <q-banner inline-actions rounded class='bg-cyan text-white' :dense='dense' >
+  <q-banner inline-actions rounded class='bg-cyan text-white' :dense='dense'>
     <label style='text-transform: uppercase;font-size: medium;'>{{ activeTab.name }}</label>
     <template v-slot:action>
       <q-btn v-if='showSave' flat push label='Save' icon='save' @click='onSave' />
       <q-btn v-if='showDelete' flat push label='Remove' icon='delete' @click='onDelete' />
-      <q-btn v-if='showRestore' flat push label='Restore' icon='restore_page' @click='onRestore'/>
+      <q-btn v-if='showRestore' flat push label='Restore' icon='restore_page' @click='onRestore' />
     </template>
   </q-banner>
 </template>

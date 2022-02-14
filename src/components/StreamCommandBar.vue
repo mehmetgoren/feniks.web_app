@@ -17,10 +17,10 @@
     <q-btn color='secondary' rounded glossy icon='restart_alt' @click='onRestartClick'>
       <q-tooltip class='bg-secondary'>Restart</q-tooltip>
     </q-btn>
-    <q-btn color='deep-orange' rounded glossy icon='power_off' @click='onStreamingStopClick'>
+    <q-btn color='deep-orange' rounded glossy icon='power_off' @click='onStreamStopClick'>
       <q-tooltip class='bg-deep-orange'>Stop</q-tooltip>
     </q-btn>
-    <q-btn color='purple' rounded glossy icon='dvr' @click='onRecordingClick'>
+    <q-btn color='purple' rounded glossy icon='dvr' @click='onRecordClick'>
       <q-tooltip class='bg-accent'>Playback</q-tooltip>
     </q-btn>
     <q-btn color='purple' rounded glossy icon='photo_camera' @click='onTakeScreenshot'>
@@ -38,8 +38,8 @@
     <SourceSettings :stream='stream' @on-save='onSettingsSave' @on-delete='onSettingsDelete' />
   </q-dialog>
 
-  <q-dialog v-model='showRecording' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
-    <SourceRecordings :stream='stream' />
+  <q-dialog v-model='showRecord' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
+    <SourceRecords :stream='stream' />
   </q-dialog>
 
 
@@ -48,11 +48,11 @@
 <script lang='ts'>
 import { ref, computed } from 'vue';
 import SourceSettings from 'components/SourceSettings.vue';
-import SourceRecordings from 'components/SourceRecordings.vue';
+import SourceRecords from 'components/SourceRecords.vue';
 import { PublishService } from 'src/utils/services/websocket-services';
 import { NodeService } from 'src/utils/services/node-service';
 import { SourceModel } from 'src/utils/models/source_model';
-import { StreamingModel } from 'src/utils/models/streaming_model';
+import { StreamModel } from 'src/utils/models/stream_model';
 import { LocalService, SelectOption } from 'src/utils/services/local-service';
 import { List } from 'linqts';
 
@@ -60,12 +60,12 @@ export default {
   name: 'StreamCommandBar',
   components: {
     SourceSettings,
-    SourceRecordings
+    SourceRecords
   },
-  emits: ['full-screen', 'streaming-stop', 'connect', 'take-screenshot', 'refresh', 'deleted', 'restart', 'close'],
+  emits: ['full-screen', 'stream-stop', 'connect', 'take-screenshot', 'refresh', 'deleted', 'restart', 'close'],
   props: {
     stream: {
-      type: Object, // type is StreamingModel
+      type: Object, // type is StreamModel
       required: true
     },
     showFullScreenButton:{
@@ -79,31 +79,31 @@ export default {
     const localService = new LocalService();
     const streamType = computed(() => {
       return new List<SelectOption>(localService.createStreamTypes())
-        .FirstOrDefault(x => x?.value == props.stream.streaming_type)?.label ?? '';
+        .FirstOrDefault(x => x?.value == props.stream.stream_type)?.label ?? '';
     });
     const publishService = new PublishService();
     const nodeService = new NodeService();
 
-    const showRecording = ref<boolean>(false);
-    const onRecordingClick = () => {
-      showRecording.value = true;
+    const showRecord = ref<boolean>(false);
+    const onRecordClick = () => {
+      showRecord.value = true;
     };
 
     return {
       onFullScreenClick() {
         emit('full-screen', props.stream);
       },
-      onStreamingStopClick() {
-        emit('streaming-stop', props.stream);
+      onStreamStopClick() {
+        emit('stream-stop', props.stream);
       },
       onConnectClick() {
         emit('connect', props.stream);
       },
       async onRestartClick() {
         emit('restart', props.stream);
-        const streamingModel: StreamingModel = props.stream;
-        const sourceModel: SourceModel = await nodeService.getSource(streamingModel.id);
-        await publishService.publishRestartStreaming(sourceModel);
+        const streamModel: StreamModel = props.stream;
+        const sourceModel: SourceModel = await nodeService.getSource(streamModel.id);
+        await publishService.publishRestartStream(sourceModel);
       },
       onTakeScreenshot() {
         emit('take-screenshot', props.stream);
@@ -127,8 +127,8 @@ export default {
         emit('close', props.stream);
         showSettings.value = false;
       },
-      showRecording,
-      onRecordingClick,
+      showRecord,
+      onRecordClick,
       streamType
     };
   }

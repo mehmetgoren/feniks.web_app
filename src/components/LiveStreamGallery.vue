@@ -4,15 +4,15 @@
          :key='stream.id' :gs-w='stream.loc.w' :gs-h='stream.loc.h'
          :gs-x='stream.loc.x' :gs-y='stream.loc.y' :gs-id='stream.id'>
       <div class='grid-stack-item-content' style='overflow: hidden !important;'>
-        <HlsPlayer v-if='stream.show&&stream.streaming_type===0' :src='stream.src' :source-id='stream.id'
+        <HlsPlayer v-if='stream.show&&stream.stream_type===0' :src='stream.src' :source-id='stream.id'
                    :ref='setStreamPlayers' v-on:need-reload='needReload'
                    :need-reload-interval='stream.need_reload_interval' />
-        <FlvPlayer v-if='stream.show&&stream.streaming_type===1' :src='stream.src' :source-id='stream.id'
+        <FlvPlayer v-if='stream.show&&stream.stream_type===1' :src='stream.src' :source-id='stream.id'
                    :ref='setStreamPlayers' v-on:need-reload='needReload'
                    :need-reload-interval='stream.need_reload_interval' />
-        <DirectReadPlayer v-if='stream.show&&stream.streaming_type===2' :source-id='stream.id'
+        <DirectReadPlayer v-if='stream.show&&stream.stream_type===2' :source-id='stream.id'
                           :ref='setStreamPlayers' />
-        <StreamCommandBar :stream='stream' @full-screen='onFullScreen' @streaming-stop='onStreamingStop'
+        <StreamCommandBar :stream='stream' @full-screen='onFullScreen' @stream-stop='onStreamStop'
                           @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh'
                           @deleted='onSourceDeleted' @restart='onRestart' @close='onStreamClose' />
       </div>
@@ -25,7 +25,7 @@ import {
   onMounted, reactive, ref, nextTick,
   onBeforeUpdate, onUpdated, onBeforeUnmount
 } from 'vue';
-import { StreamingModel } from 'src/utils/models/streaming_model';
+import { StreamModel } from 'src/utils/models/stream_model';
 import { EditorImageResponseModel } from 'src/utils/entities';
 import { List } from 'linqts';
 import HlsPlayer from 'components/HlsPlayer.vue';
@@ -42,7 +42,7 @@ import 'gridstack/dist/jq/gridstack-dd-jqueryui';
 import { useStore } from 'src/store';
 import { PublishService, SubscribeService } from 'src/utils/services/websocket-services';
 import { WsConnection } from 'src/utils/ws/connection';
-import { isNullOrUndefined, startStreaming } from 'src/utils/utils';
+import { isNullOrUndefined, startStream } from 'src/utils/utils';
 import { LocalService, GsLocation } from 'src/utils/services/local-service';
 import { NodeService } from 'src/utils/services/node-service';
 // https://v3.vuejs.org/guide/migration/array-refs.html
@@ -59,8 +59,8 @@ export default {
     const open = ref<boolean>(false);
     const publishService = new PublishService();
     const subscribeService = new SubscribeService();
-    let connStartStreaming: WsConnection | null = null;
-    let connStopStreaming: WsConnection | null = null;
+    let connStartStream: WsConnection | null = null;
+    let connStopStream: WsConnection | null = null;
     let connTakeScreenshot: WsConnection | null = null;
     const localService = new LocalService();
     const nodeService = new NodeService();
@@ -76,14 +76,14 @@ export default {
     onBeforeUpdate(() => {
       streamPlayers = [];
     });
-    const onFullScreen = (stream: StreamingExtModel) => {
+    const onFullScreen = (stream: StreamExtModel) => {
       const player = new List(streamPlayers).FirstOrDefault(x => x.sourceId === stream.id);
       if (player) {
         player.fullScreen();
       }
     };
-    const onStreamingStop = (stream: StreamingExtModel) => {
-      void publishService.publishStopStreaming(<any>stream);
+    const onStreamStop = (stream: StreamExtModel) => {
+      void publishService.publishStopStream(<any>stream);
     };
     onUpdated(() => {
       console.log(streamPlayers);
@@ -91,7 +91,7 @@ export default {
     //
 
     //
-    const streamList = reactive<Array<StreamingExtModel>>([]);
+    const streamList = reactive<Array<StreamExtModel>>([]);
     const prevEvents: any = {};
     const needReload = (sourceId: string, opName: string) => {
       console.log('needReload called for ' + sourceId + ' ' + opName);
@@ -125,25 +125,25 @@ export default {
 
     //
 
-    function onSubscribeStartStreaming(event: MessageEvent) {
-      console.log('onSubscribeStartStreaming(event) called');
-      const streamingModel: StreamingModel = JSON.parse(event.data);
+    function onSubscribeStartStream(event: MessageEvent) {
+      console.log('onSubscribeStartStream(event) called');
+      const streamModel: StreamModel = JSON.parse(event.data);
       let url = '';
-      switch (streamingModel.streaming_type) {
+      switch (streamModel.stream_type) {
         case 0: //HLS
-          url = localService.getVideoAddress() + streamingModel.hls_output_path;
+          url = localService.getVideoAddress() + streamModel.hls_output_path;
           break;
         case 1: //FLV
-          url = streamingModel.rtmp_flv_address;
+          url = streamModel.rtmp_flv_address;
           break;
         case 2: //Direct Read
           break;
         default:
-          throw new Error(`Streaming type is not supported: ${streamingModel.streaming_type}`);
+          throw new Error(`Stream type is not supported: ${streamModel.stream_type}`);
       }
 
       if (new List<any>(streamList).FirstOrDefault(x => x.src == url) == null) {
-        const stream: StreamingExtModel = <any>streamingModel;
+        const stream: StreamExtModel = <any>streamModel;
         stream.src = url;
         stream.show = true;
         stream.loc = getGsLayout(stream.id);
@@ -157,15 +157,15 @@ export default {
           }).catch(console.error);
         }, 250);
       } else {
-        $store.commit('settings/setSourceLoading', { id: streamingModel.id, loading: false });
+        $store.commit('settings/setSourceLoading', { id: streamModel.id, loading: false });
       }
     }
 
     async function initActiveStreams() {
-      const streamingModels: StreamingModel[] = await nodeService.getStreamingList();
-      if (!isNullOrUndefined(streamingModels) && streamingModels.length > 0) {
-        for (const streamingModel of streamingModels) {
-          startStreaming($store, publishService, streamingModel);
+      const streamModels: StreamModel[] = await nodeService.getStreamList();
+      if (!isNullOrUndefined(streamModels) && streamModels.length > 0) {
+        for (const streamModel of streamModels) {
+          startStream($store, publishService, streamModel);
         }
       }
     }
@@ -210,14 +210,14 @@ export default {
     //gs section starts
 
     //events starts
-    function onRefresh(stream: StreamingExtModel) {
+    function onRefresh(stream: StreamExtModel) {
       stream.show = false;
       setTimeout(() => {
         stream.show = true;
       }, 250);
     }
 
-    function removeSource(stream: StreamingExtModel): boolean {
+    function removeSource(stream: StreamExtModel): boolean {
       let index = -1;
       for (let j = 0; j < streamList.length; ++j) {
         if (streamList[j].id == stream.id) {
@@ -233,16 +233,16 @@ export default {
       return false;
     }
 
-    async function onConnect(stream: StreamingExtModel) {
+    async function onConnect(stream: StreamExtModel) {
       if (isNullOrUndefined(stream)) {
         return;
       }
       removeSource(stream);
       const sourceModel = await nodeService.getSource(stream.id);
-      startStreaming($store, publishService, sourceModel);
+      startStream($store, publishService, sourceModel);
     }
 
-    function onTakeScreenshot(stream: StreamingExtModel) {
+    function onTakeScreenshot(stream: StreamExtModel) {
       void publishService.publishEditor({
         id: stream.id,
         brand: stream.brand,
@@ -252,26 +252,26 @@ export default {
       });
     }
 
-    function onRestart(stream: StreamingExtModel) {
+    function onRestart(stream: StreamExtModel) {
       removeSource(stream);
     }
 
-    function onSourceDeleted(stream: StreamingExtModel) {
+    function onSourceDeleted(stream: StreamExtModel) {
       if (removeSource(stream)) {
         onRefresh(stream);
       }
     }
 
-    function onStreamClose(stream: StreamingExtModel) {
+    function onStreamClose(stream: StreamExtModel) {
       removeSource(stream);
     }
 
     //events ends
 
     onMounted(async () => {
-      connStartStreaming = subscribeService.subscribeStartStreaming(onSubscribeStartStreaming);
+      connStartStream = subscribeService.subscribeStartStream(onSubscribeStartStream);
 
-      function openStopStreamingMessage(event: MessageEvent) {
+      function openStopStreamMessage(event: MessageEvent) {
         const responseEvent = JSON.parse(event.data);
         console.warn('sikk çabuk ' + JSON.stringify(responseEvent));
         const player = new List(streamPlayers).FirstOrDefault(x => x.sourceId === responseEvent.id);
@@ -281,7 +281,7 @@ export default {
         }
       }
 
-      connStopStreaming = subscribeService.subscribeStopStreaming(openStopStreamingMessage);
+      connStopStream = subscribeService.subscribeStopStream(openStopStreamMessage);
 
       connTakeScreenshot = subscribeService.subscribeEditor((event: MessageEvent) => {
         console.log('subscribeEditor(event) called');
@@ -296,11 +296,11 @@ export default {
     });
 
     onBeforeUnmount(() => {
-      if (connStartStreaming) {
-        connStartStreaming.close();
+      if (connStartStream) {
+        connStartStream.close();
       }
-      if (connStopStreaming) {
-        connStopStreaming.close();
+      if (connStopStream) {
+        connStopStream.close();
       }
       if (connTakeScreenshot) {
         connTakeScreenshot.close();
@@ -313,7 +313,7 @@ export default {
       needReload,
       setStreamPlayers,
       onFullScreen,
-      onStreamingStop,
+      onStreamStop,
       onConnect,
       onTakeScreenshot,
       onRefresh,
@@ -325,7 +325,7 @@ export default {
   }
 };
 
-interface StreamingExtModel extends StreamingModel {
+interface StreamExtModel extends StreamModel {
   src: string;
   show: boolean;
   thumb?: string | null;

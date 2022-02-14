@@ -15,7 +15,7 @@ import LiveStreamGallery from 'components/LiveStreamGallery.vue';
 import SourceSettings from 'components/SourceSettings.vue';
 import { computed, ref, watch, nextTick } from 'vue';
 import { useStore } from 'src/store';
-import { isNullOrUndefined, parseQs, startStreaming } from 'src/utils/utils';
+import { isNullOrUndefined, parseQs, startStream } from 'src/utils/utils';
 import { MenuLink } from 'src/store/module-settings/state';
 import { PublishService } from 'src/utils/services/websocket-services';
 import { SourceModel } from 'src/utils/models/source_model';
@@ -60,7 +60,7 @@ export default {
           if (isNullOrUndefined(newValue.source)){
             return;
           }
-          startStreaming($store, publishService, <SourceModel>newValue.source)
+          startStream($store, publishService, <SourceModel>newValue.source)
         }
       }).catch(console.log);
     });

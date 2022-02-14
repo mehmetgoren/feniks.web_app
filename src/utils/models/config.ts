@@ -49,9 +49,9 @@ export interface SourceReaderConfig {
 }
 
 export interface PathConfig {
-  streaming: string;
-  recording: string;
-  reading: string;
+  stream: string;
+  record: string;
+  read: string;
 }
 
 export interface FFmpegConfig {
@@ -59,8 +59,8 @@ export interface FFmpegConfig {
   max_operation_retry_count: number;
   check_leaky_ffmpeg_processes_interval: number;
   check_unstopped_containers_interval: number;
-  check_ffmpeg_streaming_running_process_interval: number;
-  check_ffmpeg_recording_running_process_interval: number;
+  check_ffmpeg_stream_running_process_interval: number;
+  check_ffmpeg_record_running_process_interval: number;
   start_task_wait_for_interval: number;
 }
 

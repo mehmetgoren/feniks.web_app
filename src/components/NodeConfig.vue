@@ -61,11 +61,11 @@
           <q-input v-model.number='ffmpeg.check_unstopped_containers_interval' type='number' filled :dense='dense'
                    label='Check Unstopped Containers Interval' />
           <q-space style='height: 10px;' />
-          <q-input v-model.number='ffmpeg.check_ffmpeg_streaming_running_process_interval' type='number' filled :dense='dense'
-                   label='Check FFmpeg Streaming Running Process Interval' />
+          <q-input v-model.number='ffmpeg.check_ffmpeg_stream_running_process_interval' type='number' filled :dense='dense'
+                   label='Check FFmpeg Stream Running Process Interval' />
           <q-space style='height: 10px;' />
-          <q-input v-model.number='ffmpeg.check_ffmpeg_recording_running_process_interval' type='number' filled :dense='dense'
-                   label='Check FFmpeg Recording Running Process Interval' />
+          <q-input v-model.number='ffmpeg.check_ffmpeg_record_running_process_interval' type='number' filled :dense='dense'
+                   label='Check FFmpeg Record Running Process Interval' />
           <q-space style='height: 10px;' />
           <q-input v-model.number='ffmpeg.start_task_wait_for_interval' type='number' filled :dense='dense'
                    label='Start Task Wait For Interval' />
@@ -77,11 +77,11 @@
         </q-toolbar>
         <q-space style='margin: 2px;' />
         <q-form id='frmPath' class='q-pa-xs' style='margin:0 5px 0 5px;'>
-          <q-input v-model.trim='path.streaming' filled :dense='dense' label='HLS Streaming Folder Path' />
+          <q-input v-model.trim='path.stream' filled :dense='dense' label='HLS Stream Folder Path' />
           <q-space style='height: 10px;' />
-          <q-input v-model.trim='path.recording' filled :dense='dense' label='Recording Folder Path' />
+          <q-input v-model.trim='path.record' filled :dense='dense' label='Record Folder Path' />
           <q-space style='height: 10px;' />
-          <q-input v-model.trim='path.reading' filled :dense='dense' label='Jpeg Folder Path' />
+          <q-input v-model.trim='path.read' filled :dense='dense' label='Jpeg Folder Path' />
         </q-form>
 
       </div>

@@ -4,7 +4,7 @@
       <q-toolbar>
         <q-btn flat round dense icon='dvr' />
         <q-toolbar-title>
-          Recording List ({{ stream.name }})
+          Record List ({{ stream.name }})
         </q-toolbar-title>
         <q-space />
         <q-btn dense flat icon='close' v-close-popup>
@@ -18,7 +18,7 @@
         <div class='row'>
           <div class='col-3'>
             <q-toggle v-model='recordEnabled' disable checked-icon='check' color='purple'
-                      :label='"Recording " + (recordEnabled ? "On" : "Off")' />
+                      :label='"Record " + (recordEnabled ? "On" : "Off")' />
             <DateTimeSelect />
           </div>
           <div class='col-9'>
@@ -90,7 +90,7 @@ import DateTimeSelect from 'src/components/DateTimeSelect.vue';
 import VideoPlayer from 'src/components/VideoPlayer.vue';
 import { fixArrayDates } from 'src/utils/utils';
 import axios from 'axios';
-import { StreamingModel } from 'src/utils/models/streaming_model';
+import { StreamModel } from 'src/utils/models/stream_model';
 
 const columns = [
   // //@ts-ignore
@@ -121,7 +121,7 @@ const columns = [
 ];
 
 export default {
-  name: 'SourceRecordings',
+  name: 'SourceRecords',
   components: {
     DateTimeSelect,
     VideoPlayer
@@ -135,10 +135,9 @@ export default {
   setup(props: any) {
     const $q = useQuasar();
     const recordEnabled = ref<boolean>(false);
-    // const streamingModel = ref<StreamingModel | null>(null);
     const nodeService = new NodeService();
-    let connStartRecording: WsConnection | null = null;
-    let connStopRecording: WsConnection | null = null;
+    let connStartRecord: WsConnection | null = null;
+    let connStopRecord: WsConnection | null = null;
     const pagination = ref({
       sortBy: 'desc',
       descending: false,
@@ -151,9 +150,8 @@ export default {
     const filter = ref('');
 
     const dataBind = async () => {
-      const streamingModel: StreamingModel = props.stream;
-      recordEnabled.value = streamingModel.recording
-      // streamingModel.value = await nodeService.getStreaming(props.stream.id);
+      const streamModel: StreamModel = props.stream;
+      recordEnabled.value = streamModel.record
       const videos = await nodeService.getVideos(props.stream.id);
       fixArrayDates(videos, 'created_at', 'modified_at');
       rows.value = videos;
@@ -165,11 +163,11 @@ export default {
 
     onBeforeUnmount(() => {
       console.log('web socket connections will be closed');
-      if (connStartRecording) {
-        connStartRecording.close();
+      if (connStartRecord) {
+        connStartRecord.close();
       }
-      if (connStopRecording) {
-        connStopRecording.close();
+      if (connStopRecord) {
+        connStopRecord.close();
       }
     });
 
