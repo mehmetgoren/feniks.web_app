@@ -17,7 +17,7 @@
       <q-page padding style='background-color: whitesmoke;'>
 
         <div class='q-pa-md q-gutter-sm' style='margin-bottom: -25px'>
-          <CommandBar :show-restore='false' @on-save='onSave' @on-delete='onDelete' />
+          <CommandBar :show-restore='false' @on-save='onSave' :inactive-save='inactives.save' @on-delete='onDelete' :inactive-delete='inactives.delete' />
         </div>
         <div class='q-pa-md'>
           <q-btn-group push>
@@ -46,7 +46,7 @@
                           :label='"Record " + (source.record ? "On" : "Off")' :disable='source.stream_type === 2' />
               </q-form>
               <q-stepper-navigation>
-                <q-btn @click='step = 2' color='cyan' label='Continue' />
+                <q-btn @click='onStep1Click' color='cyan' label='Continue' />
               </q-stepper-navigation>
             </q-step>
 
@@ -333,6 +333,7 @@ export default {
     const recordAudioCodecs = ref(localService.createRecordAudioCodecs());
     const recordPresets = ref(localService.createPresets());
     const recordRotations = ref(localService.createRotations());
+    const inactives = ref({save: false, delete: false});
 
     const publishService = new PublishService();
     const $q = useQuasar();
@@ -346,6 +347,37 @@ export default {
       }
     });
 
+    const jqueryWorks = (divIdIndex: number) => {
+      const div = $(`#step${divIdIndex}`).find('div');
+      div.css('cursor', 'pointer');
+      div.click(function() {
+        step.value = divIdIndex;
+      });
+    };
+
+    const makeItCursorable = () => {
+      if (source.value.record) {
+        nextTick().then(() => {
+          jqueryWorks(5);  // jpeg
+          jqueryWorks(6);  // record
+        }).catch(console.error);
+      }
+    };
+
+    function onStep1Click(){
+      setTimeout(() => {
+        step.value = 2
+      }, 25);
+    }
+
+    function onStreamTypeChange() {
+      source.value.record = source.value.stream_type !== 2; // 2 is DirectRead
+      if (!source.value.record && source.value.jpeg_enabled) {
+        source.value.jpeg_enabled = false;
+      }
+      makeItCursorable();
+    }
+
     async function onSave(e: any) {
       let model = source.value;
       if (!model.name || !model.rtsp_address) {
@@ -358,7 +390,12 @@ export default {
         return;
       }
       const isAdded = isNullEmpty(<string>source.value.id);
-      source.value = await nodeService.saveSource(model);
+      try{
+        inactives.value.save = true;
+        source.value = await nodeService.saveSource(model);
+      }finally {
+        inactives.value.save = false;
+      }
       model = source.value;
       publishService.publishEditor({
         id: model.id,
@@ -385,7 +422,13 @@ export default {
       if (isNullOrUndefined(model)) {
         return;
       }
-      const result = await nodeService.removeSource(<string>model.id);
+      let result = false;
+      try{
+        inactives.value.delete = true;
+        result = await nodeService.removeSource(<string>model.id);
+      }finally {
+        inactives.value.delete = false;
+      }
       if (!result) {
         $q.notify({
           message: 'No source has been deleted',
@@ -401,31 +444,6 @@ export default {
         color: 'green',
         position: 'bottom-right'
       });
-    }
-
-    const jqueryWorks = (divIdIndex: number) => {
-      const div = $(`#step${divIdIndex}`).find('div');
-      div.css('cursor', 'pointer');
-      div.click(function() {
-        step.value = divIdIndex;
-      });
-    };
-
-    const makeItCursorable = () => {
-      if (source.value.record) {
-        nextTick().then(() => {
-          jqueryWorks(5);  // jpeg
-          jqueryWorks(6);  // record
-        }).catch(console.error);
-      }
-    };
-
-    function onStreamTypeChange() {
-      source.value.record = source.value.stream_type !== 2; // 2 is DirectRead
-      if (!source.value.record && source.value.jpeg_enabled) {
-        source.value.jpeg_enabled = false;
-      }
-      makeItCursorable();
     }
 
     return {
@@ -455,7 +473,9 @@ export default {
       recordRotations,
       onSave,
       onDelete,
-      onStreamTypeChange
+      onStreamTypeChange,
+      onStep1Click,
+      inactives
     };
   }
 };
