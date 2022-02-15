@@ -42,8 +42,8 @@
                 <q-input :dense='dense' filled v-model.trim='source.description' label='Description' color='cyan' />
                 <q-input :dense='dense' filled v-model.number='source.need_reload_interval' type='number'
                          label='Reload Interval (In Seconds)' color='cyan' />
-                <q-toggle :dense='dense' v-model='source.record' color='red' @update:model-value='onRecordChanged'
-                          :label='"Record " + (source.record ? "On" : "Off")' />
+                <q-toggle :dense='dense' v-model='source.record' color='red'
+                          :label='"Record " + (source.record ? "On" : "Off")' :disable='source.stream_type === 2' />
               </q-form>
               <q-stepper-navigation>
                 <q-btn @click='step = 2' color='cyan' label='Continue' />
@@ -182,7 +182,7 @@
               </q-stepper-navigation>
             </q-step>
 
-            <q-step id='step5' :name='5' title='Jpeg Snapshot' icon='image' color='cyan' :done='step > 5'>
+            <q-step v-if='source.stream_type !== 2' id='step5' :name='5' title='Jpeg Snapshot' icon='image' color='cyan' :done='step > 5'>
               <q-form class='q-gutter-md'>
                 <q-toggle :dense='dense' v-model='source.jpeg_enabled' checked-icon='check' color='cyan'
                           :label='"Jpeg Snapshot " + (source.jpeg_enabled ? "Enabled" : "Disabled")' />
@@ -312,33 +312,6 @@ export default {
     });
     const step = ref<number>(1);
     const nodeService = new NodeService();
-
-
-    const makeItCursorable = (divIdIndex: number) => {
-      const div = $(`#step${divIdIndex}`).find('div');
-      div.css('cursor', 'pointer');
-      div.click(function() {
-        step.value = divIdIndex;
-      });
-    };
-
-    const onRecordChanged = () => {
-      if (source.value.record) {
-        nextTick().then(() => {
-          makeItCursorable(6);
-        }).catch(console.error);
-      }
-    };
-
-    onMounted(async () => {
-      if (props.stream != null) {
-        source.value = await nodeService.getSource(<string>props.stream.id);
-      }
-      for (let j = 1; j <= 7; ++j) {
-        makeItCursorable(j);
-      }
-    });
-
     const localService = new LocalService();
     const inputTypes = ref(localService.createInputType());
     const rtspTransports = ref(localService.createRtspTransport());
@@ -363,6 +336,15 @@ export default {
 
     const publishService = new PublishService();
     const $q = useQuasar();
+
+    onMounted(async () => {
+      if (props.stream != null) {
+        source.value = await nodeService.getSource(<string>props.stream.id);
+      }
+      for (let j = 1; j <= 7; ++j) {
+        jqueryWorks(j);
+      }
+    });
 
     async function onSave(e: any) {
       let model = source.value;
@@ -421,8 +403,29 @@ export default {
       });
     }
 
+    const jqueryWorks = (divIdIndex: number) => {
+      const div = $(`#step${divIdIndex}`).find('div');
+      div.css('cursor', 'pointer');
+      div.click(function() {
+        step.value = divIdIndex;
+      });
+    };
+
+    const makeItCursorable = () => {
+      if (source.value.record) {
+        nextTick().then(() => {
+          jqueryWorks(5);  // jpeg
+          jqueryWorks(6);  // record
+        }).catch(console.error);
+      }
+    };
+
     function onStreamTypeChange() {
       source.value.record = source.value.stream_type !== 2; // 2 is DirectRead
+      if (!source.value.record && source.value.jpeg_enabled) {
+        source.value.jpeg_enabled = false;
+      }
+      makeItCursorable();
     }
 
     return {
@@ -452,8 +455,7 @@ export default {
       recordRotations,
       onSave,
       onDelete,
-      onStreamTypeChange,
-      onRecordChanged
+      onStreamTypeChange
     };
   }
 };

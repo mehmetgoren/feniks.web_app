@@ -40,7 +40,6 @@ export interface EditorEvent{
   name?: string | null;
   rtsp_address?: string | null;
   event_type: number;
-  response_json?:string
 }
 
 export interface EditorImageResponseModel{
