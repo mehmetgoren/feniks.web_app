@@ -97,17 +97,11 @@
       <!--Node will sit here-->
       <q-tabs v-model='tab' align='left' v-if='tabs'>
         <q-tab label='Home' key='home' name='home' id='home' @click='onTabClick(homeNode)' />
-        <q-tab v-for='tab in tabs' :key='tab.node_address' :label='tab.name' :name='tab.node_address'
-               @click='onTabClick(tab)' />
+        <q-tab v-for='tab in tabs' :key='tab.node_address' :label='tab.name' :name='tab.node_address' @click='onTabClick(tab)' />
       </q-tabs>
     </q-header>
 
-    <q-drawer
-      v-model='leftDrawerOpen'
-      show-if-above
-      bordered
-      class='bg-white'
-      :width='280'>
+    <q-drawer v-model='leftDrawerOpen' show-if-above bordered class='bg-white' :width='280'>
       <q-scroll-area class='fit'>
         <q-list padding class='text-grey-8'>
           <div v-for='(menu, index) in menus' :key='index'>
@@ -119,21 +113,16 @@
                 <q-item-label>{{ link.text }}</q-item-label>
               </q-item-section>
               <q-item-section v-if='link.thumbnail'>
-                <q-img :src="'data:image/png;base64, ' + link.thumbnail"
-                       spinner-color='white' @click='onLeftMenuClick(link)'
-                       style='height: 80px; width: 200px; cursor: pointer;'
-                       img-class='my-custom-image'
-                       class='rounded-borders'>
-                  <div class='absolute-bottom text-subtitle1 text-center'>
+                <q-img :src="'data:image/png;base64, ' + link.thumbnail" spinner-color='white' @click='onLeftMenuClick(link)'
+                       style='height: 80px; width: 200px; cursor: pointer;' img-class='my-custom-image' class='rounded-borders'>
+                  <div class='absolute-bottom text-subtitle1'>
+                    <q-icon name='live_tv' color='green' style='margin-right: 3px;' class='blink_me'/>
+                    <q-icon v-if='link.source.record' name='fiber_manual_record' color='red' style='margin-right: 3px;' class='blink_me'/>
                     <q-icon :name='link.icon' />
                     {{ link.text }}
                   </div>
-                  <q-inner-loading v-if='loadingObject[link.id]'
-                                   :showing='true'
-                                   label='Please wait...'
-                                   label-class='text-cyan'
-                                   label-style='font-size: 1.1em'
-                  />
+                  <q-inner-loading v-if='loadingObject[link.id]' :showing='true' label='Please wait...' label-class='text-cyan'
+                                   label-style='font-size: 1.1em' />
                 </q-img>
               </q-item-section>
               <q-btn-dropdown v-if='link.thumbnail' color='primary' dropdown-icon='settings' :dense='true'>
@@ -171,9 +160,10 @@
                     </q-item-section>
                   </q-item>
                 </q-list>
+                <q-inner-loading v-if='loadingObject[link.id]' :showing='true'>
+                  <q-spinner-gears size="50px" color="primary" />
+                </q-inner-loading>
               </q-btn-dropdown>
-              <!--              <q-btn v-if='link.thumbnail' icon-right='settings'></q-btn>-->
-              <!--              <q-btn v-if='link.thumbnail' icon-right='dvr'></q-btn>-->
             </q-item>
             <q-separator v-if='menu.length' inset class='q-my-sm' />
           </div>
@@ -444,4 +434,16 @@ export default {
 
     &:hover
       color: #000
+</style>
+
+<style scoped>
+.blink_me {
+  animation: blinker 1s linear infinite;
+  color:red;
+  font-size:medium;
+}
+
+@keyframes blinker {
+  50% { opacity: 0; }
+}
 </style>

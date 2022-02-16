@@ -14,7 +14,8 @@
                           :ref='setStreamPlayers' />
         <StreamCommandBar :stream='stream' @full-screen='onFullScreen' @stream-stop='onStreamStop'
                           @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh'
-                          @deleted='onSourceDeleted' @restart='onRestart' @close='onStreamClose' />
+                          @deleted='onSourceDeleted' @restart='onRestart' @close='onStreamClose'
+                          :take-screenshot-loading='stream.takeScreenshotLoading'/>
       </div>
     </div>
   </div>
@@ -149,6 +150,7 @@ export default {
         stream.loc = getGsLayout(stream.id);
         streamList.push(stream);
         open.value = false;
+        stream.takeScreenshotLoading = false;
         setTimeout(() => {
           open.value = true;
           nextTick().then(() => {
@@ -242,6 +244,7 @@ export default {
     }
 
     function onTakeScreenshot(stream: StreamExtModel) {
+      stream.takeScreenshotLoading = true;
       void publishService.publishEditor({
         id: stream.id,
         brand: stream.brand,
@@ -288,6 +291,10 @@ export default {
           return;
         }
         window.location.href = 'data:application/octet-stream;base64,' + responseModel.image_base64;
+        const stream = new List<StreamExtModel>(streamList).FirstOrDefault(x => x?.id == responseModel.id);
+        if (stream){
+          stream.takeScreenshotLoading = false;
+        }
       });
 
       await initActiveStreams();
@@ -329,6 +336,7 @@ interface StreamExtModel extends StreamModel {
   thumb?: string | null;
   size?: string | null;
   loc: GsLocation;
+  takeScreenshotLoading:boolean;
 }
 </script>
 <style>

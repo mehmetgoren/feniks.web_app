@@ -29,6 +29,8 @@
     </q-btn>
     <q-btn color='purple' rounded glossy icon='photo_camera' @click='onTakeScreenshot'>
       <q-tooltip class='bg-accent'>Take a screenshot</q-tooltip>
+      <q-inner-loading :showing='takeScreenshotLoading'>
+      </q-inner-loading>
     </q-btn>
     <q-btn v-if='showFullScreenButton' color='purple' rounded glossy icon='cast' @click='onFullScreenClick'>
       <q-tooltip class='bg-accent'>Fullscreen</q-tooltip>
@@ -75,6 +77,10 @@ export default {
     showFullScreenButton:{
       type: Boolean,
       default:false
+    },
+    takeScreenshotLoading:{
+      type:Boolean,
+      default: false
     }
   },
   //@ts-ignore
