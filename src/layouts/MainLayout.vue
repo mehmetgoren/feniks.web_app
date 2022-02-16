@@ -5,7 +5,7 @@
         <q-btn flat dense round @click='toggleLeftDrawer' aria-label='Menu' icon='menu' class='q-mr-sm' />
 
         <q-toolbar-title v-if='$q.screen.gt.xs' shrink class='row items-center no-wrap'>
-          <img src='../../public/icons/logo-xs.png'>
+          <img src='../../public/icons/logo-xs.png' alt='logo'>
           <span class='q-ml-sm'></span>
         </q-toolbar-title>
 
@@ -87,7 +87,7 @@
           </q-btn>
           <q-btn round flat>
             <q-avatar size='26px'>
-              <img src='https://cdn.quasar.dev/img/boy-avatar.png'>
+              <img src='https://cdn.quasar.dev/img/boy-avatar.png' alt='avatar'>
             </q-avatar>
             <q-tooltip>Account</q-tooltip>
           </q-btn>
@@ -116,8 +116,9 @@
                 <q-img :src="'data:image/png;base64, ' + link.thumbnail" spinner-color='white' @click='onLeftMenuClick(link)'
                        style='height: 80px; width: 200px; cursor: pointer;' img-class='my-custom-image' class='rounded-borders'>
                   <div class='absolute-bottom text-subtitle1'>
-                    <q-icon name='live_tv' color='green' style='margin-right: 3px;' class='blink_me'/>
-                    <q-icon v-if='link.source.record' name='fiber_manual_record' color='red' style='margin-right: 3px;' class='blink_me'/>
+                    <q-icon v-if='sourceStreamStatus[link.id]' name='live_tv' color='green' style='margin-right: 3px;' class='blink_me'/>
+                    <q-icon v-if='sourceStreamStatus[link.id]&&link.source.record' name='fiber_manual_record' color='red' style='margin-right: 3px;'
+                            class='blink_me'/>
                     <q-icon :name='link.icon' />
                     {{ link.text }}
                   </div>
@@ -223,10 +224,11 @@ export default {
     const byWebsite = ref('');
     const byDate = ref('Any time');
     const nodeRep = ref(new NodeRepository());
-    const nodeService = ref(new NodeService());
+    const nodeService = new NodeService();
     const publishService = new PublishService();
     const subscribeService = new SubscribeService();
     const loadingObject = reactive<any>({});
+    const sourceStreamStatus = reactive<any>({});
     const showSettings = ref<boolean>(false);
     const showRecords = ref<boolean>(false);
     const selectedSourceId = ref<string>('');
@@ -264,7 +266,7 @@ export default {
       }
       const route = 'node?n=' + tab.node_address;
       if (!menu[route]) {
-        const sources = await nodeService.value.getSourceList();
+        const sources = await nodeService.getSourceList();
         const menuLinks: MenuLink[] = [];
         for (const source of sources) {
           publishService.publishEditor({
@@ -286,6 +288,10 @@ export default {
           };
           loadingObject[<string>menuLink.id] = false;
           menuLinks.push(menuLink);
+        }
+        const sourceStreamStatusList = await nodeService.getSourceStreamStatus();
+        for (const item of sourceStreamStatusList){
+          sourceStreamStatus[item.id] = item.streaming;
         }
         const menuObject: MenuItem = {};
         menuObject['config'] = [
@@ -354,6 +360,7 @@ export default {
       tabs,
       onTabClick,
       loadingObject,
+      sourceStreamStatus,
       showSettings,
       selectedSourceId,
       showRecords,

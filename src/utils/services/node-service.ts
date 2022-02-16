@@ -6,6 +6,7 @@ import { SourceModel } from 'src/utils/models/source_model';
 import { VideoFile } from 'src/utils/entities';
 import { isNullEmpty } from 'src/utils/utils';
 import { StreamModel } from 'src/utils/models/stream_model';
+import { SourceStatusModel } from 'src/utils/models/source_status_model';
 
 
 export class NodeService extends BaseService {
@@ -34,6 +35,12 @@ export class NodeService extends BaseService {
     const address = `${this.nodeHttpProtocol}://${this.nodeAddress}:${this.defaultPort}/sources/${sourceId}`;
     await api.delete(address);
     return true;
+  }
+
+  public async getSourceStreamStatus(): Promise<SourceStatusModel[]>{
+    const address = `${this.nodeHttpProtocol}://${this.nodeAddress}:${this.defaultPort}/sourcestreamstatus`;
+    const response = await api.get(address);
+    return response.data;
   }
 
   public async getStreamList(): Promise<StreamModel[]>{
