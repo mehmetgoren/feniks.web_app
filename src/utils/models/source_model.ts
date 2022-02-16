@@ -1,13 +1,8 @@
 export interface SourceModel {
+  // FFmpegModel section starts
   id?: string | null;
-  brand?: string | null;
-  name?: string | null;
   rtsp_address?: string | null;
-  description?: string | null;
-
-  enabled?: boolean | null;
   record?: boolean | null;
-
   input_type?: number | null;
   rtsp_transport?: number | null;
 
@@ -21,13 +16,7 @@ export interface SourceModel {
   hwaccel_device?: string | null;
 
   stream_type?: number | null;
-  rtmp_server_type?: number | null;
-  flv_player_connection_type?: number | null;
   rtmp_server_address?: string | null;
-  need_reload_interval?: number | null;
-  direct_read_frame_rate?: number | null;
-  direct_read_width?: number | null;
-  direct_read_height?: number | null;
   stream_video_codec?: number | null;
   hls_time?: number | null;
   hls_list_size?: number | null;
@@ -42,14 +31,12 @@ export interface SourceModel {
   stream_audio_quality?: number | null;
   stream_audio_sample_rate?: number | null;
   stream_audio_volume?: number | null;
-
   jpeg_enabled?: boolean | null;
-  jpeg_quality?: number | null;
   jpeg_frame_rate?: number | null;
   jpeg_use_vsync?: boolean | null;
+  jpeg_quality?: number | null;
   jpeg_width?: number | null;
   jpeg_height?: number | null;
-  use_disk_image_reader_service?: boolean | null;
 
   record_file_type?: number | null;
   record_video_codec?: number | null;
@@ -67,8 +54,26 @@ export interface SourceModel {
   record_audio_volume?: number | null;
 
   log_level?: number | null;
+  // FFmpegModel section ends
+
+  // SourceModel section starts
+  brand?: string | null;
+  name?: string | null;
+  description?: string | null;
+
+  enabled?: boolean | null;
+  rtmp_server_type?: number | null;
+  flv_player_connection_type?: number | null;
+  need_reload_interval?: number | null;
+
+  use_disk_image_reader_service?: boolean | null;
+
+  direct_read_frame_rate?: number | null;
+  direct_read_width?: number | null;
+  direct_read_height?: number | null;
 
   last_exception_msg?: string | null;
   failed_count?: number | null;
   created_at?: string | null;
+  // SourceModel section ends
 }

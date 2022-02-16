@@ -350,10 +350,11 @@ export class LocalService {
       brand: '',
       name: '',
       rtsp_address: '',
+
       pid: -1,
       created_at: '',
       args: '',
-      failed_count: 0,
+
       stream_type: 0,
       rtmp_server_initialized: false,
       rtmp_server_type: 0,
@@ -365,8 +366,21 @@ export class LocalService {
       rtmp_flv_address: '',
       rtmp_container_ports: '',
       rtmp_container_commands: '',
+
+      direct_read_frame_rate:1,
+      direct_read_width: 640,
+      direct_read_height: 360,
+
+      jpeg_enabled: false,
+      jpeg_frame_rate: 0,
+      use_disk_image_reader_service: false,
+
       record: false,
       record_duration: 900,
+      record_flv_pid: 0,
+      record_flv_args: '',
+      record_flv_failed_count: 0,
+
       hls_output_path: '',
       read_jpeg_output_path: '',
       record_output_folder_path: ''
