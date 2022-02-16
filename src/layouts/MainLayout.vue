@@ -116,9 +116,9 @@
                 <q-img :src="'data:image/png;base64, ' + link.thumbnail" spinner-color='white' @click='onLeftMenuClick(link)'
                        style='height: 80px; width: 200px; cursor: pointer;' img-class='my-custom-image' class='rounded-borders'>
                   <div class='absolute-bottom text-subtitle1'>
-                    <q-icon v-if='sourceStreamStatus[link.id]' name='live_tv' color='green' style='margin-right: 3px;' class='blink_me'/>
-                    <q-icon v-if='sourceStreamStatus[link.id]&&link.source.record' name='fiber_manual_record' color='red' style='margin-right: 3px;'
-                            class='blink_me'/>
+                    <q-icon v-if='sourceStreamStatus[link.id].streaming' name='live_tv' color='green' style='margin-right: 3px;' class='blink_me'/>
+                    <q-icon v-if='sourceStreamStatus[link.id].recording'
+                            name='fiber_manual_record' color='red' style='margin-right: 3px;' class='blink_me'/>
                     <q-icon :name='link.icon' />
                     {{ link.text }}
                   </div>
@@ -289,10 +289,7 @@ export default {
           loadingObject[<string>menuLink.id] = false;
           menuLinks.push(menuLink);
         }
-        const sourceStreamStatusList = await nodeService.getSourceStreamStatus();
-        for (const item of sourceStreamStatusList){
-          sourceStreamStatus[item.id] = item.streaming;
-        }
+        await sourceStreamDatabind();
         const menuObject: MenuItem = {};
         menuObject['config'] = [
           {
@@ -319,9 +316,21 @@ export default {
       await router.push('node?n=' + tab.node_address);
     };
 
+    async function sourceStreamDatabind(){
+      const sourceStreamStatusList = await nodeService.getSourceStreamStatus();
+      for (const item of sourceStreamStatusList){
+        sourceStreamStatus[item.id] = item;
+      }
+    }
+
     const sourceLoading = computed(() => $store.getters['settings/sourceLoading']);
     watch(sourceLoading, (obj: LoadingInfo) => {
       loadingObject[obj.id] = obj.loading;
+    });
+
+    const sourceStreamStatusChanged = computed(() => $store.getters['settings/sourceStreamStatusChanged']);
+    watch(sourceStreamStatusChanged, async () => {
+      await sourceStreamDatabind();
     });
 
     function onClear() {

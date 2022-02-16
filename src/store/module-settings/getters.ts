@@ -21,6 +21,9 @@ const getters: GetterTree<ISettingsState, IState> = {
   },
   addSourceClicked(state: ISettingsState): boolean{
     return state.addSourceClicked;
+  },
+  sourceStreamStatusChanged(state: ISettingsState): boolean{
+    return state.sourceStreamStatusChanged;
   }
 };
 

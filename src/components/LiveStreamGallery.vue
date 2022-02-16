@@ -85,6 +85,7 @@ export default {
     };
     const onStreamStop = (stream: StreamExtModel) => {
       void publishService.publishStopStream(<any>stream);
+      $store.commit('settings/notifySourceStreamStatusChanged');
     };
     onUpdated(() => {
       console.log(streamPlayers);
@@ -161,6 +162,7 @@ export default {
       } else {
         $store.commit('settings/setSourceLoading', { id: streamModel.id, loading: false });
       }
+      $store.commit('settings/notifySourceStreamStatusChanged');
     }
 
     async function initActiveStreams() {

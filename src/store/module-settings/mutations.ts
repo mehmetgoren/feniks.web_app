@@ -59,6 +59,9 @@ const mutation: MutationTree<ISettingsState> = {
   },
   addSourceClicked(state: ISettingsState){
     state.addSourceClicked = !state.addSourceClicked;
+  },
+  notifySourceStreamStatusChanged(state: ISettingsState){
+    state.sourceStreamStatusChanged = !state.sourceStreamStatusChanged;
   }
 };
 

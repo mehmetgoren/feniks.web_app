@@ -424,6 +424,7 @@ export default {
         position: 'bottom-right'
       });
       emit('on-save', e);
+      $store.commit('settings/notifySourceStreamStatusChanged');
     }
 
     async function onDelete(e: any) {
