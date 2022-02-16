@@ -206,8 +206,7 @@ export default {
       }
       return ret;
     }
-
-    //gs section starts
+    //gs section ends
 
     //events starts
     function onRefresh(stream: StreamExtModel) {
@@ -273,7 +272,6 @@ export default {
 
       function openStopStreamMessage(event: MessageEvent) {
         const responseEvent = JSON.parse(event.data);
-        console.warn('sikk çabuk ' + JSON.stringify(responseEvent));
         const player = new List(streamPlayers).FirstOrDefault(x => x.sourceId === responseEvent.id);
         if (player) {
           player.pause();

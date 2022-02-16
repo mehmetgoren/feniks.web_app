@@ -91,6 +91,7 @@ import VideoPlayer from 'src/components/VideoPlayer.vue';
 import { fixArrayDates } from 'src/utils/utils';
 import axios from 'axios';
 import { StreamModel } from 'src/utils/models/stream_model';
+import { LocalService } from 'src/utils/services/local-service';
 
 const columns = [
   // //@ts-ignore
@@ -127,8 +128,8 @@ export default {
     VideoPlayer
   },
   props: {
-    stream: {
-      type: Object,
+    sourceId: {
+      type: String,
       required: true
     }
   },
@@ -148,11 +149,13 @@ export default {
     const showPlayer = ref<boolean>(false);
     const selectedVideo = ref<VideoFile | null>(null);
     const filter = ref('');
+    const localService = new LocalService();
+    const stream = ref<StreamModel>(localService.createEmptyStream());
 
     const dataBind = async () => {
-      const streamModel: StreamModel = props.stream;
-      recordEnabled.value = streamModel.record
-      const videos = await nodeService.getVideos(props.stream.id);
+      stream.value = await nodeService.getStream(props.sourceId);
+      recordEnabled.value = stream.value.record;
+      const videos = await nodeService.getVideos(props.sourceId);
       fixArrayDates(videos, 'created_at', 'modified_at');
       rows.value = videos;
     };
@@ -219,6 +222,7 @@ export default {
       onDelete,
       showPlayer,
       selectedVideo,
+      stream,
 
       pagesNumber: computed(() => {
         return Math.ceil(rows.value.length / pagination.value.rowsPerPage);

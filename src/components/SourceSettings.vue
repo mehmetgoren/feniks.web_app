@@ -2,7 +2,7 @@
   <q-layout view='lHh lpr lFf' container style='height: 600px' class='shadow-2 rounded-borders'>
     <q-header elevated class='bg-cyan'>
       <q-toolbar>
-        <q-btn flat round dense icon='dvr' />
+        <q-btn flat round dense icon='settings' />
         <q-toolbar-title>
           <label style='text-transform: uppercase;font-size: medium'> {{ source.name }}</label>
         </q-toolbar-title>
@@ -25,7 +25,7 @@
             <q-btn push label='Connection' color='cyan' icon='power' @click='step=2' />
             <q-btn push label='Input' color='cyan' icon='input' @click='step=3' />
             <q-btn push label='Stream' color='cyan' icon='live_tv' @click='step=4' />
-            <q-btn push label='Jpeg Snapshot' color='cyan' icon='image' @click='step=5' />
+            <q-btn v-if='source.stream_type !== 2' push label='Jpeg Snapshot' color='cyan' icon='image' @click='step=5' />
             <q-btn v-if='source.record' push label='Record' color='cyan' icon='radio_button_checked'
                    @click='step=6' />
             <q-btn push label='Logging' color='cyan' icon='announcement' @click='step=7' />
@@ -42,7 +42,7 @@
                 <q-input :dense='dense' filled v-model.trim='source.description' label='Description' color='cyan' />
                 <q-input :dense='dense' filled v-model.number='source.need_reload_interval' type='number'
                          label='Reload Interval (In Seconds)' color='cyan' />
-                <q-toggle :dense='dense' v-model='source.record' color='red'
+                <q-toggle :dense='dense' v-model='source.record' color='red' @update:model-value='onRecordChange'
                           :label='"Record " + (source.record ? "On" : "Off")' :disable='source.stream_type === 2' />
               </q-form>
               <q-stepper-navigation>
@@ -270,11 +270,12 @@
               </q-stepper-navigation>
             </q-step>
           </q-stepper>
+          <span v-if='source.failed_count > 0' class='blink_me' style='margin-top: 5px;'>Total Failed Count: {{source.failed_count}}</span>
+          <q-space style='margin-top: 5px;' />
+          <span v-if='source.last_exception_msg' class='blink_me' style='margin-top: 5px;'>Error Message is: "{{source.last_exception_msg}}"</span>
         </div>
-
       </q-page>
     </q-page-container>
-
   </q-layout>
 </template>
 
@@ -295,8 +296,8 @@ export default {
   components: { CommandBar },
   emits: ['on-save', 'on-delete'],
   props: {
-    stream: {
-      type: Object,
+    sourceId: {
+      type: String,
       required: false,
       default: null
     }
@@ -305,14 +306,14 @@ export default {
   setup(props: any, { emit }) {
     const $store = useStore();
     const dense = computed(() => $store.getters['settings/dense']);
-    const source = ref<SourceModel>(createEmptySource());
+    const localService = new LocalService();
+    const source = ref<SourceModel>(localService.createEmptySource());
     const showRecordDetail = computed(() => {
       //@ts-ignore
       return source.value.record_video_codec != 5 && source.value.record_video_codec < 14;
     });
     const step = ref<number>(1);
     const nodeService = new NodeService();
-    const localService = new LocalService();
     const inputTypes = ref(localService.createInputType());
     const rtspTransports = ref(localService.createRtspTransport());
     const logLevels = ref(localService.createLogLevels());
@@ -339,12 +340,14 @@ export default {
     const $q = useQuasar();
 
     onMounted(async () => {
-      if (props.stream != null) {
-        source.value = await nodeService.getSource(<string>props.stream.id);
+      if (!isNullEmpty(props.sourceId)) {
+        source.value = await nodeService.getSource(props.sourceId);
       }
-      for (let j = 1; j <= 7; ++j) {
-        jqueryWorks(j);
-      }
+      setTimeout(() =>{
+        for (let j = 1; j <= 7; ++j) {
+          jqueryWorks(j);
+        }
+      }, 100);
     });
 
     const jqueryWorks = (divIdIndex: number) => {
@@ -376,6 +379,12 @@ export default {
         source.value.jpeg_enabled = false;
       }
       makeItCursorable();
+    }
+
+    function onRecordChange(){
+      if (source.value.record){
+        makeItCursorable();
+      }
     }
 
     async function onSave(e: any) {
@@ -475,89 +484,21 @@ export default {
       onDelete,
       onStreamTypeChange,
       onStep1Click,
-      inactives
+      inactives,
+      onRecordChange
     };
   }
 };
-
-function createEmptySource(): SourceModel {
-  return {
-    enabled: true,
-    id: '',
-    brand: '',
-    name: '',
-    description: '',
-    record: false,
-
-    rtsp_address: '',
-    input_type: 0,
-    rtsp_transport: 0,
-    analyzation_duration: 1000000, // or set to 100000 if you are using RTSP and having stream issues.
-    probe_size: 1000000, //or set to 100000 if you are using RTSP and having stream issues.
-    input_frame_rate: 0,
-    use_camera_timestamp: false,
-    use_hwaccel: false,
-    hwaccel_engine: 0,
-    video_decoder: 0,
-    hwaccel_device: '',
-
-    stream_type: 0,
-    rtmp_server_type: 1,
-    flv_player_connection_type: 0,
-    rtmp_server_address: '',
-    need_reload_interval: 300,
-    direct_read_frame_rate: 1,
-    direct_read_width: 640,
-    direct_read_height: 360,
-    stream_video_codec: 3, // copy
-    stream_audio_codec: 9, // copy
-    stream_audio_channel: 0,
-    stream_audio_quality: 0,
-    stream_audio_sample_rate: 0,
-    stream_audio_volume: 100,
-    hls_time: 2,
-    hls_list_size: 3,
-    hls_preset: 0,
-    stream_quality: 0,
-    stream_frame_rate: 0,
-    stream_width: 0,
-    stream_height: 0,
-    stream_rotate: 0,
-
-    jpeg_enabled: false,
-    jpeg_frame_rate: 1,
-    jpeg_use_vsync: false,
-    jpeg_quality: 2, // 2-31. lower value is better.
-    jpeg_width: 1280,
-    jpeg_height: 720,
-    use_disk_image_reader_service: false,
-
-    record_file_type: 0,
-    record_video_codec: 5,
-    record_quality: 0,
-    record_preset: 0,
-    record_frame_rate: 0,
-    record_width: 0,
-    record_height: 0,
-    record_segment_interval: 15,
-    record_rotate: 0,
-    record_audio_codec: 9,
-    record_audio_channel: 0,
-    record_audio_quality: 0,
-    record_audio_sample_rate: 0,
-    record_audio_volume: 100,
-
-    log_level: 5 //Warning
-  };
-}
 </script>
 
 <style scoped>
-.q-stepper__tab > .q-icon {
-  cursor: pointer;
+.blink_me {
+  animation: blinker 1s linear infinite;
+  color:red;
+  font-size:medium;
 }
 
-.q-icon {
-  cursor: pointer;
+@keyframes blinker {
+  50% { opacity: 0; }
 }
 </style>

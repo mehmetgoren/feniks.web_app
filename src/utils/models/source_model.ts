@@ -1,4 +1,4 @@
-export interface SourceModel{
+export interface SourceModel {
   id?: string | null;
   brand?: string | null;
   name?: string | null;
@@ -18,16 +18,16 @@ export interface SourceModel{
   use_hwaccel?: boolean | null;
   hwaccel_engine?: number | null;
   video_decoder?: number | null;
-  hwaccel_device?:string | null;
+  hwaccel_device?: string | null;
 
   stream_type?: number | null;
   rtmp_server_type?: number | null;
   flv_player_connection_type?: number | null;
   rtmp_server_address?: string | null;
   need_reload_interval?: number | null;
-  direct_read_frame_rate?:number | null;
-  direct_read_width?:number | null;
-  direct_read_height?:number | null;
+  direct_read_frame_rate?: number | null;
+  direct_read_width?: number | null;
+  direct_read_height?: number | null;
   stream_video_codec?: number | null;
   hls_time?: number | null;
   hls_list_size?: number | null;
@@ -53,9 +53,9 @@ export interface SourceModel{
 
   record_file_type?: number | null;
   record_video_codec?: number | null;
-  record_quality?:number | null;
-  record_preset?:number | null;
-  record_frame_rate?:number | null;
+  record_quality?: number | null;
+  record_preset?: number | null;
+  record_frame_rate?: number | null;
   record_width?: number | null;
   record_height?: number | null;
   record_segment_interval?: number | null;
@@ -67,4 +67,8 @@ export interface SourceModel{
   record_audio_volume?: number | null;
 
   log_level?: number | null;
+
+  last_exception_msg?: string | null;
+  failed_count?: number | null;
+  created_at?: string | null;
 }

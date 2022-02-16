@@ -1,9 +1,13 @@
 <template>
   <div>
-    <q-chip square color='primary' text-color='white' icon='videocam'>
+    <q-chip square color='primary' text-color='white' icon='videocam' style='margin-right: 15px;'>
       {{ stream.name }} ({{ streamType }})
     </q-chip>
+    <q-icon v-if='stream.record' name='fiber_manual_record' size='sm' color='red' class='blink_me'>
+      <label style='font-size: x-small; color: black;'>REC</label>
+    </q-icon>
   </div>
+  <q-separator/>
   <q-btn-group>
     <q-btn color='cyan' rounded glossy icon-right='settings' @click='onSettingsClick'>
       <q-tooltip class='bg-cyan'>Settings</q-tooltip>
@@ -35,11 +39,11 @@
   </q-btn-group>
 
   <q-dialog v-model='showSettings' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
-    <SourceSettings :stream='stream' @on-save='onSettingsSave' @on-delete='onSettingsDelete' />
+    <SourceSettings :source-id='stream.id' @on-save='onSettingsSave' @on-delete='onSettingsDelete' />
   </q-dialog>
 
   <q-dialog v-model='showRecord' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
-    <SourceRecords :stream='stream' />
+    <SourceRecords :source-id='stream.id' />
   </q-dialog>
 
 
@@ -136,5 +140,13 @@ export default {
 </script>
 
 <style scoped>
+.blink_me {
+  animation: blinker 1s linear infinite;
+  color:red;
+  font-size:medium;
+}
 
+@keyframes blinker {
+  50% { opacity: 0; }
+}
 </style>

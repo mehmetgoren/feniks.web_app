@@ -4,8 +4,6 @@ export interface StreamModel {
   name: string;
   rtsp_address: string;
 
-  enabled: boolean;
-
   // stream
   pid: number;
   created_at: string;

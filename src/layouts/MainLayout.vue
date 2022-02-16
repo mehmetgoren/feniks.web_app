@@ -111,32 +111,69 @@
       <q-scroll-area class='fit'>
         <q-list padding class='text-grey-8'>
           <div v-for='(menu, index) in menus' :key='index'>
-            <q-item v-for='link in menu' :key='link.text' class='GNL__drawer-item' v-ripple clickable
-                    @click='onLeftMenuClick(link)'>
-              <q-item-section avatar v-if='!link.thumbnail'>
+            <q-item v-for='link in menu' :key='link.text' class='GNL__drawer-item'>
+              <q-item-section avatar v-if='!link.thumbnail' style='cursor: pointer;' v-ripple @click='onLeftMenuClick(link)'>
                 <q-icon v-if='!link.thumbnail' :name='link.icon' />
               </q-item-section>
-              <q-item-section v-if='!link.thumbnail'>
+              <q-item-section v-if='!link.thumbnail' style='cursor: pointer;' v-ripple @click='onLeftMenuClick(link)'>
                 <q-item-label>{{ link.text }}</q-item-label>
               </q-item-section>
               <q-item-section v-if='link.thumbnail'>
                 <q-img :src="'data:image/png;base64, ' + link.thumbnail"
-                       spinner-color='white'
-                       style='height: 170px; max-width: 300px'
+                       spinner-color='white' @click='onLeftMenuClick(link)'
+                       style='height: 80px; width: 200px; cursor: pointer;'
                        img-class='my-custom-image'
                        class='rounded-borders'>
                   <div class='absolute-bottom text-subtitle1 text-center'>
                     <q-icon :name='link.icon' />
                     {{ link.text }}
                   </div>
+                  <q-inner-loading v-if='loadingObject[link.id]'
+                                   :showing='true'
+                                   label='Please wait...'
+                                   label-class='text-cyan'
+                                   label-style='font-size: 1.1em'
+                  />
                 </q-img>
-                <q-inner-loading v-if="loadingObject[link.id]"
-                  :showing="true"
-                  label="Please wait..."
-                  label-class="text-cyan"
-                  label-style="font-size: 1.1em"
-                />
               </q-item-section>
+              <q-btn-dropdown v-if='link.thumbnail' color='primary' dropdown-icon='settings' :dense='true'>
+                <q-list>
+                  <q-item clickable v-close-popup @click='onSaveSettingsClicked(link.id)' v-ripple>
+                    <q-item-section side>
+                      <q-icon name='settings' color='cyan' />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label>Settings</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                  <q-item clickable v-close-popup @click='onStartStreaming(link)' v-ripple>
+                    <q-item-section side>
+                      <q-icon name='live_tv' color='cyan' />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label>Start Streaming</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                  <q-item clickable v-close-popup @click='onShowRecordClicked(link.id)'>
+                    <q-item-section side>
+                      <q-icon name='dvr' color='purple' />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label>Playback</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                  <q-item clickable v-close-popup @click='onTakeScreenshotClicked(link)'>
+                    <q-item-section side>
+                      <q-icon name='photo_camera' color='purple' />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label>Take a screenshot</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </q-btn-dropdown>
+              <!--              <q-btn v-if='link.thumbnail' icon-right='settings'></q-btn>-->
+              <!--              <q-btn v-if='link.thumbnail' icon-right='dvr'></q-btn>-->
             </q-item>
             <q-separator v-if='menu.length' inset class='q-my-sm' />
           </div>
@@ -148,6 +185,15 @@
       <router-view />
     </q-page-container>
   </q-layout>
+
+  <q-dialog v-model='showSettings' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
+    <SourceSettings :source-id='selectedSourceId' />
+  </q-dialog>
+
+  <q-dialog v-model='showRecords' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
+    <SourceRecords :source-id='selectedSourceId' />
+  </q-dialog>
+
 </template>
 
 <script lang='ts'>
@@ -159,10 +205,17 @@ import { NodeService } from 'src/utils/services/node-service';
 import { MenuItem, MenuLink, LoadingInfo } from 'src/store/module-settings/state';
 import { PublishService, SubscribeService } from 'src/utils/services/websocket-services';
 import { EditorImageResponseModel, Node } from 'src/utils/entities';
+import SourceSettings from 'components/SourceSettings.vue';
+import SourceRecords from 'components/SourceRecords.vue';
+import { SourceModel } from 'src/utils/models/source_model';
+import { startStream } from 'src/utils/utils';
 
 export default {
   name: 'Ionix Layout',
-
+  components: {
+    SourceSettings,
+    SourceRecords
+  },
   setup() {
     const homeNode: Node = { node_address: '', name: 'home', description: '', enabled: true };
     const tab = ref<string>('home');
@@ -184,6 +237,9 @@ export default {
     const publishService = new PublishService();
     const subscribeService = new SubscribeService();
     const loadingObject = reactive<any>({});
+    const showSettings = ref<boolean>(false);
+    const showRecords = ref<boolean>(false);
+    const selectedSourceId = ref<string>('');
 
     const tabs = ref();
     onMounted(async () => {
@@ -218,28 +274,28 @@ export default {
       }
       const route = 'node?n=' + tab.node_address;
       if (!menu[route]) {
-        const nodes = await nodeService.value.getSourceList();
-        const menuLink: MenuLink[] = [];
-        for (const node of nodes) {
+        const sources = await nodeService.value.getSourceList();
+        const menuLinks: MenuLink[] = [];
+        for (const source of sources) {
           publishService.publishEditor({
-            id: node.id,
-            brand: node.brand,
-            name: node.name,
-            rtsp_address: node.rtsp_address,
+            id: source.id,
+            brand: source.brand,
+            name: source.name,
+            rtsp_address: source.rtsp_address,
             event_type: 2
           }).then().catch(console.error);
           console.log('publishService called');
-          const source: MenuLink = {
-            route: route + '&source=' + node.name,
+          const menuLink: MenuLink = {
+            route: route + '&source=' + source.id,
             icon: 'videocam',
-            text: node.name,
-            id: node.id,
-            source: node,
+            text: source.name,
+            id: source.id,
+            source: source,
             isSource: true,
             thumbnail: null
           };
-          loadingObject[<string>source.id] = false;
-          menuLink.push(source);
+          loadingObject[<string>menuLink.id] = false;
+          menuLinks.push(menuLink);
         }
         const menuObject: MenuItem = {};
         menuObject['config'] = [
@@ -256,7 +312,7 @@ export default {
             text: 'Add Source'
           }
         ];
-        menuObject['cameras'] = menuLink;
+        menuObject['cameras'] = menuLinks;
 
         $store.commit('settings/addMenu', {
           name: route,
@@ -307,7 +363,31 @@ export default {
       toggleLeftDrawer,
       tabs,
       onTabClick,
-      loadingObject
+      loadingObject,
+      showSettings,
+      selectedSourceId,
+      showRecords,
+      onSaveSettingsClicked(sourceId: string) {
+        showSettings.value = true;
+        selectedSourceId.value = sourceId;
+      },
+      onStartStreaming(link: MenuLink){
+        startStream($store, publishService, <SourceModel>link.source);
+      },
+      onShowRecordClicked(sourceId: string) {
+        showRecords.value = true;
+        selectedSourceId.value = sourceId;
+      },
+      onTakeScreenshotClicked(link: MenuLink) {
+        const source = <SourceModel>link.source;
+        void publishService.publishEditor({
+          id: source.id,
+          brand: source.brand,
+          name: source.name,
+          rtsp_address: source.rtsp_address,
+          event_type: 1
+        });
+      }
     };
   },
   methods: {

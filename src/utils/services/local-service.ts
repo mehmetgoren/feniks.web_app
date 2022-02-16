@@ -1,16 +1,19 @@
 import { Node } from 'src/utils/entities';
 import { isNullEmpty, isNullOrUndefined, NodeMngrAddress } from 'src/utils/utils';
+import { SourceModel } from 'src/utils/models/source_model';
+import { StreamModel } from 'src/utils/models/stream_model';
 
 export class LocalService {
 
-  public saveGsLocation(sourceId: string, option: GsLocation){
+  public saveGsLocation(sourceId: string, option: GsLocation) {
     if (isNullEmpty(sourceId) || isNullOrUndefined(option))
       return;
     localStorage.setItem(sourceId, JSON.stringify(option));
   }
-  public getGsLocation(sourceId: string): GsLocation | null{
+
+  public getGsLocation(sourceId: string): GsLocation | null {
     const json = localStorage.getItem(sourceId);
-    if (json){
+    if (json) {
       return JSON.parse(json);
     }
     return null;
@@ -268,6 +271,106 @@ export class LocalService {
       { value: 8, label: 'ALAC' },
       { value: 9, label: 'copy' }
     ];
+  }
+
+  public createEmptySource(): SourceModel {
+    return {
+      enabled: true,
+      id: '',
+      brand: '',
+      name: '',
+      description: '',
+      record: false,
+
+      rtsp_address: '',
+      input_type: 0,
+      rtsp_transport: 0,
+      analyzation_duration: 1000000, // or set to 100000 if you are using RTSP and having stream issues.
+      probe_size: 1000000, //or set to 100000 if you are using RTSP and having stream issues.
+      input_frame_rate: 0,
+      use_camera_timestamp: false,
+      use_hwaccel: false,
+      hwaccel_engine: 0,
+      video_decoder: 0,
+      hwaccel_device: '',
+
+      stream_type: 0,
+      rtmp_server_type: 1,
+      flv_player_connection_type: 0,
+      rtmp_server_address: '',
+      need_reload_interval: 300,
+      direct_read_frame_rate: 1,
+      direct_read_width: 640,
+      direct_read_height: 360,
+      stream_video_codec: 3, // copy
+      stream_audio_codec: 9, // copy
+      stream_audio_channel: 0,
+      stream_audio_quality: 0,
+      stream_audio_sample_rate: 0,
+      stream_audio_volume: 100,
+      hls_time: 2,
+      hls_list_size: 3,
+      hls_preset: 0,
+      stream_quality: 0,
+      stream_frame_rate: 0,
+      stream_width: 0,
+      stream_height: 0,
+      stream_rotate: 0,
+
+      jpeg_enabled: false,
+      jpeg_frame_rate: 1,
+      jpeg_use_vsync: false,
+      jpeg_quality: 2, // 2-31. lower value is better.
+      jpeg_width: 1280,
+      jpeg_height: 720,
+      use_disk_image_reader_service: false,
+
+      record_file_type: 0,
+      record_video_codec: 5,
+      record_quality: 0,
+      record_preset: 0,
+      record_frame_rate: 0,
+      record_width: 0,
+      record_height: 0,
+      record_segment_interval: 15,
+      record_rotate: 0,
+      record_audio_codec: 9,
+      record_audio_channel: 0,
+      record_audio_quality: 0,
+      record_audio_sample_rate: 0,
+      record_audio_volume: 100,
+
+      log_level: 5 //Warning
+    };
+  }
+
+  public createEmptyStream(): StreamModel {
+    return {
+      id: '',
+      brand: '',
+      name: '',
+      rtsp_address: '',
+      pid: -1,
+      created_at: '',
+      args: '',
+      failed_count: 0,
+      stream_type: 0,
+      rtmp_server_initialized: false,
+      rtmp_server_type: 0,
+      flv_player_connection_type: 0,
+      need_reload_interval: 0,
+      rtmp_image_name: '',
+      rtmp_container_name: '',
+      rtmp_address: '',
+      rtmp_flv_address: '',
+      rtmp_container_ports: '',
+      rtmp_container_commands: '',
+      record: false,
+      record_duration: 900,
+      hls_output_path: '',
+      read_jpeg_output_path: '',
+      record_output_folder_path: ''
+    };
   }
 }
 
