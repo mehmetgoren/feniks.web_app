@@ -7,7 +7,7 @@
       <label style='font-size: x-small; color: black;'>REC</label>
     </q-icon>
   </div>
-  <q-separator/>
+  <q-separator style='margin-bottom: 5px;'/>
   <q-btn-group>
     <q-btn color='cyan' rounded glossy icon-right='settings' @click='onSettingsClick'>
       <q-tooltip class='bg-cyan'>Settings</q-tooltip>
@@ -39,6 +39,7 @@
       <q-tooltip class='bg-deep-orange'>Close</q-tooltip>
     </q-btn>
   </q-btn-group>
+  <q-separator style='margin-top: 5px;'/>
 
   <q-dialog v-model='showSettings' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
     <SourceSettings :source-id='stream.id' @on-save='onSettingsSave' @on-delete='onSettingsDelete' />

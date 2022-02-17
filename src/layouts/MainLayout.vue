@@ -114,7 +114,7 @@
               </q-item-section>
               <q-item-section v-if='link.thumbnail'>
                 <q-img :src="'data:image/png;base64, ' + link.thumbnail" spinner-color='white' @click='onLeftMenuClick(link)'
-                       style='height: 80px; width: 200px; cursor: pointer;' img-class='my-custom-image' class='rounded-borders'>
+                       style='height: 80px; width: 200px; cursor: pointer;' class='rounded-borders'>
                   <div class='absolute-bottom text-subtitle1'>
                     <q-icon v-if='sourceStreamStatus[link.id].streaming' name='live_tv' color='green' style='margin-right: 3px;' class='blink_me'/>
                     <q-icon v-if='sourceStreamStatus[link.id].recording'
