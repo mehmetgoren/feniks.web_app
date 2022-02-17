@@ -90,7 +90,7 @@ export default {
       default: '',
       required: true
     },
-    needReloadInterval:{
+    needReloadInterval: {
       type: Number,
       default: 300
     }
@@ -152,7 +152,7 @@ export default {
       if (videoOptions.plugins) {
         delete videoOptions.plugins.__ob__;
       }
-
+      videoOptions.liveui = true;
       // player
       const self = this;
       this.player = videojs(this.$refs.video, videoOptions, function() {
@@ -182,26 +182,85 @@ export default {
       };
 
       this.setupTimer();
-      // Open it if a camera which has a bad connection needs this fix. BUt remember handler 404 HLS error. Otherwise, it stacked refreshing.
-      // this.player.on('error', () => {
-      //   console.log(self.sourceId +  ' omg error oldu!!!');
-      //   self.$emit('needReload', self.sourceId, 'error')
-      // });
-      // this.player.on('waiting', ()=> {
-      //   console.log(self.sourceId +  ' omg waiting oldu!!!');
-      //   self.$emit('needReload', self.sourceId, 'waiting')
-      // });
+      this.setupEvents(this);
     },
 
-    setupTimer(){
-      if (isNullOrUndefined(this.needReloadInterval) || this.needReloadInterval < 1){
+    setupTimer() {
+      if (isNullOrUndefined(this.needReloadInterval) || this.needReloadInterval < 1) {
         return;
       }
       const self = this;
       const interval = this.needReloadInterval * 1000;
       setInterval(() => {
-        self.$emit('needReload', self.sourceId, 'needReload')
+        self.$emit('needReload', self.sourceId, 'needReload');
       }, interval);
+    },
+
+    setupEvents(self){
+      const prevEvents = {};
+      prevEvents['error'] = { opName: 'error', createdAt: new Date() };
+      prevEvents['waiting'] = { opName: 'waiting', createdAt: new Date() };
+      prevEvents['suspend'] = { opName: 'suspend', createdAt: new Date() };
+      prevEvents['emptied'] = { opName: 'emptied', createdAt: new Date() };
+      prevEvents['stalled'] = { opName: 'stalled', createdAt: new Date() };
+      prevEvents['durationchange'] = { opName: 'durationchange', createdAt: new Date() };
+
+      const seekable = (opName) => {
+        const prevEvent = prevEvents[opName];
+        const diff = new Date().getTime() - prevEvent.createdAt.getTime();
+        prevEvent.createdAt = new Date();
+        if (diff < 500) {
+          console.log('needReload no call due to 500 ms limit for ' + self.sourceId + ' ' + prevEvent.opName + '. diff: ' + diff);
+          return false;
+        }
+        return true;
+      };
+
+      // Open it if a camera which has a bad connection needs this fix. BUt remember handler 404 HLS error. Otherwise, it stacked refreshing.
+      self.player.on('error', () => {
+        console.log(self.sourceId + ' omg error oldu!!!');
+        self.player.liveTracker.seekToLiveEdge();
+        // self.$emit('needReload', self.sourceId, 'error')
+      });
+      self.player.on('waiting', () => {
+        console.log(self.sourceId + ' omg waiting oldu!!!');
+        if (seekable('waiting')) {
+          self.player.liveTracker.seekToLiveEdge();
+        }
+        // self.$emit('needReload', self.sourceId, 'waiting')
+      });
+      self.player.on('suspend', () => {
+        console.log(self.sourceId + ' omg suspend oldu!!!');
+        if (seekable('suspend')) {
+          self.player.liveTracker.seekToLiveEdge();
+        }
+      });
+      self.player.on('emptied', () => {
+        console.log(self.sourceId + ' omg emptied oldu!!!');
+        if (seekable('emptied')) {
+          self.player.liveTracker.seekToLiveEdge();
+        }
+      });
+      self.player.on('stalled', () => {
+        console.log(self.sourceId + ' omg stalled oldu!!!');
+        if (seekable('stalled')) {
+          self.player.liveTracker.seekToLiveEdge();
+        }
+      });
+      // self.player.on('seeking', ()=> {
+      //   console.log(self.sourceId +  ' omg seeking oldu!!!');
+      //    self.player.liveTracker.seekToLiveEdge();
+      // });
+      // self.player.on('seeked', ()=> {
+      //   console.log(self.sourceId +  ' omg seeked oldu!!!');
+      //    self.player.liveTracker.seekToLiveEdge();
+      // });
+      self.player.on('durationchange', () => {
+        console.log(self.sourceId + ' omg durationchange oldu!!!');
+        if (seekable('error')) {
+          self.player.liveTracker.seekToLiveEdge();
+        }
+      });
     },
 
     dispose(callback) {
@@ -223,10 +282,10 @@ export default {
       }
     },
 
-    fullScreen(){
+    fullScreen() {
       this.player.requestFullscreen();
     },
-    pause(){
+    pause() {
       this.player.pause();
     }
   },

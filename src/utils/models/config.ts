@@ -62,6 +62,7 @@ export interface FFmpegConfig {
   check_ffmpeg_stream_running_process_interval: number;
   check_ffmpeg_record_running_process_interval: number;
   start_task_wait_for_interval: number;
+  event_listener_handler_type: number;
 }
 
 export interface Config {

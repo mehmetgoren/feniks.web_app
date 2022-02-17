@@ -7,9 +7,7 @@
         <HlsPlayer v-if='stream.show&&stream.stream_type===0' :src='stream.src' :source-id='stream.id'
                    :ref='setStreamPlayers' v-on:need-reload='needReload'
                    :need-reload-interval='stream.need_reload_interval' />
-        <FlvPlayer v-if='stream.show&&stream.stream_type===1' :src='stream.src' :source-id='stream.id'
-                   :ref='setStreamPlayers' v-on:need-reload='needReload'
-                   :need-reload-interval='stream.need_reload_interval' />
+        <FlvPlayer v-if='stream.show&&stream.stream_type===1' :src='stream.src' :source-id='stream.id' :ref='setStreamPlayers' />
         <DirectReadPlayer v-if='stream.show&&stream.stream_type===2' :source-id='stream.id'
                           :ref='setStreamPlayers' />
         <StreamCommandBar :stream='stream' @full-screen='onFullScreen' @stream-stop='onStreamStop'

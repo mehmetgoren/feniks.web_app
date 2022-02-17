@@ -106,6 +106,8 @@
           <q-space style='height: 10px;' />
           <q-input v-model.number='handler.show_image_wait_key' type='number' filled :dense='dense'
                    label='Show Image Wait Key' />
+          <q-select label='Event Listener Handler By' :dense='dense' transition-show='flip-up' transition-hide='flip-down'
+                    filled v-model='handler.event_listener_handler_type' clearable :options='optEventListenerHandlerTypes' />
         </q-form>
 
         <q-space style='height: 10px;' />
@@ -233,6 +235,7 @@ export default {
     const modelMultiple = ref();
     const optServices = ref();
     const optDeviceTypes = ref(getDeviceTypes());
+    const optEventListenerHandlerTypes = ref(getEventListenerHandlerType());
     const onceDetector = ref<OnceDetectorConfig>();
     const sourceReader = ref<SourceReaderConfig>();
     const redis = ref<RedisConfig>();
@@ -316,7 +319,7 @@ export default {
     return {
       config, device, handler, optDeviceTypes, onceDetector, sourceReader, redis,
       jetson, coco91, jetsonWhiteListSelected, jetsonFilter, ffmpeg,
-      torch, coco80, torchWhiteListSelected, torchFilter,
+      torch, coco80, torchWhiteListSelected, torchFilter, optEventListenerHandlerTypes,
       dense, modelMultiple, optServices, columns, onSave, onRestore,
       imageExtensions: ['jpg', 'jpeg', 'png', 'bmp', 'gif'],
       path
@@ -342,6 +345,10 @@ function getDeviceServices(config: Config | any): any[] {
 
 function getDeviceTypes() {
   return [{ value: 0, label: 'PC' }, { value: 1, label: 'IoT' }];
+}
+
+function getEventListenerHandlerType(){
+  return [{value: 0, label:'Thread'}, {value:1, label:'Process'}];
 }
 
 const columns = [
