@@ -1,5 +1,5 @@
 <template>
-  <img :src='src' />
+  <img :src='src' alt='video'/>
 </template>
 
 <script lang='ts'>
@@ -39,6 +39,11 @@ export default {
     return {
       src
     };
+  },
+  methods:{
+    pause(){
+      //do nothing
+    }
   }
 };
 </script>
