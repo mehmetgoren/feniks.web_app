@@ -65,6 +65,10 @@ export interface FFmpegConfig {
   event_listener_handler_type: number;
 }
 
+export interface AiConfig{
+  detected_folder: string;
+}
+
 export interface Config {
   device: DeviceConfig;
   heartbeat: HeartbeatConfig;
@@ -76,4 +80,5 @@ export interface Config {
   source_reader: SourceReaderConfig;
   path: PathConfig;
   ffmpeg: FFmpegConfig;
+  ai: AiConfig;
 }

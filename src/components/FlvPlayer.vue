@@ -43,6 +43,16 @@ export default {
           withCredentials: false,
         }
       },
+      controlBar: {
+        remainingTimeDisplay: false,
+        playToggle: false,
+        progressControl: {},
+        fullscreenToggle: {},
+        volumeMenuButton: {
+          inline: false,
+          vertical: true
+        }
+      },
       controls: 'control',
       preload: 'auto',
       autoplay: true,
@@ -52,6 +62,9 @@ export default {
     };
 
     this.player = videojs(this.$refs.videoPlayer, options);
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    this.player.player_.handleTechClick_ = function() {};
+
 
     // this.setupTimer();
     // this.setupEvents(this);
@@ -147,3 +160,13 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.vjs-tech {
+  pointer-events: none;
+}
+
+.video-js.vjs-playing .vjs-tech {
+  pointer-events: none;
+}
+</style>
