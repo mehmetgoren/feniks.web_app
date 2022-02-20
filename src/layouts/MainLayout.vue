@@ -161,6 +161,14 @@
                     </q-item-section>
                   </q-item>
                 </q-list>
+                <q-item clickable v-close-popup @click='getThumbnail(link.source)'>
+                  <q-item-section side>
+                    <q-icon name='center_focus_strong' color='purple' />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label>Test</q-item-label>
+                  </q-item-section>
+                </q-item>
                 <q-inner-loading v-if='loadingObject[link.id]' :showing='true'>
                   <q-spinner-gears size="50px" color="primary" />
                 </q-inner-loading>
@@ -269,14 +277,7 @@ export default {
         const sources = await nodeService.getSourceList();
         const menuLinks: MenuLink[] = [];
         for (const source of sources) {
-          publishService.publishEditor({
-            id: source.id,
-            brand: source.brand,
-            name: source.name,
-            rtsp_address: source.rtsp_address,
-            event_type: 2
-          }).then().catch(console.error);
-          console.log('publishService called');
+          getThumbnail(source);
           const menuLink: MenuLink = {
             route: route + '&source=' + source.id,
             icon: 'videocam',
@@ -350,6 +351,17 @@ export default {
       leftDrawerOpen.value = !leftDrawerOpen.value;
     }
 
+    function getThumbnail(source: SourceModel){
+      publishService.publishEditor({
+        id: source.id,
+        brand: source.brand,
+        name: source.name,
+        rtsp_address: source.rtsp_address,
+        event_type: 2
+      }).then().catch(console.error);
+      console.log('publishService called');
+    }
+
     return {
       homeNode,
       tab,
@@ -393,7 +405,8 @@ export default {
           rtsp_address: source.rtsp_address,
           event_type: 1
         });
-      }
+      },
+      getThumbnail
     };
   },
   methods: {

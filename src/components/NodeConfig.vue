@@ -67,6 +67,9 @@
           <q-input v-model.number='ffmpeg.check_ffmpeg_record_running_process_interval' type='number' filled :dense='dense'
                    label='Check FFmpeg Record Running Process Interval' />
           <q-space style='height: 10px;' />
+          <q-input v-model.number='ffmpeg.check_ffmpeg_record_stuck_process_interval' type='number' filled :dense='dense'
+                   label='Check FFmpeg Record Stuck Process Interval' />
+          <q-space style='height: 10px;' />
           <q-input v-model.number='ffmpeg.start_task_wait_for_interval' type='number' filled :dense='dense'
                    label='Start Task Wait For Interval' />
         </q-form>

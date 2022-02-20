@@ -61,6 +61,7 @@ export interface FFmpegConfig {
   check_unstopped_containers_interval: number;
   check_ffmpeg_stream_running_process_interval: number;
   check_ffmpeg_record_running_process_interval: number;
+  check_ffmpeg_record_stuck_process_interval: number;
   start_task_wait_for_interval: number;
   event_listener_handler_type: number;
 }
