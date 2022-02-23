@@ -55,8 +55,8 @@
           <q-input v-model.number='ffmpeg.max_operation_retry_count' type='number' filled :dense='dense'
                    label='Max retry count' />
           <q-space style='height: 10px;' />
-          <q-input v-model.number='ffmpeg.check_leaky_ffmpeg_processes_interval' type='number' filled :dense='dense'
-                   label='Check Leaky FFmpeg Processes Interval' />
+          <q-input v-model.number='ffmpeg.check_zombie_ffmpeg_processes_interval' type='number' filled :dense='dense'
+                   label='Check Zombie FFmpeg Processes Interval' />
           <q-space style='height: 10px;' />
           <q-input v-model.number='ffmpeg.check_unstopped_containers_interval' type='number' filled :dense='dense'
                    label='Check Unstopped Containers Interval' />

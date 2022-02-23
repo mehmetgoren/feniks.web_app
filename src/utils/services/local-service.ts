@@ -320,7 +320,7 @@ export class LocalService {
       jpeg_enabled: false,
       jpeg_frame_rate: 1,
       jpeg_use_vsync: false,
-      jpeg_quality: 2, // 2-31. lower value is better.
+      jpeg_quality: 0, // 2-31. lower value is better. Setting this value increase memory and cpu usage. it' s bette to untouch it
       jpeg_width: 1280,
       jpeg_height: 720,
       use_disk_image_reader_service: false,

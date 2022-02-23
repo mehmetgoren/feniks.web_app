@@ -64,7 +64,7 @@ export interface PathConfig {
 export interface FFmpegConfig {
   use_double_quotes_for_path: boolean;
   max_operation_retry_count: number;
-  check_leaky_ffmpeg_processes_interval: number;
+  check_zombie_ffmpeg_processes_interval: number;
   check_unstopped_containers_interval: number;
   check_ffmpeg_stream_running_process_interval: number;
   check_ffmpeg_record_running_process_interval: number;
