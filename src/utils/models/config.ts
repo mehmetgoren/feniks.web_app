@@ -26,6 +26,13 @@ export interface TorchConfig {
   white_list: number[];
 }
 
+export interface TensorflowConfig{
+  model_name: string;
+  threshold: number;
+  white_list: number[];
+  cache_folder: string;
+}
+
 export interface OnceDetectorConfig {
   imagehash_threshold: number;
   psnr_threshold: number;
@@ -76,6 +83,7 @@ export interface Config {
   redis: RedisConfig;
   jetson: JetsonConfig;
   torch: TorchConfig;
+  tensorflow: TensorflowConfig;
   once_detector: OnceDetectorConfig;
   handler: HandlerConfig;
   source_reader: SourceReaderConfig;
