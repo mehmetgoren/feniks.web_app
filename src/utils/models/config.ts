@@ -64,13 +64,10 @@ export interface PathConfig {
 export interface FFmpegConfig {
   use_double_quotes_for_path: boolean;
   max_operation_retry_count: number;
-  check_zombie_ffmpeg_processes_interval: number;
-  check_unstopped_containers_interval: number;
-  check_ffmpeg_stream_running_process_interval: number;
-  check_ffmpeg_record_running_process_interval: number;
-  check_ffmpeg_record_stuck_process_interval: number;
+  rtmp_server_init_interval: number;
+  watch_dog_interval: number;
+  watch_dog_failed_wait_interval: number;
   start_task_wait_for_interval: number;
-  event_listener_handler_type: number;
 }
 
 export interface AiConfig{

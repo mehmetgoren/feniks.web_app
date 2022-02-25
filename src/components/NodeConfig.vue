@@ -55,20 +55,14 @@
           <q-input v-model.number='ffmpeg.max_operation_retry_count' type='number' filled :dense='dense'
                    label='Max retry count' />
           <q-space style='height: 10px;' />
-          <q-input v-model.number='ffmpeg.check_zombie_ffmpeg_processes_interval' type='number' filled :dense='dense'
-                   label='Check Zombie FFmpeg Processes Interval' />
+          <q-input v-model.number='ffmpeg.rtmp_server_init_interval' type='number' filled :dense='dense'
+                   label='RTMP Service initialization Interval' />
           <q-space style='height: 10px;' />
-          <q-input v-model.number='ffmpeg.check_unstopped_containers_interval' type='number' filled :dense='dense'
-                   label='Check Unstopped Containers Interval' />
+          <q-input v-model.number='ffmpeg.watch_dog_interval' type='number' filled :dense='dense'
+                   label='Watchdog Interval' />
           <q-space style='height: 10px;' />
-          <q-input v-model.number='ffmpeg.check_ffmpeg_stream_running_process_interval' type='number' filled :dense='dense'
-                   label='Check FFmpeg Stream Running Process Interval' />
-          <q-space style='height: 10px;' />
-          <q-input v-model.number='ffmpeg.check_ffmpeg_record_running_process_interval' type='number' filled :dense='dense'
-                   label='Check FFmpeg Record Running Process Interval' />
-          <q-space style='height: 10px;' />
-          <q-input v-model.number='ffmpeg.check_ffmpeg_record_stuck_process_interval' type='number' filled :dense='dense'
-                   label='Check FFmpeg Record Stuck Process Interval' />
+          <q-input v-model.number='ffmpeg.watch_dog_failed_wait_interval' type='number' filled :dense='dense'
+                   label='Watchdog on Fail Wait Internal' />
           <q-space style='height: 10px;' />
           <q-input v-model.number='ffmpeg.start_task_wait_for_interval' type='number' filled :dense='dense'
                    label='Start Task Wait For Interval' />
@@ -109,8 +103,6 @@
           <q-space style='height: 10px;' />
           <q-input v-model.number='handler.show_image_wait_key' type='number' filled :dense='dense'
                    label='Show Image Wait Key' />
-          <q-select label='Event Listener Handler By' :dense='dense' transition-show='flip-up' transition-hide='flip-down'
-                    filled v-model='handler.event_listener_handler_type' clearable :options='optEventListenerHandlerTypes' />
         </q-form>
 
         <q-space style='height: 10px;' />

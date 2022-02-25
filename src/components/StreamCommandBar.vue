@@ -35,6 +35,9 @@
     <q-btn v-if='showFullScreenButton' color='purple' rounded glossy icon='cast' @click='onFullScreenClick'>
       <q-tooltip class='bg-accent'>Fullscreen</q-tooltip>
     </q-btn>
+    <q-btn color='amber' rounded glossy icon='psychology' @click='onAiClick'>
+      <q-tooltip class='bg-accent'>AI</q-tooltip>
+    </q-btn>
     <q-btn color='deep-orange' rounded glossy icon='close' @click='onClose'>
       <q-tooltip class='bg-deep-orange'>Close</q-tooltip>
     </q-btn>
@@ -133,6 +136,9 @@ export default {
       showSettings,
       onSettingsClick() {
         showSettings.value = true;
+      },
+      onAiClick(){
+        alert('welcome to AI')
       },
       onClose(){
         emit('close', props.stream);

@@ -67,13 +67,15 @@ export interface SourceModel {
   need_reload_interval?: number | null;
 
   use_disk_image_reader_service?: boolean | null;
+  reader: boolean | null;
+  reader_frame_rate: number | null;
+  reader_width: number | null;
+  reader_height: number | null;
 
   direct_read_frame_rate?: number | null;
   direct_read_width?: number | null;
   direct_read_height?: number | null;
 
-  last_exception_msg?: string | null;
-  failed_count?: number | null;
   created_at?: string | null;
   // SourceModel section ends
 }

@@ -25,7 +25,7 @@
             <q-btn push label='Connection' color='cyan' icon='power' @click='step=2' />
             <q-btn push label='Input' color='cyan' icon='input' @click='step=3' />
             <q-btn push label='Stream' color='cyan' icon='live_tv' @click='step=4' />
-            <q-btn v-if='source.stream_type !== 2' push label='Jpeg Snapshot' color='cyan' icon='image' @click='step=5' />
+            <q-btn v-if='source.stream_type !== 2' push label='Snapshot for AI' color='cyan' icon='image' @click='step=5' />
             <q-btn v-if='source.record' push label='Record' color='cyan' icon='radio_button_checked'
                    @click='step=6' />
             <q-btn push label='Logging' color='cyan' icon='announcement' @click='step=7' />
@@ -182,10 +182,11 @@
               </q-stepper-navigation>
             </q-step>
 
-            <q-step v-if='source.stream_type !== 2' id='step5' :name='5' title='Jpeg Snapshot' icon='image' color='cyan' :done='step > 5'>
+            <q-step v-if='source.stream_type !== 2' id='step5' :name='5' title='Snapshot for AI' icon='image' color='cyan' :done='step > 5'>
               <q-form class='q-gutter-md'>
+
                 <q-toggle :dense='dense' v-model='source.jpeg_enabled' checked-icon='check' color='cyan'
-                          :label='"Jpeg Snapshot " + (source.jpeg_enabled ? "Enabled" : "Disabled")' />
+                          :label='"Jpeg Enabled " + (source.jpeg_enabled ? "Enabled" : "Disabled")' @update:model-value='onJpegEnabledChanged' />
                 <q-input v-if='source.jpeg_enabled' :dense='dense' filled v-model.number='source.jpeg_frame_rate'
                          type='number' label='Frame Rate' color='cyan' />
                 <q-toggle v-if='source.jpeg_enabled' :dense='dense' v-model='source.jpeg_use_vsync'
@@ -200,6 +201,17 @@
                 <q-toggle v-if='source.jpeg_enabled' :dense='dense' v-model='source.use_disk_image_reader_service'
                           checked-icon='check' color='cyan'
                           :label='"Enable Disk Image Reader Service " + (source.use_disk_image_reader_service ? "Yes" : "No")' />
+
+                <q-separator v-if='source.stream_type===1' style='margin: 5px;' />
+                <q-toggle v-if='source.stream_type===1' :dense='dense' v-model='source.reader' checked-icon='check' color='cyan'
+                          :label='"RTMP Snapshot " + (source.reader ? "Enabled" : "Disabled")' @update:model-value='onReaderChanged' />
+                <q-input v-if='source.reader' :dense='dense' filled v-model.number='source.reader_frame_rate'
+                         type='number' label='Frame Rate' color='cyan' />
+                <q-input v-if='source.reader' :dense='dense' filled v-model.number='source.reader_width'
+                         type='number' label='Width' />
+                <q-input v-if='source.reader' :dense='dense' filled v-model.number='source.reader_height'
+                         type='number' label='Height' color='cyan' />
+
               </q-form>
               <q-stepper-navigation>
                 <q-btn @click='step = source.record ? 6 : 7' color='cyan' label='Continue' />
@@ -270,9 +282,6 @@
               </q-stepper-navigation>
             </q-step>
           </q-stepper>
-          <span v-if='source.failed_count > 0' class='blink_me' style='margin-top: 5px;'>Total Failed Count: {{source.failed_count}}</span>
-          <q-space style='margin-top: 5px;' />
-          <span v-if='source.last_exception_msg' class='blink_me' style='margin-top: 5px;'>Error Message is: "{{source.last_exception_msg}}"</span>
         </div>
       </q-page>
     </q-page-container>
@@ -334,7 +343,7 @@ export default {
     const recordAudioCodecs = ref(localService.createRecordAudioCodecs());
     const recordPresets = ref(localService.createPresets());
     const recordRotations = ref(localService.createRotations());
-    const inactives = ref({save: false, delete: false});
+    const inactives = ref({ save: false, delete: false });
 
     const publishService = new PublishService();
     const $q = useQuasar();
@@ -343,7 +352,7 @@ export default {
       if (!isNullEmpty(props.sourceId)) {
         source.value = await nodeService.getSource(props.sourceId);
       }
-      setTimeout(() =>{
+      setTimeout(() => {
         for (let j = 1; j <= 7; ++j) {
           jqueryWorks(j);
         }
@@ -367,9 +376,9 @@ export default {
       }
     };
 
-    function onStep1Click(){
+    function onStep1Click() {
       setTimeout(() => {
-        step.value = 2
+        step.value = 2;
       }, 25);
     }
 
@@ -381,8 +390,8 @@ export default {
       makeItCursorable();
     }
 
-    function onRecordChange(){
-      if (source.value.record){
+    function onRecordChange() {
+      if (source.value.record) {
         makeItCursorable();
       }
     }
@@ -399,10 +408,10 @@ export default {
         return;
       }
       const isAdded = isNullEmpty(<string>source.value.id);
-      try{
+      try {
         inactives.value.save = true;
         source.value = await nodeService.saveSource(model);
-      }finally {
+      } finally {
         inactives.value.save = false;
       }
       model = source.value;
@@ -433,10 +442,10 @@ export default {
         return;
       }
       let result = false;
-      try{
+      try {
         inactives.value.delete = true;
         result = await nodeService.removeSource(<string>model.id);
-      }finally {
+      } finally {
         inactives.value.delete = false;
       }
       if (!result) {
@@ -454,6 +463,19 @@ export default {
         color: 'green',
         position: 'bottom-right'
       });
+    }
+
+    function onJpegEnabledChanged(jpegEnabled: boolean) {
+      if (jpegEnabled) {
+        source.value.reader = false;
+      }
+    }
+
+    function onReaderChanged(reader: boolean) {
+      if (reader) {
+        source.value.jpeg_enabled = false;
+        source.value.use_disk_image_reader_service = false;
+      }
     }
 
     return {
@@ -486,7 +508,9 @@ export default {
       onStreamTypeChange,
       onStep1Click,
       inactives,
-      onRecordChange
+      onRecordChange,
+      onJpegEnabledChanged,
+      onReaderChanged
     };
   }
 };
@@ -495,11 +519,13 @@ export default {
 <style scoped>
 .blink_me {
   animation: blinker 1s linear infinite;
-  color:red;
-  font-size:medium;
+  color: red;
+  font-size: medium;
 }
 
 @keyframes blinker {
-  50% { opacity: 0; }
+  50% {
+    opacity: 0;
+  }
 }
 </style>

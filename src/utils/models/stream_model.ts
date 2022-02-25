@@ -28,13 +28,20 @@ export interface StreamModel {
 
   jpeg_enabled:boolean;
   jpeg_frame_rate:number;
-  use_disk_image_reader_service:boolean;
 
   record: boolean;
   record_duration: number;
   record_flv_pid: number;
   record_flv_args:string;
   record_flv_failed_count:number;
+
+  use_disk_image_reader_service:boolean;
+  reader: boolean;
+  reader_frame_rate: number;
+  reader_width: number;
+  reader_height: number;
+  reader_pid: number;
+  reader_failed_count: number;
 
   hls_output_path: string;
   read_jpeg_output_path: string;
