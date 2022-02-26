@@ -11,7 +11,6 @@
 <script>
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
-import { isNullOrUndefined } from 'src/utils/utils';
 //https://github.com/surmon-china/vue-video-player/blob/master/src/player.vue
 //or https://docs.videojs.com/tutorial-vue.html
 // as of videojs 6.6.0
@@ -89,10 +88,6 @@ export default {
       type: String,
       default: '',
       required: true
-    },
-    needReloadInterval: {
-      type: Number,
-      default: 300
     }
   },
   data() {
@@ -181,36 +176,22 @@ export default {
         console.log('the player was clicked but we\'re ignoring it');
       };
 
-      this.setupTimer();
       this.setupEvents(this);
-    },
-
-    setupTimer() {
-      if (isNullOrUndefined(this.needReloadInterval) || this.needReloadInterval < 1) {
-        return;
-      }
-      const self = this;
-      const interval = this.needReloadInterval * 1000;
-      setInterval(() => {
-        self.$emit('needReload', self.sourceId, 'needReload');
-      }, interval);
     },
 
     setupEvents(self){
       const prevEvents = {};
-      prevEvents['error'] = { opName: 'error', createdAt: new Date() };
-      prevEvents['waiting'] = { opName: 'waiting', createdAt: new Date() };
-      prevEvents['suspend'] = { opName: 'suspend', createdAt: new Date() };
-      prevEvents['emptied'] = { opName: 'emptied', createdAt: new Date() };
-      prevEvents['stalled'] = { opName: 'stalled', createdAt: new Date() };
-      prevEvents['durationchange'] = { opName: 'durationchange', createdAt: new Date() };
 
       const seekable = (opName) => {
-        const prevEvent = prevEvents[opName];
+        let prevEvent = prevEvents[opName];
+        if (!prevEvent){
+          prevEvent = { opName: opName, createdAt: new Date() };
+          prevEvents[opName] = prevEvent;
+        }
         const diff = new Date().getTime() - prevEvent.createdAt.getTime();
         prevEvent.createdAt = new Date();
-        if (diff < 500) {
-          console.log('needReload no call due to 500 ms limit for ' + self.sourceId + ' ' + prevEvent.opName + '. diff: ' + diff);
+        if (diff < 50) {
+          console.log('no call due to 50 ms limit for ' + self.sourceId + ' ' + prevEvent.opName + '. diff: ' + diff);
           return false;
         }
         return true;
@@ -220,14 +201,12 @@ export default {
       self.player.on('error', () => {
         console.log(self.sourceId + ' omg error oldu!!!');
         self.player.liveTracker.seekToLiveEdge();
-        // self.$emit('needReload', self.sourceId, 'error')
       });
       self.player.on('waiting', () => {
         console.log(self.sourceId + ' omg waiting oldu!!!');
         if (seekable('waiting')) {
           self.player.liveTracker.seekToLiveEdge();
         }
-        // self.$emit('needReload', self.sourceId, 'waiting')
       });
       self.player.on('suspend', () => {
         console.log(self.sourceId + ' omg suspend oldu!!!');

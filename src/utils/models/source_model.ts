@@ -64,7 +64,6 @@ export interface SourceModel {
   enabled?: boolean | null;
   rtmp_server_type?: number | null;
   flv_player_connection_type?: number | null;
-  need_reload_interval?: number | null;
 
   use_disk_image_reader_service?: boolean | null;
   reader: boolean | null;

@@ -40,8 +40,6 @@
                          lazy-rules :rules="[ val => val && val.length > 0 || 'Please type something']" />
                 <q-input :dense='dense' filled v-model.trim='source.brand' label='Brand' color='cyan' />
                 <q-input :dense='dense' filled v-model.trim='source.description' label='Description' color='cyan' />
-                <q-input :dense='dense' filled v-model.number='source.need_reload_interval' type='number'
-                         label='Reload Interval (In Seconds)' color='cyan' />
                 <q-toggle :dense='dense' v-model='source.record' color='red' @update:model-value='onRecordChange'
                           :label='"Record " + (source.record ? "On" : "Off")' :disable='source.stream_type === 2' />
               </q-form>

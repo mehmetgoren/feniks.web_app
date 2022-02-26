@@ -36,7 +36,7 @@
       <q-tooltip class='bg-accent'>Fullscreen</q-tooltip>
     </q-btn>
     <q-btn color='amber' rounded glossy icon='psychology' @click='onAiClick'>
-      <q-tooltip class='bg-accent'>AI</q-tooltip>
+      <q-tooltip class='bg-amber'>AI</q-tooltip>
     </q-btn>
     <q-btn color='deep-orange' rounded glossy icon='close' @click='onClose'>
       <q-tooltip class='bg-deep-orange'>Close</q-tooltip>

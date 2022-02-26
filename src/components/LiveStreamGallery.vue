@@ -5,20 +5,19 @@
          :gs-x='stream.loc.x' :gs-y='stream.loc.y' :gs-id='stream.id'>
       <div class='grid-stack-item-content' style='overflow: hidden !important;'>
         <HlsPlayer v-if='stream.show&&stream.stream_type===0' :src='stream.src' :source-id='stream.id'
-                   :ref='setStreamPlayers' v-on:need-reload='needReload'
-                   :need-reload-interval='stream.need_reload_interval' />
+                   :ref='setStreamPlayers' />
         <FlvPlayer v-if='stream.show&&stream.stream_type===1' :src='stream.src' :source-id='stream.id' :ref='setStreamPlayers' />
         <DirectReadPlayer v-if='stream.show&&stream.stream_type===2' :source-id='stream.id'
                           :ref='setStreamPlayers' />
         <StreamCommandBar :stream='stream' @full-screen='onFullScreen' @stream-stop='onStreamStop'
                           @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh'
                           @deleted='onSourceDeleted' @restart='onRestart' @close='onStreamClose'
-                          :take-screenshot-loading='stream.takeScreenshotLoading'/>
+                          :take-screenshot-loading='stream.takeScreenshotLoading' />
       </div>
     </div>
-        <q-inner-loading :showing="showLoading" style='text-align: center;'>
-          <q-spinner-gears size="50%" color="cyan" />
-        </q-inner-loading>
+    <q-inner-loading :showing='showLoading' style='text-align: center;'>
+      <q-spinner-gears size='50%' color='cyan' />
+    </q-inner-loading>
   </div>
 </template>
 
@@ -92,32 +91,7 @@ export default {
     onUpdated(() => {
       console.log(streamPlayers);
     });
-    //
-
-    //
     const streamList = reactive<Array<StreamExtModel>>([]);
-    const prevEvents: any = {};
-    const needReload = (sourceId: string, opName: string) => {
-      console.log('needReload called for ' + sourceId + ' ' + opName);
-      let prevEvent = prevEvents[sourceId];
-      if (!prevEvent) {
-        prevEvent = { opName: opName, createdAt: new Date() };
-        prevEvents[sourceId] = prevEvent;
-      }
-      const diff = new Date().getTime() - prevEvent.createdAt.getTime();
-      prevEvent.createdAt = new Date();
-      console.warn('diff: ' + diff);
-      if (opName !== 'error' && diff < 1000) {
-        console.log('needReload no call due to 1 second limit for ' + sourceId + ' ' + opName + '. diff: ' + diff);
-        return;
-      }
-      streamList.forEach(stream => {
-        if (stream.id === sourceId) {
-          console.log('needReload executing for ' + sourceId + ' ' + opName);
-          onRefresh(stream);
-        }
-      });
-    };
     //
 
     const loadInitGrid = (onGridInitialized: (() => any) | null) => {
@@ -125,7 +99,7 @@ export default {
         open.value = true;
         nextTick().then(() => {
           initGs();
-          if (onGridInitialized){
+          if (onGridInitialized) {
             onGridInitialized();
           }
         }).catch(console.error);
@@ -175,7 +149,7 @@ export default {
 
     //gs section starts
     function initGs() {
-      try{
+      try {
         showLoading.value = true;
         grid = GridStack.init({
           float: true
@@ -186,10 +160,10 @@ export default {
         grid.compact();
         grid.on('added removed change', saveGsLayout);
         saveGsLayout();
-      }finally {
+      } finally {
         setTimeout(() => {
           showLoading.value = false;
-        }, 250)
+        }, 250);
       }
     }
 
@@ -216,6 +190,7 @@ export default {
       }
       return ret;
     }
+
     //gs section ends
 
     async function initActiveStreams() {
@@ -223,7 +198,7 @@ export default {
       if (!isNullOrUndefined(streamModels) && streamModels.length > 0) {
         for (const streamModel of streamModels) {
           const loc = localService.getGsLocation(streamModel.id);
-          if (loc){
+          if (loc) {
             addPlayer(streamModel, false);
           }
         }
@@ -253,7 +228,7 @@ export default {
         }
         window.location.href = 'data:application/octet-stream;base64,' + responseModel.image_base64;
         const stream = new List<StreamExtModel>(streamList).FirstOrDefault(x => x?.id == responseModel.id);
-        if (stream){
+        if (stream) {
           stream.takeScreenshotLoading = false;
         }
       });
@@ -330,12 +305,12 @@ export default {
     function onStreamClose(stream: StreamExtModel) {
       removeSource(stream);
     }
+
     //events ends
 
     return {
       open,
       streamList,
-      needReload,
       setStreamPlayers,
       onFullScreen,
       onStreamStop,
@@ -357,7 +332,7 @@ interface StreamExtModel extends StreamModel {
   thumb?: string | null;
   size?: string | null;
   loc: GsLocation;
-  takeScreenshotLoading:boolean;
+  takeScreenshotLoading: boolean;
 }
 </script>
 <style scoped>
