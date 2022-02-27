@@ -106,19 +106,18 @@
         <q-list padding class='text-grey-8'>
           <div v-for='(menu, index) in menus' :key='index'>
             <q-item v-for='link in menu' :key='link.text' class='GNL__drawer-item'>
-              <q-item-section avatar v-if='!link.thumbnail' style='cursor: pointer;' v-ripple @click='onLeftMenuClick(link)'>
-                <q-icon v-if='!link.thumbnail' :name='link.icon' />
+              <q-item-section avatar v-if='!link.isSource' style='cursor: pointer;' v-ripple @click='onLeftMenuClick(link)'>
+                <q-icon v-if='!link.isSource' :name='link.icon' />
               </q-item-section>
-              <q-item-section v-if='!link.thumbnail' style='cursor: pointer;' v-ripple @click='onLeftMenuClick(link)'>
+              <q-item-section v-if='!link.isSource' style='cursor: pointer;' v-ripple @click='onLeftMenuClick(link)'>
                 <q-item-label>{{ link.text }}</q-item-label>
               </q-item-section>
-              <q-item-section v-if='link.thumbnail'>
-                <q-img :src="'data:image/png;base64, ' + link.thumbnail" spinner-color='white' @click='onLeftMenuClick(link)'
+              <q-item-section v-if='link.isSource'>
+                <q-img :src="'data:image/png;base64, ' + (link.thumbnail ? link.thumbnail : 'R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=')" spinner-color='white'
                        style='height: 80px; width: 200px; cursor: pointer;' class='rounded-borders'>
                   <div class='absolute-bottom text-subtitle1'>
                     <q-icon v-if='sourceStreamStatus[link.id].streaming' name='live_tv' color='green' style='margin-right: 3px;' class='blink_me'/>
-                    <q-icon v-if='sourceStreamStatus[link.id].recording'
-                            name='fiber_manual_record' color='red' style='margin-right: 3px;' class='blink_me'/>
+                    <q-icon v-if='sourceStreamStatus[link.id].recording' name='fiber_manual_record' color='red' style='margin-right: 3px;' class='blink_me'/>
                     <q-icon :name='link.icon' />
                     {{ link.text }}
                   </div>
@@ -126,7 +125,7 @@
                                    label-style='font-size: 1.1em' />
                 </q-img>
               </q-item-section>
-              <q-btn-dropdown v-if='link.thumbnail' color='primary' dropdown-icon='settings' :dense='true'>
+              <q-btn-dropdown v-if='link.isSource' color='primary' dropdown-icon='settings' :dense='true'>
                 <q-list>
                   <q-item clickable v-close-popup @click='onSaveSettingsClicked(link.id)' v-ripple>
                     <q-item-section side>
@@ -186,7 +185,7 @@
   </q-layout>
 
   <q-dialog v-model='showSettings' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
-    <SourceSettings :source-id='selectedSourceId' />
+    <SourceSettings :source-id='selectedSourceId' @on-save='onSourceSettingsSave' />
   </q-dialog>
 
   <q-dialog v-model='showRecords' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
@@ -299,6 +298,13 @@ export default {
             text: 'Configuration'
           }
         ];
+        menuObject['stream_gallery'] = [
+          {
+            route: route + '&x=gallery',
+            icon: 'grid_on',
+            text: 'Stream Gallery'
+          }
+        ];
         menuObject['add_source'] = [
           {
             route: route + '&x=add_source',
@@ -405,6 +411,9 @@ export default {
           rtsp_address: source.rtsp_address,
           event_type: 1
         });
+      },
+      onSourceSettingsSave(){
+        showSettings.value = false;
       },
       getThumbnail
     };

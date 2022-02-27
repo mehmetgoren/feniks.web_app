@@ -13,12 +13,10 @@
 import NodeConfig from 'components/NodeConfig.vue';
 import LiveStreamGallery from 'components/LiveStreamGallery.vue';
 import SourceSettings from 'components/SourceSettings.vue';
-import { computed, ref, watch, nextTick } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useStore } from 'src/store';
-import { isNullOrUndefined, parseQs, startStream } from 'src/utils/utils';
+import { parseQs } from 'src/utils/utils';
 import { MenuLink } from 'src/store/module-settings/state';
-import { PublishService } from 'src/utils/services/websocket-services';
-import { SourceModel } from 'src/utils/models/source_model';
 
 export default {
   name: 'Node',
@@ -30,7 +28,6 @@ export default {
     const addSourceClicked = computed(() => $store.getters['settings/addSourceClicked']);
     const selected = ref<number>(1);
     const showAddSource = ref<boolean>(false);
-    const publishService = new PublishService();
 
     watch(activeTab, (newValue) => {
       console.log('activeTab: ' + newValue.name);
@@ -55,14 +52,6 @@ export default {
         default:
           selected.value = 1;
       }
-      nextTick().then(() => {
-        if (selected.value ==1){
-          if (isNullOrUndefined(newValue.source)){
-            return;
-          }
-          startStream($store, publishService, <SourceModel>newValue.source)
-        }
-      }).catch(console.log);
     });
 
     return {
@@ -76,7 +65,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-
-</style>

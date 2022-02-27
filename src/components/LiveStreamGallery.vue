@@ -1,5 +1,5 @@
 <template>
-  <div class='grid-stack' v-if='open'>
+  <div class='grid-stack' v-if='open' v-show='!showLoading'>
     <div class='newWidget grid-stack-item ui-draggable ui-resizable ui-resizable-autohide' v-for='stream in streamList'
          :key='stream.id' :gs-w='stream.loc.w' :gs-h='stream.loc.h'
          :gs-x='stream.loc.x' :gs-y='stream.loc.y' :gs-id='stream.id'>
@@ -9,16 +9,19 @@
         <FlvPlayer v-if='stream.show&&stream.stream_type===1' :src='stream.src' :source-id='stream.id' :ref='setStreamPlayers' />
         <DirectReadPlayer v-if='stream.show&&stream.stream_type===2' :source-id='stream.id'
                           :ref='setStreamPlayers' />
-        <StreamCommandBar :stream='stream' @full-screen='onFullScreen' @stream-stop='onStreamStop'
+
+        <StreamCommandBar v-if='stream.show' :stream='stream' @full-screen='onFullScreen' @stream-stop='onStreamStop'
                           @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh'
                           @deleted='onSourceDeleted' @restart='onRestart' @close='onStreamClose'
                           :take-screenshot-loading='stream.takeScreenshotLoading' />
+
+        <q-inner-loading v-if='!stream.show' :showing='true' label='Please wait...' label-class='text-cyan' />
       </div>
     </div>
-    <q-inner-loading :showing='showLoading' style='text-align: center;'>
-      <q-spinner-gears size='50%' color='cyan' />
-    </q-inner-loading>
   </div>
+  <q-inner-loading :showing='showLoading' style='text-align: center;'>
+    <q-spinner-gears size='50%' color='cyan' />
+  </q-inner-loading>
 </template>
 
 <script lang='ts'>
@@ -67,6 +70,7 @@ export default {
     const nodeService = new NodeService();
     const showLoading = ref<boolean>(false);
     let grid: GridStack | null = null;
+    const waitInterval = 500;
 
     //
     let streamPlayers: any[] = [];
@@ -103,7 +107,7 @@ export default {
             onGridInitialized();
           }
         }).catch(console.error);
-      }, 250);
+      }, waitInterval);
     };
 
     const addPlayer = (streamModel: StreamModel, isStartStream: boolean) => {
@@ -163,7 +167,7 @@ export default {
       } finally {
         setTimeout(() => {
           showLoading.value = false;
-        }, 250);
+        }, waitInterval);
       }
     }
 
@@ -253,7 +257,7 @@ export default {
       stream.show = false;
       setTimeout(() => {
         stream.show = true;
-      }, 250);
+      }, waitInterval);
     }
 
     function removeSource(stream: StreamExtModel): boolean {
