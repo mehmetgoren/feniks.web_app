@@ -44,31 +44,6 @@
         </q-form>
 
         <q-space style='height: 10px;' />
-        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='width: auto;'>
-          <label style='text-transform: uppercase;font-size: medium'>FFmpeg Config</label>
-        </q-toolbar>
-        <q-space style='margin: 2px;' />
-        <q-form id='frm9' class='q-pa-xs'>
-          <q-toggle v-model='ffmpeg.use_double_quotes_for_path' filled :dense='dense'
-                    label='Use double quotes on FFmpeg Commands' />
-          <q-space style='height: 10px;' />
-          <q-input v-model.number='ffmpeg.max_operation_retry_count' type='number' filled :dense='dense'
-                   label='Max retry count' />
-          <q-space style='height: 10px;' />
-          <q-input v-model.number='ffmpeg.rtmp_server_init_interval' type='number' filled :dense='dense'
-                   label='RTMP Service initialization Interval' />
-          <q-space style='height: 10px;' />
-          <q-input v-model.number='ffmpeg.watch_dog_interval' type='number' filled :dense='dense'
-                   label='Watchdog Interval' />
-          <q-space style='height: 10px;' />
-          <q-input v-model.number='ffmpeg.watch_dog_failed_wait_interval' type='number' filled :dense='dense'
-                   label='Watchdog on Fail Wait Internal' />
-          <q-space style='height: 10px;' />
-          <q-input v-model.number='ffmpeg.start_task_wait_for_interval' type='number' filled :dense='dense'
-                   label='Start Task Wait For Interval' />
-        </q-form>
-
-        <q-space style='height: 10px;' />
         <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
           <label style='text-transform: uppercase;font-size: medium'>Path Config</label>
         </q-toolbar>
@@ -84,29 +59,8 @@
       </div>
 
       <div class='col-4'>
-        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
-          <label style='text-transform: uppercase;font-size: medium'>Handler Config</label>
-        </q-toolbar>
         <q-space style='margin: 2px;' />
-        <q-space style='height: 10px;' />
-        <q-form id='frm3' class='q-pa-xs' style='margin:0 5px 0 5px;'>
-          <q-toggle v-model='handler.read_service_overlay' filled :dense='dense' label='Read Service Overlay' />
-          <q-space style='height: 10px;' />
-          <q-select label='Image Extension' :dense='dense' transition-show='flip-up' transition-hide='flip-down'
-                    filled v-model='handler.save_image_extension' clearable :options='imageExtensions' />
-          <q-space style='height: 10px;' />
-          <q-input v-model.trim='handler.save_image_folder_path' filled :dense='dense' label='Folder Path' />
-          <q-space style='height: 10px;' />
-          <q-toggle v-model='handler.show_image_caption' filled :dense='dense' label='Show Image Caption' />
-          <q-space style='height: 10px;' />
-          <q-toggle v-model='handler.show_image_fullscreen' filled :dense='dense' label='Show Image Fullscreen' />
-          <q-space style='height: 10px;' />
-          <q-input v-model.number='handler.show_image_wait_key' type='number' filled :dense='dense'
-                   label='Show Image Wait Key' />
-        </q-form>
-
-        <q-space style='height: 10px;' />
-        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='width: auto;'>
+        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders'  style='margin: 0 10px 0 10px; width: auto;'>
           <label style='text-transform: uppercase;font-size: medium'>Object Detector Config</label>
         </q-toolbar>
         <q-space style='margin: 2px;' />
@@ -136,9 +90,47 @@
           <q-input v-model.number='sourceReader.max_retry_in' type='number' filled :dense='dense' label='Max RetryIn' />
           <q-space style='height: 10px;' />
         </q-form>
+
+        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin: 0 10px 0 10px; width: auto;'>
+          <label style='text-transform: uppercase;font-size: medium'>FFmpeg Config</label>
+        </q-toolbar>
+        <q-space style='margin: 2px;' />
+        <q-form id='frm9' class='q-pa-xs'>
+          <q-toggle v-model='ffmpeg.use_double_quotes_for_path' filled :dense='dense'
+                    label='Use double quotes on FFmpeg Commands' />
+          <q-space style='height: 10px;' />
+          <q-input v-model.number='ffmpeg.max_operation_retry_count' type='number' filled :dense='dense'
+                   label='Max retry count' />
+          <q-space style='height: 10px;' />
+          <q-input v-model.number='ffmpeg.rtmp_server_init_interval' type='number' filled :dense='dense'
+                   label='RTMP Service initialization Interval' />
+          <q-space style='height: 10px;' />
+          <q-input v-model.number='ffmpeg.watch_dog_interval' type='number' filled :dense='dense'
+                   label='Watchdog Interval' />
+          <q-space style='height: 10px;' />
+          <q-input v-model.number='ffmpeg.watch_dog_failed_wait_interval' type='number' filled :dense='dense'
+                   label='Watchdog on Fail Wait Internal' />
+          <q-space style='height: 10px;' />
+          <q-input v-model.number='ffmpeg.start_task_wait_for_interval' type='number' filled :dense='dense'
+                   label='Start Task Wait For Interval' />
+        </q-form>
+
       </div>
 
-      <div class='col-4' v-if='device.device_type===0'>
+      <div class='col-4'>
+
+        <q-space style='margin: 2px;' />
+        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders'  style='margin: 0 10px 0 10px; width: auto;'>
+          <label style='text-transform: uppercase;font-size: medium'>AI Config</label>
+        </q-toolbar>
+        <q-space style='margin: 2px;' />
+        <q-form id='frm14' class='q-pa-xs'>
+          <q-toggle v-model='ai.read_service_overlay' filled :dense='dense'
+                    label='Overlay Detected Object' />
+          <q-space style='height: 10px;' />
+          <q-input v-model.trim='ai.detected_folder' filled :dense='dense' label='Detection Folder Path' />
+        </q-form>
+
         <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin: 0 10px 0 10px; width: auto;'>
           <label style='text-transform: uppercase;font-size: medium'>PyTorch Config</label>
         </q-toolbar>
@@ -159,9 +151,7 @@
           <q-space style='height: 10px;' />
           <q-input v-model='tf.cache_folder' filled :dense='dense' label='Cache Folder' />
         </q-form>
-      </div>
 
-      <div class='col-4' v-if='device.device_type===1'>
         <q-space style='height: 10px;' />
         <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin: 0 10px 0 10px;width: auto;'>
           <label style='text-transform: uppercase;font-size: medium'>Jetson Config</label>
@@ -170,7 +160,9 @@
         <q-form id='frm4' class='q-pa-xs' style='margin: 0 10px 0 10px'>
           <q-input v-model.trim='jetson.model_name' filled :dense='dense' label='Model Name' />
         </q-form>
+
       </div>
+
     </div>
   </div>
 </template>
@@ -180,14 +172,13 @@ import { NodeService } from 'src/utils/services/node-service';
 import { computed, onMounted, ref } from 'vue';
 import {
   Config,
-  HandlerConfig,
   JetsonConfig,
   DeviceConfig,
   TorchConfig,
   OnceDetectorConfig,
   SourceReaderConfig,
   RedisConfig,
-  PathConfig, FFmpegConfig, TensorflowConfig
+  PathConfig, FFmpegConfig, TensorflowConfig, AiConfig
 } from 'src/utils/models/config';
 import { useStore } from 'src/store';
 import CommandBar from 'src/components/CommandBar.vue';
@@ -202,7 +193,6 @@ export default {
     const nodeService = new NodeService();
     const config = ref<Config>();
     const device = ref<DeviceConfig>();
-    const handler = ref<HandlerConfig>();
     const path = ref<PathConfig>();
 
     const modelMultiple = ref();
@@ -212,6 +202,7 @@ export default {
     const sourceReader = ref<SourceReaderConfig>();
     const redis = ref<RedisConfig>();
     const ffmpeg = ref<FFmpegConfig>();
+    const ai = ref<AiConfig>();
 
     //jetson
     const jetson = ref<JetsonConfig>();
@@ -225,7 +216,6 @@ export default {
 
     const setConfigValue = (c: Config) => {
       device.value = c.device;
-      handler.value = c.handler;
       onceDetector.value = c.once_detector;
       sourceReader.value = c.source_reader;
       redis.value = c.redis;
@@ -234,6 +224,7 @@ export default {
       torch.value = c.torch;
       tf.value = c.tensorflow;
       jetson.value = c.jetson;
+      ai.value = c.ai;
     };
 
     onMounted(async () => {
@@ -254,8 +245,8 @@ export default {
     };
 
     return {
-      config, device, handler, optDeviceTypes, onceDetector, sourceReader, redis,
-      jetson, jetsonFilter, ffmpeg, tf,
+      config, device, optDeviceTypes, onceDetector, sourceReader, redis,
+      jetson, jetsonFilter, ffmpeg, tf, ai,
       torch, torchFilter, tfFilter,
       dense, modelMultiple, optServices, onSave, onRestore,
       imageExtensions: ['jpg', 'jpeg', 'png', 'bmp', 'gif'],

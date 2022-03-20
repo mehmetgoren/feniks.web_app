@@ -283,7 +283,7 @@ export class LocalService {
       description: '',
       record: false,
 
-      rtsp_address: '',
+      address: '',
       input_type: 0,
       rtsp_transport: 0,
       analyzation_duration: 1000000, // or set to 100000 if you are using RTSP and having stream issues.
@@ -354,7 +354,7 @@ export class LocalService {
       id: '',
       brand: '',
       name: '',
-      rtsp_address: '',
+      address: '',
 
       pid: -1,
       created_at: '',
@@ -403,7 +403,7 @@ export class LocalService {
       id: '',
       brand: '',
       name: '',
-      rtsp_address: '',
+      address: '',
       created_at: '',
       threshold_list: '0.1',
       selected_list: '0',

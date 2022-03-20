@@ -31,7 +31,7 @@ const mutation: MutationTree<ISettingsState> = {
     state.sourceLoading = value;
   },
   addSourceToLeftMenu(state: ISettingsState, source: SourceModel){
-    const route = 'node?n=' + source.rtsp_address;
+    const route = 'node?n=' + source.address;
     const menuLink: MenuLink = {
       route: route + '&source=' + source.id,
       icon: 'videocam',

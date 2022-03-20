@@ -291,7 +291,7 @@ export default {
         id: stream.id,
         brand: stream.brand,
         name: stream.name,
-        rtsp_address: stream.rtsp_address,
+        address: stream.address,
         event_type: 1
       });
     }

@@ -38,7 +38,7 @@ export interface EditorEvent{
   id?: string | null;
   brand?: string | null;
   name?: string | null;
-  rtsp_address?: string | null;
+  address?: string | null;
   event_type: number;
 }
 
@@ -46,7 +46,7 @@ export interface EditorImageResponseModel{
   id?: string | null;
   brand?: string | null;
   name?: string | null;
-  rtsp_address?: string | null;
+  address?: string | null;
   event_type: number;
   image_base64: string;
 }

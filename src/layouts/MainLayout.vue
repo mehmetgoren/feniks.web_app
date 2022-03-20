@@ -362,7 +362,7 @@ export default {
         id: source.id,
         brand: source.brand,
         name: source.name,
-        rtsp_address: source.rtsp_address,
+        address: source.address,
         event_type: 2
       }).then().catch(console.error);
       console.log('publishService called');
@@ -408,7 +408,7 @@ export default {
           id: source.id,
           brand: source.brand,
           name: source.name,
-          rtsp_address: source.rtsp_address,
+          address: source.address,
           event_type: 1
         });
       },

@@ -1,7 +1,7 @@
 export interface SourceModel {
   // FFmpegModel section starts
   id?: string | null;
-  rtsp_address?: string | null;
+  address?: string | null;
   record?: boolean | null;
   input_type?: number | null;
   rtsp_transport?: number | null;

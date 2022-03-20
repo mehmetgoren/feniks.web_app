@@ -2,7 +2,7 @@ export interface StreamModel {
   id: string;
   brand: string;
   name: string;
-  rtsp_address: string;
+  address: string;
 
   // stream
   pid: number;

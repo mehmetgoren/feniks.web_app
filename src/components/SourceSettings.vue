@@ -50,7 +50,7 @@
 
             <q-step id='step2' :name='2' title='Connection' icon='power' color='cyan' :done='step > 2'>
               <q-form class='q-gutter-md'>
-                <q-input :dense='dense' filled v-model.trim='source.rtsp_address' color='cyan' label='Address'
+                <q-input :dense='dense' filled v-model.trim='source.address' color='cyan' label='Address'
                          lazy-rules :rules="[ val => val && val.length > 0 || 'Please type something']" />
                 <q-select :dense='dense' emit-value map-options filled v-model='source.input_type'
                           :options='inputTypes'
@@ -396,7 +396,7 @@ export default {
 
     async function onSave(e: any) {
       let model = source.value;
-      if (!model.name || !model.rtsp_address) {
+      if (!model.name || !model.address) {
         $q.notify({
           message: 'Please enter both "Name" and  "Address" fields',
           caption: 'Invalid',
@@ -417,7 +417,7 @@ export default {
         id: model.id,
         brand: model.brand,
         name: model.name,
-        rtsp_address: model.rtsp_address,
+        address: model.address,
         event_type: 2
       }).then().catch(console.error);
       if (isAdded) {
