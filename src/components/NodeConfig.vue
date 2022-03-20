@@ -147,21 +147,6 @@
           <q-input v-model.trim='torch.model_name' filled :dense='dense' label='Model Name' />
           <q-space style='height: 10px;' />
           <q-input v-model.trim='torch.model_name_specific' filled :dense='dense' label='Model Specific Name' />
-          <q-space style='height: 10px;' />
-          <q-input v-model.number='torch.threshold' type='number' filled :dense='dense' label='Threshold' />
-          <q-space style='height: 10px;' />
-          <q-table :dense='dense' style='height: 400px' title='Coco 80 Objects' :rows='coco80' :columns='columns'
-                   row-key='value'
-                   virtual-scroll :rows-per-page-options='[0]' :filter='torchFilter'
-                   selection='multiple' v-model:selected='torchWhiteListSelected'>
-            <template v-slot:top-right>
-              <q-input borderless dense debounce='300' v-model.trim='torchFilter' placeholder='Search'>
-                <template v-slot:append>
-                  <q-icon name='search' />
-                </template>
-              </q-input>
-            </template>
-          </q-table>
 
         </q-form>
         <q-space style='margin: 2px;' />
@@ -172,22 +157,7 @@
         <q-form id='frm10' class='q-pa-xs' style='margin: 0 10px 0 10px'>
           <q-input v-model='tf.model_name' filled :dense='dense' label='Model Name' />
           <q-space style='height: 10px;' />
-          <q-input v-model.number='tf.threshold' type='number' filled :dense='dense' label='Threshold' />
-          <q-space style='height: 10px;' />
-          <q-input v-model='tf.cache_folder' filled :dense='dense' label='Model Name' />
-          <q-space style='height: 10px;' />
-          <q-table :dense='dense' style='height: 400px' title='Coco 91 Objects' :rows='coco80' :columns='columns'
-                   row-key='value'
-                   virtual-scroll :rows-per-page-options='[0]' :filter='tfFilter'
-                   selection='multiple' v-model:selected='tfWhiteListSelected'>
-            <template v-slot:top-right>
-              <q-input borderless dense debounce='300' v-model.trim='tfFilter' placeholder='Search'>
-                <template v-slot:append>
-                  <q-icon name='search' />
-                </template>
-              </q-input>
-            </template>
-          </q-table>
+          <q-input v-model='tf.cache_folder' filled :dense='dense' label='Cache Folder' />
         </q-form>
       </div>
 
@@ -199,22 +169,6 @@
         <q-space style='margin: 2px;' />
         <q-form id='frm4' class='q-pa-xs' style='margin: 0 10px 0 10px'>
           <q-input v-model.trim='jetson.model_name' filled :dense='dense' label='Model Name' />
-          <q-space style='height: 10px;' />
-          <q-input v-model.number='jetson.threshold' type='number' filled :dense='dense' label='Threshold' />
-          <q-space style='height: 10px;' />
-          <q-table :dense='dense' style='height: 400px' title='Coco 91 Objects' :rows='coco91' :columns='columns'
-                   row-key='value'
-                   virtual-scroll :rows-per-page-options='[0]' :filter='jetsonFilter'
-                   selection='multiple' v-model:selected='jetsonWhiteListSelected'>
-            <template v-slot:top-right>
-              <q-input borderless dense debounce='300' v-model.trim='jetsonFilter' placeholder='Search'>
-                <template v-slot:append>
-                  <q-icon name='search' />
-                </template>
-              </q-input>
-            </template>
-          </q-table>
-
         </q-form>
       </div>
     </div>
@@ -223,7 +177,7 @@
 
 <script lang='ts'>
 import { NodeService } from 'src/utils/services/node-service';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import {
   Config,
   HandlerConfig,
@@ -254,7 +208,6 @@ export default {
     const modelMultiple = ref();
     const optServices = ref();
     const optDeviceTypes = ref(getDeviceTypes());
-    const optEventListenerHandlerTypes = ref(getEventListenerHandlerType());
     const onceDetector = ref<OnceDetectorConfig>();
     const sourceReader = ref<SourceReaderConfig>();
     const redis = ref<RedisConfig>();
@@ -262,16 +215,11 @@ export default {
 
     //jetson
     const jetson = ref<JetsonConfig>();
-    const coco91 = ref(nodeService.getCoco91Names());
-    const jetsonWhiteListSelected = ref<any>([]);
     const jetsonFilter = ref<string>();
 
     //torch
     const torch = ref<TorchConfig>();
     const tf = ref<TensorflowConfig>();
-    const coco80 = ref(nodeService.getCoco80Names());
-    const torchWhiteListSelected = ref<any>([]);
-    const tfWhiteListSelected = ref<any>([]);
     const torchFilter = ref<string>();
     const tfFilter = ref<string>();
 
@@ -283,33 +231,9 @@ export default {
       redis.value = c.redis;
       path.value = c.path;
       ffmpeg.value = c.ffmpeg;
-
-      jetson.value = config.value?.jetson;
-      if (c.jetson.white_list.length) {
-        const arr = [];
-        for (const item of c.jetson.white_list) {
-          arr.push(coco91.value[item]);
-        }
-        jetsonWhiteListSelected.value = arr;
-      }
-
       torch.value = c.torch;
-      if (c.torch.white_list.length) {
-        const arr = [];
-        for (const item of c.torch.white_list) {
-          arr.push(coco80.value[item]);
-        }
-        torchWhiteListSelected.value = arr;
-      }
-
       tf.value = c.tensorflow;
-      if (c.tensorflow.white_list.length) {
-        const arr = [];
-        for (const item of c.tensorflow.white_list) {
-          arr.push(coco91.value[item]);
-        }
-        tfWhiteListSelected.value = arr;
-      }
+      jetson.value = c.jetson;
     };
 
     onMounted(async () => {
@@ -318,24 +242,6 @@ export default {
       modelMultiple.value = services;
       optServices.value = services;
       setConfigValue(config.value);
-    });
-
-    watch(jetsonWhiteListSelected, () => {
-      const c: any = config.value;
-      if (!jetsonWhiteListSelected.value.length) {
-        c.jetson.white_list = [];
-      } else {
-        c.jetson.white_list = new List(jetsonWhiteListSelected.value).Select((x: any) => x.value).ToArray();
-      }
-    });
-
-    watch(torchWhiteListSelected, () => {
-      const c: any = config.value;
-      if (!torchWhiteListSelected.value.length) {
-        c.torch.white_list = [];
-      } else {
-        c.torch.white_list = new List(torchWhiteListSelected.value).Select((x: any) => x.value).ToArray();
-      }
     });
 
     const onSave = async () => {
@@ -349,9 +255,9 @@ export default {
 
     return {
       config, device, handler, optDeviceTypes, onceDetector, sourceReader, redis,
-      jetson, coco91, jetsonWhiteListSelected, jetsonFilter, ffmpeg, tf, tfWhiteListSelected,
-      torch, coco80, torchWhiteListSelected, torchFilter, optEventListenerHandlerTypes, tfFilter,
-      dense, modelMultiple, optServices, columns, onSave, onRestore,
+      jetson, jetsonFilter, ffmpeg, tf,
+      torch, torchFilter, tfFilter,
+      dense, modelMultiple, optServices, onSave, onRestore,
       imageExtensions: ['jpg', 'jpeg', 'png', 'bmp', 'gif'],
       path
     };
@@ -378,13 +284,7 @@ function getDeviceTypes() {
   return [{ value: 0, label: 'PC' }, { value: 1, label: 'IoT' }];
 }
 
-function getEventListenerHandlerType() {
-  return [{ value: 0, label: 'Thread' }, { value: 1, label: 'Process' }];
-}
 
-const columns = [
-  { name: 'label', align: 'left', label: 'Name', field: 'label' }
-];
 </script>
 
 <style scoped>

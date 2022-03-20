@@ -52,6 +52,9 @@
     <SourceRecords :source-id='stream.id' />
   </q-dialog>
 
+  <q-dialog v-model='showAiSettings' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
+    <AiSettings :source-id='stream.id' />
+  </q-dialog>
 
 </template>
 
@@ -59,6 +62,7 @@
 import { ref, computed } from 'vue';
 import SourceSettings from 'components/SourceSettings.vue';
 import SourceRecords from 'components/SourceRecords.vue';
+import AiSettings from 'components/AiSettings.vue';
 import { PublishService } from 'src/utils/services/websocket-services';
 import { NodeService } from 'src/utils/services/node-service';
 import { SourceModel } from 'src/utils/models/source_model';
@@ -70,7 +74,8 @@ export default {
   name: 'StreamCommandBar',
   components: {
     SourceSettings,
-    SourceRecords
+    SourceRecords,
+    AiSettings
   },
   emits: ['full-screen', 'stream-stop', 'connect', 'take-screenshot', 'refresh', 'deleted', 'restart', 'close'],
   props: {
@@ -101,6 +106,10 @@ export default {
     const showRecord = ref<boolean>(false);
     const onRecordClick = () => {
       showRecord.value = true;
+    };
+    const showAiSettings = ref<boolean>(false);
+    const onAiClick = () => {
+      showAiSettings.value = true;
     };
 
     return {
@@ -137,9 +146,8 @@ export default {
       onSettingsClick() {
         showSettings.value = true;
       },
-      onAiClick(){
-        alert('welcome to AI')
-      },
+      showAiSettings,
+      onAiClick,
       onClose(){
         emit('close', props.stream);
         showSettings.value = false;
