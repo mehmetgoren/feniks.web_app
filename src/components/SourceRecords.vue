@@ -154,7 +154,7 @@ export default {
 
     const dataBind = async () => {
       stream.value = await nodeService.getStream(props.sourceId);
-      recordEnabled.value = stream.value.record;
+      recordEnabled.value = stream.value.record_enabled;
       const videos = await nodeService.getVideos(props.sourceId);
       fixArrayDates(videos, 'created_at', 'modified_at');
       rows.value = videos;

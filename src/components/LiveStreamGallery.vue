@@ -4,11 +4,11 @@
          :key='stream.id' :gs-w='stream.loc.w' :gs-h='stream.loc.h'
          :gs-x='stream.loc.x' :gs-y='stream.loc.y' :gs-id='stream.id'>
       <div class='grid-stack-item-content' style='overflow: hidden !important;'>
-        <HlsPlayer v-if='stream.show&&stream.stream_type===0' :src='stream.src' :source-id='stream.id'
-                   :ref='setStreamPlayers' />
-        <FlvPlayer v-if='stream.show&&stream.stream_type===1' :src='stream.src' :source-id='stream.id' :ref='setStreamPlayers' />
-        <DirectReadPlayer v-if='stream.show&&stream.stream_type===2' :source-id='stream.id'
+        <FlvPlayer v-if='stream&&stream.show&&stream.stream_type===0' :src='stream.src' :source-id='stream.id' :ref='setStreamPlayers' />
+        <FFmpegReaderPlayer v-if='stream&&stream.show&&stream.stream_type===1' :source-id='stream.id'
                           :ref='setStreamPlayers' />
+        <HlsPlayer v-if='stream&&stream.show&&stream.stream_type===2' :src='stream.src' :source-id='stream.id'
+                   :ref='setStreamPlayers' />
 
         <StreamCommandBar v-if='stream.show' :stream='stream' @full-screen='onFullScreen' @stream-stop='onStreamStop'
                           @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh'
@@ -34,7 +34,7 @@ import { EditorImageResponseModel } from 'src/utils/entities';
 import { List } from 'linqts';
 import HlsPlayer from 'components/HlsPlayer.vue';
 import FlvPlayer from 'components/FlvPlayer.vue';
-import DirectReadPlayer from 'components/DirectReadPlayer.vue';
+import FFmpegReaderPlayer from 'components/FFmpegReaderPlayer.vue';
 import StreamCommandBar from 'components/StreamCommandBar.vue';
 import 'gridstack/dist/gridstack.min.css';
 import { GridStack } from 'gridstack';
@@ -55,7 +55,7 @@ export default {
   components: {
     HlsPlayer,
     FlvPlayer,
-    DirectReadPlayer,
+    FFmpegReaderPlayer,
     StreamCommandBar
   },
   setup() {
@@ -111,20 +111,20 @@ export default {
     };
 
     const addPlayer = (streamModel: StreamModel, isStartStream: boolean) => {
-      let url = '';
-      switch (streamModel.stream_type) {
-        case 0: //HLS
-          url = localService.getVideoAddress() + streamModel.hls_output_path;
-          break;
-        case 1: //FLV
-          url = streamModel.rtmp_flv_address;
-          break;
-        case 2: //Direct Read
-          break;
-        default:
-          throw new Error(`Stream type is not supported: ${streamModel.stream_type}`);
-      }
-      if (new List<any>(streamList).FirstOrDefault(x => x.src == url) == null) {
+      if (new List<any>(streamList).FirstOrDefault(x => x.id == streamModel.id) == null) {
+        let url = '';
+        switch (streamModel.stream_type) {
+          case 0: //FLV
+            url = streamModel.rtmp_flv_address;
+            break;
+          case 1: //FFmpeg Reader
+            break;
+          case 2: //HLS
+            url = localService.getVideoAddress() + streamModel.hls_output_path;
+            break;
+          default:
+            throw new Error(`Stream type is not supported: ${streamModel.stream_type}`);
+        }
         const stream: StreamExtModel = <any>streamModel;
         stream.src = url;
         stream.show = true;

@@ -25,9 +25,8 @@
             <q-btn push label='Connection' color='cyan' icon='power' @click='step=2' />
             <q-btn push label='Input' color='cyan' icon='input' @click='step=3' />
             <q-btn push label='Stream' color='cyan' icon='live_tv' @click='step=4' />
-            <q-btn v-if='source.stream_type !== 2' push label='Snapshot for AI' color='cyan' icon='image' @click='step=5' />
-            <q-btn v-if='source.record' push label='Record' color='cyan' icon='radio_button_checked'
-                   @click='step=6' />
+            <q-btn push label='Snapshot for AI' color='cyan' icon='psychology' @click='step=5' />
+            <q-btn v-if='source.record_enabled' push label='Recording' color='cyan' icon='radio_button_checked' @click='step=6' />
             <q-btn push label='Logging' color='cyan' icon='announcement' @click='step=7' />
           </q-btn-group>
           <q-space style='margin-bottom: 5px;' />
@@ -40,8 +39,8 @@
                          lazy-rules :rules="[ val => val && val.length > 0 || 'Please type something']" />
                 <q-input :dense='dense' filled v-model.trim='source.brand' label='Brand' color='cyan' />
                 <q-input :dense='dense' filled v-model.trim='source.description' label='Description' color='cyan' />
-                <q-toggle :dense='dense' v-model='source.record' color='red' @update:model-value='onRecordChange'
-                          :label='"Record " + (source.record ? "On" : "Off")' :disable='source.stream_type === 2' />
+                <q-toggle :dense='dense' v-model='source.record_enabled' color='red' @update:model-value='onRecordChange'
+                          :label='"Record " + (source.record_enabled ? "On" : "Off")' />
               </q-form>
               <q-stepper-navigation>
                 <q-btn @click='onStep1Click' color='cyan' label='Continue' />
@@ -52,9 +51,6 @@
               <q-form class='q-gutter-md'>
                 <q-input :dense='dense' filled v-model.trim='source.address' color='cyan' label='Address'
                          lazy-rules :rules="[ val => val && val.length > 0 || 'Please type something']" />
-                <q-select :dense='dense' emit-value map-options filled v-model='source.input_type'
-                          :options='inputTypes'
-                          label='Input Type' transition-show='flip-up' transition-hide='flip-down' color='cyan' />
                 <q-select :dense='dense' emit-value map-options filled v-model='source.rtsp_transport'
                           :options='rtspTransports' label='RTSP Transport' transition-show='flip-up'
                           transition-hide='flip-down' color='cyan' />
@@ -98,80 +94,74 @@
             <q-step id='step4' :name='4' title='Stream' icon='live_tv' color='cyan' :done='step > 4'>
               <q-form class='q-gutter-md'>
                 <q-select :dense='dense' emit-value map-options filled
-                          v-model='source.stream_type' color='cyan' @update:model-value='onStreamTypeChange'
-                          :options='streamTypes' label='Stream Type' transition-show='flip-up'
-                          transition-hide='flip-down' />
-                <q-select v-if='source.stream_type===1' :dense='dense' emit-value map-options filled
                           v-model='source.rtmp_server_type' color='cyan'
                           :options='rtmpServerTypes' label='RTMP Server' transition-show='flip-up'
                           transition-hide='flip-down' />
-                <q-select v-if='source.stream_type===1&&source.rtmp_server_type===2' :dense='dense' emit-value
-                          map-options filled
-                          v-model='source.flv_player_connection_type' color='cyan'
-                          :options='flvPlayerConnectionTypes' label='Connection Type' transition-show='flip-up'
+                <q-select :dense='dense' emit-value map-options filled
+                          v-model='source.stream_type' color='cyan'
+                          :options='streamTypes' label='Stream Type' transition-show='flip-up'
                           transition-hide='flip-down' />
-                <q-input v-if='source.stream_type===2' :dense='dense' filled
-                         v-model.number='source.direct_read_frame_rate'
-                         type='number' label='Direct Read Frame Rate' color='cyan' />
-                <q-input v-if='source.stream_type===2' :dense='dense' filled
-                         v-model.number='source.direct_read_width' color='cyan'
-                         type='number' label='Direct Read Width' />
-                <q-input v-if='source.stream_type===2' :dense='dense' filled
-                         v-model.number='source.direct_read_height' color='cyan'
-                         type='number' label='Direct Read Height' />
-                <q-select v-if='source.stream_type !== 2' :dense='dense' emit-value map-options filled
-                          v-model='source.stream_video_codec' color='cyan'
-                          :options='streamVideoCodecs' label='Video Codec' transition-show='scale'
-                          transition-hide='scale' />
-                <q-input v-if='source.stream_video_codec !== 3 && source.stream_type===0' :dense='dense' filled
-                         v-model.number='source.hls_time' type='number' color='cyan'
-                         label='HLS Segment Length' />
-                <q-input v-if='source.stream_video_codec !== 3 && source.stream_type===0' :dense='dense' filled
-                         v-model.number='source.hls_list_size' color='cyan'
-                         type='number'
-                         label='HLS List Size' />
-                <q-select v-if='source.stream_type!==2 && source.stream_video_codec !== 3' :dense='dense' emit-value
-                          map-options filled color='cyan'
-                          v-model='source.hls_preset'
-                          :options='hlsPresets' label='HLS Preset' transition-show='scale' transition-hide='scale' />
-                <q-input v-if='source.stream_type!==2 && source.stream_video_codec !== 3' :dense='dense' filled
+                <q-select :dense='dense' emit-value map-options filled v-model='source.stream_video_codec' color='cyan'
+                          :options='streamVideoCodecs' label='Video Codec' transition-show='scale' transition-hide='scale' />
+                <q-select v-if='source.stream_video_codec !== 3' :dense='dense' emit-value
+                          map-options filled color='cyan' v-model='source.preset'
+                          :options='presets' label='Preset' transition-show='scale' transition-hide='scale' />
+                <q-input v-if='source.stream_video_codec !== 3' :dense='dense' filled
                          v-model.number='source.stream_quality' color='cyan'
                          type='number' min='2' max='31'
                          label='Quality' />
-                <q-input v-if='source.stream_type !== 2 && source.stream_video_codec !== 3' :dense='dense' filled
+                <q-input v-if='source.stream_video_codec !== 3' :dense='dense' filled
                          v-model.number='source.stream_frame_rate' color='cyan'
                          type='number' label='Frame Rate' />
-                <q-input v-if='source.stream_type !== 2 && source.stream_video_codec !== 3' :dense='dense' filled
+                <q-input v-if='source.stream_video_codec !== 3' :dense='dense' filled
                          v-model.number='source.stream_width' color='cyan'
                          type='number' label='Width' />
-                <q-input v-if='source.stream_type !== 2 && source.stream_video_codec !== 3' :dense='dense' filled
+                <q-input v-if='source.stream_video_codec !== 3' :dense='dense' filled
                          v-model.number='source.stream_height' color='cyan'
                          type='number' label='Height' />
-                <q-select v-if='source.stream_type !== 2 && source.stream_video_codec !== 3' :dense='dense' emit-value
+                <q-select v-if='source.stream_video_codec !== 3' :dense='dense' emit-value
                           map-options filled v-model='source.stream_rotate' color='cyan'
                           :options='streamRotations' label='Rotate' transition-show='scale' transition-hide='scale' />
-                <q-select v-if='source.stream_type !== 2' :dense='dense' emit-value map-options filled
+                <q-select :dense='dense' emit-value map-options filled
                           v-model='source.stream_audio_codec' color='cyan'
-                          :options='streamAudioCodecs' label='Audio Codec' transition-show='scale'
+                          :options='audioCodecs' label='Audio Codec' transition-show='scale'
                           transition-hide='scale' />
-                <q-select v-if='source.stream_type !== 2 && source.stream_audio_codec !== 1' :dense='dense' emit-value
+                <q-select v-if='source.stream_audio_codec !== 0 && source.stream_audio_codec !== 8' :dense='dense' emit-value
                           map-options filled
                           v-model='source.stream_audio_channel' color='cyan'
                           :options='audioChannels' label='Audio Channel' transition-show='flip-up'
                           transition-hide='flip-down' />
-                <q-select v-if='source.stream_type !== 2 && source.stream_audio_codec !== 1' :dense='dense' emit-value
+                <q-select v-if='source.stream_audio_codec !== 0 && source.stream_audio_codec !== 8' :dense='dense' emit-value
                           map-options filled
                           v-model='source.stream_audio_quality' color='cyan'
                           :options='audioQualities' label='Audio Quality' transition-show='scale'
                           transition-hide='scale' />
-                <q-select v-if='source.stream_type !== 2 && source.stream_audio_codec !== 1' :dense='dense' emit-value
+                <q-select v-if='source.stream_audio_codec !== 0 && source.stream_audio_codec !== 8' :dense='dense' emit-value
                           map-options filled
                           v-model='source.stream_audio_sample_rate' color='cyan'
                           :options='audioSampleRates' label='Audio SampleRate' transition-show='scale'
                           transition-hide='scale' />
-                <q-input v-if='source.stream_type !== 2 && source.stream_audio_codec !== 1' :dense='dense' filled
+                <q-input v-if='source.stream_audio_codec !== 0 && source.stream_audio_codec !== 8' :dense='dense' filled
                          v-model.number='source.stream_audio_volume'
                          label='Audio Volume' color='cyan' />
+
+                <q-input v-if='source.stream_type===1' :dense='dense' filled
+                         v-model.number='source.ffmpeg_reader_frame_rate'
+                         type='number' label='FFmpeg Reader Frame Rate' color='cyan' />
+                <q-input v-if='source.stream_type===1' :dense='dense' filled
+                         v-model.number='source.ffmpeg_reader_width' color='cyan'
+                         type='number' label='FFmpeg Reader Width' />
+                <q-input v-if='source.stream_type===1' :dense='dense' filled
+                         v-model.number='source.ffmpeg_reader_height' color='cyan'
+                         type='number' label='FFmpeg Reader Height' />
+
+                <q-input v-if='source.stream_video_codec === 2 && source.stream_type===2' :dense='dense' filled
+                         v-model.number='source.hls_time' type='number' color='cyan'
+                         label='HLS Segment Length' />
+                <q-input v-if='source.stream_video_codec === 2 && source.stream_type===2' :dense='dense' filled
+                         v-model.number='source.hls_list_size' color='cyan'
+                         type='number'
+                         label='HLS List Size' />
               </q-form>
 
               <q-stepper-navigation>
@@ -180,44 +170,26 @@
               </q-stepper-navigation>
             </q-step>
 
-            <q-step v-if='source.stream_type !== 2' id='step5' :name='5' title='Snapshot for AI' icon='image' color='cyan' :done='step > 5'>
+            <q-step id='step5' :name='5' title='Snapshot for AI' icon='psychology' color='cyan' :done='step > 5'>
               <q-form class='q-gutter-md'>
-
-                <q-toggle :dense='dense' v-model='source.jpeg_enabled' checked-icon='check' color='cyan'
-                          :label='"Jpeg Enabled " + (source.jpeg_enabled ? "Enabled" : "Disabled")' @update:model-value='onJpegEnabledChanged' />
-                <q-input v-if='source.jpeg_enabled' :dense='dense' filled v-model.number='source.jpeg_frame_rate'
+                <q-separator style='margin: 5px;' />
+                <q-toggle :dense='dense' v-model='source.snapshot_enabled' checked-icon='check' color='cyan'
+                          :label='"AI Snapshot " + (source.snapshot_enabled ? "Enabled" : "Disabled")' />
+                <q-input v-if='source.snapshot_enabled' :dense='dense' filled v-model.number='source.snapshot_frame_rate'
                          type='number' label='Frame Rate' color='cyan' />
-                <q-toggle v-if='source.jpeg_enabled' :dense='dense' v-model='source.jpeg_use_vsync'
-                          checked-icon='check' color='cyan'
-                          :label='"Use Vsync " + (source.jpeg_use_vsync ? "Yes" : "No")' />
-                <q-input v-if='source.jpeg_enabled' :dense='dense' filled v-model.number='source.jpeg_quality'
-                         type='number' label='Quality (2-31 Lower is better)' min='2' max='31' />
-                <q-input v-if='source.jpeg_enabled' :dense='dense' filled v-model.number='source.jpeg_width'
+                <q-input v-if='source.snapshot_enabled' :dense='dense' filled v-model.number='source.snapshot_width'
                          type='number' label='Width' />
-                <q-input v-if='source.jpeg_enabled' :dense='dense' filled v-model.number='source.jpeg_height'
-                         type='number' label='Height' color='cyan' />
-                <q-toggle v-if='source.jpeg_enabled' :dense='dense' v-model='source.use_disk_image_reader_service'
-                          checked-icon='check' color='cyan'
-                          :label='"Enable Disk Image Reader Service " + (source.use_disk_image_reader_service ? "Yes" : "No")' />
-
-                <q-separator v-if='source.stream_type===1' style='margin: 5px;' />
-                <q-toggle v-if='source.stream_type===1' :dense='dense' v-model='source.reader' checked-icon='check' color='cyan'
-                          :label='"RTMP Snapshot " + (source.reader ? "Enabled" : "Disabled")' @update:model-value='onReaderChanged' />
-                <q-input v-if='source.reader' :dense='dense' filled v-model.number='source.reader_frame_rate'
-                         type='number' label='Frame Rate' color='cyan' />
-                <q-input v-if='source.reader' :dense='dense' filled v-model.number='source.reader_width'
-                         type='number' label='Width' />
-                <q-input v-if='source.reader' :dense='dense' filled v-model.number='source.reader_height'
+                <q-input v-if='source.snapshot_enabled' :dense='dense' filled v-model.number='source.snapshot_height'
                          type='number' label='Height' color='cyan' />
 
               </q-form>
               <q-stepper-navigation>
-                <q-btn @click='step = source.record ? 6 : 7' color='cyan' label='Continue' />
+                <q-btn @click='step = source.record_enabled ? 6 : 7' color='cyan' label='Continue' />
                 <q-btn flat @click='step = 4' color='cyan' label='Back' class='q-ml-sm' />
               </q-stepper-navigation>
             </q-step>
 
-            <q-step v-if='source.record' id='step6' :name='6' title='Record' icon='radio_button_checked' color='cyan'
+            <q-step v-if='source.record_enabled' id='step6' :name='6' title='Record' icon='radio_button_checked' color='cyan'
                     :done='step > 6'>
               <q-form class='q-gutter-md'>
                 <q-select :dense='dense' emit-value map-options filled
@@ -248,21 +220,21 @@
                           :options='recordRotations' label='Record Rotate' transition-show='scale'
                           transition-hide='scale' />
                 <q-select :dense='dense' emit-value map-options filled v-model='source.record_audio_codec'
-                          :options='recordAudioCodecs' label='Record Audio Codec' color='cyan'
+                          :options='audioCodecs' label='Record Audio Codec' color='cyan'
                           transition-show='scale' transition-hide='scale' />
-                <q-select v-if='source.record_audio_codec !== 1' :dense='dense' emit-value map-options filled
+                <q-select v-if='source.record_audio_codec !== 0 && source.record_audio_codec !== 8' :dense='dense' emit-value map-options filled
                           v-model='source.record_audio_channel' color='cyan'
                           :options='audioChannels' label='Audio Channel' transition-show='flip-up'
                           transition-hide='flip-down' />
-                <q-select v-if='source.record_audio_codec !== 1' :dense='dense' emit-value map-options filled
+                <q-select v-if='source.record_audio_codec !== 0 && source.record_audio_codec !== 8' :dense='dense' emit-value map-options filled
                           v-model='source.record_audio_quality' color='cyan'
                           :options='audioQualities' label='Audio Quality' transition-show='scale'
                           transition-hide='scale' />
-                <q-select v-if='source.record_audio_codec !== 1' :dense='dense' emit-value map-options filled
+                <q-select v-if='source.record_audio_codec !== 0 && source.record_audio_codec !== 8' :dense='dense' emit-value map-options filled
                           v-model='source.record_audio_sample_rate' color='cyan'
                           :options='audioSampleRates' label='Audio SampleRate' transition-show='scale'
                           transition-hide='scale' />
-                <q-input v-if='source.record_audio_codec !== 1' :dense='dense' filled
+                <q-input v-if='source.record_audio_codec !== 0 && source.record_audio_codec !== 8' :dense='dense' filled
                          v-model.number='source.record_audio_volume'
                          label='Audio Volume' color='cyan' />
               </q-form>
@@ -276,7 +248,7 @@
               <q-select :dense='dense' emit-value map-options filled v-model='source.log_level' :options='logLevels'
                         label='Log Level' transition-show='scale' transition-hide='scale' color='cyan' />
               <q-stepper-navigation>
-                <q-btn flat @click='step = source.record ? 6 : 5' color='cyan' label='Back' class='q-ml-sm' />
+                <q-btn flat @click='step = source.record_enabled ? 6 : 5' color='cyan' label='Back' class='q-ml-sm' />
               </q-stepper-navigation>
             </q-step>
           </q-stepper>
@@ -321,16 +293,14 @@ export default {
     });
     const step = ref<number>(1);
     const nodeService = new NodeService();
-    const inputTypes = ref(localService.createInputType());
     const rtspTransports = ref(localService.createRtspTransport());
     const logLevels = ref(localService.createLogLevels());
     const accelerationEngines = ref(localService.createAccelerationEngines());
     const videoDecoders = ref(localService.createVideoDecoders());
     const streamTypes = ref(localService.createStreamTypes());
-    const flvPlayerConnectionTypes = ref(localService.createFlvPlayerConnectionTypes());
     const streamVideoCodecs = ref(localService.createStreamVideoCodecs());
-    const streamAudioCodecs = ref(localService.createStreamAudioCodecs());
-    const hlsPresets = ref(localService.createPresets());
+    const audioCodecs = ref(localService.createAudioCodecs());
+    const presets = ref(localService.createPresets());
     const streamRotations = ref(localService.createRotations());
     const rtmpServerTypes = ref(localService.createRtmpServerTypes());
     const audioChannels = ref(localService.createAudioChannels());
@@ -338,7 +308,6 @@ export default {
     const audioSampleRates = ref(localService.createAudioSampleRates());
     const recordFileTypes = ref(localService.createRecordFileTypes());
     const recordVideoCodecs = ref(localService.createRecordVideoCodecs());
-    const recordAudioCodecs = ref(localService.createRecordAudioCodecs());
     const recordPresets = ref(localService.createPresets());
     const recordRotations = ref(localService.createRotations());
     const inactives = ref({ save: false, delete: false });
@@ -366,7 +335,7 @@ export default {
     };
 
     const makeItCursorable = () => {
-      if (source.value.record) {
+      if (source.value.record_enabled) {
         nextTick().then(() => {
           jqueryWorks(5);  // jpeg
           jqueryWorks(6);  // record
@@ -380,16 +349,8 @@ export default {
       }, 25);
     }
 
-    function onStreamTypeChange() {
-      source.value.record = source.value.stream_type !== 2; // 2 is DirectRead
-      if (!source.value.record && source.value.jpeg_enabled) {
-        source.value.jpeg_enabled = false;
-      }
-      makeItCursorable();
-    }
-
     function onRecordChange() {
-      if (source.value.record) {
+      if (source.value.record_enabled) {
         makeItCursorable();
       }
     }
@@ -463,34 +424,19 @@ export default {
       });
     }
 
-    function onJpegEnabledChanged(jpegEnabled: boolean) {
-      if (jpegEnabled) {
-        source.value.reader = false;
-      }
-    }
-
-    function onReaderChanged(reader: boolean) {
-      if (reader) {
-        source.value.jpeg_enabled = false;
-        source.value.use_disk_image_reader_service = false;
-      }
-    }
-
     return {
       dense,
       source,
       showRecordDetail,
       step,
-      inputTypes,
       rtspTransports,
       logLevels,
       accelerationEngines,
       videoDecoders,
       streamTypes,
-      streamAudioCodecs,
-      flvPlayerConnectionTypes,
+      audioCodecs,
       streamVideoCodecs,
-      hlsPresets,
+      presets,
       streamRotations,
       rtmpServerTypes,
       audioChannels,
@@ -498,17 +444,13 @@ export default {
       audioSampleRates,
       recordFileTypes,
       recordVideoCodecs,
-      recordAudioCodecs,
       recordPresets,
       recordRotations,
       onSave,
       onDelete,
-      onStreamTypeChange,
       onStep1Click,
       inactives,
-      onRecordChange,
-      onJpegEnabledChanged,
-      onReaderChanged
+      onRecordChange
     };
   }
 };

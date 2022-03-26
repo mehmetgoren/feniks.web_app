@@ -2,8 +2,7 @@ export interface SourceModel {
   // FFmpegModel section starts
   id?: string | null;
   address?: string | null;
-  record?: boolean | null;
-  input_type?: number | null;
+  record_enabled?: boolean | null;
   rtsp_transport?: number | null;
 
   analyzation_duration?: number | null;
@@ -16,11 +15,11 @@ export interface SourceModel {
   hwaccel_device?: string | null;
 
   stream_type?: number | null;
-  rtmp_server_address?: string | null;
+  rtmp_address?: string | null;
   stream_video_codec?: number | null;
+  preset?: number | null;
   hls_time?: number | null;
   hls_list_size?: number | null;
-  hls_preset?: number | null;
   stream_quality?: number | null;
   stream_frame_rate?: number | null;
   stream_width?: number | null;
@@ -31,12 +30,6 @@ export interface SourceModel {
   stream_audio_quality?: number | null;
   stream_audio_sample_rate?: number | null;
   stream_audio_volume?: number | null;
-  jpeg_enabled?: boolean | null;
-  jpeg_frame_rate?: number | null;
-  jpeg_use_vsync?: boolean | null;
-  jpeg_quality?: number | null;
-  jpeg_width?: number | null;
-  jpeg_height?: number | null;
 
   record_file_type?: number | null;
   record_video_codec?: number | null;
@@ -63,17 +56,15 @@ export interface SourceModel {
 
   enabled?: boolean | null;
   rtmp_server_type?: number | null;
-  flv_player_connection_type?: number | null;
 
-  use_disk_image_reader_service?: boolean | null;
-  reader: boolean | null;
-  reader_frame_rate: number | null;
-  reader_width: number | null;
-  reader_height: number | null;
+  snapshot_enabled: boolean | null;
+  snapshot_frame_rate: number | null;
+  snapshot_width: number | null;
+  snapshot_height: number | null;
 
-  direct_read_frame_rate?: number | null;
-  direct_read_width?: number | null;
-  direct_read_height?: number | null;
+  ffmpeg_reader_frame_rate?: number | null;
+  ffmpeg_reader_width?: number | null;
+  ffmpeg_reader_height?: number | null;
 
   created_at?: string | null;
   // SourceModel section ends

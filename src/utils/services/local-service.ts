@@ -40,14 +40,6 @@ export class LocalService {
     sessionStorage.setItem('setActiveTab', JSON.stringify(node));
   }
 
-  public createInputType(): SelectOption[] {
-    return [
-      { value: 0, label: 'H.264 / H.265 / H.265+' },
-      { value: 1, label: 'MPEG4' },
-      { value: 2, label: 'HLS' }
-    ];
-  }
-
   public createRtspTransport(): SelectOption[] {
     return [
       { value: 0, label: 'Auto' },
@@ -102,9 +94,9 @@ export class LocalService {
 
   public createStreamTypes(): SelectOption[] {
     return [
-      { value: 0, label: 'HLS' },
-      { value: 1, label: 'FLV' },
-      { value: 2, label: 'Direct Read' }
+      { value: 0, label: 'FLV' },
+      { value: 1, label: 'FFmpeg Reader' },
+      { value: 2, label: 'HLS' },
     ];
   }
 
@@ -155,18 +147,17 @@ export class LocalService {
     ];
   }
 
-  public createStreamAudioCodecs(): SelectOption[] {
+  public createAudioCodecs(): SelectOption[] {
     return [
-      { value: 0, label: 'Auto' },
-      { value: 1, label: 'No Audio' },
-      { value: 2, label: 'Vorbis' },
-      { value: 3, label: 'Opus' },
-      { value: 4, label: 'MP3LAME' },
-      { value: 5, label: 'AAC' },
-      { value: 6, label: 'AC3' },
-      { value: 7, label: 'DTS' },
-      { value: 8, label: 'ALAC' },
-      { value: 9, label: 'copy' }
+      { value: 0, label: 'No Audio' },
+      { value: 1, label: 'Vorbis' },
+      { value: 2, label: 'Opus' },
+      { value: 3, label: 'MP3LAME' },
+      { value: 4, label: 'AAC' },
+      { value: 5, label: 'AC3' },
+      { value: 6, label: 'DTS' },
+      { value: 7, label: 'ALAC' },
+      { value: 8, label: 'copy' }
     ];
   }
 
@@ -175,13 +166,6 @@ export class LocalService {
       { value: 0, label: 'SRS' },
       { value: 1, label: 'LiveGo' },
       { value: 2, label: 'Node Media Server' }
-    ];
-  }
-
-  public createFlvPlayerConnectionTypes(): SelectOption[] {
-    return [
-      { value: 0, label: 'HTTP' },
-      { value: 1, label: 'Websocket' }
     ];
   }
 
@@ -259,33 +243,14 @@ export class LocalService {
     ];
   }
 
-  public createRecordAudioCodecs(): SelectOption[] {
-    return [
-      { value: 0, label: 'Auto' },
-      { value: 1, label: 'No Audio' },
-      { value: 2, label: 'Vorbis (WebM Default)' },
-      { value: 3, label: 'Opus (WebM)' },
-      { value: 4, label: 'MP3LAME (MP4)' },
-      { value: 5, label: 'AAC (MP4 Default)' },
-      { value: 6, label: 'AC3 (MP4)' },
-      { value: 7, label: 'DTS' },
-      { value: 8, label: 'ALAC' },
-      { value: 9, label: 'copy' }
-    ];
-  }
-
   public createEmptySource(): SourceModel {
     return {
-      enabled: true,
+      // FFmpeg model starts
       id: '',
-      brand: '',
-      name: '',
-      description: '',
-      record: false,
-
       address: '',
-      input_type: 0,
+      record_enabled: false,
       rtsp_transport: 0,
+
       analyzation_duration: 1000000, // or set to 100000 if you are using RTSP and having stream issues.
       probe_size: 1000000, //or set to 100000 if you are using RTSP and having stream issues.
       input_frame_rate: 0,
@@ -295,43 +260,25 @@ export class LocalService {
       video_decoder: 0,
       hwaccel_device: '',
 
-      stream_type: 0,
-      rtmp_server_type: 1,
-      flv_player_connection_type: 0,
-      rtmp_server_address: '',
-      direct_read_frame_rate: 1,
-      direct_read_width: 640,
-      direct_read_height: 360,
+      stream_type: 0, //FLV
+      rtmp_address: '',
       stream_video_codec: 3, // copy
-      stream_audio_codec: 9, // copy
-      stream_audio_channel: 0,
-      stream_audio_quality: 0,
-      stream_audio_sample_rate: 0,
-      stream_audio_volume: 100,
+      preset: 0,
       hls_time: 2,
       hls_list_size: 3,
-      hls_preset: 0,
       stream_quality: 0,
       stream_frame_rate: 0,
       stream_width: 0,
       stream_height: 0,
       stream_rotate: 0,
-
-      jpeg_enabled: false,
-      jpeg_frame_rate: 1,
-      jpeg_use_vsync: false,
-      jpeg_quality: 0, // 2-31. lower value is better. Setting this value increase memory and cpu usage. it' s bette to untouch it
-      jpeg_width: 1280,
-      jpeg_height: 720,
-
-      use_disk_image_reader_service: false,
-      reader: false,
-      reader_frame_rate: 1,
-      reader_width: 1280,
-      reader_height: 720,
+      stream_audio_codec: 8, // copy
+      stream_audio_channel: 0,
+      stream_audio_quality: 0,
+      stream_audio_sample_rate: 0,
+      stream_audio_volume: 100,
 
       record_file_type: 0,
-      record_video_codec: 5,
+      record_video_codec: 5, //copy
       record_quality: 0,
       record_preset: 0,
       record_frame_rate: 0,
@@ -339,13 +286,34 @@ export class LocalService {
       record_height: 0,
       record_segment_interval: 15,
       record_rotate: 0,
-      record_audio_codec: 9,
+      record_audio_codec: 8, //copy
       record_audio_channel: 0,
       record_audio_quality: 0,
       record_audio_sample_rate: 0,
       record_audio_volume: 100,
 
-      log_level: 5 //Warning
+      log_level: 5, //Warning
+      // FFmpeg model ends
+
+      // Source model starts
+      brand: '',
+      name: '',
+      description: '',
+
+      enabled: true,
+      rtmp_server_type: 1, //LIVEGO
+
+      snapshot_enabled: false,
+      snapshot_frame_rate: 1,
+      snapshot_width: 640,
+      snapshot_height: 360,
+
+      ffmpeg_reader_frame_rate: 1,
+      ffmpeg_reader_width: 640,
+      ffmpeg_reader_height: 360,
+
+      created_at: ''
+      // Source model ends
     };
   }
 
@@ -356,14 +324,15 @@ export class LocalService {
       name: '',
       address: '',
 
-      pid: -1,
+      rtmp_feeder_pid: 0,
+      rtmp_feeder_args: '',
+      hls_pid: 0,
+      hls_args: '',
       created_at: '',
-      args: '',
 
-      stream_type: 0,
+      stream_type: 0, //FLV
       rtmp_server_initialized: false,
-      rtmp_server_type: 0,
-      flv_player_connection_type: 0,
+      rtmp_server_type: 1, //LIVEGO
       rtmp_image_name: '',
       rtmp_container_name: '',
       rtmp_address: '',
@@ -371,29 +340,23 @@ export class LocalService {
       rtmp_container_ports: '',
       rtmp_container_commands: '',
 
-      direct_read_frame_rate: 1,
-      direct_read_width: 640,
-      direct_read_height: 360,
+      ffmpeg_reader_pid: 0,
+      ffmpeg_reader_frame_rate: 1,
+      ffmpeg_reader_width: 640,
+      ffmpeg_reader_height: 360,
 
-      jpeg_enabled: false,
-      jpeg_frame_rate: 0,
-
-      record: false,
+      record_enabled: false,
+      record_pid: 0,
+      record_args: '',
       record_duration: 900,
-      record_flv_pid: 0,
-      record_flv_args: '',
-      record_flv_failed_count: 0,
 
-      use_disk_image_reader_service: false,
-      reader: false,
-      reader_frame_rate: 1,
-      reader_width: 1280,
-      reader_height: 720,
-      reader_pid: 0,
-      reader_failed_count: 0,
+      snapshot_enabled: false,
+      snapshot_pid: 0,
+      snapshot_frame_rate: 1,
+      snapshot_width: 1280,
+      snapshot_height: 720,
 
       hls_output_path: '',
-      read_jpeg_output_path: '',
       record_output_folder_path: ''
     };
   }

@@ -8,7 +8,7 @@ import { WsConnection } from 'src/utils/ws/connection';
 import { SubscribeService } from 'src/utils/services/websocket-services';
 
 export default {
-  name: 'DirectReadPlayer',
+  name: 'FFmpegReaderPlayer',
   props: {
     sourceId: {
       type: String,
