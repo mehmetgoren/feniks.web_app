@@ -75,8 +75,6 @@ export default {
       const pts = drawService.dotsToString(newDots);
       points.value = pts
       zoneCoordinates.value = pts;
-      console.log('fcukkkkk:')
-      console.error(pts);
       //@ts-ignore
       emit('zone-coordinates-changed', pts.replaceAll(',', props.separator, ));
     });

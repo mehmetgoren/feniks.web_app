@@ -2,7 +2,7 @@
   <q-layout view='lHh lpr lFf' container class='shadow-2 rounded-borders'>
     <q-header elevated class='bg-amber'>
       <q-toolbar>
-        <q-btn flat round dense icon='settings' />
+        <q-btn flat round dense icon='psychology' />
         <q-toolbar-title>
           <label style='text-transform: uppercase;font-size: medium'> {{ od.name }}</label>
         </q-toolbar-title>
@@ -17,8 +17,9 @@
       <q-page padding style='background-color: whitesmoke;'>
         <q-toolbar class="bg-amber text-white shadow-2 rounded-borders">
           <q-tabs v-model="tab" narrow-indicator class="bg-amber text-white"  inline-label align="left" >
-            <q-tab name="cocoList" icon="fact_check" label="Coco List" />
-            <q-tab name="zoneList" icon="format_shapes" label="Zones" />
+            <q-tab :disable='!enabled' name="cocoList" icon="fact_check" label="Coco List" />
+            <q-tab :disable='!enabled' name="zoneList" icon="format_shapes" label="Zones" />
+            <q-tab :disable='!enabled' name="detectedList" icon="collections" label="Detected Images" />
           </q-tabs>
           <q-space/>
           <q-btn flat push label='Save' icon='save' @click='onSave' :disable='inactiveSave' :dense='dense'>
@@ -59,8 +60,11 @@
               </template>
             </q-table>
           </div>
-          <div v-if='tab==="zoneList"'  class='div_margin'>
+          <div v-if='tab==="zoneList"' class='div_margin'>
             <MaskEditor :od-model='od' :separator='separator' @zone-coordinates-changed='handleZoneCoordinatesChanged' />
+          </div>
+          <div v-if='tab==="detectedList"' class='div_margin'>
+            <DetectedImageGallery :od-model='od' />
           </div>
         </div>
         <div v-else>
@@ -81,11 +85,13 @@ import { NodeService } from 'src/utils/services/node-service';
 import { useStore } from 'src/store';
 import { Config } from 'src/utils/models/config';
 import MaskEditor from 'components/MaskEditor.vue';
+import DetectedImageGallery from 'components/DetectedImageGallery.vue';
 
 export default {
   name: 'AiSettings',
   components:{
-    MaskEditor
+    MaskEditor,
+    DetectedImageGallery
   },
   props: {
     sourceId: {

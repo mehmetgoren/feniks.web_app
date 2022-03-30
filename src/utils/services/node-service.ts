@@ -8,6 +8,7 @@ import { isNullOrEmpty } from 'src/utils/utils';
 import { StreamModel } from 'src/utils/models/stream_model';
 import { SourceStatusModel } from 'src/utils/models/source_status_model';
 import { OdModel } from 'src/utils/models/od_model';
+import { DetectedImagesParams, FolderTreeItem, ImageItem } from 'src/utils/models/detected';
 
 
 export class NodeService extends BaseService {
@@ -92,5 +93,15 @@ export class NodeService extends BaseService {
   public async deleteOd(sourceId: string): Promise<boolean>{
     await api.delete(this.getAddress(`ods/${sourceId}`));
     return true;
+  }
+
+  public async getDetectedFolders(): Promise<FolderTreeItem[]>{
+    const resp = await api.get(this.getAddress('detectedfolders'));
+    return [resp.data];
+  }
+
+  public async getDetectedImages(model: DetectedImagesParams): Promise<ImageItem[]>{
+    const resp = await api.post(this.getAddress('detectedimages'), model);
+    return resp.data;
   }
 }
