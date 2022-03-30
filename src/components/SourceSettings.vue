@@ -266,7 +266,7 @@ import CommandBar from 'src/components/CommandBar.vue';
 import { NodeService } from 'src/utils/services/node-service';
 import { useQuasar } from 'quasar';
 import { PublishService } from 'src/utils/services/websocket-services';
-import { isNullEmpty, isNullOrUndefined } from 'src/utils/utils';
+import { isNullOrEmpty, isNullOrUndefined } from 'src/utils/utils';
 import { LocalService } from 'src/utils/services/local-service';
 
 declare var $: any;
@@ -316,7 +316,7 @@ export default {
     const $q = useQuasar();
 
     onMounted(async () => {
-      if (!isNullEmpty(props.sourceId)) {
+      if (!isNullOrEmpty(props.sourceId)) {
         source.value = await nodeService.getSource(props.sourceId);
       }
       setTimeout(() => {
@@ -366,7 +366,7 @@ export default {
         });
         return;
       }
-      const isAdded = isNullEmpty(<string>source.value.id);
+      const isAdded = isNullOrEmpty(<string>source.value.id);
       try {
         inactives.value.save = true;
         source.value = await nodeService.saveSource(model);

@@ -4,7 +4,7 @@ import { BaseService } from 'src/utils/services/base-service';
 import { List } from 'linqts';
 import { SourceModel } from 'src/utils/models/source_model';
 import { VideoFile } from 'src/utils/entities';
-import { isNullEmpty } from 'src/utils/utils';
+import { isNullOrEmpty } from 'src/utils/utils';
 import { StreamModel } from 'src/utils/models/stream_model';
 import { SourceStatusModel } from 'src/utils/models/source_status_model';
 import { OdModel } from 'src/utils/models/od_model';
@@ -32,7 +32,7 @@ export class NodeService extends BaseService {
   }
 
   public async removeSource(sourceId: string): Promise<boolean> {
-    if (isNullEmpty(sourceId)) {
+    if (isNullOrEmpty(sourceId)) {
       return false;
     }
     await api.delete(this.getAddress(`sources/${sourceId}`));
@@ -79,7 +79,7 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
-  public async getOd(sourceId: string): Promise<OdModel>{
+  public async getOd(sourceId: string): Promise<OdModel | null>{
     const resp = await api.get(this.getAddress(`ods/${sourceId}`))
     return resp.data;
   }

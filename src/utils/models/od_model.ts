@@ -6,6 +6,5 @@ export interface OdModel{
   created_at: string;
   threshold_list: string;
   selected_list: string;
-  mask: string;
-  zone: string;
+  zone_list: string;
 }

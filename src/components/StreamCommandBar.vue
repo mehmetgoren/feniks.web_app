@@ -52,7 +52,7 @@
     <SourceRecords :source-id='stream.id' />
   </q-dialog>
 
-  <q-dialog v-model='showAiSettings' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
+  <q-dialog v-model='showAiSettings' full-width transition-show='flip-down' transition-hide='flip-up'>
     <AiSettings :source-id='stream.id' />
   </q-dialog>
 

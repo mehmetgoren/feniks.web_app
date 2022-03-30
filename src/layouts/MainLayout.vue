@@ -113,7 +113,7 @@
                 <q-item-label>{{ link.text }}</q-item-label>
               </q-item-section>
               <q-item-section v-if='link.isSource'>
-                <q-img :src="'data:image/png;base64, ' + (link.thumbnail ? link.thumbnail : 'R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=')" spinner-color='white'
+                <q-img :src="'data:image/png;base64, ' + (link.thumbnail ? link.thumbnail : emptyBase64Image)" spinner-color='white'
                        style='height: 80px; width: 200px; cursor: pointer;' class='rounded-borders'>
                   <div class='absolute-bottom text-subtitle1'>
                     <q-icon v-if='sourceStreamStatus[link.id].streaming' name='live_tv' color='green' style='margin-right: 3px;' class='blink_me'/>
@@ -206,7 +206,7 @@ import { EditorImageResponseModel, Node } from 'src/utils/entities';
 import SourceSettings from 'components/SourceSettings.vue';
 import SourceRecords from 'components/SourceRecords.vue';
 import { SourceModel } from 'src/utils/models/source_model';
-import { startStream } from 'src/utils/utils';
+import { createEmptyBase64Image, startStream } from 'src/utils/utils';
 
 export default {
   name: 'Ionix Layout',
@@ -239,6 +239,7 @@ export default {
     const showSettings = ref<boolean>(false);
     const showRecords = ref<boolean>(false);
     const selectedSourceId = ref<string>('');
+    const emptyBase64Image = ref<string>(createEmptyBase64Image());
 
     const tabs = ref();
     onMounted(async () => {
@@ -415,7 +416,8 @@ export default {
       onSourceSettingsSave(){
         showSettings.value = false;
       },
-      getThumbnail
+      getThumbnail,
+      emptyBase64Image
     };
   },
   methods: {

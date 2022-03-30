@@ -1,5 +1,5 @@
 <template>
-  <q-layout view='lHh lpr lFf' container style='height: 600px' class='shadow-2 rounded-borders'>
+  <q-layout view='lHh lpr lFf' container class='shadow-2 rounded-borders'>
     <q-header elevated class='bg-amber'>
       <q-toolbar>
         <q-btn flat round dense icon='settings' />
@@ -15,61 +15,78 @@
 
     <q-page-container>
       <q-page padding style='background-color: whitesmoke;'>
-        <q-table :dense='dense' style='height: 400px' title='Coco Objects' :rows='cocoList' :columns='columns'
-                 virtual-scroll :rows-per-page-options='[0]' :filter='cocoFilter'>
-          <template v-slot:body='props'>
-            <q-tr :props='props' :style="{ backgroundColor: props.row.selected ? 'whitesmoke': 'white'}">
-              <q-td key='label' :props='props' style='width: 25px;'>
-                <q-checkbox v-model='props.row.selected' :dense='dense' color='amber' />
-              </q-td>
-              <q-td key='label' :props='props'>
-                {{ props.row.label }}
-              </q-td>
-              <q-td key='label' :props='props'>
-                <q-input type='number' v-model='props.row.threshold' :dense='dense' outlined color='amber' />
-              </q-td>
-            </q-tr>
-          </template>
-          <template v-slot:top-left>
-            <div class='row'>
-              <q-checkbox v-model='selectAll' :dense='true' color='amber' />
-              <q-space style='margin-right: 15px;' />
-              <q-input borderless dense debounce='300' v-model.trim='cocoFilter' placeholder='Search'>
-                <template v-slot:append>
-                  <q-icon name='search' />
-                </template>
-              </q-input>
-            </div>
-          </template>
-          <template v-slot:top-right>
-            <q-banner inline-actions rounded class='bg-amber text-white' :dense='dense'>
-              <template v-slot:action>
-                <q-btn flat push label='Save' icon='save' @click='onSave' :disable='inactiveSave' :dense='dense'>
-                  <q-inner-loading :showing='inactiveSave' />
-                </q-btn>
-                <q-btn flat push label='Refresh' icon='restore_page' @click='onRefresh' :disable='inactiveRefresh' :dense='dense'>
-                  <q-inner-loading :showing='inactiveRefresh' />
-                </q-btn>
+        <q-toolbar class="bg-amber text-white shadow-2 rounded-borders">
+          <q-tabs v-model="tab" narrow-indicator class="bg-amber text-white"  inline-label align="left" >
+            <q-tab name="cocoList" icon="fact_check" label="Coco List" />
+            <q-tab name="zoneList" icon="format_shapes" label="Zones" />
+          </q-tabs>
+          <q-space/>
+          <q-btn flat push label='Save' icon='save' @click='onSave' :disable='inactiveSave' :dense='dense'>
+            <q-inner-loading :showing='inactiveSave' />
+          </q-btn>
+          <q-btn flat push label='Refresh' icon='restore_page' @click='onRefresh' :disable='inactiveRefresh' :dense='dense'>
+            <q-inner-loading :showing='inactiveRefresh' />
+          </q-btn>
+        </q-toolbar>
+
+        <div v-if='enabled'>
+          <div v-if='tab==="cocoList"'  class='div_margin'>
+            <q-table :dense='dense' title='Coco Objects' :rows='cocoList' :columns='columns'
+                     :pagination="initialPagination" :filter='cocoFilter'>
+              <template v-slot:body='props'>
+                <q-tr :props='props' :style="{ backgroundColor: props.row.selected ? 'whitesmoke': 'white'}">
+                  <q-td key='label' :props='props' style='width: 25px;'>
+                    <q-checkbox v-model='props.row.selected' :dense='dense' color='amber' />
+                  </q-td>
+                  <q-td key='label' :props='props'>
+                    {{ props.row.label }}
+                  </q-td>
+                  <q-td key='label' :props='props'>
+                    <q-input type='number' v-model='props.row.threshold' :dense='dense' outlined color='amber' />
+                  </q-td>
+                </q-tr>
               </template>
-            </q-banner>
-          </template>
-        </q-table>
+              <template v-slot:top-left>
+                <div class='row'>
+                  <q-checkbox v-model='selectAll' :dense='true' color='amber' />
+                  <q-space style='margin-right: 15px;' />
+                  <q-input borderless dense debounce='300' v-model.trim='cocoFilter' placeholder='Search'>
+                    <template v-slot:append>
+                      <q-icon name='search' />
+                    </template>
+                  </q-input>
+                </div>
+              </template>
+            </q-table>
+          </div>
+          <div v-if='tab==="zoneList"'  class='div_margin'>
+            <MaskEditor :od-model='od' :separator='separator' @zone-coordinates-changed='handleZoneCoordinatesChanged' />
+          </div>
+        </div>
+        <div v-else>
+          <label class='blink_me'>AI Service is not available.</label>
+        </div>
       </q-page>
     </q-page-container>
   </q-layout>
+
 </template>
 
 <script lang='ts'>
 import { OdModel } from 'src/utils/models/od_model';
 import { computed, onMounted, ref, watch } from 'vue';
 import { LocalService } from 'src/utils/services/local-service';
-import { isNullEmpty, isNullOrUndefined } from 'src/utils/utils';
+import { isNullOrEmpty, isNullOrUndefined } from 'src/utils/utils';
 import { NodeService } from 'src/utils/services/node-service';
 import { useStore } from 'src/store';
 import { Config } from 'src/utils/models/config';
+import MaskEditor from 'components/MaskEditor.vue';
 
 export default {
   name: 'AiSettings',
+  components:{
+    MaskEditor
+  },
   props: {
     sourceId: {
       type: String,
@@ -83,6 +100,7 @@ export default {
     const localService = new LocalService();
     const nodeService = new NodeService();
     const od = ref<OdModel>(localService.createEmptyOd());
+    const enabled = ref<boolean>(true);
     const config = ref<Config>();
     const cocoList = ref<any[]>([]);
     const columns = [
@@ -117,7 +135,7 @@ export default {
         for (const cocoItem of cocoList.value) {
           if (cocoItem.selected) {
             selectedList.push(cocoItem.value);
-            const value = isNullOrUndefined(cocoItem.threshold) || isNullEmpty(cocoItem.threshold.toString())
+            const value = isNullOrUndefined(cocoItem.threshold) || isNullOrEmpty(cocoItem.threshold.toString())
             || cocoItem.threshold < 0 ? .1 : cocoItem.threshold;
             thresholdList.push(value);
           }
@@ -136,8 +154,14 @@ export default {
         for (const item of cocoList.value){
           item.selected = false;
         }
-        if (!isNullEmpty(props.sourceId)) {
-          od.value = await nodeService.getOd(props.sourceId);
+        if (!isNullOrEmpty(props.sourceId)) {
+          const odModel = await nodeService.getOd(props.sourceId);
+          console.log(odModel);
+          if (odModel === null){
+            enabled.value = false;
+            return;
+          }
+          od.value = odModel;
           const selectedList = od.value.selected_list.split(separator);
           const thresholdList = od.value.threshold_list.split(separator);
           let index = 0;
@@ -152,6 +176,14 @@ export default {
       }
     }
 
+    function handleZoneCoordinatesChanged(newZones: string){
+      if (isNullOrEmpty(newZones)){
+        od.value.zone_list = '';
+        return;
+      }
+      od.value.zone_list = newZones.replace(',', separator);
+    }
+
     return {
       dense,
       od,
@@ -162,7 +194,15 @@ export default {
       inactiveSave,
       inactiveRefresh,
       onSave,
-      onRefresh
+      onRefresh,
+      enabled,
+      initialPagination: {
+        page: 0,
+        rowsPerPage: 10
+      },
+      tab: ref('cocoList'),
+      handleZoneCoordinatesChanged,
+      separator,
     };
   }
 };
@@ -183,6 +223,19 @@ interface Coco {
 }
 </script>
 
-<style scoped>
 
+<style scoped>
+.blink_me {
+  animation: blinker 1s linear infinite;
+  color:red;
+  font-size:medium;
+}
+
+@keyframes blinker {
+  50% { opacity: 0; }
+}
+
+.div_margin{
+  margin-top: 5px;
+}
 </style>

@@ -1,5 +1,5 @@
 import { Node } from 'src/utils/entities';
-import { isNullEmpty, isNullOrUndefined, NodeMngrAddress } from 'src/utils/utils';
+import { isNullOrEmpty, isNullOrUndefined, NodeMngrAddress } from 'src/utils/utils';
 import { SourceModel } from 'src/utils/models/source_model';
 import { StreamModel } from 'src/utils/models/stream_model';
 import { OdModel } from 'src/utils/models/od_model';
@@ -7,7 +7,7 @@ import { OdModel } from 'src/utils/models/od_model';
 export class LocalService {
 
   public saveGsLocation(sourceId: string, option: GsLocation) {
-    if (isNullEmpty(sourceId) || isNullOrUndefined(option))
+    if (isNullOrEmpty(sourceId) || isNullOrUndefined(option))
       return;
     localStorage.setItem(sourceId, JSON.stringify(option));
   }
@@ -370,8 +370,7 @@ export class LocalService {
       created_at: '',
       threshold_list: '0.1',
       selected_list: '0',
-      mask: '',
-      zone: ''
+      zone_list: ''
     };
   }
 

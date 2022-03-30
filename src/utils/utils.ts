@@ -43,13 +43,13 @@ export function isNullOrUndefined(val: any){
   return val === undefined || val === null;
 }
 
-export function isNullEmpty(val: string | undefined | null){
+export function isNullOrEmpty(val: string | undefined | null){
   //@ts-ignore
   return isNullOrUndefined(val) ? true : val.length === 0;
 }
 
 export function startStream($store: Store<IState>, publishService: PublishService, source: SourceModel) {
-  if (isNullEmpty(source?.id)){
+  if (isNullOrEmpty(source?.id)){
     console.error('invalid source object. Streamin request will not ben sent');
     return;
   }
@@ -59,4 +59,8 @@ export function startStream($store: Store<IState>, publishService: PublishServic
   }).catch((err) => {
     console.log('stream request had an error: ' + err);
   });
+}
+
+export function createEmptyBase64Image(): string{
+  return 'R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=';
 }
