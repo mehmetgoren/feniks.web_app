@@ -15,7 +15,7 @@ export function parseQs(qs = window.location.search) {
 
 export function myDateToJsDate(dateString: string): Date {
   if (dateString){
-    const splits = dateString.split('-');
+    const splits = dateString.split('_');
     if (splits.length && splits.length > 5){
       const year = parseInt(splits[0]);
       const month = parseInt(splits[1]);
