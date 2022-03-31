@@ -23,7 +23,8 @@
     "vue-chart-3": "^3.0.4",
     "vuex": "^4.0.2",
     "gridstack": "^4.4.1",
-    "downloadjs": "^1.4.7"
+    "downloadjs": "^1.4.7",
+    "v-viewer": "^3.0.10"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.16.5",

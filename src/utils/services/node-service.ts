@@ -13,7 +13,7 @@ import { DetectedImagesParams, FolderTreeItem, ImageItem } from 'src/utils/model
 
 export class NodeService extends BaseService {
 
-  private getAddress(route: string) : string{
+  public getAddress(route: string) : string{
     return `${this.nodeHttpProtocol}://${this.nodeAddress}:${this.defaultPort}/${route}`;
   }
 

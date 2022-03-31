@@ -13,7 +13,7 @@ export interface ImageItem{
   score: number;
   modifiedAt: string;
   id:string;
-  base64Image: string;
+  imagePath: string;
 }
 
 export interface DetectedImagesParams{
