@@ -1,6 +1,6 @@
 import { api } from 'boot/axios';
 import { CameraDto } from 'src/utils/entities';
-import { BaseService } from 'src/utils/services/base-service';
+import { BaseService } from 'src/utils/services/base_service';
 import { IonixHubAddress } from 'src/utils/utils';
 
 

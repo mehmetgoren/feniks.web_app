@@ -29,10 +29,10 @@
 
 <script lang='ts'>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { LocalService } from 'src/utils/services/local-service';
+import { LocalService } from 'src/utils/services/local_service';
 import { SourceModel } from 'src/utils/models/source_model';
-import { NodeService } from 'src/utils/services/node-service';
-import { PublishService, SubscribeService } from 'src/utils/services/websocket-services';
+import { NodeService } from 'src/utils/services/node_service';
+import { PublishService, SubscribeService } from 'src/utils/services/websocket_services';
 import { EditorImageResponseModel } from 'src/utils/entities';
 import { WsConnection } from 'src/utils/ws/connection';
 import { createEmptyBase64Image, isNullOrEmpty } from 'src/utils/utils';

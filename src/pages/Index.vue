@@ -29,7 +29,7 @@ import {
 import { DoughnutChart } from 'vue-chart-3';
 import { Chart, registerables } from 'chart.js';
 import { WsConnection } from 'src/utils/ws/connection';
-import { SubscribeService } from 'src/utils/services/websocket-services';
+import { SubscribeService } from 'src/utils/services/websocket_services';
 import Nodes from 'pages/Nodes.vue';
 import Hub from 'pages/Hub.vue';
 import { useStore } from 'src/store';

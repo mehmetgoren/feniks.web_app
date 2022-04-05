@@ -14,6 +14,10 @@ export default {
     src: {
       type: String,
       default: 'http://vjs.zencdn.net/v/oceans.mp4',
+    },
+    autoPlay:{
+      type:Boolean,
+      required:true
     }
   },
   data() {
@@ -22,9 +26,10 @@ export default {
     }
   },
   mounted() {
+    const autoPlay = this.autoPlay;
     const videoOptions = {
         fluid: true,
-        autoplay: true,
+        autoplay: autoPlay,
         controls: true,
         sources: [
         {

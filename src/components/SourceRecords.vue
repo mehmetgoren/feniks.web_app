@@ -74,7 +74,7 @@
         <div class='text-h6'>{{ selectedVideo.name }}</div>
       </q-card-section>
       <q-card-section class='q-pt-none'>
-        <VideoPlayer :src="'http://localhost:2072' + selectedVideo.path" />
+        <VideoPlayer :src="'http://localhost:2072' + selectedVideo.path" :auto-play='true' />
       </q-card-section>
     </q-card>
   </q-dialog>
@@ -84,14 +84,14 @@
 import { useQuasar } from 'quasar';
 import { computed, onMounted, ref, onBeforeUnmount } from 'vue';
 import { VideoFile } from 'src/utils/entities';
-import { NodeService } from 'src/utils/services/node-service';
+import { NodeService } from 'src/utils/services/node_service';
 import { WsConnection } from 'src/utils/ws/connection';
 import DateTimeSelect from 'src/components/DateTimeSelect.vue';
 import VideoPlayer from 'src/components/VideoPlayer.vue';
 import { fixArrayDates } from 'src/utils/utils';
 import axios from 'axios';
 import { StreamModel } from 'src/utils/models/stream_model';
-import { LocalService } from 'src/utils/services/local-service';
+import { LocalService } from 'src/utils/services/local_service';
 
 const columns = [
   // //@ts-ignore
@@ -155,7 +155,7 @@ export default {
     const dataBind = async () => {
       stream.value = await nodeService.getStream(props.sourceId);
       recordEnabled.value = stream.value.record_enabled;
-      const videos = await nodeService.getVideos(props.sourceId);
+      const videos = await nodeService.getRecords(props.sourceId);
       fixArrayDates(videos, 'created_at', 'modified_at');
       rows.value = videos;
     };
@@ -196,7 +196,7 @@ export default {
     }
 
     function onDelete(video: VideoFile) {
-      nodeService.deleteVideos(video.source_id, [video.name])
+      nodeService.deleteRecord(video.source_id, [video.name])
         .then(() => {
           $q.notify({
             message: 'Video has been deleted',

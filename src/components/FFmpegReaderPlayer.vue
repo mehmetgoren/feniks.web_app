@@ -5,7 +5,7 @@
 <script lang='ts'>
 import { onMounted, onUnmounted, ref } from 'vue';
 import { WsConnection } from 'src/utils/ws/connection';
-import { SubscribeService } from 'src/utils/services/websocket-services';
+import { SubscribeService } from 'src/utils/services/websocket_services';
 
 export default {
   name: 'FFmpegReaderPlayer',

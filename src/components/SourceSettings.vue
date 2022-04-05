@@ -181,7 +181,8 @@
                          type='number' label='Width' />
                 <q-input v-if='source.snapshot_enabled' :dense='dense' filled v-model.number='source.snapshot_height'
                          type='number' label='Height' color='cyan' />
-
+                <q-toggle :dense='dense' v-if='source.snapshot_enabled&&source.record_enabled' v-model='source.video_clip_enabled'
+                          checked-icon='check' color='cyan' :label='"Video Clip Enabled " + (source.video_clip_enabled ? "Enabled" : "Disabled")' />
               </q-form>
               <q-stepper-navigation>
                 <q-btn @click='step = source.record_enabled ? 6 : 7' color='cyan' label='Continue' />
@@ -263,11 +264,11 @@ import { ref, computed, onMounted, nextTick } from 'vue';
 import { useStore } from 'src/store';
 import { SourceModel } from 'src/utils/models/source_model';
 import CommandBar from 'src/components/CommandBar.vue';
-import { NodeService } from 'src/utils/services/node-service';
+import { NodeService } from 'src/utils/services/node_service';
 import { useQuasar } from 'quasar';
-import { PublishService } from 'src/utils/services/websocket-services';
+import { PublishService } from 'src/utils/services/websocket_services';
 import { isNullOrEmpty, isNullOrUndefined } from 'src/utils/utils';
-import { LocalService } from 'src/utils/services/local-service';
+import { LocalService } from 'src/utils/services/local_service';
 
 declare var $: any;
 export default {

@@ -38,6 +38,8 @@ export interface StreamModel {
   snapshot_width: number;
   snapshot_height: number;
 
+  video_clip_enabled: boolean;
+
   hls_output_path: string;
   record_output_folder_path: string;
 }

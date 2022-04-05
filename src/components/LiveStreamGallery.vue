@@ -44,11 +44,11 @@ import 'gridstack/dist/gridstack-h5.js';
 // // OR to get legacy jquery-ui drag&drop (support Mobile touch devices, h5 does not yet)
 import 'gridstack/dist/jq/gridstack-dd-jqueryui';
 import { useStore } from 'src/store';
-import { PublishService, SubscribeService } from 'src/utils/services/websocket-services';
+import { PublishService, SubscribeService } from 'src/utils/services/websocket_services';
 import { WsConnection } from 'src/utils/ws/connection';
 import { isNullOrUndefined, startStream } from 'src/utils/utils';
-import { LocalService, GsLocation } from 'src/utils/services/local-service';
-import { NodeService } from 'src/utils/services/node-service';
+import { LocalService, GsLocation } from 'src/utils/services/local_service';
+import { NodeService } from 'src/utils/services/node_service';
 // https://v3.vuejs.org/guide/migration/array-refs.html
 export default {
   name: 'LiveStreamGallery',

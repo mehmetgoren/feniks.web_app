@@ -1,5 +1,5 @@
 import { NodeMngrPort } from 'src/utils/utils';
-import { LocalService } from 'src/utils/services/local-service';
+import { LocalService } from 'src/utils/services/local_service';
 
 export abstract class BaseService {
   private readonly _localService: LocalService;

@@ -3,7 +3,7 @@ import { ISettingsState, LoadingInfo, MenuItem, MenuLink } from './state';
 import { List } from 'linqts';
 import { Node } from 'src/utils/entities';
 import { SourceModel } from 'src/utils/models/source_model';
-import { LocalService } from 'src/utils/services/local-service';
+import { LocalService } from 'src/utils/services/local_service';
 
 const mutation: MutationTree<ISettingsState> = {
   changeDense(state: ISettingsState, value: boolean) {

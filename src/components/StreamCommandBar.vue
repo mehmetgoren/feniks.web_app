@@ -63,11 +63,11 @@ import { ref, computed } from 'vue';
 import SourceSettings from 'components/SourceSettings.vue';
 import SourceRecords from 'components/SourceRecords.vue';
 import AiSettings from 'components/AiSettings.vue';
-import { PublishService } from 'src/utils/services/websocket-services';
-import { NodeService } from 'src/utils/services/node-service';
+import { PublishService } from 'src/utils/services/websocket_services';
+import { NodeService } from 'src/utils/services/node_service';
 import { SourceModel } from 'src/utils/models/source_model';
 import { StreamModel } from 'src/utils/models/stream_model';
-import { LocalService, SelectOption } from 'src/utils/services/local-service';
+import { LocalService, SelectOption } from 'src/utils/services/local_service';
 import { List } from 'linqts';
 
 export default {

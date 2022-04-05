@@ -33,7 +33,7 @@
 
 <script lang='ts'>
 import { onMounted, ref } from 'vue';
-import { NodeService } from 'src/utils/services/node-service';
+import { NodeService } from 'src/utils/services/node_service';
 import { FolderTreeItem, ImageItem } from 'src/utils/models/detected';
 
 export default {

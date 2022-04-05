@@ -1,6 +1,6 @@
 import { api } from 'boot/axios';
 import { Config } from 'src/utils/models/config';
-import { BaseService } from 'src/utils/services/base-service';
+import { BaseService } from 'src/utils/services/base_service';
 import { List } from 'linqts';
 import { SourceModel } from 'src/utils/models/source_model';
 import { VideoFile } from 'src/utils/entities';
@@ -9,6 +9,7 @@ import { StreamModel } from 'src/utils/models/stream_model';
 import { SourceStatusModel } from 'src/utils/models/source_status_model';
 import { OdModel } from 'src/utils/models/od_model';
 import { DetectedImagesParams, FolderTreeItem, ImageItem } from 'src/utils/models/detected';
+import { VideoClipJsonObject } from 'src/utils/models/video_clip_json_object';
 
 
 export class NodeService extends BaseService {
@@ -70,13 +71,13 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
-  public async getVideos(sourceId: string): Promise<VideoFile[]> {
-    const resp = await api.get(this.getAddress(`videos/${sourceId}`));
+  public async getRecords(sourceId: string): Promise<VideoFile[]> {
+    const resp = await api.get(this.getAddress(`records/${sourceId}`));
     return resp.data;
   }
 
-  public async deleteVideos(sourceId: string, videoIds: string[]): Promise<void> {
-    const resp = await api.delete(this.getAddress(`videos/${sourceId}`), { data: videoIds });
+  public async deleteRecord(sourceId: string, videoIds: string[]): Promise<void> {
+    const resp = await api.delete(this.getAddress(`records/${sourceId}`), { data: videoIds });
     return resp.data;
   }
 
@@ -102,6 +103,16 @@ export class NodeService extends BaseService {
 
   public async getDetectedImages(model: DetectedImagesParams): Promise<ImageItem[]>{
     const resp = await api.post(this.getAddress('detectedimages'), model);
+    return resp.data;
+  }
+
+  public async getVideoClips(sourceId: string, date:string): Promise<VideoClipJsonObject[]>{
+    const resp = await api.get(this.getAddress(`videoclips/${sourceId}/${date}`));
+    return resp.data;
+  }
+
+  public async deleteVideoClip(fileName: string): Promise<boolean>{
+    const resp = await api.delete(this.getAddress(`videoclips/${btoa(fileName)}`));
     return resp.data;
   }
 }

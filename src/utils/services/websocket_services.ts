@@ -1,7 +1,7 @@
 import { EditorEvent } from 'src/utils/entities';
 import { SourceModel } from 'src/utils/models/source_model';
 import { api } from 'boot/axios';
-import { BaseService } from 'src/utils/services/base-service';
+import { BaseService } from 'src/utils/services/base_service';
 import { WsConnection } from 'src/utils/ws/connection';
 
 export class PublishService extends BaseService{

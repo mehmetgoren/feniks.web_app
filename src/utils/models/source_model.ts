@@ -46,6 +46,8 @@ export interface SourceModel {
   record_audio_sample_rate?: number | null;
   record_audio_volume?: number | null;
 
+  video_clip_enabled?:boolean | null;
+
   log_level?: number | null;
   // FFmpegModel section ends
 

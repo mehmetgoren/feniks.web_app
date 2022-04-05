@@ -292,6 +292,8 @@ export class LocalService {
       record_audio_sample_rate: 0,
       record_audio_volume: 100,
 
+      video_clip_enabled: false,
+
       log_level: 5, //Warning
       // FFmpeg model ends
 
@@ -355,6 +357,8 @@ export class LocalService {
       snapshot_frame_rate: 1,
       snapshot_width: 1280,
       snapshot_height: 720,
+
+      video_clip_enabled: false,
 
       hls_output_path: '',
       record_output_folder_path: ''

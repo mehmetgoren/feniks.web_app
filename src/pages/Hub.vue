@@ -28,7 +28,7 @@
 <script lang='ts'>
 import { useStore } from 'src/store';
 import { ref, onMounted, computed } from 'vue';
-import { HubService } from '../utils/services/hub-service';
+import { HubService } from '../utils/services/hub_service';
 export default {
   name: 'Hub',
   setup(){

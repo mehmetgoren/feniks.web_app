@@ -129,6 +129,7 @@
                     label='Overlay Detected Object' />
           <q-space style='height: 10px;' />
           <q-input v-model.trim='ai.detected_folder' filled :dense='dense' label='Detection Folder Path' />
+          <q-input v-model.number='ai.video_clip_duration' filled :dense='dense' label='Video Clip Duration' />
         </q-form>
 
         <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin: 0 10px 0 10px; width: auto;'>
@@ -168,7 +169,7 @@
 </template>
 
 <script lang='ts'>
-import { NodeService } from 'src/utils/services/node-service';
+import { NodeService } from 'src/utils/services/node_service';
 import { computed, onMounted, ref } from 'vue';
 import {
   Config,

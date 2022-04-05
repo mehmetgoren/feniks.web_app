@@ -58,6 +58,7 @@ export interface FFmpegConfig {
 export interface AiConfig{
   read_service_overlay: boolean;
   detected_folder: string;
+  video_clip_duration: number
 }
 
 export interface Config {

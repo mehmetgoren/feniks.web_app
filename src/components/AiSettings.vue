@@ -20,6 +20,7 @@
             <q-tab :disable='!enabled' name="cocoList" icon="fact_check" label="Coco List" />
             <q-tab :disable='!enabled' name="zoneList" icon="format_shapes" label="Zones" />
             <q-tab :disable='!enabled' name="detectedList" icon="collections" label="Detected Images" />
+            <q-tab :disable='!enabled' name="videoClipList" icon="featured_video" label="Video Clips" />
           </q-tabs>
           <q-space/>
           <q-btn flat push label='Save' icon='save' @click='onSave' :disable='inactiveSave' :dense='dense'>
@@ -66,6 +67,9 @@
           <div v-if='tab==="detectedList"' class='div_margin'>
             <DetectedImageGallery :od-model='od' />
           </div>
+          <div v-if='tab==="videoClipList"'>
+            <SourceVideoClips :source-id='od.id' />
+          </div>
         </div>
         <div v-else>
           <label class='blink_me'>AI Service is not available.</label>
@@ -79,19 +83,21 @@
 <script lang='ts'>
 import { OdModel } from 'src/utils/models/od_model';
 import { computed, onMounted, ref, watch } from 'vue';
-import { LocalService } from 'src/utils/services/local-service';
+import { LocalService } from 'src/utils/services/local_service';
 import { isNullOrEmpty, isNullOrUndefined } from 'src/utils/utils';
-import { NodeService } from 'src/utils/services/node-service';
+import { NodeService } from 'src/utils/services/node_service';
 import { useStore } from 'src/store';
 import { Config } from 'src/utils/models/config';
 import MaskEditor from 'components/MaskEditor.vue';
 import DetectedImageGallery from 'components/DetectedImageGallery.vue';
+import SourceVideoClips from 'components/SourceVideoClips.vue'
 
 export default {
   name: 'AiSettings',
   components:{
     MaskEditor,
-    DetectedImageGallery
+    DetectedImageGallery,
+    SourceVideoClips
   },
   props: {
     sourceId: {

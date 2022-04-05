@@ -1,7 +1,8 @@
 import { IState } from 'src/store';
-import { PublishService } from 'src/utils/services/websocket-services';
+import { PublishService } from 'src/utils/services/websocket_services';
 import { Store } from 'vuex';
 import { SourceModel } from 'src/utils/models/source_model';
+import axios from 'axios';
 
 export const NodeMngrPort = '2072';
 export const NodeMngrAddress = 'localhost:' + NodeMngrPort;
@@ -39,6 +40,11 @@ export function fixArrayDates(list: any[], ...fields: string[]) {
   });
 }
 
+export function getTodayString(){
+  const today = new Date();
+  return `${today.getFullYear()}_${(today.getMonth()+1)}_${today.getDate()}`
+}
+
 export function isNullOrUndefined(val: any){
   return val === undefined || val === null;
 }
@@ -50,7 +56,7 @@ export function isNullOrEmpty(val: string | undefined | null){
 
 export function startStream($store: Store<IState>, publishService: PublishService, source: SourceModel) {
   if (isNullOrEmpty(source?.id)){
-    console.error('invalid source object. Streamin request will not ben sent');
+    console.error('invalid source object. Streaming request will not ben sent');
     return;
   }
   $store.commit('settings/setSourceLoading', {id:source.id, loading: true});
@@ -63,4 +69,15 @@ export function startStream($store: Store<IState>, publishService: PublishServic
 
 export function createEmptyBase64Image(): string{
   return 'R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=';
+}
+
+export function downloadFile(url: string, fileName: string, fileType :string){
+  axios({
+    url: url,
+    method: 'GET',
+    responseType: 'blob' // important
+  }).then((response: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    require('downloadjs')(response.data, fileName, fileType);
+  }).catch(console.error);
 }
