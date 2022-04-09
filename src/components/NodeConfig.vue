@@ -34,26 +34,14 @@
         <q-space style='height: 10px;' />
 
         <q-space style='height: 10px;' />
-        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='width: auto;'>
-          <label style='text-transform: uppercase;font-size: medium'>Heartbeat Config</label>
-        </q-toolbar>
-        <q-space style='margin: 2px;' />
-        <q-form id='frm2' class='q-pa-xs'>
-          <q-input v-model.number='config.heartbeat.interval' type='number' filled :dense='dense'
-                   label='Heartbeat Interval' />
-        </q-form>
-
-        <q-space style='height: 10px;' />
         <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
-          <label style='text-transform: uppercase;font-size: medium'>Path Config</label>
+          <label style='text-transform: uppercase;font-size: medium'>General Config</label>
         </q-toolbar>
         <q-space style='margin: 2px;' />
         <q-form id='frmPath' class='q-pa-xs' style='margin:0 5px 0 5px;'>
-          <q-input v-model.trim='path.stream' filled :dense='dense' label='HLS Stream Folder Path' />
+          <q-input v-model.trim='general.root_folder_path' filled :dense='dense' label='Root Folder Path' />
           <q-space style='height: 10px;' />
-          <q-input v-model.trim='path.record' filled :dense='dense' label='Record Folder Path' />
-          <q-space style='height: 10px;' />
-          <q-input v-model.trim='path.read' filled :dense='dense' label='Jpeg Folder Path' />
+          <q-input v-model.number='general.heartbeat_interval' filled :dense='dense' label='Heartbeat Interval' />
         </q-form>
 
       </div>
@@ -125,11 +113,11 @@
         </q-toolbar>
         <q-space style='margin: 2px;' />
         <q-form id='frm14' class='q-pa-xs'>
-          <q-toggle v-model='ai.read_service_overlay' filled :dense='dense'
-                    label='Overlay Detected Object' />
+          <q-toggle v-model='ai.read_service_overlay' filled :dense='dense' label='Overlay Detected Object' />
           <q-space style='height: 10px;' />
-          <q-input v-model.trim='ai.detected_folder' filled :dense='dense' label='Detection Folder Path' />
           <q-input v-model.number='ai.video_clip_duration' filled :dense='dense' label='Video Clip Duration' />
+          <q-input v-model.number='ai.face_recog_mtcnn_threshold' filled :dense='dense' label='Face Recognition MTCNN Threshold' />
+          <q-input v-model.number='ai.face_recog_prob_threshold' filled :dense='dense' label='Face Recognition Probability Threshold' />
         </q-form>
 
         <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin: 0 10px 0 10px; width: auto;'>
@@ -179,7 +167,7 @@ import {
   OnceDetectorConfig,
   SourceReaderConfig,
   RedisConfig,
-  PathConfig, FFmpegConfig, TensorflowConfig, AiConfig
+  FFmpegConfig, TensorflowConfig, AiConfig, GeneralConfig
 } from 'src/utils/models/config';
 import { useStore } from 'src/store';
 import CommandBar from 'src/components/CommandBar.vue';
@@ -194,7 +182,7 @@ export default {
     const nodeService = new NodeService();
     const config = ref<Config>();
     const device = ref<DeviceConfig>();
-    const path = ref<PathConfig>();
+    const general = ref<GeneralConfig>();
 
     const modelMultiple = ref();
     const optServices = ref();
@@ -220,7 +208,7 @@ export default {
       onceDetector.value = c.once_detector;
       sourceReader.value = c.source_reader;
       redis.value = c.redis;
-      path.value = c.path;
+      general.value = c.general;
       ffmpeg.value = c.ffmpeg;
       torch.value = c.torch;
       tf.value = c.tensorflow;
@@ -247,11 +235,10 @@ export default {
 
     return {
       config, device, optDeviceTypes, onceDetector, sourceReader, redis,
-      jetson, jetsonFilter, ffmpeg, tf, ai,
+      jetson, jetsonFilter, ffmpeg, tf, ai, general,
       torch, torchFilter, tfFilter,
       dense, modelMultiple, optServices, onSave, onRestore,
       imageExtensions: ['jpg', 'jpeg', 'png', 'bmp', 'gif'],
-      path
     };
   }
 };

@@ -4,10 +4,6 @@ export interface DeviceConfig {
   device_services: number[];
 }
 
-export interface HeartbeatConfig {
-  interval: number;
-}
-
 export interface RedisConfig {
   host: string;
   port: number;
@@ -40,10 +36,9 @@ export interface SourceReaderConfig {
   max_retry_in: number;
 }
 
-export interface PathConfig {
-  stream: string;
-  record: string;
-  read: string;
+export interface GeneralConfig {
+  root_folder_path: string;
+  heartbeat_interval: number;
 }
 
 export interface FFmpegConfig {
@@ -57,20 +52,20 @@ export interface FFmpegConfig {
 
 export interface AiConfig{
   read_service_overlay: boolean;
-  detected_folder: string;
-  video_clip_duration: number
+  video_clip_duration: number;
+  face_recog_mtcnn_threshold: number;
+  face_recog_prob_threshold: number;
 }
 
 export interface Config {
   device: DeviceConfig;
-  heartbeat: HeartbeatConfig;
   redis: RedisConfig;
   jetson: JetsonConfig;
   torch: TorchConfig;
   tensorflow: TensorflowConfig;
   once_detector: OnceDetectorConfig;
   source_reader: SourceReaderConfig;
-  path: PathConfig;
+  general: GeneralConfig;
   ffmpeg: FFmpegConfig;
   ai: AiConfig;
 }
