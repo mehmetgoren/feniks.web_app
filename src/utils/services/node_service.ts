@@ -9,12 +9,12 @@ import { StreamModel } from 'src/utils/models/stream_model';
 import { SourceStatusModel } from 'src/utils/models/source_status_model';
 import { OdModel } from 'src/utils/models/od_model';
 import { DetectedImagesParams, FolderTreeItem, ImageItem } from 'src/utils/models/detected';
-import { VideoClipJsonObject } from 'src/utils/models/video_clip_json_object';
+import { OdVideoClipsViewModel } from 'src/utils/models/video_clip_json_object';
 
 
 export class NodeService extends BaseService {
 
-  public getAddress(route: string) : string{
+  public getAddress(route: string): string {
     return `${this.nodeHttpProtocol}://${this.nodeAddress}:${this.defaultPort}/${route}`;
   }
 
@@ -81,38 +81,33 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
-  public async getOd(sourceId: string): Promise<OdModel | null>{
-    const resp = await api.get(this.getAddress(`ods/${sourceId}`))
+  public async getOd(sourceId: string): Promise<OdModel | null> {
+    const resp = await api.get(this.getAddress(`ods/${sourceId}`));
     return resp.data;
   }
 
-  public async saveOd(model: OdModel): Promise<OdModel>{
+  public async saveOd(model: OdModel): Promise<OdModel> {
     const resp = await api.post(this.getAddress('ods'), model);
     return resp.data;
   }
 
-  public async deleteOd(sourceId: string): Promise<boolean>{
-    await api.delete(this.getAddress(`ods/${sourceId}`));
-    return true;
-  }
-
-  public async getDetectedFolders(): Promise<FolderTreeItem[]>{
-    const resp = await api.get(this.getAddress('detectedfolders'));
+  public async getDetectedFolders(sourceId: string): Promise<FolderTreeItem[]> {
+    const resp = await api.get(this.getAddress(`detectedfolders/${sourceId}`));
     return [resp.data];
   }
 
-  public async getDetectedImages(model: DetectedImagesParams): Promise<ImageItem[]>{
+  public async getDetectedImages(model: DetectedImagesParams): Promise<ImageItem[]> {
     const resp = await api.post(this.getAddress('detectedimages'), model);
     return resp.data;
   }
 
-  public async getVideoClips(sourceId: string, date:string): Promise<VideoClipJsonObject[]>{
+  public async getVideoClips(sourceId: string, date: string): Promise<OdVideoClipsViewModel[]> {
     const resp = await api.get(this.getAddress(`videoclips/${sourceId}/${date}`));
     return resp.data;
   }
 
-  public async deleteVideoClip(fileName: string): Promise<boolean>{
-    const resp = await api.delete(this.getAddress(`videoclips/${btoa(fileName)}`));
+  public async deleteVideoClip(item: OdVideoClipsViewModel): Promise<boolean> {
+    const resp = await api.delete(this.getAddress('videoclips'), { data: item });
     return resp.data;
   }
 }
