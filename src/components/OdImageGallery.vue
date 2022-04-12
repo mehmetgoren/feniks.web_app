@@ -69,6 +69,12 @@ export default {
         imagesLoading.value = false;
       }
     }
+
+    return{
+      selected, images, treeLoading, imagesLoading,
+      drawer: ref(false),
+      handleTreeSelected
+    }
   }
 };
 </script>
