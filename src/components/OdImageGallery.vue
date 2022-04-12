@@ -43,6 +43,8 @@ export default {
       type: Object,
       required: true
     }
+  },
+  setup(props: any) {
   }
 };
 </script>
