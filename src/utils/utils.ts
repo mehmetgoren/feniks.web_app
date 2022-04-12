@@ -42,7 +42,7 @@ export function fixArrayDates(list: any[], ...fields: string[]) {
 
 export function getTodayString(){
   const today = new Date();
-  return `${today.getFullYear()}_${(today.getMonth()+1)}_${today.getDate()}`
+  return `${today.getFullYear()}_${(today.getMonth()+1)}_${today.getDate()}_${today.getHours()}`
 }
 
 export function isNullOrUndefined(val: any){

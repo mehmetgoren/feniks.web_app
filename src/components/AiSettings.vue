@@ -65,10 +65,10 @@
             <MaskEditor :od-model='od' :separator='separator' @zone-coordinates-changed='handleZoneCoordinatesChanged' />
           </div>
           <div v-if='tab==="detectedList"' class='div_margin'>
-            <DetectedImageGallery :od-model='od' />
+            <OdImageGallery :od-model='od' />
           </div>
           <div v-if='tab==="videoClipList"'>
-            <SourceVideoClips :source-id='od.id' />
+            <OdSourceVideoClips :source-id='od.id' />
           </div>
         </div>
         <div v-else>
@@ -89,15 +89,15 @@ import { NodeService } from 'src/utils/services/node_service';
 import { useStore } from 'src/store';
 import { Config } from 'src/utils/models/config';
 import MaskEditor from 'components/MaskEditor.vue';
-import DetectedImageGallery from 'components/DetectedImageGallery.vue';
-import SourceVideoClips from 'components/SourceVideoClips.vue'
+import OdImageGallery from 'components/OdImageGallery.vue';
+import OdSourceVideoClips from 'components/OdSourceVideoClips.vue'
 
 export default {
   name: 'AiSettings',
   components:{
     MaskEditor,
-    DetectedImageGallery,
-    SourceVideoClips
+    OdImageGallery,
+    OdSourceVideoClips
   },
   props: {
     sourceId: {

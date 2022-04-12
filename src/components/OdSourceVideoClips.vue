@@ -83,7 +83,7 @@ import { NodeService } from 'src/utils/services/node_service';
 import { downloadFile, fixArrayDates, getTodayString } from 'src/utils/utils';
 
 export default {
-  name: 'SourceVideoClips',
+  name: 'OdSourceVideoClips',
   props: {
     sourceId: {
       type: String,
@@ -101,7 +101,7 @@ export default {
     const filter = ref<string>('');
 
     const refreshFn = async () => {
-      const dataList = await nodeService.getVideoClips(props.sourceId, getTodayString());
+      const dataList = await nodeService.getOdVideoClips(props.sourceId, getTodayString());
       console.log(JSON.stringify(dataList));
       fixArrayDates(dataList, 'video_created_at', 'video_last_modified');
       rows.value = dataList;
@@ -117,7 +117,7 @@ export default {
     }
 
     async function handleDeleteClip(item: OdVideoClipsViewModel) {
-      await nodeService.deleteVideoClip(item);
+      await nodeService.deleteOdVideoClip(item);
       await refreshFn();
     }
 

@@ -8,7 +8,7 @@ import { isNullOrEmpty } from 'src/utils/utils';
 import { StreamModel } from 'src/utils/models/stream_model';
 import { SourceStatusModel } from 'src/utils/models/source_status_model';
 import { OdModel } from 'src/utils/models/od_model';
-import { DetectedImagesParams, FolderTreeItem, ImageItem } from 'src/utils/models/detected';
+import { OdImagesParams, FolderTreeItem, ImageItem } from 'src/utils/models/detected';
 import { OdVideoClipsViewModel } from 'src/utils/models/video_clip_json_object';
 
 
@@ -91,23 +91,23 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
-  public async getDetectedFolders(sourceId: string): Promise<FolderTreeItem[]> {
-    const resp = await api.get(this.getAddress(`detectedfolders/${sourceId}`));
+  public async getOdImagesFolders(sourceId: string): Promise<FolderTreeItem[]> {
+    const resp = await api.get(this.getAddress(`odimagesfolders/${sourceId}`));
     return [resp.data];
   }
 
-  public async getDetectedImages(model: DetectedImagesParams): Promise<ImageItem[]> {
-    const resp = await api.post(this.getAddress('detectedimages'), model);
+  public async getOdImages(model: OdImagesParams): Promise<ImageItem[]> {
+    const resp = await api.post(this.getAddress('odimages'), model);
     return resp.data;
   }
 
-  public async getVideoClips(sourceId: string, date: string): Promise<OdVideoClipsViewModel[]> {
-    const resp = await api.get(this.getAddress(`videoclips/${sourceId}/${date}`));
+  public async getOdVideoClips(sourceId: string, date: string): Promise<OdVideoClipsViewModel[]> {
+    const resp = await api.get(this.getAddress(`odvideoclips/${sourceId}/${date}`));
     return resp.data;
   }
 
-  public async deleteVideoClip(item: OdVideoClipsViewModel): Promise<boolean> {
-    const resp = await api.delete(this.getAddress('videoclips'), { data: item });
+  public async deleteOdVideoClip(item: OdVideoClipsViewModel): Promise<boolean> {
+    const resp = await api.delete(this.getAddress('odvideoclips'), { data: item });
     return resp.data;
   }
 }
