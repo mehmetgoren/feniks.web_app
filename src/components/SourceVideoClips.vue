@@ -4,56 +4,63 @@
       <q-page padding style='background-color: whitesmoke;'>
         <div class='row'>
           <div class='col-12'>
-            <q-table title='Video Clips' :rows='rows' :columns='columns' :pagination='pagination' row-key='file_name' :filter='filter'>
+            <q-table title='Video Clips' :rows='rows' :columns='columns'
+                     virtual-scroll :virtual-scroll-item-size="48" :pagination="pagination"
+                     :rows-per-page-options="[0]"
+                     row-key='video_file_name' :filter='filter'>
               <template v-slot:body='props'>
                 <q-tr :props='props' @click='props.expand = !props.expand' style='cursor: pointer;'>
                   <q-td key='base64_image'>
-                    <q-img :src='`data:image/png;base64, ${props.row.detected_image.base64_image}`' />
+                    <q-img :src='"http://127.0.0.1:2072/" + props.row.preview.image_file_name' />
                   </q-td>
                   <q-td key='objects'>
-                    <label v-for='(item, index) in props.row.detected_image.detected_objects' :key='index'>{{ item.pred_cls_name }}<br></label>
+                    <label>{{ props.row.preview.object_names }}<br></label>
                   </q-td>
-                  <q-td key='created_at' :props='props'>{{ props.row.created_at.toLocaleString() }}</q-td>
+                  <q-td key='created_at' :props='props'>{{ props.row.video_created_at.toLocaleString() }}</q-td>
                 </q-tr>
                 <q-tr v-show='props.expand' :props='props'>
                   <q-td colspan='100%'>
-                    <div class="q-pa-md q-gutter-sm"  style='margin: 5px;'>
-                      <q-btn color="primary" icon="theaters" label="Download Clip"
-                             @click='handleDownloadClip("http://127.0.0.1:2072/playback/"+ props.row.file_name, props.row.file_name)'/>
-                      <q-btn color="secondary" icon="photo_camera" label="Download Snapshot"
-                             @click='handleDownloadSnapshot(props.row.detected_image.base64_image)'  />
-                      <q-btn color="red" icon="delete" label="Delete Event" @click='handleDeleteClip(props.row)' />
-                      <q-btn color="grey" icon="clear" label="Close" @click='props.expand = !props.expand' />
+                    <div class='q-pa-md q-gutter-sm' style='margin: 5px;'>
+                      <q-btn color='primary' icon='theaters' label='Download Clip'
+                             @click='handleDownloadClip("http://127.0.0.1:2072/"+ props.row.video_file_name, props.row.video_base_file_name)' />
+                      <q-btn color='red' icon='delete' label='Delete Event' @click='handleDeleteClip(props.row)' />
+                      <q-btn color='grey' icon='clear' label='Close' @click='props.expand = !props.expand' />
                     </div>
                     <br>
-                    <div style='width: 480px;float: left;margin-right: 5px;' >
-                      <VideoPlayer :src="'http://localhost:2072/playback/' + props.row.file_name" :auto-play='false' />
+                    <div style='width: 480px;float: left;margin-right: 5px;'>
+                      <VideoPlayer :src="'http://localhost:2072/' + props.row.video_file_name" :auto-play='false' />
                     </div>
-                    <div class="q-pa-md" style="width: 350px;float:left;margin: 0 5px 0 5px" >
-                      <q-table dense :rows="props.row.detected_image.detected_objects" :columns="detectedObjectColumns" row-key="pred_cls_idx"
-                      :pagination='{rowsPerPage: 5}'/>
+                    <div class='q-pa-md' style='width: 350px;float:left;margin: 0 5px 0 5px'>
+                      <q-table dense :rows='props.row.detected_objects' :columns='detectedObjectColumns' row-key='pred_cls_idx'
+                               :pagination='{rowsPerPage: 5}' />
                     </div>
-                    <div class="q-pa-md" style='width: 350px;float: left; margin-left:5px;'>
+                    <div class='q-pa-md' style='width: 350px;float: left; margin: 0 5px 0 5px'>
                       <q-list bordered separator>
                         <q-item clickable v-ripple>
                           <q-item-section>
                             <q-item-label overline>Created At</q-item-label>
-                            <q-item-label>{{props.row.created_at.toLocaleString()}}</q-item-label>
+                            <q-item-label>{{ props.row.video_created_at.toLocaleString() }}</q-item-label>
                           </q-item-section>
                         </q-item>
                         <q-item v-ripple>
                           <q-item-section>
                             <q-item-label overline>Last Modified At</q-item-label>
-                            <q-item-label>{{props.row.last_modified.toLocaleString()}}</q-item-label>
+                            <q-item-label>{{ props.row.video_last_modified_at.toLocaleString() }}</q-item-label>
                           </q-item-section>
                         </q-item>
                         <q-item v-ripple>
                           <q-item-section>
                             <q-item-label overline>Duration</q-item-label>
-                            <q-item-label>{{props.row.duration}} sec</q-item-label>
+                            <q-item-label>{{ props.row.duration }} sec</q-item-label>
                           </q-item-section>
                         </q-item>
                       </q-list>
+                    </div>
+                    <div class='q-pa-md' style='float: left;'>
+                      <viewer :images='props.row.image_file_names'>
+                        <img v-for='image_file_name in props.row.image_file_names' :key='image_file_name'
+                             :src='"http://127.0.0.1:2072/" + image_file_name' alt='no image' width='150' height='150'>
+                      </viewer>
                     </div>
                   </q-td>
                 </q-tr>
@@ -71,7 +78,7 @@ import VideoPlayer from 'src/components/VideoPlayer.vue';
 import { StreamModel } from 'src/utils/models/stream_model';
 import { onMounted, ref } from 'vue';
 import { LocalService } from 'src/utils/services/local_service';
-import { VideoClipJsonObject } from 'src/utils/models/video_clip_json_object';
+import { OdVideoClipsViewModel } from 'src/utils/models/video_clip_json_object';
 import { NodeService } from 'src/utils/services/node_service';
 import { downloadFile, fixArrayDates, getTodayString } from 'src/utils/utils';
 
@@ -83,25 +90,21 @@ export default {
       required: true
     }
   },
-  components:{
+  components: {
     VideoPlayer
   },
   setup(props: any) {
     const localService = new LocalService();
     const stream = ref<StreamModel>(localService.createEmptyStream());
-    const rows = ref<VideoClipJsonObject[]>([]);
+    const rows = ref<OdVideoClipsViewModel[]>([]);
     const nodeService = new NodeService();
-    const pagination = ref({
-      sortBy: 'desc',
-      descending: false,
-      page: 1,
-      rowsPerPage: 10
-    });
     const filter = ref<string>('');
 
     const refreshFn = async () => {
-      rows.value = await nodeService.getVideoClips(props.sourceId, getTodayString());
-      fixArrayDates(rows.value, 'created_at', 'last_modified');
+      const dataList = await nodeService.getVideoClips(props.sourceId, getTodayString());
+      console.log(JSON.stringify(dataList));
+      fixArrayDates(dataList, 'video_created_at', 'video_last_modified');
+      rows.value = dataList;
     };
 
     onMounted(async () => {
@@ -109,16 +112,12 @@ export default {
       await refreshFn();
     });
 
-    function handleDownloadClip(url :string, fileName: string){
-      downloadFile(url, fileName,'video/mp4')
+    function handleDownloadClip(url: string, fileName: string) {
+      downloadFile(url, fileName, 'video/mp4');
     }
 
-    function handleDownloadSnapshot(base64Image: string){
-      window.location.href = 'data:application/octet-stream;base64,' + base64Image;
-    }
-
-    async function handleDeleteClip(item :VideoClipJsonObject){
-      await nodeService.deleteVideoClip(item.file_name);
+    async function handleDeleteClip(item: OdVideoClipsViewModel) {
+      await nodeService.deleteVideoClip(item);
       await refreshFn();
     }
 
@@ -126,11 +125,12 @@ export default {
       rows,
       stream,
       columns,
-      pagination,
+      pagination: {
+        rowsPerPage: 0
+      },
       filter,
       detectedObjectColumns,
       handleDownloadClip,
-      handleDownloadSnapshot,
       handleDeleteClip
     };
   }
@@ -138,13 +138,13 @@ export default {
 const columns = [
   { name: 'base64_image', align: 'left', label: '', field: 'base64_image', sortable: false },
   { name: 'objects', align: 'left', label: 'Objects', field: 'objects', sortable: true },
-  // { name: 'score', align: 'center', label: 'Score', field: 'score', sortable: true },
   { name: 'created_at', align: 'left', label: 'Date', field: 'created_at', sortable: true }
 ];
 const detectedObjectColumns = [
   { name: 'pred_cls_name', align: 'left', label: 'Object', field: 'pred_cls_name', sortable: false },
   { name: 'pred_score', align: 'left', label: 'Score', field: 'pred_score', sortable: false }
 ];
+
 </script>
 
 <style scoped>
