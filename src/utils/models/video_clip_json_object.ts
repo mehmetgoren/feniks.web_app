@@ -4,19 +4,23 @@ export interface DetectedObject {
   pred_cls_name: string;
 }
 
-export interface DetectedImage {
+export interface PreviewViewModel {
+  image_file_name: string;
+  object_names: string;
   id: string;
-  source_id: string;
-  created_at: string;
-  detected_objects: DetectedObject[];
-  base64_image: string;
-  video_clip_enabled: boolean;
 }
 
-export interface VideoClipJsonObject {
-  detected_image: DetectedImage;
-  file_name: string;
-  created_at: string;
-  last_modified: string;
+export interface OdVideoClipsViewModel {
+  detected_objects: DetectedObject[];
+  image_file_names: string[];
+  data_file_names: string[];
+  ids: string[];
+
+  preview: PreviewViewModel;
+
+  video_created_at: string;
+  video_last_modified_at: string;
+  video_file_name: string;
+  video_base_file_name: string;
   duration: number;
 }
