@@ -56,6 +56,21 @@ export default {
       treeItems.value = await nodeService.getOdImagesFolders(props.odModel.id);
       treeLoading.value = false;
     });
+
+    async function handleTreeSelected(selection: string) {
+      try {
+        imagesLoading.value = true;
+        const items = await nodeService.getOdImages({ rootPath: selection, sourceId: props.odModel.id });
+        if (items.length > 0) {
+          for (const item of items) {
+            item.imagePath = nodeService.getAddress(item.imagePath);
+          }
+        }
+        images.value = items;
+      } finally {
+        imagesLoading.value = false;
+      }
+    }
   }
 };
 </script>
