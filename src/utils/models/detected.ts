@@ -7,12 +7,6 @@ export interface FolderTreeItem{
 }
 
 export interface ImageItem{
-  fullPath: string;
-  sourceId: string;
-  classIndex: number;
-  className: string;
-  score: number;
-  modifiedAt: string;
   id:string;
   imagePath: string;
 }
