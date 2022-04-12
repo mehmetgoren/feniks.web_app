@@ -72,7 +72,9 @@ export default {
       }
     }
 
-    return {
+    return
+    {
+      treeItems
     }
   }
 };
