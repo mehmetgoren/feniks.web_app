@@ -45,6 +45,12 @@ export default {
     }
   },
   setup(props: any) {
+    const nodeService = new NodeService();
+    const treeItems = ref<FolderTreeItem[]>([]);
+    const selected = ref<string>('detected');
+    const images = ref<ImageItem[]>([]);
+    const treeLoading = ref<boolean>(true);
+    const imagesLoading = ref<boolean>(false);
   }
 };
 </script>
