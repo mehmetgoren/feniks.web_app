@@ -51,6 +51,11 @@ export default {
     const images = ref<ImageItem[]>([]);
     const treeLoading = ref<boolean>(true);
     const imagesLoading = ref<boolean>(false);
+
+    onMounted(async () => {
+      treeItems.value = await nodeService.getOdImagesFolders(props.odModel.id);
+      treeLoading.value = false;
+    });
   }
 };
 </script>
