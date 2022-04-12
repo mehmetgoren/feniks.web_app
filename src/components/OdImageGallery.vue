@@ -71,6 +71,10 @@ export default {
         imagesLoading.value = false;
       }
     }
+
+    return {
+
+    }
   }
 };
 </script>
