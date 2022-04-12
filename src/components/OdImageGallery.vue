@@ -70,6 +70,7 @@ export default {
       }
     }
 
+    const x = treeItems;
     return{
       selected, images, treeLoading, imagesLoading,
       drawer: ref(false),
