@@ -1,6 +1,6 @@
 <template>
   <div class="q-pa-md">
-    <q-date v-model="model" range color='purple' />
+    <q-date v-model="model" range color='purple'/>
   </div>
   <div class="q-pa-md">
     <div class="q-gutter-sm row">
