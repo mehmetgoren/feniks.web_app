@@ -21,6 +21,7 @@
             <q-tab :disable='!enabled' name="zoneList" icon="format_shapes" label="Zones" />
             <q-tab :disable='!enabled' name="detectedList" icon="collections" label="Detected Images" />
             <q-tab :disable='!enabled' name="videoClipList" icon="featured_video" label="Video Clips" />
+            <q-tab :disable='!enabled' name="frList" icon="face" label="Face Recognition" />
           </q-tabs>
           <q-space/>
           <q-btn flat push label='Save' icon='save' @click='onSave' :disable='inactiveSave' :dense='dense'>
@@ -70,6 +71,9 @@
           <div v-if='tab==="videoClipList"'>
             <OdSourceVideoClips :source-id='od.id' />
           </div>
+          <div v-if='tab==="frList"'>
+            <FrImageGallery :source-id='od.id' />
+          </div>
         </div>
         <div v-else>
           <label class='blink_me'>AI Service is not available.</label>
@@ -91,13 +95,15 @@ import { Config } from 'src/utils/models/config';
 import MaskEditor from 'components/MaskEditor.vue';
 import OdImageGallery from 'components/OdImageGallery.vue';
 import OdSourceVideoClips from 'components/OdSourceVideoClips.vue'
+import FrImageGallery from 'components/FrImageGallery.vue';
 
 export default {
   name: 'AiSettings',
   components:{
     MaskEditor,
     OdImageGallery,
-    OdSourceVideoClips
+    OdSourceVideoClips,
+    FrImageGallery
   },
   props: {
     sourceId: {

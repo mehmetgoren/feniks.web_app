@@ -1,10 +1,10 @@
 <template>
   <div class='q-pa-md'>
     <q-layout view='hHh Lpr lff' container style='height: 900px' class='shadow-2 rounded-borders'>
-      <q-header elevated class='bg-black'>
+      <q-header elevated class='bg-positive'>
         <q-toolbar>
-          <q-btn flat @click='drawer = !drawer' round dense icon='menu' />
-          <q-toolbar-title>Detected Images</q-toolbar-title>
+          <q-btn flat @click='drawer = !drawer' round dense icon='face' />
+          <q-toolbar-title>Detected Faces</q-toolbar-title>
         </q-toolbar>
       </q-header>
 
@@ -30,16 +30,17 @@
     </q-layout>
   </div>
 </template>
+
 <script lang='ts'>
 import { onMounted, ref } from 'vue';
 import { NodeService } from 'src/utils/services/node_service';
 import { FolderTreeItem, ImageItem } from 'src/utils/models/detected';
 
 export default {
-  name: 'OdImageGallery',
+  name: 'FrImageGallery',
   props: {
-    odModel: {
-      type: Object,
+    sourceId: {
+      type: String,
       required: true
     }
   },
@@ -52,14 +53,14 @@ export default {
     const imagesLoading = ref<boolean>(false);
 
     onMounted(async () => {
-      treeItems.value = await nodeService.getOdImagesFolders(props.odModel.id);
+      treeItems.value = await nodeService.getFrImagesFolders(props.sourceId);
       treeLoading.value = false;
     });
 
     async function handleTreeSelected(selection: string) {
       try {
         imagesLoading.value = true;
-        const items = await nodeService.getOdImages({ rootPath: selection, sourceId: props.odModel.id });
+        const items = await nodeService.getFrImages({ rootPath: selection, sourceId: props.sourceId });
         if (items.length > 0) {
           for (const item of items) {
             item.imagePath = nodeService.getAddress(item.imagePath);

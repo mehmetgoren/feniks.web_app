@@ -110,4 +110,14 @@ export class NodeService extends BaseService {
     const resp = await api.delete(this.getAddress('odvideoclips'), { data: item });
     return resp.data;
   }
+
+  public async getFrImagesFolders(sourceId: string): Promise<FolderTreeItem[]> {
+    const resp = await api.get(this.getAddress(`frimagesfolders/${sourceId}`));
+    return [resp.data];
+  }
+
+  public async getFrImages(model: OdImagesParams): Promise<ImageItem[]> {
+    const resp = await api.post(this.getAddress('frimages'), model);
+    return resp.data;
+  }
 }
