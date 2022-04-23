@@ -9,7 +9,7 @@ import { StreamModel } from 'src/utils/models/stream_model';
 import { SourceStatusModel } from 'src/utils/models/source_status_model';
 import { OdModel } from 'src/utils/models/od_model';
 import { OdImagesParams, FolderTreeItem, ImageItem } from 'src/utils/models/detected';
-import { OdVideoClipsViewModel } from 'src/utils/models/video_clip_json_object';
+import { OdVideoClipsViewModel } from 'src/utils/models/ai_clip_json_object';
 
 
 export class NodeService extends BaseService {
@@ -71,13 +71,18 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
-  public async getRecords(sourceId: string): Promise<VideoFile[]> {
-    const resp = await api.get(this.getAddress(`records/${sourceId}`));
+  public async getRecordHours(sourceId: string, dateStr: string): Promise<string[]>{
+    const resp = await api.get(this.getAddress(`recordhours/${sourceId}/${dateStr}`));
     return resp.data;
   }
 
-  public async deleteRecord(sourceId: string, videoIds: string[]): Promise<void> {
-    const resp = await api.delete(this.getAddress(`records/${sourceId}`), { data: videoIds });
+  public async getRecords(sourceId: string, dateStr: string, hour: string): Promise<VideoFile[]> {
+    const resp = await api.get(this.getAddress(`records/${sourceId}/${dateStr}/${hour}`));
+    return resp.data;
+  }
+
+  public async deleteRecord(model: VideoFile): Promise<boolean> {
+    const resp = await api.delete(this.getAddress('records'), { data: model });
     return resp.data;
   }
 

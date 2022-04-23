@@ -22,46 +22,70 @@
             <DateTimeSelect />
           </div>
           <div class='col-9'>
-            <q-table
-              ref='tableRef'
-              title='Videos'
-              :rows='rows'
-              :columns='columns'
-              :pagination='pagination'
-              row-key='name'
-              selection='multiple'
-              :selected='selected'
-              :filter='filter'
-              @selection='onSelection'>
-              <template v-slot:body-cell-play='props'>
-                <q-td :props='props'>
-                  <div>
-                    <q-btn round color='purple' icon='play_arrow' @click='onPlay(props.row)' />
-                  </div>
-                </q-td>
+            <q-table title='Records' :columns='columns'
+                     :rows='hours' row-key='hour'
+                     virtual-scroll :virtual-scroll-item-size='24' :pagination='pagination'
+                     :rows-per-page-options='[0]'
+                     :filter='filter'>
+
+              <template v-slot:body='props'>
+                <q-tr :props='props' @click='onRootClick(props)' style='cursor: pointer;'>
+                  <q-td key='hour' auto-width>
+                    <q-toggle v-model='props.expand' size='lg' color='accent' style='float: left;' disable/>
+                    <div style='font-size: large;text-align: center;margin: 15px 0 0 0;'>
+                      <label>{{ props.row.hour + ' : 00' }}</label>
+                    </div>
+                  </q-td>
+                </q-tr>
+                <q-tr v-show='props.expand' :props='props'>
+                  <q-table
+                    :rows='props.row.videoFiles'
+                    :columns='innerColumns'
+                    :pagination='innerPagination'
+                    row-key='name'
+                    :selected='selected'
+                    :filter='innerFilter'>
+                    <template v-slot:body-cell-play='props'>
+                      <q-td :props='props'>
+                        <div>
+                          <q-btn round color='purple' icon='play_arrow' @click='onPlay(props.row)' />
+                        </div>
+                      </q-td>
+                    </template>
+                    <template v-slot:body-cell-download='props'>
+                      <q-td :props='props'>
+                        <div>
+                          <q-btn round color='teal' icon='download' @click='onDownload(props.row)' />
+                        </div>
+                      </q-td>
+                    </template>
+                    <template v-slot:body-cell-delete='props'>
+                      <q-td :props='props'>
+                        <div>
+                          <q-btn round color='deep-orange' icon='delete' @click='onDelete(props.row)' />
+                        </div>
+                      </q-td>
+                    </template>
+                    <template v-slot:top-right>
+                      <q-input borderless dense debounce='300' v-model='innerFilter' placeholder='Search'>
+                        <template v-slot:append>
+                          <q-icon name='search' />
+                        </template>
+                      </q-input>
+                    </template>
+                  </q-table>
+                </q-tr>
               </template>
-              <template v-slot:body-cell-download='props'>
-                <q-td :props='props'>
-                  <div>
-                    <q-btn round color='teal' icon='download' @click='onDownload(props.row)' />
-                  </div>
-                </q-td>
-              </template>
-              <template v-slot:body-cell-delete='props'>
-                <q-td :props='props'>
-                  <div>
-                    <q-btn round color='deep-orange' icon='delete' @click='onDelete(props.row)' />
-                  </div>
-                </q-td>
-              </template>
+
               <template v-slot:top-right>
-                <q-btn icon="refresh" label="Refresh" glossy color="purple" style='margin-right: 15px;' @click='onRefresh'/>
-                <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
+                <q-btn icon='refresh' label='Refresh' glossy color='purple' style='margin-right: 15px;' @click='onRefresh' />
+                <q-input borderless dense debounce='300' v-model='filter' placeholder='Search'>
                   <template v-slot:append>
-                    <q-icon name="search" />
+                    <q-icon name='search' />
                   </template>
                 </q-input>
               </template>
+
             </q-table>
           </div>
         </div>
@@ -82,39 +106,25 @@
 
 <script lang='ts'>
 import { useQuasar } from 'quasar';
-import { computed, onMounted, ref, onBeforeUnmount } from 'vue';
+import { onMounted, ref, onBeforeUnmount } from 'vue';
 import { VideoFile } from 'src/utils/entities';
 import { NodeService } from 'src/utils/services/node_service';
 import { WsConnection } from 'src/utils/ws/connection';
 import DateTimeSelect from 'src/components/DateTimeSelect.vue';
 import VideoPlayer from 'src/components/VideoPlayer.vue';
-import { fixArrayDates } from 'src/utils/utils';
+import { fixArrayDates, getTodayString } from 'src/utils/utils';
 import axios from 'axios';
 import { StreamModel } from 'src/utils/models/stream_model';
 import { LocalService } from 'src/utils/services/local_service';
 
 const columns = [
-  // //@ts-ignore
-  // {align: 'center', label:'Finished', field: row =>((row.modified_at.getTime() - row.created_at.getTime()) / 60000 ).toString() + ' ago'},
-  {
-    name: 'created_at',
-    align: 'center',
-    label: 'Created',
-    field: 'created_at',
-    format: (val: any) => `${val.toLocaleString()}`,
-    sortable: true
-  },
-  {
-    name: 'modified_at',
-    align: 'center',
-    label: 'Ended',
-    field: 'modified_at',
-    format: (val: any) => `${val.toLocaleString()}`,
-    sortable: true
-  },
+  { name: 'hour', align: 'left', label: 'Hour', field: 'hour', sortable: false }
+];
+
+const innerColumns = [
+  { name: 'created_at', align: 'center', label: 'Created', field: 'created_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true },
+  { name: 'modified_at', align: 'center', label: 'Ended', field: 'modified_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true },
   { name: 'name', align: 'center', label: 'File Name', field: 'name', sortable: true },
-  // //@ts-ignore
-  // { name: 'path', align: 'center', label: 'File', field: row => row.path.replace(/^.*[\\\/]/, ''), sortable: true },
   { name: 'size', align: 'center', label: 'Size (MB)', field: 'size', sortable: true },
   { name: 'play', align: 'center', label: 'Play', field: 'play' },
   { name: 'download', align: 'center', label: 'Download', field: 'download' },
@@ -139,25 +149,26 @@ export default {
     const nodeService = new NodeService();
     let connStartRecord: WsConnection | null = null;
     let connStopRecord: WsConnection | null = null;
-    const pagination = ref({
-      sortBy: 'desc',
-      descending: false,
-      page: 1,
-      rowsPerPage: 10
-    });
-    const rows = ref<VideoFile[]>([]);
+    const hours = ref<Hour[]>([]);
     const showPlayer = ref<boolean>(false);
     const selectedVideo = ref<VideoFile | null>(null);
     const filter = ref('');
+    const innerFilter = ref('');
     const localService = new LocalService();
     const stream = ref<StreamModel>(localService.createEmptyStream());
+
+    const today = getTodayString();
 
     const dataBind = async () => {
       stream.value = await nodeService.getStream(props.sourceId);
       recordEnabled.value = stream.value.record_enabled;
-      const videos = await nodeService.getRecords(props.sourceId);
-      fixArrayDates(videos, 'created_at', 'modified_at');
-      rows.value = videos;
+
+      const hourStrings = await nodeService.getRecordHours(props.sourceId, today);
+      const _hours: Hour[] = [];
+      for (const hs of hourStrings) {
+        _hours.push({ sourceId: props.sourceId, hour: hs, videoFiles: [] });
+      }
+      hours.value = _hours;
     };
 
     onMounted(async () => {
@@ -196,26 +207,43 @@ export default {
     }
 
     function onDelete(video: VideoFile) {
-      nodeService.deleteRecord(video.source_id, [video.name])
+      nodeService.deleteRecord(video)
         .then(() => {
           $q.notify({
             message: 'Video has been deleted',
             caption: 'Video Status',
             color: 'secondary'
           });
-          rows.value = rows.value.filter((row: VideoFile) => row.name !== video.name);
+          const hour = getHour(video.hour);
+          hour.videoFiles = hour.videoFiles.filter((row: VideoFile) => row.name !== video.name);
         }).catch(console.error);
     }
 
+    const getHour = (hourStr: string): Hour => {
+      return hours.value.filter((row: Hour) => row.hour === hourStr)[0];
+    };
+    let prevProbs: any = null;
     return {
+      hours,
       selected,
       lastIndex,
       tableRef,
       filter,
+      innerFilter,
 
       columns,
-      pagination,
-      rows,
+      pagination: {
+        rowsPerPage: 0
+      },
+
+      innerColumns,
+      innerPagination: {
+        sortBy: 'desc',
+        descending: false,
+        page: 1,
+        rowsPerPage: 10
+      },
+
       recordEnabled,
       onPlay,
       onDownload,
@@ -223,68 +251,41 @@ export default {
       showPlayer,
       selectedVideo,
       stream,
-
-      pagesNumber: computed(() => {
-        return Math.ceil(rows.value.length / pagination.value.rowsPerPage);
-      }),
-
-      onRefresh(){
+      onRefresh() {
         void dataBind();
       },
 
-      //@ts-ignore
-      onSelection({ rows, added, evt }) {
-        if (rows.length === 0 || tableRef.value === void 0) {
+      async onRootClick(props: any) {
+        if (prevProbs != null && prevProbs.row.hour == props.row.hour) {
+          props.expand = !props.expand;
           return;
         }
-
-        const row = rows[0];
-        //@ts-ignore
-        const filteredSortedRows = tableRef.value.filteredSortedRows;
-        const rowIndex = filteredSortedRows.indexOf(row);
-        const localLastIndex = lastIndex.value;
-
-        lastIndex.value = rowIndex;
-        //@ts-ignore
-        document.getSelection().removeAllRanges();
-
-        if ($q.platform.is.mobile === true) {
-          evt = { ctrlKey: true };
-        } else if (evt !== Object(evt) || (evt.shiftKey !== true && evt.ctrlKey !== true)) {
-          selected.value = added === true ? rows : [];
-          return;
+        if (prevProbs != null) {
+          prevProbs.expand = false;
         }
 
-        const operateSelection = added === true
-          //@ts-ignore
-          ? selRow => {
-            //@ts-ignore
-            const selectedIndex = selected.value.indexOf(selRow);
-            if (selectedIndex === -1) {
-              selected.value = selected.value.concat(selRow);
-            }
-          }
-          //@ts-ignore
-          : selRow => {
-            //@ts-ignore
-            const selectedIndex = selected.value.indexOf(selRow);
-            if (selectedIndex > -1) {
-              selected.value = selected.value.slice(0, selectedIndex).concat(selected.value.slice(selectedIndex + 1));
-            }
-          };
+        for (const h of hours.value) {
+          h.videoFiles = [];
+        }prevProbs = props;
 
-        if (localLastIndex === null || evt.shiftKey !== true) {
-          operateSelection(row);
-          return;
-        }
-
-        const from = localLastIndex < rowIndex ? localLastIndex : rowIndex;
-        const to = localLastIndex < rowIndex ? rowIndex : localLastIndex;
-        for (let i = from; i <= to; i += 1) {
-          operateSelection(filteredSortedRows[i]);
+        props.expand = !props.expand;
+        const hourStr = props.row.hour;
+        const hour = getHour(hourStr);
+        if (props.expand) {
+          const videos = await nodeService.getRecords(props.row.sourceId, today, hourStr);
+          fixArrayDates(videos, 'created_at', 'modified_at');
+          hour.videoFiles = videos;
+        } else {
+          hour.videoFiles = [];
         }
       }
     };
   }
 };
+
+interface Hour {
+  sourceId: string;
+  hour: string;
+  videoFiles: VideoFile[];
+}
 </script>

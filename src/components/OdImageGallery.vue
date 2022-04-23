@@ -53,6 +53,7 @@ export default {
 
     onMounted(async () => {
       treeItems.value = await nodeService.getOdImagesFolders(props.odModel.id);
+      console.error(JSON.stringify(treeItems.value))
       treeLoading.value = false;
     });
 
@@ -78,7 +79,7 @@ export default {
       // treeItems
     };
   }
-};
+}
 </script>
 
 <style scoped>

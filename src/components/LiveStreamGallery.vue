@@ -6,7 +6,7 @@
       <div class='grid-stack-item-content' style='overflow: hidden !important;'>
         <FlvPlayer v-if='stream&&stream.show&&stream.stream_type===0' :src='stream.src' :source-id='stream.id' :ref='setStreamPlayers' />
         <FFmpegReaderPlayer v-if='stream&&stream.show&&stream.stream_type===1' :source-id='stream.id'
-                          :ref='setStreamPlayers' />
+                            :ref='setStreamPlayers' />
         <HlsPlayer v-if='stream&&stream.show&&stream.stream_type===2' :src='stream.src' :source-id='stream.id'
                    :ref='setStreamPlayers' />
 
@@ -120,7 +120,7 @@ export default {
           case 1: //FFmpeg Reader
             break;
           case 2: //HLS
-            url = localService.getVideoAddress() + streamModel.hls_output_path;
+            url = localService.getVideoAddress() + '/' + streamModel.id + '/stream.m3u8';
             break;
           default:
             throw new Error(`Stream type is not supported: ${streamModel.stream_type}`);

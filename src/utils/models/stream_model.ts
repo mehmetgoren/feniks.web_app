@@ -23,13 +23,13 @@ export interface StreamModel {
   rtmp_container_commands: string;
 
   ffmpeg_reader_pid: number;
-  ffmpeg_reader_frame_rate:number;
-  ffmpeg_reader_width:number;
-  ffmpeg_reader_height:number;
+  ffmpeg_reader_frame_rate: number;
+  ffmpeg_reader_width: number;
+  ffmpeg_reader_height: number;
 
   record_enabled: boolean;
   record_pid: number;
-  record_args:string;
+  record_args: string;
   record_duration: number;
 
   snapshot_enabled: boolean;
@@ -38,8 +38,10 @@ export interface StreamModel {
   snapshot_width: number;
   snapshot_height: number;
 
-  video_clip_enabled: boolean;
+  ai_clip_enabled: boolean;
+  ai_clip_pid: number;
+  ai_clip_args: string;
 
-  hls_output_path: string;
-  record_output_folder_path: string;
+  concat_demuxer_pid: number;
+  concat_demuxer_args: string;
 }

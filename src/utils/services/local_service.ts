@@ -96,7 +96,7 @@ export class LocalService {
     return [
       { value: 0, label: 'FLV' },
       { value: 1, label: 'FFmpeg Reader' },
-      { value: 2, label: 'HLS' },
+      { value: 2, label: 'HLS' }
     ];
   }
 
@@ -164,8 +164,9 @@ export class LocalService {
   public createRtmpServerTypes(): SelectOption[] {
     return [
       { value: 0, label: 'SRS' },
-      { value: 1, label: 'LiveGo' },
-      { value: 2, label: 'Node Media Server' }
+      { value: 1, label: 'SRS Realtime' },
+      { value: 2, label: 'LiveGo' },
+      { value: 3, label: 'Node Media Server' }
     ];
   }
 
@@ -248,7 +249,6 @@ export class LocalService {
       // FFmpeg model starts
       id: '',
       address: '',
-      record_enabled: false,
       rtsp_transport: 0,
 
       analyzation_duration: 1000000, // or set to 100000 if you are using RTSP and having stream issues.
@@ -292,8 +292,6 @@ export class LocalService {
       record_audio_sample_rate: 0,
       record_audio_volume: 100,
 
-      video_clip_enabled: false,
-
       log_level: 5, //Warning
       // FFmpeg model ends
 
@@ -313,6 +311,9 @@ export class LocalService {
       ffmpeg_reader_frame_rate: 1,
       ffmpeg_reader_width: 640,
       ffmpeg_reader_height: 360,
+
+      record_enabled: false,
+      ai_clip_enabled: false,
 
       created_at: ''
       // Source model ends
@@ -334,7 +335,7 @@ export class LocalService {
 
       stream_type: 0, //FLV
       rtmp_server_initialized: false,
-      rtmp_server_type: 1, //LIVEGO
+      rtmp_server_type: 0, //SRS
       rtmp_image_name: '',
       rtmp_container_name: '',
       rtmp_address: '',
@@ -358,14 +359,16 @@ export class LocalService {
       snapshot_width: 1280,
       snapshot_height: 720,
 
-      video_clip_enabled: false,
+      ai_clip_enabled: false,
+      ai_clip_pid: 0,
+      ai_clip_args: '',
 
-      hls_output_path: '',
-      record_output_folder_path: ''
+      concat_demuxer_pid: 0,
+      concat_demuxer_args: ''
     };
   }
 
-  public createEmptyOd(): OdModel{
+  public createEmptyOd(): OdModel {
     return {
       id: '',
       brand: '',

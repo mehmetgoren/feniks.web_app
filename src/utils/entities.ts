@@ -32,6 +32,10 @@ export interface VideoFile{
   size: number;
   created_at: string;
   modified_at: string;
+  year: string;
+  month: string;
+  day: string;
+  hour: string;
 }
 
 export interface EditorEvent{

@@ -48,6 +48,8 @@ export interface FFmpegConfig {
   watch_dog_interval: number;
   watch_dog_failed_wait_interval: number;
   start_task_wait_for_interval: number;
+  record_concat_limit: number;
+  record_video_file_indexer_interval: number;
 }
 
 export interface AiConfig{

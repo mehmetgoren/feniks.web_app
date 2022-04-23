@@ -101,6 +101,12 @@
           <q-space style='height: 10px;' />
           <q-input v-model.number='ffmpeg.start_task_wait_for_interval' type='number' filled :dense='dense'
                    label='Start Task Wait For Interval' />
+          <q-space style='height: 10px;' />
+          <q-input v-model.number='ffmpeg.record_concat_limit' type='number' filled :dense='dense'
+                   label='Recording Concat Limit' />
+          <q-space style='height: 10px;' />
+          <q-input v-model.number='ffmpeg.record_video_file_indexer_interval' type='number' filled :dense='dense'
+                   label='Recording Video File Indexer Interval' />
         </q-form>
 
       </div>

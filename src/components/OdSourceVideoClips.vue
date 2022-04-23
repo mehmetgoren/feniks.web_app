@@ -78,9 +78,9 @@ import VideoPlayer from 'src/components/VideoPlayer.vue';
 import { StreamModel } from 'src/utils/models/stream_model';
 import { onMounted, ref } from 'vue';
 import { LocalService } from 'src/utils/services/local_service';
-import { OdVideoClipsViewModel } from 'src/utils/models/video_clip_json_object';
+import { OdVideoClipsViewModel } from 'src/utils/models/ai_clip_json_object';
 import { NodeService } from 'src/utils/services/node_service';
-import { downloadFile, fixArrayDates, getTodayString } from 'src/utils/utils';
+import { downloadFile, fixArrayDates, getTodayHourString } from 'src/utils/utils';
 
 export default {
   name: 'OdSourceVideoClips',
@@ -101,7 +101,7 @@ export default {
     const filter = ref<string>('');
 
     const refreshFn = async () => {
-      const dataList = await nodeService.getOdVideoClips(props.sourceId, getTodayString());
+      const dataList = await nodeService.getOdVideoClips(props.sourceId, getTodayHourString());
       console.log(JSON.stringify(dataList));
       fixArrayDates(dataList, 'video_created_at', 'video_last_modified');
       rows.value = dataList;

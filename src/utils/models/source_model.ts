@@ -2,7 +2,6 @@ export interface SourceModel {
   // FFmpegModel section starts
   id?: string | null;
   address?: string | null;
-  record_enabled?: boolean | null;
   rtsp_transport?: number | null;
 
   analyzation_duration?: number | null;
@@ -46,7 +45,8 @@ export interface SourceModel {
   record_audio_sample_rate?: number | null;
   record_audio_volume?: number | null;
 
-  video_clip_enabled?:boolean | null;
+  record_enabled?: boolean | null;
+  ai_clip_enabled?:boolean | null;
 
   log_level?: number | null;
   // FFmpegModel section ends
