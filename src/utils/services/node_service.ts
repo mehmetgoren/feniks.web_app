@@ -8,7 +8,7 @@ import { isNullOrEmpty } from 'src/utils/utils';
 import { StreamModel } from 'src/utils/models/stream_model';
 import { SourceStatusModel } from 'src/utils/models/source_status_model';
 import { OdModel } from 'src/utils/models/od_model';
-import { OdImagesParams, FolderTreeItem, ImageItem } from 'src/utils/models/detected';
+import { ImagesParams, FolderTreeItem, ImageItem } from 'src/utils/models/detected';
 import { OdVideoClipsViewModel } from 'src/utils/models/ai_clip_json_object';
 
 
@@ -101,7 +101,7 @@ export class NodeService extends BaseService {
     return [resp.data];
   }
 
-  public async getOdImages(model: OdImagesParams): Promise<ImageItem[]> {
+  public async getOdImages(model: ImagesParams): Promise<ImageItem[]> {
     const resp = await api.post(this.getAddress('odimages'), model);
     return resp.data;
   }
@@ -121,8 +121,18 @@ export class NodeService extends BaseService {
     return [resp.data];
   }
 
-  public async getFrImages(model: OdImagesParams): Promise<ImageItem[]> {
+  public async getFrImages(model: ImagesParams): Promise<ImageItem[]> {
     const resp = await api.post(this.getAddress('frimages'), model);
+    return resp.data;
+  }
+
+  public async getAlprImagesFolders(sourceId: string): Promise<FolderTreeItem[]> {
+    const resp = await api.get(this.getAddress(`alprimagesfolders/${sourceId}`));
+    return [resp.data];
+  }
+
+  public async getAlprImages(model: ImagesParams): Promise<ImageItem[]> {
+    const resp = await api.post(this.getAddress('alprimages'), model);
     return resp.data;
   }
 }

@@ -53,10 +53,11 @@ export interface FFmpegConfig {
 }
 
 export interface AiConfig{
-  read_service_overlay: boolean;
+  overlay: boolean;
   video_clip_duration: number;
   face_recog_mtcnn_threshold: number;
   face_recog_prob_threshold: number;
+  plate_recog_instance_count: number;
 }
 
 export interface Config {

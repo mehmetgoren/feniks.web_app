@@ -119,11 +119,12 @@
         </q-toolbar>
         <q-space style='margin: 2px;' />
         <q-form id='frm14' class='q-pa-xs'>
-          <q-toggle v-model='ai.read_service_overlay' filled :dense='dense' label='Overlay Detected Object' />
+          <q-toggle v-model='ai.overlay' filled :dense='dense' label='Overlay Detected Object' />
           <q-space style='height: 10px;' />
           <q-input v-model.number='ai.video_clip_duration' filled :dense='dense' label='Video Clip Duration' />
           <q-input v-model.number='ai.face_recog_mtcnn_threshold' filled :dense='dense' label='Face Recognition MTCNN Threshold' />
           <q-input v-model.number='ai.face_recog_prob_threshold' filled :dense='dense' label='Face Recognition Probability Threshold' />
+          <q-input v-model.number='ai.plate_recog_instance_count' filled :dense='dense' label='Automatic Plate Recognition Instance Count' />
         </q-form>
 
         <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin: 0 10px 0 10px; width: auto;'>

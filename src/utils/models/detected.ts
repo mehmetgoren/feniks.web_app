@@ -11,7 +11,7 @@ export interface ImageItem{
   imagePath: string;
 }
 
-export interface OdImagesParams{
+export interface ImagesParams{
   rootPath: string;
   sourceId: string;
 }

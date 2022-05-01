@@ -22,6 +22,7 @@
             <q-tab :disable='!enabled' name="detectedList" icon="collections" label="Detected Images" />
             <q-tab :disable='!enabled' name="videoClipList" icon="featured_video" label="Video Clips" />
             <q-tab :disable='!enabled' name="frList" icon="face" label="Face Recognition" />
+            <q-tab :disable='!enabled' name="alprList" icon="drive_eta" label="License Plate Recognition" />
           </q-tabs>
           <q-space/>
           <q-btn flat push label='Save' icon='save' @click='onSave' :disable='inactiveSave' :dense='dense'>
@@ -74,6 +75,9 @@
           <div v-if='tab==="frList"'>
             <FrImageGallery :source-id='od.id' />
           </div>
+          <div v-if='tab==="alprList"'>
+            <AlprImageGallery :source-id='od.id' />
+          </div>
         </div>
         <div v-else>
           <label class='blink_me'>AI Service is not available.</label>
@@ -96,6 +100,7 @@ import MaskEditor from 'components/MaskEditor.vue';
 import OdImageGallery from 'components/OdImageGallery.vue';
 import OdSourceVideoClips from 'components/OdSourceVideoClips.vue'
 import FrImageGallery from 'components/FrImageGallery.vue';
+import AlprImageGallery from 'components/AlprImageGallery.vue';
 
 export default {
   name: 'AiSettings',
@@ -103,7 +108,8 @@ export default {
     MaskEditor,
     OdImageGallery,
     OdSourceVideoClips,
-    FrImageGallery
+    FrImageGallery,
+    AlprImageGallery
   },
   props: {
     sourceId: {

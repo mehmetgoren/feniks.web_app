@@ -76,7 +76,7 @@ export default {
       selected, images, imagesLoading,
       drawer: ref(false),
       handleTreeSelected,
-      // treeItems
+     // treeItems
     };
   }
 }

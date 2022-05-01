@@ -3,8 +3,8 @@
     <q-layout view='hHh Lpr lff' container style='height: 900px' class='shadow-2 rounded-borders'>
       <q-header elevated class='bg-positive'>
         <q-toolbar>
-          <q-btn flat @click='drawer = !drawer' round dense icon='face' />
-          <q-toolbar-title>Detected Faces</q-toolbar-title>
+          <q-btn flat @click='drawer = !drawer' round dense icon='drive_eta' />
+          <q-toolbar-title>Detected License Plates</q-toolbar-title>
         </q-toolbar>
       </q-header>
 
@@ -53,14 +53,14 @@ export default {
     const imagesLoading = ref<boolean>(false);
 
     onMounted(async () => {
-      treeItems.value = await nodeService.getFrImagesFolders(props.sourceId);
+      treeItems.value = await nodeService.getAlprImagesFolders(props.sourceId);
       treeLoading.value = false;
     });
 
     async function handleTreeSelected(selection: string) {
       try {
         imagesLoading.value = true;
-        const items = await nodeService.getFrImages({ rootPath: selection, sourceId: props.sourceId });
+        const items = await nodeService.getAlprImages({ rootPath: selection, sourceId: props.sourceId });
         if (items.length > 0) {
           for (const item of items) {
             item.imagePath = nodeService.getAddress(item.imagePath);
