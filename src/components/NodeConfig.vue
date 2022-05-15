@@ -43,12 +43,25 @@
           <q-space style='height: 10px;' />
           <q-input v-model.number='general.heartbeat_interval' filled :dense='dense' label='Heartbeat Interval' />
         </q-form>
-
+        <q-space style='height: 10px;' />
+        <q-toolbar class='bg-brown-5 text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
+          <label style='text-transform: uppercase;font-size: medium'>Scan Network for IP Cameras</label>
+        </q-toolbar>
+        <q-form id='frmPath' class='q-pa-xs' style='margin:0 5px 0 5px;'>
+          <q-input v-model='networkScanResults.created_at' filled readonly :dense='dense' label='Last Scan At'/>
+          <q-space style='height: 10px;' />
+          <q-btn icon='radar' label='Scan Network for IP Cameras' color='brown-5' @click='onScanNetwork' :disable='showScanLoading'>
+            <q-inner-loading :showing='showScanLoading' />
+          </q-btn>
+          <q-space style='height: 10px;' />
+          <q-table title='Network Scan Results' :rows='networkScanResults.results' :columns='columns'
+                   row-key='address' :pagination='initialPagination' color='brown-5' />
+        </q-form>
       </div>
 
       <div class='col-4'>
         <q-space style='margin: 2px;' />
-        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders'  style='margin: 0 10px 0 10px; width: auto;'>
+        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin: 0 10px 0 10px; width: auto;'>
           <label style='text-transform: uppercase;font-size: medium'>Object Detector Config</label>
         </q-toolbar>
         <q-space style='margin: 2px;' />
@@ -114,7 +127,7 @@
       <div class='col-4'>
 
         <q-space style='margin: 2px;' />
-        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders'  style='margin: 0 10px 0 10px; width: auto;'>
+        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin: 0 10px 0 10px; width: auto;'>
           <label style='text-transform: uppercase;font-size: medium'>AI Config</label>
         </q-toolbar>
         <q-space style='margin: 2px;' />
@@ -165,7 +178,7 @@
 
 <script lang='ts'>
 import { NodeService } from 'src/utils/services/node_service';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import {
   Config,
   JetsonConfig,
@@ -179,6 +192,10 @@ import {
 import { useStore } from 'src/store';
 import CommandBar from 'src/components/CommandBar.vue';
 import { List } from 'linqts';
+import { PublishService, SubscribeService } from 'src/utils/services/websocket_services';
+import { NetworkDiscoveryModel, OnvifAction, OnvifEvent } from 'src/utils/models/onvif_models';
+import { myDateToJsDate } from 'src/utils/utils';
+import { WsConnection } from 'src/utils/ws/connection';
 
 export default {
   name: 'NodeConfig',
@@ -187,6 +204,8 @@ export default {
     const $store = useStore();
     const dense = computed(() => $store.getters['settings/dense']);
     const nodeService = new NodeService();
+    const publishService = new PublishService();
+    const subscribeService = new SubscribeService();
     const config = ref<Config>();
     const device = ref<DeviceConfig>();
     const general = ref<GeneralConfig>();
@@ -210,6 +229,10 @@ export default {
     const torchFilter = ref<string>();
     const tfFilter = ref<string>();
 
+    const showScanLoading = ref<boolean>(false);
+    const networkScanResults = ref<NetworkDiscoveryModel>({});
+    let connOnvif: WsConnection | null = null;
+
     const setConfigValue = (c: Config) => {
       device.value = c.device;
       onceDetector.value = c.once_detector;
@@ -229,6 +252,22 @@ export default {
       modelMultiple.value = services;
       optServices.value = services;
       setConfigValue(config.value);
+      networkScanResults.value = await nodeService.getOnvifNetwork();
+      networkScanResults.value.created_at = myDateToJsDate(<string>networkScanResults.value.created_at).toLocaleString();
+
+      connOnvif = subscribeService.subscribeOnvif((event: MessageEvent) => {
+        const result: OnvifEvent = JSON.parse(event.data);
+        if (result.type === OnvifAction.NetworkDiscovery){
+          networkScanResults.value.results = JSON.parse(atob(result.base64_model));
+          showScanLoading.value = false;
+        }
+      });
+
+    });
+    onBeforeUnmount(() => {
+      if (connOnvif) {
+        connOnvif.close();
+      }
     });
 
     const onSave = async () => {
@@ -240,12 +279,33 @@ export default {
       setConfigValue(config.value);
     };
 
+
     return {
       config, device, optDeviceTypes, onceDetector, sourceReader, redis,
       jetson, jetsonFilter, ffmpeg, tf, ai, general,
-      torch, torchFilter, tfFilter,
+      torch, torchFilter, tfFilter, showScanLoading,
       dense, modelMultiple, optServices, onSave, onRestore,
       imageExtensions: ['jpg', 'jpeg', 'png', 'bmp', 'gif'],
+      onScanNetwork: function() {
+        void publishService.publishOnvif({}, OnvifAction.NetworkDiscovery);
+        showScanLoading.value = true;
+      },
+      networkScanResults,
+      columns: [
+        { name: 'address', align: 'center', label: 'Address', field: 'address', sortable: true },
+        { name: 'route', align: 'center', label: 'Route', field: 'route', format: (val: any) => `${val.join(' ')}`, sortable: true },
+        { name: 'port', align: 'center', label: 'port', field: 'port', sortable: true },
+        { name: 'device', align: 'center', label: 'Device', field: 'device', sortable: true },
+        { name: 'username', align: 'center', label: 'User Name', field: 'username', sortable: true },
+        { name: 'password', align: 'center', label: 'Password', field: 'password', sortable: true },
+        { name: 'credentials_found', align: 'center', label: 'Credentials Found', field: 'credentials_found', sortable: true },
+        { name: 'route_found', align: 'center', label: 'Route Found', field: 'route_found', sortable: true },
+        { name: 'available', align: 'center', label: 'Available', field: 'available', sortable: true },
+        { name: 'authentication_type', align: 'center', label: 'Authentication Type', field: 'authentication_type', sortable: true }
+      ],
+      initialPagination: {
+        rowsPerPage: 10
+      }
     };
   }
 };

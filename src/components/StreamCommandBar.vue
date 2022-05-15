@@ -38,6 +38,9 @@
     <q-btn color='amber' rounded glossy icon='psychology' @click='onAiClick'>
       <q-tooltip class='bg-amber'>AI</q-tooltip>
     </q-btn>
+    <q-btn color='brown-5' rounded glossy icon='settings_ethernet' @click='onOnvifClick'>
+      <q-tooltip class='bg-brown-5'>ONVIF</q-tooltip>
+    </q-btn>
     <q-btn color='deep-orange' rounded glossy icon='close' @click='onClose'>
       <q-tooltip class='bg-deep-orange'>Close</q-tooltip>
     </q-btn>
@@ -56,6 +59,10 @@
     <AiSettings :source-id='stream.id' />
   </q-dialog>
 
+  <q-dialog v-model='showOnvif' full-width transition-show='flip-down' transition-hide='flip-up'>
+    <OnvifSettings :address='stream.address' :color='"brown-5"' />
+  </q-dialog>
+
 </template>
 
 <script lang='ts'>
@@ -63,6 +70,7 @@ import { ref, computed } from 'vue';
 import SourceSettings from 'components/SourceSettings.vue';
 import SourceRecords from 'components/SourceRecords.vue';
 import AiSettings from 'components/AiSettings.vue';
+import OnvifSettings from 'components/OnvifSettings.vue';
 import { PublishService } from 'src/utils/services/websocket_services';
 import { NodeService } from 'src/utils/services/node_service';
 import { SourceModel } from 'src/utils/models/source_model';
@@ -75,7 +83,8 @@ export default {
   components: {
     SourceSettings,
     SourceRecords,
-    AiSettings
+    AiSettings,
+    OnvifSettings
   },
   emits: ['full-screen', 'stream-stop', 'connect', 'take-screenshot', 'refresh', 'deleted', 'restart', 'close'],
   props: {
@@ -111,6 +120,7 @@ export default {
     const onAiClick = () => {
       showAiSettings.value = true;
     };
+    const showOnvif = ref<boolean>(false);
 
     return {
       onFullScreenClick() {
@@ -148,6 +158,10 @@ export default {
       },
       showAiSettings,
       onAiClick,
+      showOnvif,
+      onOnvifClick(){
+        showOnvif.value = true;
+      },
       onClose(){
         emit('close', props.stream);
         showSettings.value = false;

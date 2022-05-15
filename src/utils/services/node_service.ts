@@ -10,6 +10,7 @@ import { SourceStatusModel } from 'src/utils/models/source_status_model';
 import { OdModel } from 'src/utils/models/od_model';
 import { ImagesParams, FolderTreeItem, ImageItem } from 'src/utils/models/detected';
 import { OdVideoClipsViewModel } from 'src/utils/models/ai_clip_json_object';
+import { NetworkDiscoveryModel, OnvifModel } from 'src/utils/models/onvif_models';
 
 
 export class NodeService extends BaseService {
@@ -133,6 +134,16 @@ export class NodeService extends BaseService {
 
   public async getAlprImages(model: ImagesParams): Promise<ImageItem[]> {
     const resp = await api.post(this.getAddress('alprimages'), model);
+    return resp.data;
+  }
+
+  public async getOnvifNetwork(): Promise<NetworkDiscoveryModel>{
+    const resp = await api.get(this.getAddress('onvifnetwork'));
+    return resp.data;
+  }
+
+  public async getOnvif(address: string): Promise<OnvifModel>{
+    const resp = await api.get(this.getAddress(`onvif/${address}`));
     return resp.data;
   }
 }

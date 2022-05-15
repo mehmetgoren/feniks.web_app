@@ -50,7 +50,11 @@
             <q-step id='step2' :name='2' title='Connection' icon='power' color='cyan' :done='step > 2'>
               <q-form class='q-gutter-md'>
                 <q-input :dense='dense' filled v-model.trim='source.address' color='cyan' label='Address'
-                         lazy-rules :rules="[ val => val && val.length > 0 || 'Please type something']" />
+                         lazy-rules :rules="[ val => val && val.length > 0 || 'Please type something']" >
+                  <template v-slot:after>
+                    <q-btn :dense='dense' color='brown-5' flat icon="settings_ethernet" label='Hack By ONVIF©' @click='showOnvif = true' />
+                  </template>*
+                </q-input>
                 <q-select :dense='dense' emit-value map-options filled v-model='source.rtsp_transport'
                           :options='rtspTransports' label='RTSP Transport' transition-show='flip-up'
                           transition-hide='flip-down' color='cyan' />
@@ -257,6 +261,11 @@
       </q-page>
     </q-page-container>
   </q-layout>
+
+  <q-dialog v-model="showOnvif" full-width full-height>
+    <OnvifSettings :color='"cyan"' :address='source.address' />
+  </q-dialog>
+
 </template>
 
 <script lang='ts'>
@@ -264,6 +273,7 @@ import { ref, computed, onMounted, nextTick } from 'vue';
 import { useStore } from 'src/store';
 import { SourceModel } from 'src/utils/models/source_model';
 import CommandBar from 'src/components/CommandBar.vue';
+import OnvifSettings from 'components/OnvifSettings.vue'
 import { NodeService } from 'src/utils/services/node_service';
 import { useQuasar } from 'quasar';
 import { PublishService } from 'src/utils/services/websocket_services';
@@ -273,7 +283,7 @@ import { LocalService } from 'src/utils/services/local_service';
 declare var $: any;
 export default {
   name: 'SourceSettings',
-  components: { CommandBar },
+  components: { CommandBar, OnvifSettings },
   emits: ['on-save', 'on-delete'],
   props: {
     sourceId: {
@@ -312,6 +322,7 @@ export default {
     const recordPresets = ref(localService.createPresets());
     const recordRotations = ref(localService.createRotations());
     const inactives = ref({ save: false, delete: false });
+    const showOnvif = ref<boolean>(false);
 
     const publishService = new PublishService();
     const $q = useQuasar();
@@ -426,32 +437,13 @@ export default {
     }
 
     return {
-      dense,
-      source,
-      showRecordDetail,
-      step,
-      rtspTransports,
-      logLevels,
-      accelerationEngines,
-      videoDecoders,
-      streamTypes,
-      audioCodecs,
-      streamVideoCodecs,
-      presets,
-      streamRotations,
-      rtmpServerTypes,
-      audioChannels,
-      audioQualities,
-      audioSampleRates,
-      recordFileTypes,
-      recordVideoCodecs,
-      recordPresets,
-      recordRotations,
-      onSave,
-      onDelete,
-      onStep1Click,
-      inactives,
-      onRecordChange
+      dense, source, showRecordDetail, step, rtspTransports, logLevels,
+      accelerationEngines, videoDecoders, streamTypes,
+      audioCodecs, streamVideoCodecs, presets,
+      streamRotations, rtmpServerTypes, audioChannels,
+      audioQualities, audioSampleRates, recordFileTypes, recordVideoCodecs,
+      recordPresets, recordRotations, onSave, onDelete, onStep1Click,
+      inactives, onRecordChange, showOnvif
     };
   }
 };

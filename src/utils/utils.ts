@@ -87,3 +87,12 @@ export function downloadFile(url: string, fileName: string, fileType :string){
     require('downloadjs')(response.data, fileName, fileType);
   }).catch(console.error);
 }
+
+export function parseIP(address: string): string | null{
+  const r = /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/; //http://www.regular-expressions.info/examples.html
+  const results = address.match(r);
+  if (results && results.length){
+    return results[0];
+  }
+  return null;
+}
