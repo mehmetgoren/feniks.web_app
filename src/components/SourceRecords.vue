@@ -98,7 +98,7 @@
         <div class='text-h6'>{{ selectedVideo.name }}</div>
       </q-card-section>
       <q-card-section class='q-pt-none'>
-        <VideoPlayer :src="'http://localhost:2072' + selectedVideo.path" :auto-play='true' />
+        <VideoPlayer :src="nodeAddress + selectedVideo.path" :auto-play='true' />
       </q-card-section>
     </q-card>
   </q-dialog>
@@ -115,7 +115,6 @@ import VideoPlayer from 'src/components/VideoPlayer.vue';
 import { fixArrayDates, getTodayString } from 'src/utils/utils';
 import axios from 'axios';
 import { StreamModel } from 'src/utils/models/stream_model';
-import { LocalService } from 'src/utils/services/local_service';
 
 const columns = [
   { name: 'hour', align: 'left', label: 'Hour', field: 'hour', sortable: false }
@@ -154,8 +153,8 @@ export default {
     const selectedVideo = ref<VideoFile | null>(null);
     const filter = ref('');
     const innerFilter = ref('');
-    const localService = new LocalService();
-    const stream = ref<StreamModel>(localService.createEmptyStream());
+    const stream = ref<StreamModel>(nodeService.LocalService.createEmptyStream());
+    const nodeAddress = ref<string>(nodeService.LocalService.nodeAddress);
 
     const today = getTodayString();
 
@@ -197,7 +196,7 @@ export default {
     function onDownload(video: VideoFile) {
       console.log('downloading: ' + video.path);
       axios({
-        url: 'http://localhost:2072' + video.path,
+        url: nodeAddress.value + video.path,
         method: 'GET',
         responseType: 'blob' // important
       }).then((response: any) => {
@@ -224,7 +223,7 @@ export default {
     };
     let prevProbs: any = null;
     return {
-      hours,
+      hours, nodeAddress,
       selected,
       lastIndex,
       tableRef,

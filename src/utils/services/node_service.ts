@@ -15,22 +15,18 @@ import { NetworkDiscoveryModel, OnvifModel } from 'src/utils/models/onvif_models
 
 export class NodeService extends BaseService {
 
-  public getAddress(route: string): string {
-    return `${this.nodeHttpProtocol}://${this.nodeAddress}:${this.defaultPort}/${route}`;
-  }
-
   public async getSourceList(): Promise<SourceModel[]> {
-    const resp = await api.get(this.getAddress('sources'));
+    const resp = await api.get(this.LocalService.getNodeAddress('sources'));
     return new List(<SourceModel[]>resp.data).OrderBy(x => x.name).ToArray();
   }
 
   public async getSource(sourceId: string): Promise<SourceModel> {
-    const resp = await api.get(this.getAddress(`sources/${sourceId}`));
+    const resp = await api.get(this.LocalService.getNodeAddress(`sources/${sourceId}`));
     return resp.data;
   }
 
   public async saveSource(model: SourceModel): Promise<SourceModel> {
-    const resp = await api.post(this.getAddress('sources'), model);
+    const resp = await api.post(this.LocalService.getNodeAddress('sources'), model);
     return resp.data;
   }
 
@@ -38,112 +34,112 @@ export class NodeService extends BaseService {
     if (isNullOrEmpty(sourceId)) {
       return false;
     }
-    await api.delete(this.getAddress(`sources/${sourceId}`));
+    await api.delete(this.LocalService.getNodeAddress(`sources/${sourceId}`));
     return true;
   }
 
   public async getSourceStreamStatus(): Promise<SourceStatusModel[]> {
-    const response = await api.get(this.getAddress('sourcestreamstatus'));
+    const response = await api.get(this.LocalService.getNodeAddress('sourcestreamstatus'));
     return response.data;
   }
 
   public async getStreamList(): Promise<StreamModel[]> {
-    const resp = await api.get(this.getAddress('stream'));
+    const resp = await api.get(this.LocalService.getNodeAddress('stream'));
     return resp.data;
   }
 
   public async getStream(sourceId: string): Promise<StreamModel> {
-    const resp = await api.get(this.getAddress(`stream/${sourceId}`));
+    const resp = await api.get(this.LocalService.getNodeAddress(`stream/${sourceId}`));
     return resp.data;
   }
 
   public async getConfig(): Promise<Config> {
-    const resp = await api.get(this.getAddress('config'));
+    const resp = await api.get(this.LocalService.getNodeAddress('config'));
     return resp.data;
   }
 
   public async saveConfig(config: Config): Promise<Config> {
-    const resp = await api.post(this.getAddress('config'), config);
+    const resp = await api.post(this.LocalService.getNodeAddress('config'), config);
     return resp.data;
   }
 
   public async restoreConfig(): Promise<Config> {
-    const resp = await api.get(this.getAddress('restoreconfig'));
+    const resp = await api.get(this.LocalService.getNodeAddress('restoreconfig'));
     return resp.data;
   }
 
   public async getRecordHours(sourceId: string, dateStr: string): Promise<string[]>{
-    const resp = await api.get(this.getAddress(`recordhours/${sourceId}/${dateStr}`));
+    const resp = await api.get(this.LocalService.getNodeAddress(`recordhours/${sourceId}/${dateStr}`));
     return resp.data;
   }
 
   public async getRecords(sourceId: string, dateStr: string, hour: string): Promise<VideoFile[]> {
-    const resp = await api.get(this.getAddress(`records/${sourceId}/${dateStr}/${hour}`));
+    const resp = await api.get(this.LocalService.getNodeAddress(`records/${sourceId}/${dateStr}/${hour}`));
     return resp.data;
   }
 
   public async deleteRecord(model: VideoFile): Promise<boolean> {
-    const resp = await api.delete(this.getAddress('records'), { data: model });
+    const resp = await api.delete(this.LocalService.getNodeAddress('records'), { data: model });
     return resp.data;
   }
 
   public async getOd(sourceId: string): Promise<OdModel | null> {
-    const resp = await api.get(this.getAddress(`ods/${sourceId}`));
+    const resp = await api.get(this.LocalService.getNodeAddress(`ods/${sourceId}`));
     return resp.data;
   }
 
   public async saveOd(model: OdModel): Promise<OdModel> {
-    const resp = await api.post(this.getAddress('ods'), model);
+    const resp = await api.post(this.LocalService.getNodeAddress('ods'), model);
     return resp.data;
   }
 
   public async getOdImagesFolders(sourceId: string): Promise<FolderTreeItem[]> {
-    const resp = await api.get(this.getAddress(`odimagesfolders/${sourceId}`));
+    const resp = await api.get(this.LocalService.getNodeAddress(`odimagesfolders/${sourceId}`));
     return [resp.data];
   }
 
   public async getOdImages(model: ImagesParams): Promise<ImageItem[]> {
-    const resp = await api.post(this.getAddress('odimages'), model);
+    const resp = await api.post(this.LocalService.getNodeAddress('odimages'), model);
     return resp.data;
   }
 
   public async getOdVideoClips(sourceId: string, date: string): Promise<OdVideoClipsViewModel[]> {
-    const resp = await api.get(this.getAddress(`odvideoclips/${sourceId}/${date}`));
+    const resp = await api.get(this.LocalService.getNodeAddress(`odvideoclips/${sourceId}/${date}`));
     return resp.data;
   }
 
   public async deleteOdVideoClip(item: OdVideoClipsViewModel): Promise<boolean> {
-    const resp = await api.delete(this.getAddress('odvideoclips'), { data: item });
+    const resp = await api.delete(this.LocalService.getNodeAddress('odvideoclips'), { data: item });
     return resp.data;
   }
 
   public async getFrImagesFolders(sourceId: string): Promise<FolderTreeItem[]> {
-    const resp = await api.get(this.getAddress(`frimagesfolders/${sourceId}`));
+    const resp = await api.get(this.LocalService.getNodeAddress(`frimagesfolders/${sourceId}`));
     return [resp.data];
   }
 
   public async getFrImages(model: ImagesParams): Promise<ImageItem[]> {
-    const resp = await api.post(this.getAddress('frimages'), model);
+    const resp = await api.post(this.LocalService.getNodeAddress('frimages'), model);
     return resp.data;
   }
 
   public async getAlprImagesFolders(sourceId: string): Promise<FolderTreeItem[]> {
-    const resp = await api.get(this.getAddress(`alprimagesfolders/${sourceId}`));
+    const resp = await api.get(this.LocalService.getNodeAddress(`alprimagesfolders/${sourceId}`));
     return [resp.data];
   }
 
   public async getAlprImages(model: ImagesParams): Promise<ImageItem[]> {
-    const resp = await api.post(this.getAddress('alprimages'), model);
+    const resp = await api.post(this.LocalService.getNodeAddress('alprimages'), model);
     return resp.data;
   }
 
   public async getOnvifNetwork(): Promise<NetworkDiscoveryModel>{
-    const resp = await api.get(this.getAddress('onvifnetwork'));
+    const resp = await api.get(this.LocalService.getNodeAddress('onvifnetwork'));
     return resp.data;
   }
 
   public async getOnvif(address: string): Promise<OnvifModel>{
-    const resp = await api.get(this.getAddress(`onvif/${address}`));
+    const resp = await api.get(this.LocalService.getNodeAddress(`onvif/${address}`));
     return resp.data;
   }
 }

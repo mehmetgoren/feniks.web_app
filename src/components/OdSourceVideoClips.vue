@@ -11,7 +11,7 @@
               <template v-slot:body='props'>
                 <q-tr :props='props' @click='props.expand = !props.expand' style='cursor: pointer;'>
                   <q-td key='base64_image'>
-                    <q-img :src='"http://127.0.0.1:2072/" + props.row.preview.image_file_name' />
+                    <q-img :src='webMngrAddress + props.row.preview.image_file_name' />
                   </q-td>
                   <q-td key='objects'>
                     <label>{{ props.row.preview.object_names }}<br></label>
@@ -22,13 +22,13 @@
                   <q-td colspan='100%'>
                     <div class='q-pa-md q-gutter-sm' style='margin: 5px;'>
                       <q-btn color='primary' icon='theaters' label='Download Clip'
-                             @click='handleDownloadClip("http://127.0.0.1:2072/"+ props.row.video_file_name, props.row.video_base_file_name)' />
+                             @click='handleDownloadClip(webMngrAddress+ props.row.video_file_name, props.row.video_base_file_name)' />
                       <q-btn color='red' icon='delete' label='Delete Event' @click='handleDeleteClip(props.row)' />
                       <q-btn color='grey' icon='clear' label='Close' @click='props.expand = !props.expand' />
                     </div>
                     <br>
                     <div style='width: 480px;float: left;margin-right: 5px;'>
-                      <VideoPlayer :src="'http://localhost:2072/' + props.row.video_file_name" :auto-play='false' />
+                      <VideoPlayer :src="webMngrAddress+ props.row.video_file_name" :auto-play='false' />
                     </div>
                     <div class='q-pa-md' style='width: 350px;float:left;margin: 0 5px 0 5px'>
                       <q-table dense :rows='props.row.detected_objects' :columns='detectedObjectColumns' row-key='pred_cls_idx'
@@ -59,7 +59,7 @@
                     <div class='q-pa-md' style='float: left;'>
                       <viewer :images='props.row.image_file_names'>
                         <img v-for='image_file_name in props.row.image_file_names' :key='image_file_name'
-                             :src='"http://127.0.0.1:2072/" + image_file_name' alt='no image' width='150' height='150'>
+                             :src='webMngrAddress + image_file_name' alt='no image' width='150' height='150'>
                       </viewer>
                     </div>
                   </q-td>
@@ -77,7 +77,6 @@
 import VideoPlayer from 'src/components/VideoPlayer.vue';
 import { StreamModel } from 'src/utils/models/stream_model';
 import { onMounted, ref } from 'vue';
-import { LocalService } from 'src/utils/services/local_service';
 import { OdVideoClipsViewModel } from 'src/utils/models/ai_clip_json_object';
 import { NodeService } from 'src/utils/services/node_service';
 import { downloadFile, fixArrayDates, getTodayHourString } from 'src/utils/utils';
@@ -94,11 +93,11 @@ export default {
     VideoPlayer
   },
   setup(props: any) {
-    const localService = new LocalService();
-    const stream = ref<StreamModel>(localService.createEmptyStream());
-    const rows = ref<OdVideoClipsViewModel[]>([]);
     const nodeService = new NodeService();
+    const stream = ref<StreamModel>(nodeService.LocalService.createEmptyStream());
+    const rows = ref<OdVideoClipsViewModel[]>([]);
     const filter = ref<string>('');
+    const webMngrAddress = ref<string>(nodeService.LocalService.getNodeAddress(''));
 
     const refreshFn = async () => {
       const dataList = await nodeService.getOdVideoClips(props.sourceId, getTodayHourString());
@@ -122,7 +121,7 @@ export default {
     }
 
     return {
-      rows,
+      rows, webMngrAddress,
       stream,
       columns,
       pagination: {

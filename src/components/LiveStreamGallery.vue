@@ -47,7 +47,7 @@ import 'gridstack/dist/jq/gridstack-dd-jqueryui';
 import { useStore } from 'src/store';
 import { PublishService, SubscribeService } from 'src/utils/services/websocket_services';
 import { WsConnection } from 'src/utils/ws/connection';
-import { isNullOrUndefined, startStream } from 'src/utils/utils';
+import { checkIpIsLoopBack, isNullOrUndefined, startStream } from 'src/utils/utils';
 import { LocalService, GsLocation } from 'src/utils/services/local_service';
 import { NodeService } from 'src/utils/services/node_service';
 // https://v3.vuejs.org/guide/migration/array-refs.html
@@ -72,6 +72,8 @@ export default {
     const showLoading = ref<boolean>(false);
     let grid: GridStack | null = null;
     const waitInterval = 500;
+    const serverIp = localService.nodeIP;
+    const isRemoteServer = !checkIpIsLoopBack(serverIp);
 
     //
     let streamPlayers: any[] = [];
@@ -116,7 +118,8 @@ export default {
         let url = '';
         switch (streamModel.stream_type) {
           case 0: //FLV
-            url = streamModel.rtmp_flv_address;
+            const flvAddress = isRemoteServer ? streamModel.rtmp_flv_address.replace('127.0.0.1', serverIp) : streamModel.rtmp_flv_address;
+            url = flvAddress;
             break;
           case 1: //FFmpeg Reader
             break;

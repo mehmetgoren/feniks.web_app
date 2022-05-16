@@ -14,6 +14,9 @@ const mutation: MutationTree<ISettingsState> = {
   },
   setSourceThumbnail(state: ISettingsState, obj: { sourceId: string, thumbnail: string }) {
     const key = 'node?n=' + state.activeTab.node_address;
+    const menu = state.menu[key];
+    if (!menu)
+      return;
     const sources = state.menu[key]['cameras'];
     const source = new List<MenuLink>(<any>sources).FirstOrDefault(x => x?.id === obj.sourceId);
     if (source) {

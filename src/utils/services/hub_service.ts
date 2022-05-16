@@ -1,7 +1,6 @@
 import { api } from 'boot/axios';
 import { CameraDto } from 'src/utils/entities';
 import { BaseService } from 'src/utils/services/base_service';
-import { IonixHubAddress } from 'src/utils/utils';
 
 
 export class HubService extends BaseService {
@@ -9,7 +8,7 @@ export class HubService extends BaseService {
 
   public constructor() {
     super();
-    this._hubAddress = 'http://' + IonixHubAddress + '/api/v1';
+    this._hubAddress = this.LocalService.getHubAddress('api/v1');
   }
 
   public async getAll(): Promise<CameraDto[]> {

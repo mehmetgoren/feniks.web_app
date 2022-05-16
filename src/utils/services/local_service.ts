@@ -1,10 +1,79 @@
 import { Node } from 'src/utils/entities';
-import { isNullOrEmpty, isNullOrUndefined, NodeMngrAddress } from 'src/utils/utils';
+import { isNullOrEmpty, isNullOrUndefined } from 'src/utils/utils';
 import { SourceModel } from 'src/utils/models/source_model';
 import { StreamModel } from 'src/utils/models/stream_model';
 import { OdModel } from 'src/utils/models/od_model';
 
 export class LocalService {
+
+  public getVideoAddress() {
+    return `${this.nodeHttpProtocol}://${this.nodeIP}:${this.nodePort}/livestream`;
+  }
+
+  get hubHttpProtocol(): string {
+    return 'http';
+  }
+
+  //todo: move to the config(Redis)
+  get hubIP(): string {
+    return 'localhost';
+  }
+
+  get hubPort(): string {
+    return '7242';
+  }
+
+  public getHubAddress(route: string): string {
+    return `${this.hubHttpProtocol}://${this.hubIP}:${this.hubPort}/${route}`;
+  }
+
+  get nodeHttpProtocol(): string {
+    return 'http';
+  }
+
+  get nodeIP(): string {
+    const node = LocalService.getLastValidNode();
+    if (node) {
+      return node.node_address;
+    }
+    return '';
+  }
+
+  get nodePort(): string {
+    return '2072';
+  }
+
+  get nodeAddress(): string {
+    return `${this.nodeHttpProtocol}://${this.nodeIP}:${this.nodePort}`;
+  }
+
+  public getNodeAddress(route: string): string {
+    return `${this.nodeHttpProtocol}://${this.nodeIP}:${this.nodePort}/${route}`;
+  }
+
+  private static getLastValidNode(): Node | null{
+    const json = localStorage.getItem('lastValidNode');
+    if (json) {
+      return JSON.parse(json);
+    }
+    return null;
+  }
+
+  public getActiveTab(): Node | null {
+    const json = localStorage.getItem('setActiveTab');
+    if (json) {
+      return JSON.parse(json);
+    }
+    return null;
+  }
+
+  public setActiveTab(node: Node) {
+    const json = JSON.stringify(node);
+    if (node.node_address){
+      localStorage.setItem('lastValidNode',json )
+    }
+    localStorage.setItem('setActiveTab', json);
+  }
 
   public saveGsLocation(sourceId: string, option: GsLocation) {
     if (isNullOrEmpty(sourceId) || isNullOrUndefined(option))
@@ -22,22 +91,6 @@ export class LocalService {
 
   public deleteGsLocation(sourceId: string) {
     localStorage.removeItem(sourceId);
-  }
-
-  public getVideoAddress() {
-    return `http://${NodeMngrAddress}/livestream`;
-  }
-
-  public getActiveTab(): Node | null {
-    const json = sessionStorage.getItem('setActiveTab');
-    if (json) {
-      return JSON.parse(json);
-    }
-    return null;
-  }
-
-  public setActiveTab(node: Node) {
-    sessionStorage.setItem('setActiveTab', JSON.stringify(node));
   }
 
   public createRtspTransport(): SelectOption[] {

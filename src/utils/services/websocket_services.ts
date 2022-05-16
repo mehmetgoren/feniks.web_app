@@ -5,10 +5,11 @@ import { BaseService } from 'src/utils/services/base_service';
 import { WsConnection } from 'src/utils/ws/connection';
 import { OnvifEvent, OnvifAction, OnvifParams } from 'src/utils/models/onvif_models';
 
-export class PublishService extends BaseService{
-  private getPublishEndpointRoot(): string{
-    return `${this.nodeHttpProtocol}://${this.nodeAddress}:${this.defaultPort}`;
+export class PublishService extends BaseService {
+  private getPublishEndpointRoot(): string {
+    return `${this.LocalService.nodeHttpProtocol}://${this.LocalService.nodeIP}:${this.LocalService.nodePort}`;
   }
+
   public async publishStartStream(source: SourceModel): Promise<void> {
     const address = `${this.getPublishEndpointRoot()}/startstream`;
     await api.post(address, source);
@@ -25,19 +26,19 @@ export class PublishService extends BaseService{
   }
 
   // restart does not need to be subscribed to since it is only called by the restart_stream_request which is just a proxy.
-  public async publishRestartStream(source: SourceModel){
+  public async publishRestartStream(source: SourceModel) {
     const address = `${this.getPublishEndpointRoot()}/restartstream`;
     await api.post(address, source);
   }
 
-  public async publishOnvif(op: OnvifParams,  type: OnvifAction){
+  public async publishOnvif(op: OnvifParams, type: OnvifAction) {
     const address = `${this.getPublishEndpointRoot()}/onvif`;
-    const par: OnvifEvent = {type:type, base64_model : btoa(JSON.stringify(op))}
-    await api.post(address, par)
+    const par: OnvifEvent = { type: type, base64_model: btoa(JSON.stringify(op)) };
+    await api.post(address, par);
   }
 }
 
-export class SubscribeService extends BaseService{
+export class SubscribeService extends BaseService {
   public subscribeStartStream(onMessage: ((this: WebSocket, ev: MessageEvent) => any)): WsConnection {
     return new WsConnection('wsstartstream', onMessage);
   }

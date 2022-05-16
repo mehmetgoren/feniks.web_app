@@ -4,9 +4,6 @@ import { Store } from 'vuex';
 import { SourceModel } from 'src/utils/models/source_model';
 import axios from 'axios';
 
-export const NodeMngrPort = '2072';
-export const NodeMngrAddress = 'localhost:' + NodeMngrPort;
-export const IonixHubAddress = 'localhost:7242';
 
 export function parseQs(qs = window.location.search) {
   const urlSearchParams = new URLSearchParams(qs);
@@ -95,4 +92,12 @@ export function parseIP(address: string): string | null{
     return results[0];
   }
   return null;
+}
+
+export function checkIpIsLoopBack(ip: string): boolean{
+  if (isNullOrEmpty(ip)){
+    return false;
+  }
+  const re = /^(127\.[\d.]+|[0:]+1|localhost)$/;
+  return ip.match(re) !== null;
 }
