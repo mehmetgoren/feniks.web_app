@@ -3,33 +3,16 @@
   <Hub v-else-if="menu === 'hub'" />
   <div v-else>
     <DoughnutChart :chartData='testData' />
-    <div style='width: 100%; max-width: 400px'>
-      <q-chat-message
-        :text='client'
-        sent
-      />
-      <q-chat-message
-        :text='server'
-      />
-    </div>
-    <div>
-      <input id='btn' type='button' value='Send' @click='onSend' />
-      <input type='text' v-model='msg' size='64' autofocus />
-    </div>
   </div>
 
 </template>
 
 <script lang='ts'>
 import {
-  computed,
-  defineComponent,
-  onMounted, ref, watch, onUnmounted
+  computed, defineComponent, ref, watch
 } from 'vue';
 import { DoughnutChart } from 'vue-chart-3';
 import { Chart, registerables } from 'chart.js';
-import { WsConnection } from 'src/utils/ws/connection';
-import { SubscribeService } from 'src/utils/services/websocket_services';
 import Nodes from 'pages/Nodes.vue';
 import Hub from 'pages/Hub.vue';
 import { useStore } from 'src/store';
@@ -58,41 +41,7 @@ export default defineComponent({
       ]
     };
 
-    const client = ref<string[]>([]);
-    const server = ref<string[]>([]);
-    const msg = ref<string>('');
-    const subscribeService = new SubscribeService();
-    const readerServiceResult = ref();
-
-    let conn: WsConnection | null = null;
-
-    const onSend = () => {
-      if (!conn) {
-        return;
-      }
-      if (!msg.value) {
-        return;
-      }
-      conn.send(msg.value);
-      client.value.push(msg.value);
-    };
-
-    onMounted(() => {
-      conn = subscribeService.subscribeChat((evt: MessageEvent) => {
-        const messages = evt.data.split('\n');
-        for (let i = 0; i < messages.length; ++i) {
-          server.value.push(messages[i]);
-        }
-      });
-    });
-
-    onUnmounted(() => {
-      if (conn) {
-        conn.close();
-      }
-    });
-
-    return { testData, client, server, msg, onSend, menu, readerServiceResult };
+    return { testData, menu };
   }
 });
 

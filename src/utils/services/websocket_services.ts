@@ -38,10 +38,6 @@ export class PublishService extends BaseService{
 }
 
 export class SubscribeService extends BaseService{
-  public subscribeChat(onMessage: ((this: WebSocket, ev: MessageEvent) => any)): WsConnection {
-    return new WsConnection('wschat', onMessage);
-  }
-
   public subscribeStartStream(onMessage: ((this: WebSocket, ev: MessageEvent) => any)): WsConnection {
     return new WsConnection('wsstartstream', onMessage);
   }
