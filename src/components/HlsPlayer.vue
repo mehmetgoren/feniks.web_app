@@ -88,6 +88,16 @@ export default {
       type: String,
       default: '',
       required: true
+    },
+    seekToLiveEdgeInternal: {
+      type: Number,
+      default: 30,
+      required: true
+    },
+    enableLog: {
+      type: Boolean,
+      default: false,
+      required: true
     }
   },
   data() {
@@ -115,7 +125,9 @@ export default {
   beforeUnmount() {
     if (this.player) {
       this.dispose();
-      console.info('Stream Player was destroyed');
+      if (this.enableLog) {
+        console.info(`HlsPlayer(${this.sourceId}): Stream Player was destroyed`);
+      }
     }
   },
   methods: {
@@ -173,25 +185,36 @@ export default {
         self.$emit('ready', this);
       });
       this.player.player_.handleTechClick_ = function() {
-        console.log('the player was clicked but we\'re ignoring it');
+        if (this.enableLog) {
+          console.log(`HlsPlayer(${this.sourceId}): the player was clicked but we are ignoring it`);
+        }
       };
 
       this.setupEvents(this);
+
+      if (this.seekToLiveEdgeInternal > 0) {
+        const interval = this.seekToLiveEdgeInternal * 1000;
+        setInterval(() => {
+          this.seekToLiveEdge(this.player, 'interval');
+        }, interval);
+      }
     },
 
-    setupEvents(self){
+    setupEvents(self) {
       const prevEvents = {};
 
       const seekable = (opName) => {
         let prevEvent = prevEvents[opName];
-        if (!prevEvent){
+        if (!prevEvent) {
           prevEvent = { opName: opName, createdAt: new Date() };
           prevEvents[opName] = prevEvent;
         }
         const diff = new Date().getTime() - prevEvent.createdAt.getTime();
         prevEvent.createdAt = new Date();
         if (diff < 50) {
-          console.log('no call due to 50 ms limit for ' + self.sourceId + ' ' + prevEvent.opName + '. diff: ' + diff);
+          if (this.enableLog) {
+            console.log(`HlsPlayer(${this.sourceId}): no call due to 50 ms limit for ${prevEvent.opName}. diff: ${diff}`);
+          }
           return false;
         }
         return true;
@@ -199,45 +222,31 @@ export default {
 
       // Open it if a camera which has a bad connection needs this fix. BUt remember handler 404 HLS error. Otherwise, it stacked refreshing.
       self.player.on('error', () => {
-        console.log(self.sourceId + ' omg error oldu!!!');
-        self.player.liveTracker.seekToLiveEdge();
+        self.seekToLiveEdge(self.player, 'error');
       });
       self.player.on('waiting', () => {
-        console.log(self.sourceId + ' omg waiting oldu!!!');
         if (seekable('waiting')) {
-          self.player.liveTracker.seekToLiveEdge();
+          self.seekToLiveEdge(self.player, 'waiting');
         }
       });
       self.player.on('suspend', () => {
-        console.log(self.sourceId + ' omg suspend oldu!!!');
         if (seekable('suspend')) {
-          self.player.liveTracker.seekToLiveEdge();
+          self.seekToLiveEdge(self.player, 'suspend');
         }
       });
       self.player.on('emptied', () => {
-        console.log(self.sourceId + ' omg emptied oldu!!!');
         if (seekable('emptied')) {
-          self.player.liveTracker.seekToLiveEdge();
+          self.seekToLiveEdge(self.player, 'emptied');
         }
       });
       self.player.on('stalled', () => {
-        console.log(self.sourceId + ' omg stalled oldu!!!');
         if (seekable('stalled')) {
-          self.player.liveTracker.seekToLiveEdge();
+          self.seekToLiveEdge(self.player, 'stalled');
         }
       });
-      // self.player.on('seeking', ()=> {
-      //   console.log(self.sourceId +  ' omg seeking oldu!!!');
-      //    self.player.liveTracker.seekToLiveEdge();
-      // });
-      // self.player.on('seeked', ()=> {
-      //   console.log(self.sourceId +  ' omg seeked oldu!!!');
-      //    self.player.liveTracker.seekToLiveEdge();
-      // });
       self.player.on('durationchange', () => {
-        console.log(self.sourceId + ' omg durationchange oldu!!!');
         if (seekable('error')) {
-          self.player.liveTracker.seekToLiveEdge();
+          self.seekToLiveEdge(self.player, 'durationchange');
         }
       });
     },
@@ -266,6 +275,18 @@ export default {
     },
     pause() {
       this.player.pause();
+    },
+    seekToLiveEdge(player, by) {
+      if (player === undefined || player === null) {
+        if (this.enableLog) {
+          console.log(`HlsPlayer(${this.sourceId}): player is empty for ${by}. seek to live edge will not work.`);
+        }
+        return;
+      }
+      player.liveTracker.seekToLiveEdge();
+      if (this.enableLog) {
+        console.log(`HlsPlayer(${this.sourceId}): seeked to live edge at ${new Date().toLocaleString()} by ${by}`);
+      }
     }
   },
   watch: {

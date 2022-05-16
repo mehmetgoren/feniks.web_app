@@ -4,11 +4,12 @@
          :key='stream.id' :gs-w='stream.loc.w' :gs-h='stream.loc.h'
          :gs-x='stream.loc.x' :gs-y='stream.loc.y' :gs-id='stream.id'>
       <div class='grid-stack-item-content' style='overflow: hidden !important;'>
-        <FlvPlayer v-if='stream&&stream.show&&stream.stream_type===0' :src='stream.src' :source-id='stream.id' :ref='setStreamPlayers' />
+        <FlvPlayer v-if='stream&&stream.show&&stream.stream_type===0' :src='stream.src' :source-id='stream.id'
+                   :seek-to-live-edge-internal='30' :enable-log='true' :ref='setStreamPlayers' />
         <FFmpegReaderPlayer v-if='stream&&stream.show&&stream.stream_type===1' :source-id='stream.id'
                             :ref='setStreamPlayers' />
         <HlsPlayer v-if='stream&&stream.show&&stream.stream_type===2' :src='stream.src' :source-id='stream.id'
-                   :ref='setStreamPlayers' />
+                   :seek-to-live-edge-internal='-1' :enable-log='true' :ref='setStreamPlayers' />
 
         <StreamCommandBar v-if='stream.show' :stream='stream' @full-screen='onFullScreen' @stream-stop='onStreamStop'
                           @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh'

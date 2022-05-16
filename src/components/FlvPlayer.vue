@@ -23,6 +23,16 @@ export default {
       type: String,
       default: '',
       required:true
+    },
+    seekToLiveEdgeInternal: {
+      type: Number,
+      default:30,
+      required:true
+    },
+    enableLog:{
+      type:Boolean,
+      default: false,
+      required:true
     }
   },
   data() {
@@ -63,6 +73,14 @@ export default {
 
 
     this.setupEvents(this);
+
+    if (this.seekToLiveEdgeInternal > 0){
+      const interval = this.seekToLiveEdgeInternal * 1000;
+      const self = this;
+      setInterval(() => {
+        self.seekToLiveEdge(self.player.liveTracker);
+      }, interval);
+    }
   },
   beforeUnmount() {
     if (this.player) {
@@ -71,6 +89,26 @@ export default {
     }
   },
   methods:{
+    seekToLiveEdge(liveTracker){
+      if (liveTracker.player_ == null){
+        if (this.enableLog){
+          console.log(`FlvPlayer(${this.sourceId}) seekToLiveEdge wont work since the liveTracker.player_ is null`);
+        }
+        return;
+      }
+      liveTracker.seekedBehindLive_ = false;
+      if (liveTracker.atLiveEdge()) {
+        if (this.enableLog){
+          console.log(`FlvPlayer(${this.sourceId}): atLiveEdge at ${new Date().toLocaleString()}`);
+        }
+        return;
+      }
+      liveTracker.nextSeekedFromUser_ = false;
+      liveTracker.player_.currentTime(liveTracker.liveCurrentTime() - .2);
+      if (this.enableLog){
+        console.log(`FlvPlayer(${this.sourceId}): seekToLiveEdge at ${new Date().toLocaleString()}`);
+      }
+    },
     fullScreen(){
       this.player.requestFullscreen();
     },
@@ -89,76 +127,25 @@ export default {
         const diff = new Date().getTime() - prevEvent.createdAt.getTime();
         prevEvent.createdAt = new Date();
         if (diff < 500) {
-          console.log('no call due to 500 ms limit for ' + self.sourceId + ' ' + prevEvent.opName + '. diff: ' + diff);
+          if (this.enableLog){
+            console.log(`FlvPlayer(${this.sourceId}): no call due to 500 ms limit for ${prevEvent.opName}, diff ${diff}`);
+          }
           return false;
         }
         return true;
       };
 
-      const seekToLiveEdge = (liveTracker) => {
-        liveTracker.seekedBehindLive_ = false;
-        if (liveTracker.atLiveEdge()) {
-          console.log('atLiveEdge at ' + + new Date().toLocaleString())
-          return;
-        }
-        liveTracker.nextSeekedFromUser_ = false;
-        liveTracker.player_.currentTime(liveTracker.liveCurrentTime() - .1);
-
-      }
-
       // Open it if a camera which has a bad connection needs this fix. BUt remember handler 404 HLS error. Otherwise, it stacked refreshing.
       self.player.on('error', () => {
-        console.log(self.sourceId + ' omg error oldu!!!');
-      });
-      self.player.on('waiting', () => {
-        console.log(self.sourceId + ' omg waiting oldu!!!');
-        if (seekable('waiting')) {
-           // self.player.liveTracker.trackLive_();
-          seekToLiveEdge(self.player.liveTracker);
-           console.log('seekToLiveEdge at' + new Date().toLocaleString())
+        if (seekable('error')) {
+          self.seekToLiveEdge(self.player.liveTracker);
         }
       });
-      // self.player.on('progress', ()=> {
-      //   console.log(self.sourceId +  ' omg progress oldu!!!');
-      //   if (seekable('progress')) {
-      //     // self.player.liveTracker.startTracking()
-      //   }
-      // });
-      // self.player.on('durationchange', () => {
-      //   console.log(self.sourceId + ' omg durationchange oldu!!!');
-      //   if (seekable('durationchange')) {
-      //   }
-      // });
-      // self.player.on('suspend', () => {
-      //   console.log(self.sourceId + ' omg suspend oldu!!!');
-      //   if (seekable('suspend')) {
-      //   }
-      // });
-      // self.player.on('emptied', () => {
-      //   console.log(self.sourceId + ' omg emptied oldu!!!');
-      //   if (seekable('emptied')) {
-      //   }
-      // });
-      // self.player.on('stalled', () => {
-      //   console.log(self.sourceId + ' omg stalled oldu!!!');
-      //   if (seekable('stalled')) {
-      //   }
-      // });
-      // self.player.on('seeking', ()=> {
-      //   console.log(self.sourceId +  ' omg seeking oldu!!!');
-      //   if (seekable('seeking')) {
-      //   }
-      // });
-      // self.player.on('seeked', ()=> {
-      //   console.log(self.sourceId +  ' omg seeked oldu!!!');
-      //   if (seekable('seeked')) {
-      //   }
-      // });
-      // self.player.on('loadedmetadata', ()=> {
-      //   console.log(self.sourceId +  ' omg loadedmetadata oldu!!!');
-      //   if (seekable('loadedmetadata')) {
-      //   }
-      // });
+      self.player.on('waiting', () => {
+        if (seekable('waiting')) {
+          self.seekToLiveEdge(self.player.liveTracker);
+        }
+      });
     },
   }
 };
