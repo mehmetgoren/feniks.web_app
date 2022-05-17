@@ -12,14 +12,14 @@
         </q-btn>
       </q-toolbar>
     </q-header>
-
     <q-page-container>
       <q-page padding style='background-color: whitesmoke;'>
         <div class='row'>
           <div class='col-3'>
             <q-toggle v-model='recordEnabled' disable checked-icon='check' color='purple'
                       :label='"Record " + (recordEnabled ? "On" : "Off")' />
-            <DateTimeSelect />
+            <q-space />
+            <q-date v-model='selectedDate' color='purple' mask='YYYY_MM_DD' />
           </div>
           <div class='col-9'>
             <q-table title='Records' :columns='columns'
@@ -31,7 +31,7 @@
               <template v-slot:body='props'>
                 <q-tr :props='props' @click='onRootClick(props)' style='cursor: pointer;'>
                   <q-td key='hour' auto-width>
-                    <q-toggle v-model='props.expand' size='lg' color='accent' style='float: left;' disable/>
+                    <q-toggle v-model='props.expand' size='lg' color='accent' style='float: left;' disable />
                     <div style='font-size: large;text-align: center;margin: 15px 0 0 0;'>
                       <label>{{ props.row.hour + ' : 00' }}</label>
                     </div>
@@ -39,12 +39,9 @@
                 </q-tr>
                 <q-tr v-show='props.expand' :props='props'>
                   <q-table
-                    :rows='props.row.videoFiles'
-                    :columns='innerColumns'
-                    :pagination='innerPagination'
-                    row-key='name'
-                    :selected='selected'
-                    :filter='innerFilter'>
+                    :rows='props.row.videoFiles' :columns='innerColumns'
+                    :pagination='innerPagination' row-key='name'
+                    :selected='selected' :filter='innerFilter'>
                     <template v-slot:body-cell-play='props'>
                       <q-td :props='props'>
                         <div>
@@ -66,8 +63,14 @@
                         </div>
                       </q-td>
                     </template>
+                    <template v-slot:top-left>
+                      <q-btn v-if='props.row.videoFiles.length>1' icon-right='movie_creation' label='Merge' glossy color='primary'
+                             style='margin-right: 15px;' @click='onMerge(props.row)' :disable='showMergeLoading'>
+                        <q-inner-loading :showing='showMergeLoading' />
+                      </q-btn>
+                    </template>
                     <template v-slot:top-right>
-                      <q-input borderless dense debounce='300' v-model='innerFilter' placeholder='Search'>
+                      <q-input v-if='props.row.videoFiles.length>1' borderless dense debounce='300' v-model='innerFilter' placeholder='Search'>
                         <template v-slot:append>
                           <q-icon name='search' />
                         </template>
@@ -98,7 +101,7 @@
         <div class='text-h6'>{{ selectedVideo.name }}</div>
       </q-card-section>
       <q-card-section class='q-pt-none'>
-        <VideoPlayer :src="nodeAddress + selectedVideo.path" :auto-play='true' />
+        <VideoPlayer :src='nodeAddress + selectedVideo.path' :auto-play='true' />
       </q-card-section>
     </q-card>
   </q-dialog>
@@ -106,15 +109,16 @@
 
 <script lang='ts'>
 import { useQuasar } from 'quasar';
-import { onMounted, ref, onBeforeUnmount } from 'vue';
+import { onMounted, ref, onBeforeUnmount, watch } from 'vue';
 import { VideoFile } from 'src/utils/entities';
 import { NodeService } from 'src/utils/services/node_service';
 import { WsConnection } from 'src/utils/ws/connection';
-import DateTimeSelect from 'src/components/DateTimeSelect.vue';
 import VideoPlayer from 'src/components/VideoPlayer.vue';
 import { fixArrayDates, getTodayString } from 'src/utils/utils';
 import axios from 'axios';
 import { StreamModel } from 'src/utils/models/stream_model';
+import { PublishService, SubscribeService } from 'src/utils/services/websocket_services';
+import { VideMergeResponseEvent } from 'src/utils/models/video_merge';
 
 const columns = [
   { name: 'hour', align: 'left', label: 'Hour', field: 'hour', sortable: false }
@@ -133,7 +137,6 @@ const innerColumns = [
 export default {
   name: 'SourceRecords',
   components: {
-    DateTimeSelect,
     VideoPlayer
   },
   props: {
@@ -146,8 +149,9 @@ export default {
     const $q = useQuasar();
     const recordEnabled = ref<boolean>(false);
     const nodeService = new NodeService();
-    let connStartRecord: WsConnection | null = null;
-    let connStopRecord: WsConnection | null = null;
+    const publishService = new PublishService();
+    const subscribeService = new SubscribeService();
+    let connVideoMerge: WsConnection | null = null;
     const hours = ref<Hour[]>([]);
     const showPlayer = ref<boolean>(false);
     const selectedVideo = ref<VideoFile | null>(null);
@@ -155,14 +159,17 @@ export default {
     const innerFilter = ref('');
     const stream = ref<StreamModel>(nodeService.LocalService.createEmptyStream());
     const nodeAddress = ref<string>(nodeService.LocalService.nodeAddress);
+    const selectedDate = ref<string>(getTodayString());
+    const showMergeLoading = ref<boolean>(false);
+    let prevProps: any = null;
 
-    const today = getTodayString();
+    watch(selectedDate, () => {
+      restoreList();
+      void dataBind();
+    });
 
     const dataBind = async () => {
-      stream.value = await nodeService.getStream(props.sourceId);
-      recordEnabled.value = stream.value.record_enabled;
-
-      const hourStrings = await nodeService.getRecordHours(props.sourceId, today);
+      const hourStrings = await nodeService.getRecordHours(props.sourceId, selectedDate.value);
       const _hours: Hour[] = [];
       for (const hs of hourStrings) {
         _hours.push({ sourceId: props.sourceId, hour: hs, videoFiles: [] });
@@ -171,16 +178,34 @@ export default {
     };
 
     onMounted(async () => {
+      stream.value = await nodeService.getStream(props.sourceId);
+      recordEnabled.value = stream.value.record_enabled;
+
       await dataBind();
+
+      connVideoMerge = subscribeService.subscribeVideomerge((event: MessageEvent) => {
+        try{
+          const resp: VideMergeResponseEvent = JSON.parse(event.data)
+          if (resp.result){
+            const p = prevProps;
+            restoreList();
+            dataBind().then(() => {
+              setTimeout(() => {
+                if (p != null){
+                  void onRootClick(p);
+                }
+              }, 250);
+            }).catch(console.error);
+          }
+        }finally {
+          showMergeLoading.value = false;
+        }
+      });
     });
 
     onBeforeUnmount(() => {
-      console.log('web socket connections will be closed');
-      if (connStartRecord) {
-        connStartRecord.close();
-      }
-      if (connStopRecord) {
-        connStopRecord.close();
+      if (connVideoMerge) {
+        connVideoMerge.close();
       }
     });
 
@@ -194,7 +219,6 @@ export default {
     }
 
     function onDownload(video: VideoFile) {
-      console.log('downloading: ' + video.path);
       axios({
         url: nodeAddress.value + video.path,
         method: 'GET',
@@ -206,29 +230,80 @@ export default {
     }
 
     function onDelete(video: VideoFile) {
-      nodeService.deleteRecord(video)
-        .then(() => {
-          $q.notify({
-            message: 'Video has been deleted',
-            caption: 'Video Status',
-            color: 'secondary'
-          });
-          const hour = getHour(video.hour);
-          hour.videoFiles = hour.videoFiles.filter((row: VideoFile) => row.name !== video.name);
-        }).catch(console.error);
+      $q.dialog({
+        title: 'Confirm',
+        message: 'Are you sure you want to delete this video file?',
+        cancel: true,
+        persistent: true
+      }).onOk(() => {
+        nodeService.deleteRecord(video)
+          .then(() => {
+            $q.notify({
+              message: 'Video has been deleted',
+              caption: 'Video Status',
+              color: 'secondary'
+            });
+            const hour = getHour(video.hour);
+            hour.videoFiles = hour.videoFiles.filter((row: VideoFile) => row.name !== video.name);
+          }).catch(console.error);
+      });
     }
 
     const getHour = (hourStr: string): Hour => {
       return hours.value.filter((row: Hour) => row.hour === hourStr)[0];
     };
-    let prevProbs: any = null;
+
+    function restoreList(){
+      if (prevProps != null) {
+        prevProps.expand = false;
+        prevProps = null;
+      }
+
+      for (const h of hours.value) {
+        h.videoFiles = [];
+      }
+    }
+
+    const onRootClick = async (props: any) => {
+      if (prevProps != null && prevProps.row.hour == props.row.hour) {
+        props.expand = !props.expand;
+        return;
+      }
+      restoreList();
+      prevProps = props;
+      props.expand = !props.expand;
+      const hourStr = props.row.hour;
+      const hour = getHour(hourStr);
+      if (props.expand) {
+        const videos = await nodeService.getRecords(props.row.sourceId, selectedDate.value, hourStr);
+        fixArrayDates(videos, 'created_at', 'modified_at');
+        hour.videoFiles = videos;
+      } else {
+        hour.videoFiles = [];
+      }
+    };
+
+    const onMerge = (row: Hour)=>{
+      $q.dialog({
+        title: 'Confirm',
+        message: `Are you sure you want to merge whole video files for ${row.hour}:00?`,
+        cancel: true,
+        persistent: true
+      }).onOk(() => {
+        const splits = selectedDate.value.split('_')
+        const values: string[] = [];
+        for (const split of splits){
+          values.push(parseInt(split).toString());
+        }
+        values.push(row.hour);
+        const fixedSelectedDate = values.join('_');
+        void publishService.publishVideoMerge({id:props.sourceId, date_str: fixedSelectedDate});
+        showMergeLoading.value = true;
+      });
+    };
+
     return {
-      hours, nodeAddress,
-      selected,
-      lastIndex,
-      tableRef,
-      filter,
-      innerFilter,
+      hours, nodeAddress, selected, lastIndex, tableRef, filter, innerFilter, selectedDate, onMerge,showMergeLoading,
 
       columns,
       pagination: {
@@ -243,41 +318,12 @@ export default {
         rowsPerPage: 10
       },
 
-      recordEnabled,
-      onPlay,
-      onDownload,
-      onDelete,
-      showPlayer,
-      selectedVideo,
-      stream,
+      recordEnabled, onPlay, onDownload, onDelete, showPlayer, selectedVideo, stream,
       onRefresh() {
+        restoreList();
         void dataBind();
       },
-
-      async onRootClick(props: any) {
-        if (prevProbs != null && prevProbs.row.hour == props.row.hour) {
-          props.expand = !props.expand;
-          return;
-        }
-        if (prevProbs != null) {
-          prevProbs.expand = false;
-        }
-
-        for (const h of hours.value) {
-          h.videoFiles = [];
-        }prevProbs = props;
-
-        props.expand = !props.expand;
-        const hourStr = props.row.hour;
-        const hour = getHour(hourStr);
-        if (props.expand) {
-          const videos = await nodeService.getRecords(props.row.sourceId, today, hourStr);
-          fixArrayDates(videos, 'created_at', 'modified_at');
-          hour.videoFiles = videos;
-        } else {
-          hour.videoFiles = [];
-        }
-      }
+      onRootClick
     };
   }
 };

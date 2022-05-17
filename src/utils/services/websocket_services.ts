@@ -4,6 +4,7 @@ import { api } from 'boot/axios';
 import { BaseService } from 'src/utils/services/base_service';
 import { WsConnection } from 'src/utils/ws/connection';
 import { OnvifEvent, OnvifAction, OnvifParams } from 'src/utils/models/onvif_models';
+import { VideMergeRequestEvent } from 'src/utils/models/video_merge';
 
 export class PublishService extends BaseService {
   private getPublishEndpointRoot(): string {
@@ -36,6 +37,11 @@ export class PublishService extends BaseService {
     const par: OnvifEvent = { type: type, base64_model: btoa(JSON.stringify(op)) };
     await api.post(address, par);
   }
+
+  public async publishVideoMerge(event: VideMergeRequestEvent){
+    const address = `${this.getPublishEndpointRoot()}/videomerge`;
+    await api.post(address, event);
+  }
 }
 
 export class SubscribeService extends BaseService {
@@ -57,5 +63,9 @@ export class SubscribeService extends BaseService {
 
   public subscribeOnvif(onMessage: ((this: WebSocket, ev: MessageEvent) => any)): WsConnection {
     return new WsConnection('wsonvif', onMessage);
+  }
+
+  public subscribeVideomerge(onMessage: ((this: WebSocket, ev: MessageEvent) => any)): WsConnection {
+    return new WsConnection('wsvideomerge', onMessage);
   }
 }

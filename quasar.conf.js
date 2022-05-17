@@ -124,7 +124,7 @@ module.exports = configure(function (ctx) {
         'Notify',
         'Loading',
         // 'BottomSheet',
-        // 'Dialog',
+        'Dialog',
       ]
     },
 
