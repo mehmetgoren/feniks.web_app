@@ -6,6 +6,7 @@
     <q-icon v-if='stream.record' name='fiber_manual_record' size='sm' color='red' class='blink_me'>
       <label style='font-size: x-small; color: black;'>REC</label>
     </q-icon>
+    <q-toggle :label='`Booster ${(enableBooster ? "Enabled" : "Disabled")} `' :model-value='enableBooster' @update:model-value='onBoosterChanged' />
   </div>
   <q-separator style='margin-bottom: 5px;'/>
   <q-btn-group>
@@ -86,7 +87,7 @@ export default {
     AiSettings,
     OnvifSettings
   },
-  emits: ['full-screen', 'stream-stop', 'connect', 'take-screenshot', 'refresh', 'deleted', 'restart', 'close'],
+  emits: ['full-screen', 'stream-stop', 'connect', 'take-screenshot', 'refresh', 'deleted', 'restart', 'close', 'booster-changed'],
   props: {
     stream: {
       type: Object, // type is StreamModel
@@ -99,6 +100,11 @@ export default {
     takeScreenshotLoading:{
       type:Boolean,
       default: false
+    },
+    enableBooster: {
+      type: Boolean,
+      default: false,
+      required: true
     }
   },
   //@ts-ignore
@@ -168,7 +174,10 @@ export default {
       },
       showRecord,
       onRecordClick,
-      streamType
+      streamType,
+      onBoosterChanged(newValue: boolean){
+        emit('booster-changed', props.stream, newValue);
+      }
     };
   }
 };

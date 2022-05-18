@@ -1,20 +1,24 @@
 <template>
   <div class='grid-stack' v-if='open' v-show='!showLoading'>
-    <div class='newWidget grid-stack-item ui-draggable ui-resizable ui-resizable-autohide' v-for='stream in streamList'
+    <div class='newWidget grid-stack-item ui-draggable ui-resizable ui-resizable-autohide'
+         v-for='stream in streamList'
          :key='stream.id' :gs-w='stream.loc.w' :gs-h='stream.loc.h'
          :gs-x='stream.loc.x' :gs-y='stream.loc.y' :gs-id='stream.id'>
       <div class='grid-stack-item-content' style='overflow: hidden !important;'>
         <FlvPlayer v-if='stream&&stream.show&&stream.stream_type===0' :src='stream.src' :source-id='stream.id'
-                   :seek-to-live-edge-internal='30' :enable-log='true' :ref='setStreamPlayers' />
+                   :enable-log='true' :ref='setStreamPlayers'
+                   :enable-booster='stream.boosterEnabled' :seek-to-live-edge-internal='30' />
         <FFmpegReaderPlayer v-if='stream&&stream.show&&stream.stream_type===1' :source-id='stream.id'
                             :ref='setStreamPlayers' />
         <HlsPlayer v-if='stream&&stream.show&&stream.stream_type===2' :src='stream.src' :source-id='stream.id'
-                   :seek-to-live-edge-internal='-1' :enable-log='true' :ref='setStreamPlayers' />
+                   :ref='setStreamPlayers' :enable-log='true'
+                   :enable-booster='stream.boosterEnabled' :seek-to-live-edge-internal='30' />
 
         <StreamCommandBar v-if='stream.show' :stream='stream' @full-screen='onFullScreen' @stream-stop='onStreamStop'
                           @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh'
                           @deleted='onSourceDeleted' @restart='onRestart' @close='onStreamClose'
-                          :take-screenshot-loading='stream.takeScreenshotLoading' />
+                          :take-screenshot-loading='stream.takeScreenshotLoading'
+                          :enable-booster='stream.boosterEnabled' @booster-changed='onBoosterChanged' />
 
         <q-inner-loading v-if='!stream.show' :showing='true' label='Please wait...' label-class='text-cyan' />
       </div>
@@ -134,6 +138,7 @@ export default {
         stream.show = true;
         stream.loc = getGsLayout(stream.id);
         stream.takeScreenshotLoading = false;
+        stream.boosterEnabled = streamModel.stream_type == 0;
         streamList.push(stream);
         open.value = false;
         if (isStartStream) {
@@ -314,6 +319,10 @@ export default {
       removeSource(stream);
     }
 
+    function onBoosterChanged(stream: StreamExtModel, boosterEnabled: boolean) {
+      stream.boosterEnabled = boosterEnabled;
+    }
+
     //events ends
 
     return {
@@ -328,8 +337,8 @@ export default {
       onSourceDeleted,
       onRestart,
       onStreamClose,
-      getGsLayout,
-      showLoading
+      showLoading,
+      onBoosterChanged
     };
   }
 };
@@ -341,6 +350,7 @@ interface StreamExtModel extends StreamModel {
   size?: string | null;
   loc: GsLocation;
   takeScreenshotLoading: boolean;
+  boosterEnabled: boolean;
 }
 </script>
 <style scoped>

@@ -98,6 +98,11 @@ export default {
       type: Boolean,
       default: false,
       required: true
+    },
+    enableBooster: {
+      type: Boolean,
+      default: false,
+      required: true
     }
   },
   data() {
@@ -195,7 +200,9 @@ export default {
       if (this.seekToLiveEdgeInternal > 0) {
         const interval = this.seekToLiveEdgeInternal * 1000;
         setInterval(() => {
-          this.seekToLiveEdge(this.player, 'interval');
+          if (this.enableBooster){
+            this.seekToLiveEdge(this.player, 'interval');
+          }
         }, interval);
       }
     },

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <video ref='videoPlayer' id='playerOne' class='video-js' controls preload="auto" >
+    <video ref='videoPlayer' id='playerOne' class='video-js' controls preload='auto'>
       <source :src='src' type='video/x-flv'>
     </video>
   </div>
@@ -22,17 +22,22 @@ export default {
     sourceId: {
       type: String,
       default: '',
-      required:true
+      required: true
     },
     seekToLiveEdgeInternal: {
       type: Number,
-      default:30,
-      required:true
+      default: 30,
+      required: true
     },
-    enableLog:{
-      type:Boolean,
+    enableLog: {
+      type: Boolean,
       default: false,
-      required:true
+      required: true
+    },
+    enableBooster: {
+      type: Boolean,
+      default: false,
+      required: true
     }
   },
   data() {
@@ -69,16 +74,19 @@ export default {
 
     this.player = videojs(this.$refs.videoPlayer, options);
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    this.player.player_.handleTechClick_ = function() {};
+    this.player.player_.handleTechClick_ = function() {
+    };
 
 
     this.setupEvents(this);
 
-    if (this.seekToLiveEdgeInternal > 0){
+    if (this.seekToLiveEdgeInternal > 0) {
       const interval = this.seekToLiveEdgeInternal * 1000;
       const self = this;
       setInterval(() => {
-        self.seekToLiveEdge(self.player.liveTracker);
+        if (this.enableBooster){
+          self.seekToLiveEdge(self.player.liveTracker);
+        }
       }, interval);
     }
   },
@@ -88,46 +96,46 @@ export default {
       this.player.dispose();
     }
   },
-  methods:{
-    seekToLiveEdge(liveTracker){
-      if (liveTracker.player_ == null){
-        if (this.enableLog){
+  methods: {
+    seekToLiveEdge(liveTracker) {
+      if (liveTracker.player_ == null) {
+        if (this.enableLog) {
           console.log(`FlvPlayer(${this.sourceId}) seekToLiveEdge wont work since the liveTracker.player_ is null`);
         }
         return;
       }
       liveTracker.seekedBehindLive_ = false;
       if (liveTracker.atLiveEdge()) {
-        if (this.enableLog){
+        if (this.enableLog) {
           console.log(`FlvPlayer(${this.sourceId}): atLiveEdge at ${new Date().toLocaleString()}`);
         }
         return;
       }
       liveTracker.nextSeekedFromUser_ = false;
       liveTracker.player_.currentTime(liveTracker.liveCurrentTime() - .2);
-      if (this.enableLog){
+      if (this.enableLog) {
         console.log(`FlvPlayer(${this.sourceId}): seekToLiveEdge at ${new Date().toLocaleString()}`);
       }
     },
-    fullScreen(){
+    fullScreen() {
       this.player.requestFullscreen();
     },
-    pause(){
+    pause() {
       this.player.pause();
     },
-    setupEvents(self){
+    setupEvents(self) {
       const prevEvents = {};
 
       const seekable = (opName) => {
         let prevEvent = prevEvents[opName];
-        if (!prevEvent){
+        if (!prevEvent) {
           prevEvent = { opName: opName, createdAt: new Date() };
           prevEvents[opName] = prevEvent;
         }
         const diff = new Date().getTime() - prevEvent.createdAt.getTime();
         prevEvent.createdAt = new Date();
         if (diff < 500) {
-          if (this.enableLog){
+          if (this.enableLog) {
             console.log(`FlvPlayer(${this.sourceId}): no call due to 500 ms limit for ${prevEvent.opName}, diff ${diff}`);
           }
           return false;
@@ -146,7 +154,7 @@ export default {
           self.seekToLiveEdge(self.player.liveTracker);
         }
       });
-    },
+    }
   }
 };
 </script>
