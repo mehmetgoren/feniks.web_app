@@ -6,35 +6,14 @@
         <div class='text-subtitle2'>Add a Node</div>
       </q-card-section>
       <q-card-actions align='left'>
-        <q-form style='max-width: 500px' id='frm1'
-                v-if='selected'
-                @submit='onSubmit' @reset='onReset'
-                class='q-pa-xs'
-        >
-          <q-input
-            v-model='selected.node_address'
-            filled
-            :dense='dense'
-            label='Node URL *'
-            lazy-rules
-            :rules="[ val => val && val.length > 0 || 'Please enter Node URL address']"
-          />
+        <q-form style='max-width: 500px' id='frm1' v-if='selected' @submit='onSubmit' @reset='onReset' class='q-pa-xs'>
+          <q-input v-model='selected.node_address' filled :dense='dense' label='Node URL *' lazy-rules
+            :rules="[ val => val && val.length > 0 || 'Please enter Node URL address']" />
 
-          <q-input
-            :dense='dense'
-            filled
-            v-model='selected.name'
-            label='Node Name *'
-            lazy-rules
-            :rules="[ val => val && val.length > 0 || 'Please enter name']"
-          />
+          <q-input :dense='dense' filled v-model='selected.name' label='Node Name *' lazy-rules
+            :rules="[ val => val && val.length > 0 || 'Please enter name']" />
 
-          <q-input
-            :dense='dense'
-            filled
-            label='Node Description *'
-            v-model='selected.description'
-          />
+          <q-input :dense='dense' filled label='Node Description *' v-model='selected.description' />
 
           <q-toggle v-model='selected.enabled' label='Enabled' />
 
@@ -47,15 +26,8 @@
       </q-card-actions>
     </q-card>
     <q-space style='height: 10px;' />
-    <q-table
-      title='Nodes'
-      :rows='nodes'
-      :columns='columns'
-      row-key='node_address'
-      :filter='filter'
-      selection='single'
-      v-model:selected='selectionList'
-    >
+    <q-table title='Nodes' :rows='nodes' :columns='columns' row-key='node_address'
+      :filter='filter' selection='single' v-model:selected='selectionList'>
       <template v-slot:top-right>
         <q-input borderless dense debounce='300' v-model='filter' placeholder='Search'>
           <template v-slot:append>

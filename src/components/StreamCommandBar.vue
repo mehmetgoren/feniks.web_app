@@ -6,9 +6,10 @@
     <q-icon v-if='stream.record' name='fiber_manual_record' size='sm' color='red' class='blink_me'>
       <label style='font-size: x-small; color: black;'>REC</label>
     </q-icon>
-    <q-toggle :label='`Booster ${(enableBooster ? "Enabled" : "Disabled")} `' :model-value='enableBooster' @update:model-value='onBoosterChanged' />
+    <q-toggle v-if='showBooster' :label='`Booster ${(enableBooster ? "Enabled" : "Disabled")} `'
+              :model-value='enableBooster' @update:model-value='onBoosterChanged' />
   </div>
-  <q-separator style='margin-bottom: 5px;'/>
+  <q-separator style='margin-bottom: 5px;' />
   <q-btn-group>
     <q-btn color='cyan' rounded glossy icon-right='settings' @click='onSettingsClick'>
       <q-tooltip class='bg-cyan'>Settings</q-tooltip>
@@ -36,8 +37,8 @@
     <q-btn v-if='showFullScreenButton' color='purple' rounded glossy icon='cast' @click='onFullScreenClick'>
       <q-tooltip class='bg-accent'>Fullscreen</q-tooltip>
     </q-btn>
-    <q-btn color='amber' rounded glossy icon='psychology' @click='onAiClick'>
-      <q-tooltip class='bg-amber'>AI</q-tooltip>
+    <q-btn color='orange' rounded glossy icon='psychology' @click='onAiClick'>
+      <q-tooltip class='bg-orange'>AI</q-tooltip>
     </q-btn>
     <q-btn color='brown-5' rounded glossy icon='settings_ethernet' @click='onOnvifClick'>
       <q-tooltip class='bg-brown-5'>ONVIF</q-tooltip>
@@ -46,7 +47,7 @@
       <q-tooltip class='bg-deep-orange'>Close</q-tooltip>
     </q-btn>
   </q-btn-group>
-  <q-separator style='margin-top: 5px;'/>
+  <q-separator style='margin-top: 5px;' />
 
   <q-dialog v-model='showSettings' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
     <SourceSettings :source-id='stream.id' @on-save='onSettingsSave' @on-delete='onSettingsDelete' />
@@ -54,10 +55,6 @@
 
   <q-dialog v-model='showRecord' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
     <SourceRecords :source-id='stream.id' />
-  </q-dialog>
-
-  <q-dialog v-model='showAiSettings' full-width transition-show='flip-down' transition-hide='flip-up'>
-    <AiSettings :source-id='stream.id' />
   </q-dialog>
 
   <q-dialog v-model='showOnvif' full-width transition-show='flip-down' transition-hide='flip-up'>
@@ -70,7 +67,6 @@
 import { ref, computed } from 'vue';
 import SourceSettings from 'components/SourceSettings.vue';
 import SourceRecords from 'components/SourceRecords.vue';
-import AiSettings from 'components/AiSettings.vue';
 import OnvifSettings from 'components/OnvifSettings.vue';
 import { PublishService } from 'src/utils/services/websocket_services';
 import { NodeService } from 'src/utils/services/node_service';
@@ -78,13 +74,14 @@ import { SourceModel } from 'src/utils/models/source_model';
 import { StreamModel } from 'src/utils/models/stream_model';
 import { LocalService, SelectOption } from 'src/utils/services/local_service';
 import { List } from 'linqts';
+import { useStore } from 'src/store';
+import { useRouter } from 'vue-router';
 
 export default {
   name: 'StreamCommandBar',
   components: {
     SourceSettings,
     SourceRecords,
-    AiSettings,
     OnvifSettings
   },
   emits: ['full-screen', 'stream-stop', 'connect', 'take-screenshot', 'refresh', 'deleted', 'restart', 'close', 'booster-changed'],
@@ -93,13 +90,18 @@ export default {
       type: Object, // type is StreamModel
       required: true
     },
-    showFullScreenButton:{
+    showFullScreenButton: {
       type: Boolean,
-      default:false
-    },
-    takeScreenshotLoading:{
-      type:Boolean,
       default: false
+    },
+    takeScreenshotLoading: {
+      type: Boolean,
+      default: false
+    },
+    showBooster: {
+      type: Boolean,
+      default: false,
+      required: true
     },
     enableBooster: {
       type: Boolean,
@@ -109,6 +111,8 @@ export default {
   },
   //@ts-ignore
   setup(props: any, { emit }) {
+    const router = useRouter();
+    const $store = useStore();
     const showSettings = ref<boolean>(false);
     const localService = new LocalService();
     const streamType = computed(() => {
@@ -122,9 +126,16 @@ export default {
     const onRecordClick = () => {
       showRecord.value = true;
     };
-    const showAiSettings = ref<boolean>(false);
+
     const onAiClick = () => {
-      showAiSettings.value = true;
+      const tab = nodeService.LocalService.getLastValidNode();
+      if (tab == null) {
+        return;
+      }
+      $store.commit('settings/aiSettingsClicked');
+      $store.commit('settings/aiSettingsSourceId', props.stream.id);
+      const route = 'node?n=' + tab.node_address + '&x=ai';
+      void router.push(route);
     };
     const showOnvif = ref<boolean>(false);
 
@@ -162,20 +173,19 @@ export default {
       onSettingsClick() {
         showSettings.value = true;
       },
-      showAiSettings,
       onAiClick,
       showOnvif,
-      onOnvifClick(){
+      onOnvifClick() {
         showOnvif.value = true;
       },
-      onClose(){
+      onClose() {
         emit('close', props.stream);
         showSettings.value = false;
       },
       showRecord,
       onRecordClick,
       streamType,
-      onBoosterChanged(newValue: boolean){
+      onBoosterChanged(newValue: boolean) {
         emit('booster-changed', props.stream, newValue);
       }
     };
@@ -186,11 +196,13 @@ export default {
 <style scoped>
 .blink_me {
   animation: blinker 1s linear infinite;
-  color:red;
-  font-size:medium;
+  color: red;
+  font-size: medium;
 }
 
 @keyframes blinker {
-  50% { opacity: 0; }
+  50% {
+    opacity: 0;
+  }
 }
 </style>

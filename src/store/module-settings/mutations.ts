@@ -65,6 +65,12 @@ const mutation: MutationTree<ISettingsState> = {
   },
   notifySourceStreamStatusChanged(state: ISettingsState){
     state.sourceStreamStatusChanged = !state.sourceStreamStatusChanged;
+  },
+  aiSettingsClicked(state: ISettingsState){
+    state.aiSettingsClicked = !state.aiSettingsClicked;
+  },
+  aiSettingsSourceId(state: ISettingsState, sourceId: string){
+    state.aiSettingsSourceId = sourceId;
   }
 };
 

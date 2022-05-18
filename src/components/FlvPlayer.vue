@@ -47,7 +47,8 @@ export default {
   data() {
     return {
       player: null,
-      prevEvents:{}
+      prevEvents:{},
+      setIntervalInstance: null
     };
   },
   mounted() {
@@ -96,7 +97,7 @@ export default {
       }
       setTimeout(()=>{
         const interval = self.seekToLiveEdgeInternal * 1000;
-        setInterval(() => {
+        self.setIntervalInstance = setInterval(() => {
           if (self.enableBooster){
             if(self.seekable('waiting')){
               self.seekToLiveEdge(self.player.liveTracker, 'interval');
@@ -110,6 +111,15 @@ export default {
     if (this.player) {
       this.player.liveTracker.dispose();
       this.player.dispose();
+      if (this.enableLog){
+        console.log(`FlvPlayer(${this.sourceId}): the player has been disposed at ${new Date().toLocaleString()}`);
+      }
+    }
+    if (this.setIntervalInstance){
+      clearInterval(this.setIntervalInstance);
+      if (this.enableLog){
+        console.log(`FlvPlayer(${this.sourceId}): the interval has been cleared at ${new Date().toLocaleString()}`);
+      }
     }
   },
   methods: {

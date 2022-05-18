@@ -114,6 +114,7 @@ export default {
       player: null,
       reset: true,
       prevEvents:{},
+      setIntervalInstance: null,
       options: {
         autoplay: true,
         muted: true,
@@ -142,7 +143,7 @@ export default {
         const self = this;
         setTimeout(() => {
           const interval = self.seekToLiveEdgeInternal * 1000;
-          setInterval(() => {
+          self.setIntervalInstance = setInterval(() => {
             if (self.enableBooster) {
               if(self.seekable('waiting')) {
                 self.seekToLiveEdge(self.player, 'interval');
@@ -157,7 +158,13 @@ export default {
     if (this.player) {
       this.dispose();
       if (this.enableLog) {
-        console.info(`HlsPlayer(${this.sourceId}): Stream Player was destroyed`);
+        console.log(`HlsPlayer(${this.sourceId}): the player has been disposed at ${new Date().toLocaleString()}`);
+      }
+    }
+    if (this.setIntervalInstance){
+      clearInterval(this.setIntervalInstance);
+      if (this.enableLog){
+        console.log(`HlsPlayer(${this.sourceId}): the interval has been cleared at ${new Date().toLocaleString()}`);
       }
     }
   },

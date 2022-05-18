@@ -349,11 +349,6 @@ export default {
       byDate.value = 'Any time';
     }
 
-    function changeDate(option: any) {
-      byDate.value = option;
-      showDateOptions.value = false;
-    }
-
     function toggleLeftDrawer() {
       leftDrawerOpen.value = !leftDrawerOpen.value;
     }
@@ -383,7 +378,6 @@ export default {
       byDate,
       menus,
       onClear,
-      changeDate,
       toggleLeftDrawer,
       tabs,
       onTabClick,

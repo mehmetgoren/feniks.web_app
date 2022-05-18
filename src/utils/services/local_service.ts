@@ -32,7 +32,7 @@ export class LocalService {
   }
 
   get nodeIP(): string {
-    const node = LocalService.getLastValidNode();
+    const node = this.getLastValidNode();
     if (node) {
       return node.node_address;
     }
@@ -51,7 +51,7 @@ export class LocalService {
     return `${this.nodeHttpProtocol}://${this.nodeIP}:${this.nodePort}/${route}`;
   }
 
-  private static getLastValidNode(): Node | null{
+  public getLastValidNode(): Node | null{
     const json = localStorage.getItem('lastValidNode');
     if (json) {
       return JSON.parse(json);

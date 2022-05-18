@@ -18,6 +18,7 @@
                           @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh'
                           @deleted='onSourceDeleted' @restart='onRestart' @close='onStreamClose'
                           :take-screenshot-loading='stream.takeScreenshotLoading'
+                          :show-booster='stream.stream_type!==1'
                           :enable-booster='stream.boosterEnabled' @booster-changed='onBoosterChanged' />
 
         <q-inner-loading v-if='!stream.show' :showing='true' label='Please wait...' label-class='text-cyan' />

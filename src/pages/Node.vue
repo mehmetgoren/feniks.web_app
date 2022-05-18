@@ -2,6 +2,7 @@
   <div class='q-pa-sm'>
     <NodeConfig v-if='selected===0' />
     <LiveStreamGallery v-if='selected===1' />
+    <AiSettings v-if='selected===2' />
   </div>
   <q-dialog v-model='showAddSource' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
     <SourceSettings @on-save='onSourceSettingsSave' />
@@ -13,6 +14,7 @@
 import NodeConfig from 'components/NodeConfig.vue';
 import LiveStreamGallery from 'components/LiveStreamGallery.vue';
 import SourceSettings from 'components/SourceSettings.vue';
+import AiSettings from 'components/AiSettings.vue';
 import { computed, ref, watch } from 'vue';
 import { useStore } from 'src/store';
 import { parseQs } from 'src/utils/utils';
@@ -20,12 +22,13 @@ import { MenuLink } from 'src/store/module-settings/state';
 
 export default {
   name: 'Node',
-  components: { NodeConfig, LiveStreamGallery, SourceSettings  },
+  components: { NodeConfig, LiveStreamGallery, SourceSettings, AiSettings  },
   setup() {
     const $store = useStore();
     const activeTab = computed(() => $store.getters['settings/activeTab']);//active node ip
     const activeLeftMenu = computed(() => $store.getters['settings/activeLeftMenu']);//active node ip
     const addSourceClicked = computed(() => $store.getters['settings/addSourceClicked']);
+    const aiSettingsClicked = computed(() => $store.getters['settings/aiSettingsClicked']);
     const selected = ref<number>(1);
     const showAddSource = ref<boolean>(false);
 
@@ -35,6 +38,10 @@ export default {
 
     watch(addSourceClicked, () => {
       showAddSource.value = true;
+    });
+
+    watch(aiSettingsClicked, ()  => {
+      selected.value = 2;
     });
 
     watch(activeLeftMenu, (newValue: MenuLink) => {

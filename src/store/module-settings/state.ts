@@ -28,6 +28,8 @@ export interface ISettingsState {
   sourceLoading: LoadingInfo;
   addSourceClicked: boolean;
   sourceStreamStatusChanged: boolean;
+  aiSettingsClicked: boolean;
+  aiSettingsSourceId: string;
 }
 
 export interface LoadingInfo{
@@ -60,7 +62,9 @@ function state(): ISettingsState {
     activeLeftMenu:null,
     sourceLoading: { id:'', loading:false },
     addSourceClicked:false,
-    sourceStreamStatusChanged: false
+    sourceStreamStatusChanged: false,
+    aiSettingsClicked: false,
+    aiSettingsSourceId: ''
   };
 }
 
