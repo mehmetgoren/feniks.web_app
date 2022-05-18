@@ -1,18 +1,18 @@
 <template>
   <div class='grid-stack' v-if='open' v-show='!showLoading'>
     <div class='newWidget grid-stack-item ui-draggable ui-resizable ui-resizable-autohide'
-         v-for='stream in streamList'
+         v-for='(stream, index) in streamList'
          :key='stream.id' :gs-w='stream.loc.w' :gs-h='stream.loc.h'
          :gs-x='stream.loc.x' :gs-y='stream.loc.y' :gs-id='stream.id'>
       <div class='grid-stack-item-content' style='overflow: hidden !important;'>
         <FlvPlayer v-if='stream&&stream.show&&stream.stream_type===0' :src='stream.src' :source-id='stream.id'
                    :enable-log='true' :ref='setStreamPlayers'
-                   :enable-booster='stream.boosterEnabled' :seek-to-live-edge-internal='30' />
+                   :enable-booster='stream.boosterEnabled' :seek-to-live-edge-internal='30' :gallery-index='index'/>
         <FFmpegReaderPlayer v-if='stream&&stream.show&&stream.stream_type===1' :source-id='stream.id'
                             :ref='setStreamPlayers' />
         <HlsPlayer v-if='stream&&stream.show&&stream.stream_type===2' :src='stream.src' :source-id='stream.id'
                    :ref='setStreamPlayers' :enable-log='true'
-                   :enable-booster='stream.boosterEnabled' :seek-to-live-edge-internal='30' />
+                   :enable-booster='stream.boosterEnabled' :seek-to-live-edge-internal='30' :gallery-index='index'/>
 
         <StreamCommandBar v-if='stream.show' :stream='stream' @full-screen='onFullScreen' @stream-stop='onStreamStop'
                           @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh'
@@ -32,7 +32,7 @@
 <script lang='ts'>
 import {
   onMounted, reactive, ref, nextTick,
-  onBeforeUpdate, onUpdated, onBeforeUnmount
+  onBeforeUpdate, onBeforeUnmount
 } from 'vue';
 import { StreamModel } from 'src/utils/models/stream_model';
 import { EditorImageResponseModel } from 'src/utils/entities';
@@ -99,9 +99,6 @@ export default {
       void publishService.publishStopStream(<any>stream);
       $store.commit('settings/notifySourceStreamStatusChanged');
     };
-    onUpdated(() => {
-      console.log(streamPlayers);
-    });
     const streamList = reactive<Array<StreamExtModel>>([]);
     //
 

@@ -89,26 +89,31 @@ export default {
       default: '',
       required: true
     },
-    seekToLiveEdgeInternal: {
-      type: Number,
-      default: 30,
-      required: true
-    },
     enableLog: {
       type: Boolean,
       default: false,
+      required: true
+    },
+    seekToLiveEdgeInternal: {
+      type: Number,
+      default: 30,
       required: true
     },
     enableBooster: {
       type: Boolean,
       default: false,
       required: true
+    },
+    galleryIndex: {
+      type: Number,
+      default: 0
     }
   },
   data() {
     return {
       player: null,
       reset: true,
+      prevEvents:{},
       options: {
         autoplay: true,
         muted: true,
@@ -125,6 +130,27 @@ export default {
     if (!this.player) {
       this.options.sources[0].src = this.src;
       this.initialize();
+
+      if (this.seekToLiveEdgeInternal > 0) {
+        let index = this.galleryIndex;
+        if (index === undefined || index === null) {
+          index = 0;
+        }
+        if (this.enableLog) {
+          console.log(`HlsPlayer(${this.sourceId}): index is ${index} and enable booster is: ${this.enableBooster}`);
+        }
+        const self = this;
+        setTimeout(() => {
+          const interval = self.seekToLiveEdgeInternal * 1000;
+          setInterval(() => {
+            if (self.enableBooster) {
+              if(self.seekable('waiting')) {
+                self.seekToLiveEdge(self.player, 'interval');
+              }
+            }
+          }, interval);
+        }, index * 2000);
+      }
     }
   },
   beforeUnmount() {
@@ -196,63 +222,52 @@ export default {
       };
 
       this.setupEvents(this);
+    },
 
-      if (this.seekToLiveEdgeInternal > 0) {
-        const interval = this.seekToLiveEdgeInternal * 1000;
-        setInterval(() => {
-          if (this.enableBooster){
-            this.seekToLiveEdge(this.player, 'interval');
-          }
-        }, interval);
+    seekable(opName){
+      let prevEvent = this.prevEvents[opName];
+      if (!prevEvent) {
+        prevEvent = { opName: opName, createdAt: new Date() };
+        this.prevEvents[opName] = prevEvent;
       }
+      const diff = new Date().getTime() - prevEvent.createdAt.getTime();
+      prevEvent.createdAt = new Date();
+      if (diff < 50) {
+        if (this.enableLog) {
+          console.log(`HlsPlayer(${this.sourceId}): no call due to 50 ms limit for ${prevEvent.opName}. diff: ${diff}`);
+        }
+        return false;
+      }
+      return true;
     },
 
     setupEvents(self) {
-      const prevEvents = {};
-
-      const seekable = (opName) => {
-        let prevEvent = prevEvents[opName];
-        if (!prevEvent) {
-          prevEvent = { opName: opName, createdAt: new Date() };
-          prevEvents[opName] = prevEvent;
-        }
-        const diff = new Date().getTime() - prevEvent.createdAt.getTime();
-        prevEvent.createdAt = new Date();
-        if (diff < 50) {
-          if (this.enableLog) {
-            console.log(`HlsPlayer(${this.sourceId}): no call due to 50 ms limit for ${prevEvent.opName}. diff: ${diff}`);
-          }
-          return false;
-        }
-        return true;
-      };
-
       // Open it if a camera which has a bad connection needs this fix. BUt remember handler 404 HLS error. Otherwise, it stacked refreshing.
       self.player.on('error', () => {
         self.seekToLiveEdge(self.player, 'error');
       });
       self.player.on('waiting', () => {
-        if (seekable('waiting')) {
+        if (self.seekable('waiting')) {
           self.seekToLiveEdge(self.player, 'waiting');
         }
       });
       self.player.on('suspend', () => {
-        if (seekable('suspend')) {
+        if (self.seekable('suspend')) {
           self.seekToLiveEdge(self.player, 'suspend');
         }
       });
       self.player.on('emptied', () => {
-        if (seekable('emptied')) {
+        if (self.seekable('emptied')) {
           self.seekToLiveEdge(self.player, 'emptied');
         }
       });
       self.player.on('stalled', () => {
-        if (seekable('stalled')) {
+        if (self.seekable('stalled')) {
           self.seekToLiveEdge(self.player, 'stalled');
         }
       });
       self.player.on('durationchange', () => {
-        if (seekable('error')) {
+        if (self.seekable('error')) {
           self.seekToLiveEdge(self.player, 'durationchange');
         }
       });

@@ -24,25 +24,30 @@ export default {
       default: '',
       required: true
     },
-    seekToLiveEdgeInternal: {
-      type: Number,
-      default: 30,
-      required: true
-    },
     enableLog: {
       type: Boolean,
       default: false,
+      required: true
+    },
+    seekToLiveEdgeInternal: {
+      type: Number,
+      default: 30,
       required: true
     },
     enableBooster: {
       type: Boolean,
       default: false,
       required: true
+    },
+    galleryIndex:{
+      type:Number,
+      default:0
     }
   },
   data() {
     return {
-      player: null
+      player: null,
+      prevEvents:{}
     };
   },
   mounted() {
@@ -81,13 +86,24 @@ export default {
     this.setupEvents(this);
 
     if (this.seekToLiveEdgeInternal > 0) {
-      const interval = this.seekToLiveEdgeInternal * 1000;
       const self = this;
-      setInterval(() => {
-        if (this.enableBooster){
-          self.seekToLiveEdge(self.player.liveTracker);
-        }
-      }, interval);
+      let index = this.galleryIndex;
+      if (index === undefined || index === null){
+        index = 0;
+      }
+      if (this.enableLog){
+        console.log(`FlvPlayer(${this.sourceId}): index is ${index} and enable booster is: ${this.enableBooster}`);
+      }
+      setTimeout(()=>{
+        const interval = self.seekToLiveEdgeInternal * 1000;
+        setInterval(() => {
+          if (self.enableBooster){
+            if(self.seekable('waiting')){
+              self.seekToLiveEdge(self.player.liveTracker, 'interval');
+            }
+          }
+        }, interval);
+      }, index*2000);
     }
   },
   beforeUnmount() {
@@ -97,7 +113,7 @@ export default {
     }
   },
   methods: {
-    seekToLiveEdge(liveTracker) {
+    seekToLiveEdge(liveTracker, by) {
       if (liveTracker.player_ == null) {
         if (this.enableLog) {
           console.log(`FlvPlayer(${this.sourceId}) seekToLiveEdge wont work since the liveTracker.player_ is null`);
@@ -107,14 +123,14 @@ export default {
       liveTracker.seekedBehindLive_ = false;
       if (liveTracker.atLiveEdge()) {
         if (this.enableLog) {
-          console.log(`FlvPlayer(${this.sourceId}): atLiveEdge at ${new Date().toLocaleString()}`);
+          console.log(`FlvPlayer(${this.sourceId}): atLiveEdge at ${new Date().toLocaleString()} by ${by}`);
         }
         return;
       }
       liveTracker.nextSeekedFromUser_ = false;
       liveTracker.player_.currentTime(liveTracker.liveCurrentTime() - .2);
       if (this.enableLog) {
-        console.log(`FlvPlayer(${this.sourceId}): seekToLiveEdge at ${new Date().toLocaleString()}`);
+        console.log(`FlvPlayer(${this.sourceId}): seekToLiveEdge at ${new Date().toLocaleString()} by ${by}`);
       }
     },
     fullScreen() {
@@ -123,35 +139,32 @@ export default {
     pause() {
       this.player.pause();
     },
+    seekable(opName){
+      let prevEvent = this.prevEvents[opName];
+      if (!prevEvent) {
+        prevEvent = { opName: opName, createdAt: new Date() };
+        this.prevEvents[opName] = prevEvent;
+      }
+      const diff = new Date().getTime() - prevEvent.createdAt.getTime();
+      prevEvent.createdAt = new Date();
+      if (diff < 500) {
+        if (this.enableLog) {
+          console.log(`FlvPlayer(${this.sourceId}): no call due to 500 ms limit for ${prevEvent.opName}, diff ${diff}`);
+        }
+        return false;
+      }
+      return true;
+    },
     setupEvents(self) {
-      const prevEvents = {};
-
-      const seekable = (opName) => {
-        let prevEvent = prevEvents[opName];
-        if (!prevEvent) {
-          prevEvent = { opName: opName, createdAt: new Date() };
-          prevEvents[opName] = prevEvent;
-        }
-        const diff = new Date().getTime() - prevEvent.createdAt.getTime();
-        prevEvent.createdAt = new Date();
-        if (diff < 500) {
-          if (this.enableLog) {
-            console.log(`FlvPlayer(${this.sourceId}): no call due to 500 ms limit for ${prevEvent.opName}, diff ${diff}`);
-          }
-          return false;
-        }
-        return true;
-      };
-
       // Open it if a camera which has a bad connection needs this fix. BUt remember handler 404 HLS error. Otherwise, it stacked refreshing.
       self.player.on('error', () => {
-        if (seekable('error')) {
-          self.seekToLiveEdge(self.player.liveTracker);
+        if (self.seekable('error')) {
+          self.seekToLiveEdge(self.player.liveTracker, 'error');
         }
       });
       self.player.on('waiting', () => {
-        if (seekable('waiting')) {
-          self.seekToLiveEdge(self.player.liveTracker);
+        if (self.seekable('waiting')) {
+          self.seekToLiveEdge(self.player.liveTracker, 'waiting');
         }
       });
     }
