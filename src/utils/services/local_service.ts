@@ -51,7 +51,7 @@ export class LocalService {
     return `${this.nodeHttpProtocol}://${this.nodeIP}:${this.nodePort}/${route}`;
   }
 
-  public getLastValidNode(): Node | null{
+  public getLastValidNode(): Node | null {
     const json = localStorage.getItem('lastValidNode');
     if (json) {
       return JSON.parse(json);
@@ -69,8 +69,8 @@ export class LocalService {
 
   public setActiveTab(node: Node) {
     const json = JSON.stringify(node);
-    if (node.node_address){
-      localStorage.setItem('lastValidNode',json )
+    if (node.node_address) {
+      localStorage.setItem('lastValidNode', json);
     }
     localStorage.setItem('setActiveTab', json);
   }
@@ -430,7 +430,10 @@ export class LocalService {
       created_at: '',
       threshold_list: '0.1',
       selected_list: '0',
-      zone_list: ''
+      zones_list: '',
+      masks_list: '',
+      start_time: '',
+      end_time: ''
     };
   }
 
@@ -587,6 +590,18 @@ export class LocalService {
       label: 'hair drier',
       value: 88
     }, { label: 'toothbrush', value: 89 }, { label: 'hair brush', value: 90 }];
+  }
+
+  public saveScreenshot(sourceId: string, base64Img: string) {
+    sessionStorage.setItem(`ss${sourceId}`, base64Img);
+  }
+
+  public getScreenshot(sourceId: string): string {
+    const base64 = sessionStorage.getItem(`ss${sourceId}`);
+    if (!base64) {
+      return '';
+    }
+    return base64;
   }
 }
 

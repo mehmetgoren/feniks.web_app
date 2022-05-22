@@ -47,10 +47,40 @@
               </div>
             </template>
             <template v-slot:top-right>
+
+              <q-input filled v-model="od.start_time" mask="time" label='Start Time' dense clearable color='orange'>
+                <template v-slot:append>
+                  <q-icon name="access_time" class="cursor-pointer">
+                    <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                      <q-time v-model="od.start_time" format24h color='orange'>
+                        <div class="row items-center justify-end">
+                          <q-btn v-close-popup label="Close" dense flat color="orange" />
+                        </div>
+                      </q-time>
+                    </q-popup-proxy>
+                  </q-icon>
+                </template>
+              </q-input>
+              <q-space style='margin-left: 5px;' />
+              <q-input filled v-model="od.end_time" mask="time" label='End Time' dense clearable color='orange'>
+                <template v-slot:append>
+                  <q-icon name="access_time" class="cursor-pointer">
+                    <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                      <q-time v-model="od.end_time" format24h color='orange'>
+                        <div class="row items-center justify-end">
+                          <q-btn v-close-popup label="Close" dense flat color="orange"/>
+                        </div>
+                      </q-time>
+                    </q-popup-proxy>
+                  </q-icon>
+                </template>
+              </q-input>
+
+              <q-space style='margin-left: 5px;' />
               <q-btn color='orange' label='Save' icon='save' @click='onSave' :disable='inactiveSave' :dense='dense'>
                 <q-inner-loading :showing='inactiveSave' />
               </q-btn>
-              <q-space style='margin-left: 5px;'/>
+              <q-space style='margin-left: 5px;' />
               <q-btn color='orange' label='Refresh' icon='restore_page' @click='onRefresh' :disable='inactiveRefresh' :dense='dense'>
                 <q-inner-loading :showing='inactiveRefresh' />
               </q-btn>
@@ -58,7 +88,8 @@
           </q-table>
         </div>
         <div v-if='tab==="zoneList"' class='div_margin'>
-          <MaskEditor :od-model='od' :separator='separator' @zone-coordinates-changed='handleZoneCoordinatesChanged' />
+          <MaskEditor :od-model='od' :separator='separator'
+                      @zones-coordinates-changed='handleZonesCoordinatesChanged' @masks-coordinates-changed='handleMasksCoordinatesChanged' />
         </div>
         <div v-if='tab==="detectedList"' class='div_margin'>
           <OdImageGallery :od-model='od' />
@@ -187,12 +218,14 @@ export default {
       }
     }
 
-    function handleZoneCoordinatesChanged(newZones: string) {
-      if (isNullOrEmpty(newZones)) {
-        od.value.zone_list = '';
-        return;
-      }
-      od.value.zone_list = newZones.replace(',', separator);
+    function handleZonesCoordinatesChanged(newZones: string) {
+      od.value.zones_list = newZones.replace(',', separator);
+      void nodeService.saveOd(od.value);
+    }
+
+    function handleMasksCoordinatesChanged(newMasks: string) {
+      od.value.masks_list = newMasks.replace(',', separator);
+      void nodeService.saveOd(od.value);
     }
 
     return {
@@ -212,7 +245,7 @@ export default {
         rowsPerPage: 10
       },
       tab: ref('cocoList'),
-      handleZoneCoordinatesChanged,
+      handleZonesCoordinatesChanged, handleMasksCoordinatesChanged,
       separator
     };
   }

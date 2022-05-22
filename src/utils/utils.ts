@@ -111,3 +111,10 @@ export function checkIpIsLoopBack(ip: string): boolean {
   const re = /^(127\.[\d.]+|[0:]+1|localhost)$/;
   return ip.match(re) !== null;
 }
+
+export function deepCopy(source: any): any{
+  if (!source){
+    return source;
+  }
+  return JSON.parse(JSON.stringify(source))
+}
