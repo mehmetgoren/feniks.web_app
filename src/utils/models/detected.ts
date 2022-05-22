@@ -4,6 +4,7 @@ export interface FolderTreeItem{
   size:number;
   modifiedAt:string;
   children: FolderTreeItem[];
+  iconColor:string;
 }
 
 export interface ImageItem{

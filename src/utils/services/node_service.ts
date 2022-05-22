@@ -93,8 +93,8 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
-  public async getOdImagesFolders(sourceId: string): Promise<FolderTreeItem[]> {
-    const resp = await api.get(this.LocalService.getNodeAddress(`odimagesfolders/${sourceId}`));
+  public async getOdImagesFolders(sourceId: string, date: string): Promise<FolderTreeItem[]> {
+    const resp = await api.get(this.LocalService.getNodeAddress(`odimagesfolders/${sourceId}/${date}`));
     return [resp.data];
   }
 
