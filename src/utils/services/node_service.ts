@@ -68,7 +68,7 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
-  public async getRecordHours(sourceId: string, dateStr: string): Promise<string[]>{
+  public async getRecordHours(sourceId: string, dateStr: string): Promise<string[]> {
     const resp = await api.get(this.LocalService.getNodeAddress(`recordhours/${sourceId}/${dateStr}`));
     return resp.data;
   }
@@ -113,8 +113,8 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
-  public async getFrImagesFolders(sourceId: string): Promise<FolderTreeItem[]> {
-    const resp = await api.get(this.LocalService.getNodeAddress(`frimagesfolders/${sourceId}`));
+  public async getFrImagesFolders(sourceId: string, date: string): Promise<FolderTreeItem[]> {
+    const resp = await api.get(this.LocalService.getNodeAddress(`frimagesfolders/${sourceId}/${date}`));
     return [resp.data];
   }
 
@@ -123,8 +123,8 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
-  public async getAlprImagesFolders(sourceId: string): Promise<FolderTreeItem[]> {
-    const resp = await api.get(this.LocalService.getNodeAddress(`alprimagesfolders/${sourceId}`));
+  public async getAlprImagesFolders(sourceId: string, date: string): Promise<FolderTreeItem[]> {
+    const resp = await api.get(this.LocalService.getNodeAddress(`alprimagesfolders/${sourceId}/${date}`));
     return [resp.data];
   }
 
@@ -133,12 +133,12 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
-  public async getOnvifNetwork(): Promise<NetworkDiscoveryModel>{
+  public async getOnvifNetwork(): Promise<NetworkDiscoveryModel> {
     const resp = await api.get(this.LocalService.getNodeAddress('onvifnetwork'));
     return resp.data;
   }
 
-  public async getOnvif(address: string): Promise<OnvifModel>{
+  public async getOnvif(address: string): Promise<OnvifModel> {
     const resp = await api.get(this.LocalService.getNodeAddress(`onvif/${address}`));
     return resp.data;
   }

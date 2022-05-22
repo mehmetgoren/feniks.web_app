@@ -1,14 +1,17 @@
 <template>
   <div class='q-pa-md'>
     <q-layout view='hHh Lpr lff' container style='height: 900px' class='shadow-2 rounded-borders'>
-      <q-header elevated class='bg-blue-12'>
+      <q-header elevated class='bg-indigo-9'>
         <q-toolbar>
           <q-btn flat @click='drawer = !drawer' round dense icon='menu' />
           <q-toolbar-title>
             Detected Images
             <q-icon name='collections'></q-icon>
           </q-toolbar-title>
-          <q-btn icon='event' color='orange'>
+          <q-btn color='orange' label='Refresh' icon='restore_page' @click='onRefresh' :disable='refreshLoading' dense>
+            <q-inner-loading :showing='refreshLoading' />
+          </q-btn>
+          <q-btn icon='event' color='orange' style='margin-left: 5px;'>
             <q-popup-proxy cover transition-show='scale' transition-hide='scale'>
               <q-date mask='YYYY_MM_DD' v-model='selectedDate' color='orange' @update:model-value='onDateChanged'>
                 <div class='row items-center justify-end q-gutter-sm'>
@@ -66,6 +69,8 @@ export default {
     const treeLoading = ref<boolean>(true);
     const imagesLoading = ref<boolean>(false);
     const selectedDate = ref<string>(getTodayString());
+    const refreshLoading = ref<boolean>(false);
+    let prevSelected = '';
 
     function walk(folders: FolderTreeItem[]) {
       if (!folders || !folders.length) {
@@ -109,8 +114,21 @@ export default {
           }
         }
         images.value = items;
+        prevSelected = selection;
       } finally {
         imagesLoading.value = false;
+      }
+    }
+
+    async function onRefresh(){
+      refreshLoading.value = true;
+      try{
+        await dataBind();
+        if (prevSelected){
+          await handleTreeSelected(prevSelected);
+        }
+      }finally {
+        refreshLoading.value = false;
       }
     }
 
@@ -119,9 +137,9 @@ export default {
     }
 
     return {
-      selected, images, imagesLoading, selectedKeys, selectedDate,
+      selected, images, imagesLoading, selectedKeys, selectedDate, refreshLoading,
       drawer: ref(false),
-      handleTreeSelected, treeLoading, onDateChanged,
+      handleTreeSelected, treeLoading, onDateChanged, onRefresh,
       treeItems
     };
   }
