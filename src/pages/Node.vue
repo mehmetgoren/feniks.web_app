@@ -11,6 +11,7 @@
 </template>
 
 <script lang='ts'>
+import {  onBeforeRouteUpdate } from 'vue-router'
 import NodeConfig from 'components/NodeConfig.vue';
 import LiveStreamGallery from 'components/LiveStreamGallery.vue';
 import SourceSettings from 'components/SourceSettings.vue';
@@ -60,6 +61,16 @@ export default {
           selected.value = 1;
       }
     });
+
+    onBeforeRouteUpdate((from: any, to: any) =>{
+      const queryStr = parseQs(to.fullPath);
+      switch (queryStr.x){
+        case 'ai':
+          selected.value = 1;
+          break;
+      }
+    });
+
 
     return {
       activeTab,

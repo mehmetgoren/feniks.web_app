@@ -1,10 +1,10 @@
 <template>
 
   <div class='q-pa-md q-gutter-sm'>
-    <q-toolbar class='bg-orange text-white shadow-2 rounded-borders'>
-      <q-btn flat round dense icon='psychology' />
+    <q-toolbar class='bg-orange text-white shadow-2 rounded-borders' style='width: 99.5%'>
+      <q-icon name='psychology' size='28px' />
       <q-toolbar-title>
-        <label style='text-transform: uppercase;font-size: medium'> {{ od.name }}</label>
+        <label style='text-transform: uppercase;font-size: medium;' > {{ od.name }}</label>
       </q-toolbar-title>
       <q-tabs v-model='tab' narrow-indicator inline-label align='left'>
         <q-tab :disable='!enabled' name='cocoList' icon='fact_check' label='Coco List' />
@@ -15,9 +15,13 @@
         <q-tab :disable='!enabled' name='alprList' icon='drive_eta' label='License Plate Recognition' />
       </q-tabs>
       <q-space />
+      <q-btn icon-right='reply' color='orange' @click='onGoBack' dense >
+        <q-tooltip class="bg-orange">Go back</q-tooltip>
+      </q-btn>
     </q-toolbar>
-
-    <q-page style='background-color: whitesmoke;margin-top: -5px;'>
+  </div>
+  <div class='q-pa-md q-gutter-sm' style='margin-top: -35px;'>
+    <q-page style='background-color: whitesmoke;'>
       <div v-if='enabled'>
         <div v-if='tab==="cocoList"' class='div_margin'>
           <q-table :dense='dense' title='Coco Objects' :rows='cocoList' :columns='columns'
@@ -125,6 +129,7 @@ import OdImageGallery from 'components/OdImageGallery.vue';
 import OdSourceVideoClips from 'components/OdSourceVideoClips.vue';
 import FrImageGallery from 'components/FrImageGallery.vue';
 import AlprImageGallery from 'components/AlprImageGallery.vue';
+import { useRouter } from 'vue-router';
 
 export default {
   name: 'AiSettings',
@@ -136,6 +141,7 @@ export default {
     AlprImageGallery
   },
   setup() {
+    const router = useRouter()
     const $store = useStore();
     const dense = computed(() => $store.getters['settings/dense']);
     const localService = new LocalService();
@@ -228,6 +234,13 @@ export default {
       void nodeService.saveOd(od.value);
     }
 
+    function onGoBack(){
+      const lastValidNode = localService.getLastValidNode();
+      if (lastValidNode?.node_address){
+        void router.push('node?n=' + lastValidNode.node_address + '&x=gallery');
+      }
+    }
+
     return {
       dense,
       od,
@@ -245,7 +258,7 @@ export default {
         rowsPerPage: 10
       },
       tab: ref('cocoList'),
-      handleZonesCoordinatesChanged, handleMasksCoordinatesChanged,
+      handleZonesCoordinatesChanged, handleMasksCoordinatesChanged, onGoBack,
       separator
     };
   }
