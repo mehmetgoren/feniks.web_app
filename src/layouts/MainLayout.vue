@@ -313,6 +313,13 @@ export default {
             text: 'Add Source'
           }
         ];
+        menuObject['fr_train'] = [
+          {
+            route: route + '&x=fr_train',
+            icon: 'face',
+            text: 'Face Training'
+          }
+        ];
         menuObject['cameras'] = menuLinks;
 
         $store.commit('settings/addMenu', {

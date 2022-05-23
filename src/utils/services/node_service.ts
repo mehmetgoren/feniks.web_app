@@ -11,6 +11,7 @@ import { OdModel } from 'src/utils/models/od_model';
 import { ImagesParams, FolderTreeItem, ImageItem } from 'src/utils/models/detected';
 import { OdVideoClipsViewModel } from 'src/utils/models/ai_clip_json_object';
 import { NetworkDiscoveryModel, OnvifModel } from 'src/utils/models/onvif_models';
+import { FrTrainViewModel } from 'src/utils/models/fr_models';
 
 
 export class NodeService extends BaseService {
@@ -120,6 +121,11 @@ export class NodeService extends BaseService {
 
   public async getFrImages(model: ImagesParams): Promise<ImageItem[]> {
     const resp = await api.post(this.LocalService.getNodeAddress('frimages'), model);
+    return resp.data;
+  }
+
+  public async getFrTrainPersons(): Promise<FrTrainViewModel[]>{
+    const resp = await api.get(this.LocalService.getNodeAddress('frtrainpersons'));
     return resp.data;
   }
 
