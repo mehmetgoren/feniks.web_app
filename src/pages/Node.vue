@@ -62,9 +62,16 @@ export default {
       }
     });
 
-    onBeforeRouteUpdate((from: any, to: any) =>{
-      const queryStr = parseQs(to.fullPath);
-      switch (queryStr.x){
+    onBeforeRouteUpdate((to: any, from: any) =>{
+      const toQs = parseQs(to.fullPath)
+      const fromQs = parseQs(from.fullPath);
+      if (toQs.x && fromQs.x){
+        if (toQs.x === 'config' && fromQs.x === 'ai'){
+          selected.value = 0;
+          return
+        }
+      }
+      switch (fromQs.x){
         case 'ai':
           selected.value = 1;
           break;
