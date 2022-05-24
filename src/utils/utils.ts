@@ -7,8 +7,7 @@ import axios from 'axios';
 
 export function parseQs(qs = window.location.search) {
   const urlSearchParams = new URLSearchParams(qs);
-  const params = Object.fromEntries(urlSearchParams.entries());
-  return params;
+  return Object.fromEntries(urlSearchParams.entries());
 }
 
 export function myDateToJsDate(dateString: string): Date {
@@ -37,8 +36,7 @@ export function fixArrayDates(list: any[], ...fields: string[]) {
   });
 }
 
-
-export function getTodayString() {
+export function getTodayString(separator = '_') {
   const today = new Date();
   const month = today.getMonth() + 1;
   let monthStr = month.toString();
@@ -50,18 +48,17 @@ export function getTodayString() {
   if (day < 10) {
     dayStr = '0' + dayStr;
   }
-  return `${today.getFullYear()}_${monthStr}_${dayStr}`;
+  return `${today.getFullYear()}${separator}${monthStr}${separator}${dayStr}`;
 }
 
-export function getTodayHourString() {
-  const todayStr = getTodayString();
+export function getCurrentHour(){
   const today = new Date();
   const hour = today.getHours();
   let hourStr = hour.toString();
   if (hour < 10) {
     hourStr = '0' + hourStr;
   }
-  return `${todayStr}_${hourStr}`;
+  return hourStr;
 }
 
 export function isNullOrUndefined(val: any) {

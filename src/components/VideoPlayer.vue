@@ -38,14 +38,11 @@ export default {
         }
       ]
     }
-    this.player = videojs(this.$refs.videoPlayer, videoOptions, function onPlayerReady() {
-      console.log('video player ready', this);
-    })
+    this.player = videojs(this.$refs.videoPlayer, videoOptions);
   },
   beforeUnmount() {
     if (this.player) {
       this.player.dispose()
-      console.log('video player disposed', this);
     }
   }
 }

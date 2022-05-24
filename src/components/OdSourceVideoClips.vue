@@ -5,11 +5,11 @@
         <div class='row'>
           <div class='col-12'>
             <q-table title='Video Clips' :rows='rows' :columns='columns'
-                     virtual-scroll :virtual-scroll-item-size="48" :pagination="pagination"
-                     :rows-per-page-options="[0]"
+                     virtual-scroll :virtual-scroll-item-size='48' :pagination='pagination'
+                     :rows-per-page-options='[0]'
                      row-key='video_file_name' :filter='filter'>
               <template v-slot:body='props'>
-                <q-tr :props='props' @click='props.expand = !props.expand' style='cursor: pointer;'>
+                <q-tr :props='props' @click='onRowClick(props)' :style='{"backgroundColor": props.expand ? "orange":"white", "cursor":"pointer"}'>
                   <q-td key='base64_image'>
                     <q-img :src='webMngrAddress + props.row.preview.image_file_name' />
                   </q-td>
@@ -28,7 +28,7 @@
                     </div>
                     <br>
                     <div style='width: 480px;float: left;margin-right: 5px;'>
-                      <VideoPlayer :src="webMngrAddress+ props.row.video_file_name" :auto-play='false' />
+                      <VideoPlayer :src='webMngrAddress+ props.row.video_file_name' :auto-play='false' />
                     </div>
                     <div class='q-pa-md' style='width: 350px;float:left;margin: 0 5px 0 5px'>
                       <q-table dense :rows='props.row.detected_objects' :columns='detectedObjectColumns' row-key='pred_cls_idx'
@@ -65,7 +65,12 @@
                   </q-td>
                 </q-tr>
               </template>
+
+              <template v-slot:top-right>
+                <DateTimeSelector color='orange' :show-hour='true' @date-changed='onDateChanged' @hour-changed='onHourChanged' />
+              </template>
             </q-table>
+            <q-inner-loading :showing='refreshLoading' color='orange' size='64px' />
           </div>
         </div>
       </q-page>
@@ -75,11 +80,12 @@
 
 <script lang='ts'>
 import VideoPlayer from 'src/components/VideoPlayer.vue';
+import DateTimeSelector from 'src/components/DateTimeSelector.vue';
 import { StreamModel } from 'src/utils/models/stream_model';
 import { onMounted, ref } from 'vue';
 import { OdVideoClipsViewModel } from 'src/utils/models/ai_clip_json_object';
 import { NodeService } from 'src/utils/services/node_service';
-import { downloadFile, fixArrayDates, getTodayHourString } from 'src/utils/utils';
+import { downloadFile, fixArrayDates, getCurrentHour, getTodayString } from 'src/utils/utils';
 
 export default {
   name: 'OdSourceVideoClips',
@@ -90,7 +96,7 @@ export default {
     }
   },
   components: {
-    VideoPlayer
+    VideoPlayer, DateTimeSelector
   },
   setup(props: any) {
     const nodeService = new NodeService();
@@ -98,12 +104,28 @@ export default {
     const rows = ref<OdVideoClipsViewModel[]>([]);
     const filter = ref<string>('');
     const webMngrAddress = ref<string>(nodeService.LocalService.getNodeAddress(''));
+    const refreshLoading = ref<boolean>(false);
+    let selectedDate = getTodayString();
+    let selectedHour = getCurrentHour();
+    let prevProps: any = null;
+
+    function restorePrev(){
+      if (prevProps != null) {
+        prevProps.expand = false;
+        prevProps = null;
+      }
+    }
 
     const refreshFn = async () => {
-      const dataList = await nodeService.getOdVideoClips(props.sourceId, getTodayHourString());
-      console.log(JSON.stringify(dataList));
-      fixArrayDates(dataList, 'video_created_at', 'video_last_modified');
-      rows.value = dataList;
+      refreshLoading.value = true;
+      try {
+        restorePrev();
+        const dataList = await nodeService.getOdVideoClips(props.sourceId, `${selectedDate}_${selectedHour}`);
+        fixArrayDates(dataList, 'video_created_at', 'video_last_modified');
+        rows.value = dataList;
+      } finally {
+        refreshLoading.value = false;
+      }
     };
 
     onMounted(async () => {
@@ -120,17 +142,29 @@ export default {
       await refreshFn();
     }
 
+    function onRowClick(props: any){
+      // console.log(props);
+      // alert(JSON.stringify(props))
+      restorePrev();
+      props.expand = !props.expand;
+      prevProps = props;
+    }
+
     return {
-      rows, webMngrAddress,
-      stream,
-      columns,
+      rows, webMngrAddress, selectedDate, stream, columns,
       pagination: {
         rowsPerPage: 0
       },
-      filter,
-      detectedObjectColumns,
-      handleDownloadClip,
-      handleDeleteClip
+      filter, refreshLoading, detectedObjectColumns,
+      handleDownloadClip, handleDeleteClip, onRowClick,
+      onDateChanged(dateStr: string) {
+        selectedDate = dateStr;
+        void refreshFn();
+      },
+      onHourChanged(hour: string) {
+        selectedHour = hour;
+        void refreshFn();
+      }
     };
   }
 };
@@ -147,5 +181,4 @@ const detectedObjectColumns = [
 </script>
 
 <style scoped>
-
 </style>
