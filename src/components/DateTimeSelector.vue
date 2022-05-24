@@ -1,5 +1,6 @@
 <template>
-  <q-input v-model='selectedDate' mask='YYYY-MM-DD' type='date' filled dense :color='color' readonly style='cursor: pointer;'>
+  <q-input v-model='selectedDate' mask='YYYY-MM-DD' type='date' filled dense :color='color' readonly
+           style='cursor: pointer;width: 155px;' >
     <q-popup-proxy v-model='showSelectedDate' cover transition-show='scale' transition-hide='scale'>
       <q-date v-model='selectedDate' :color='color' mask='YYYY-MM-DD'>
         <div class='row items-center justify-end q-gutter-sm'>

@@ -116,8 +116,8 @@
                 <q-img :src="'data:image/png;base64, ' + (link.thumbnail ? link.thumbnail : emptyBase64Image)" spinner-color='white'
                        style='height: 80px; width: 200px; cursor: pointer;' class='rounded-borders'>
                   <div class='absolute-bottom text-subtitle1'>
-                    <q-icon v-if='sourceStreamStatus[link.id].streaming' name='live_tv' color='green' style='margin-right: 3px;' class='blink_me'/>
-                    <q-icon v-if='sourceStreamStatus[link.id].recording' name='fiber_manual_record' color='red' style='margin-right: 3px;' class='blink_me'/>
+                    <q-icon v-if='sourceStreamStatus[link.id].streaming' name='live_tv' color='green' style='margin-right: 3px;' class='blink_me' />
+                    <q-icon v-if='sourceStreamStatus[link.id].recording' name='fiber_manual_record' color='red' style='margin-right: 3px;' class='blink_me' />
                     <q-icon :name='link.icon' />
                     {{ link.text }}
                   </div>
@@ -151,6 +151,14 @@
                       <q-item-label>Playback</q-item-label>
                     </q-item-section>
                   </q-item>
+                  <q-item clickable v-close-popup @click='onAiClick(link.id)'>
+                    <q-item-section side>
+                      <q-icon name='psychology' color='orange' />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label>AI</q-item-label>
+                    </q-item-section>
+                  </q-item>
                   <q-item clickable v-close-popup @click='onTakeScreenshotClicked(link)'>
                     <q-item-section side>
                       <q-icon name='photo_camera' color='purple' />
@@ -169,7 +177,7 @@
                   </q-item-section>
                 </q-item>
                 <q-inner-loading v-if='loadingObject[link.id]' :showing='true'>
-                  <q-spinner-gears size="50px" color="primary" />
+                  <q-spinner-gears size='50px' color='primary' />
                 </q-inner-loading>
               </q-btn-dropdown>
             </q-item>
@@ -331,9 +339,9 @@ export default {
       await router.push('node?n=' + tab.node_address);
     };
 
-    async function sourceStreamDatabind(){
+    async function sourceStreamDatabind() {
       const sourceStreamStatusList = await nodeService.getSourceStreamStatus();
-      for (const item of sourceStreamStatusList){
+      for (const item of sourceStreamStatusList) {
         sourceStreamStatus[item.id] = item;
       }
     }
@@ -360,7 +368,7 @@ export default {
       leftDrawerOpen.value = !leftDrawerOpen.value;
     }
 
-    function getThumbnail(source: SourceModel){
+    function getThumbnail(source: SourceModel) {
       publishService.publishEditor({
         id: source.id,
         brand: source.brand,
@@ -368,36 +376,28 @@ export default {
         address: source.address,
         event_type: 2
       }).then().catch(console.error);
-      console.log('publishService called');
     }
 
+    const onAiClick = (sourceId: string) => {
+      const tab = nodeService.LocalService.getLastValidNode();
+      if (tab == null) {
+        return;
+      }
+      $store.commit('settings/aiSettingsClicked');
+      $store.commit('settings/aiSettingsSourceId', sourceId);
+      const route = 'node?n=' + tab.node_address + '&x=ai';
+      void router.push(route);
+    };
+
     return {
-      homeNode,
-      tab,
-      leftDrawerOpen,
-      search,
-      showAdvanced,
-      showDateOptions,
-      exactPhrase,
-      hasWords,
-      excludeWords,
-      byWebsite,
-      byDate,
-      menus,
-      onClear,
-      toggleLeftDrawer,
-      tabs,
-      onTabClick,
-      loadingObject,
-      sourceStreamStatus,
-      showSettings,
-      selectedSourceId,
-      showRecords,
+      homeNode, tab, leftDrawerOpen, search, showAdvanced, showDateOptions, exactPhrase, hasWords, excludeWords, byWebsite, byDate, menus,
+      tabs, loadingObject, sourceStreamStatus, showSettings, selectedSourceId, showRecords, emptyBase64Image,
+      onClear, toggleLeftDrawer, onTabClick, getThumbnail, onAiClick,
       onSaveSettingsClicked(sourceId: string) {
         showSettings.value = true;
         selectedSourceId.value = sourceId;
       },
-      onStartStreaming(link: MenuLink){
+      onStartStreaming(link: MenuLink) {
         startStream($store, publishService, <SourceModel>link.source);
       },
       onShowRecordClicked(sourceId: string) {
@@ -414,11 +414,9 @@ export default {
           event_type: 1
         });
       },
-      onSourceSettingsSave(){
+      onSourceSettingsSave() {
         showSettings.value = false;
-      },
-      getThumbnail,
-      emptyBase64Image
+      }
     };
   },
   methods: {
@@ -480,11 +478,13 @@ export default {
 <style scoped>
 .blink_me {
   animation: blinker 1s linear infinite;
-  color:red;
-  font-size:medium;
+  color: red;
+  font-size: medium;
 }
 
 @keyframes blinker {
-  50% { opacity: 0; }
+  50% {
+    opacity: 0;
+  }
 }
 </style>

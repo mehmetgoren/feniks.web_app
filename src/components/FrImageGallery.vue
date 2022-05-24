@@ -8,17 +8,11 @@
             Detected Faces
             <q-icon name='face'></q-icon>
           </q-toolbar-title>
+          <div style='background-color: whitesmoke;margin-right: 5px;'>
+            <DateTimeSelector color='orange' :show-hour='false' @date-changed='onDateChanged'/>
+          </div>
           <q-btn color='orange' label='Refresh' icon='restore_page' @click='onRefresh' :disable='refreshLoading' dense>
             <q-inner-loading :showing='refreshLoading' />
-          </q-btn>
-          <q-btn icon='event' color='orange' style='margin-left: 5px;'>
-            <q-popup-proxy cover transition-show='scale' transition-hide='scale'>
-              <q-date mask='YYYY_MM_DD' v-model='selectedDate' color='orange' @update:model-value='onDateChanged'>
-                <div class='row items-center justify-end q-gutter-sm'>
-                  <q-btn label='OK' color='orange' flat v-close-popup />
-                </div>
-              </q-date>
-            </q-popup-proxy>
           </q-btn>
         </q-toolbar>
       </q-header>
@@ -51,10 +45,12 @@
 import { onMounted, ref } from 'vue';
 import { NodeService } from 'src/utils/services/node_service';
 import { FolderTreeItem, ImageItem } from 'src/utils/models/detected';
+import DateTimeSelector from 'src/components/DateTimeSelector.vue';
 import { getTodayString } from 'src/utils/utils';
 
 export default {
   name: 'FrImageGallery',
+  components: { DateTimeSelector },
   props: {
     sourceId: {
       type: String,
@@ -69,7 +65,7 @@ export default {
     const images = ref<ImageItem[]>([]);
     const treeLoading = ref<boolean>(true);
     const imagesLoading = ref<boolean>(false);
-    const selectedDate = ref<string>(getTodayString());
+    let selectedDate = getTodayString();
     const refreshLoading = ref<boolean>(false);
     let prevSelected = '';
 
@@ -88,7 +84,7 @@ export default {
     async function dataBind() {
       try {
         treeLoading.value = true;
-        const directories = await nodeService.getFrImagesFolders(props.sourceId, selectedDate.value);
+        const directories = await nodeService.getFrImagesFolders(props.sourceId, selectedDate);
         if (!directories||!directories.length || !directories[0]){
           treeItems.value = [];
           images.value = [];
@@ -133,7 +129,8 @@ export default {
       }
     }
 
-    function onDateChanged() {
+    function onDateChanged(dateStr: string) {
+      selectedDate = dateStr;
       void dataBind();
     }
 

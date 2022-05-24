@@ -4,7 +4,7 @@
     <q-toolbar class='bg-orange text-white shadow-2 rounded-borders' style='width: 99.5%'>
       <q-icon name='psychology' size='28px' />
       <q-toolbar-title>
-        <label style='text-transform: uppercase;font-size: medium;' > {{ od.name }}</label>
+        <label style='text-transform: uppercase;font-size: medium;'> {{ od.name }}</label>
       </q-toolbar-title>
       <q-tabs v-model='tab' narrow-indicator inline-label align='left'>
         <q-tab :disable='!enabled' name='cocoList' icon='fact_check' label='Coco List' />
@@ -15,8 +15,8 @@
         <q-tab :disable='!enabled' name='alprList' icon='drive_eta' label='License Plate Recognition' />
       </q-tabs>
       <q-space />
-      <q-btn icon-right='reply' color='orange' @click='onGoBack' dense >
-        <q-tooltip class="bg-orange">Go back</q-tooltip>
+      <q-btn icon-right='reply' color='orange' @click='onGoBack' dense>
+        <q-tooltip class='bg-orange'>Go back</q-tooltip>
       </q-btn>
     </q-toolbar>
   </div>
@@ -52,13 +52,13 @@
             </template>
             <template v-slot:top-right>
 
-              <q-input filled v-model="od.start_time" mask="time" label='Start Time' dense clearable color='orange'>
+              <q-input filled v-model='od.start_time' mask='time' label='Start Time' dense clearable color='orange'>
                 <template v-slot:append>
-                  <q-icon name="access_time" class="cursor-pointer">
-                    <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                      <q-time v-model="od.start_time" format24h color='orange'>
-                        <div class="row items-center justify-end">
-                          <q-btn v-close-popup label="Close" dense flat color="orange" />
+                  <q-icon name='access_time' class='cursor-pointer'>
+                    <q-popup-proxy cover transition-show='scale' transition-hide='scale'>
+                      <q-time v-model='od.start_time' format24h color='orange'>
+                        <div class='row items-center justify-end'>
+                          <q-btn v-close-popup label='Close' dense flat color='orange' />
                         </div>
                       </q-time>
                     </q-popup-proxy>
@@ -66,13 +66,13 @@
                 </template>
               </q-input>
               <q-space style='margin-left: 5px;' />
-              <q-input filled v-model="od.end_time" mask="time" label='End Time' dense clearable color='orange'>
+              <q-input filled v-model='od.end_time' mask='time' label='End Time' dense clearable color='orange'>
                 <template v-slot:append>
-                  <q-icon name="access_time" class="cursor-pointer">
-                    <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                      <q-time v-model="od.end_time" format24h color='orange'>
-                        <div class="row items-center justify-end">
-                          <q-btn v-close-popup label="Close" dense flat color="orange"/>
+                  <q-icon name='access_time' class='cursor-pointer'>
+                    <q-popup-proxy cover transition-show='scale' transition-hide='scale'>
+                      <q-time v-model='od.end_time' format24h color='orange'>
+                        <div class='row items-center justify-end'>
+                          <q-btn v-close-popup label='Close' dense flat color='orange' />
                         </div>
                       </q-time>
                     </q-popup-proxy>
@@ -141,7 +141,7 @@ export default {
     AlprImageGallery
   },
   setup() {
-    const router = useRouter()
+    const router = useRouter();
     const $store = useStore();
     const dense = computed(() => $store.getters['settings/dense']);
     const localService = new LocalService();
@@ -234,32 +234,21 @@ export default {
       void nodeService.saveOd(od.value);
     }
 
-    function onGoBack(){
+    function onGoBack() {
       const lastValidNode = localService.getLastValidNode();
-      if (lastValidNode?.node_address){
+      if (lastValidNode?.node_address) {
         void router.push('node?n=' + lastValidNode.node_address + '&x=gallery');
       }
     }
 
     return {
-      dense,
-      od,
-      cocoList,
-      columns,
-      cocoFilter,
-      selectAll,
-      inactiveSave,
-      inactiveRefresh,
-      onSave,
-      onRefresh,
-      enabled,
+      dense, od, cocoList, columns, cocoFilter, selectAll, inactiveSave, inactiveRefresh, enabled, separator,
+      onSave, onRefresh, handleZonesCoordinatesChanged, handleMasksCoordinatesChanged, onGoBack,
       initialPagination: {
         page: 0,
         rowsPerPage: 10
       },
-      tab: ref('cocoList'),
-      handleZonesCoordinatesChanged, handleMasksCoordinatesChanged, onGoBack,
-      separator
+      tab: ref('cocoList')
     };
   }
 };
