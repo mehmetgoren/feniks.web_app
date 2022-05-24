@@ -54,8 +54,14 @@ export function getTodayString() {
 }
 
 export function getTodayHourString() {
+  const todayStr = getTodayString();
   const today = new Date();
-  return `${today.getFullYear()}_${(today.getMonth() + 1)}_${today.getDate()}_${today.getHours()}`;
+  const hour = today.getHours();
+  let hourStr = hour.toString();
+  if (hour < 10) {
+    hourStr = '0' + hourStr;
+  }
+  return `${todayStr}_${hourStr}`;
 }
 
 export function isNullOrUndefined(val: any) {
@@ -112,9 +118,9 @@ export function checkIpIsLoopBack(ip: string): boolean {
   return ip.match(re) !== null;
 }
 
-export function deepCopy(source: any): any{
-  if (!source){
+export function deepCopy(source: any): any {
+  if (!source) {
     return source;
   }
-  return JSON.parse(JSON.stringify(source))
+  return JSON.parse(JSON.stringify(source));
 }

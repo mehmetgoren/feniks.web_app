@@ -169,7 +169,12 @@ export default {
     });
 
     const dataBind = async () => {
-      const hourStrings = await nodeService.getRecordHours(props.sourceId, selectedDate.value);
+      let dateStr = selectedDate.value;
+      if (!dateStr){
+        dateStr = getTodayString();
+        selectedDate.value = dateStr;
+      }
+      const hourStrings = await nodeService.getRecordHours(props.sourceId, dateStr);
       const _hours: Hour[] = [];
       for (const hs of hourStrings) {
         _hours.push({ sourceId: props.sourceId, hour: hs, videoFiles: [] });
