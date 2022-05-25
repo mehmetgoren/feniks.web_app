@@ -129,6 +129,17 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
+  public async getFrTrainPersonImages(person: string): Promise<ImageItem[]>{
+    const resp = await api.get(this.LocalService.getNodeAddress(`frtrainpersonimages/${person}`));
+    return resp.data;
+  }
+
+  public async deleteFrTrainPersonImage(imgSrc: string): Promise<boolean>{
+    const b64 = btoa(imgSrc);
+    const resp = await api.delete(this.LocalService.getNodeAddress(`frtrainpersonimage/${b64}`));
+    return resp.data;
+  }
+
   public async getAlprImagesFolders(sourceId: string, date: string): Promise<FolderTreeItem[]> {
     const resp = await api.get(this.LocalService.getNodeAddress(`alprimagesfolders/${sourceId}/${date}`));
     return [resp.data];

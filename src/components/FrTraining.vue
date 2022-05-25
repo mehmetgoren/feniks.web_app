@@ -31,6 +31,8 @@
       <q-page-container>
         <q-page padding>
           {{ selectedPerson }}
+          <ViewerComponent v-if='showGallery' :images='images' :show-delete='true' @on-delete='onImageDelete' />
+          <q-inner-loading :showing='showPageLoading' />
         </q-page>
       </q-page-container>
     </q-layout>
@@ -39,20 +41,25 @@
 
 <script lang='ts'>
 import { onMounted, ref } from 'vue';
+import ViewerComponent from 'src/components/ViewerComponent.vue';
 import { FrTrainViewModel } from '../utils/models/fr_models';
 import { NodeService } from '../utils/services/node_service';
+import { ImageItem } from 'src/utils/models/detected';
 
 export default {
   name: 'FrTraining',
+  components:{ViewerComponent},
   setup() {
     const people = ref<FrTrainViewModel[]>([]);
     const selectedPerson = ref<FrTrainViewModel>({ name: '', image_paths: [] });
     const link = ref<string>('');
     const nodeService = new NodeService();
+    const images = ref<ImageItem[]>([]);
+    const showPageLoading = ref<boolean>(false);
+    const showGallery = ref<boolean>(true);
 
-    onMounted(async () => {
+    const dataBind = async () =>{
       const items = await nodeService.getFrTrainPersons();
-      console.log(JSON.stringify(people.value));
       if (items && items.length > 0) {
         for (const item of items) {
           if (item && item.image_paths && item.image_paths.length) {
@@ -62,22 +69,55 @@ export default {
           }
         }
         link.value = items[0].name;
+        if (selectedPerson.value.name){
+          await onLeftPersonMenuClicked(selectedPerson.value);
+        }else{
+          await onLeftPersonMenuClicked(items[0]);
+        }
       }
       people.value = items;
+    }
+
+    onMounted(async () => {
+      await dataBind();
     });
 
-    function onLeftPersonMenuClicked(person: FrTrainViewModel) {
+    async function onLeftPersonMenuClicked(person: FrTrainViewModel) {
       selectedPerson.value = person;
       link.value = person.name;
+
+      showPageLoading.value = true;
+      try {
+        const items = await nodeService.getFrTrainPersonImages(person.name);
+        if (items && items.length > 0) {
+          for (const item of items) {
+            if (item && item.imagePath) {
+              item.imagePath = nodeService.LocalService.getNodeAddress(item.imagePath);
+            }
+          }
+        }
+        images.value = items;
+      } finally {
+        showPageLoading.value = false;
+      }
     }
 
     return {
       drawer: ref<boolean>(true),
-      people, selectedPerson, link,
-      onLeftPersonMenuClicked
+      people, selectedPerson, link, images, showPageLoading, showGallery,
+      onLeftPersonMenuClicked,
+      async onImageDelete(src: string){
+        await nodeService.deleteFrTrainPersonImage(src);
+        showGallery.value = false;
+        setTimeout(() => {
+          showGallery.value = true;
+          void dataBind();
+        }, 100);
+      }
     };
   }
 };
+
 </script>
 
 <style lang='sass'>
