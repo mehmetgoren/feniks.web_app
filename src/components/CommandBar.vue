@@ -1,5 +1,5 @@
 <template>
-  <q-banner inline-actions rounded class='bg-cyan text-white' :dense='dense'>
+  <q-banner inline-actions rounded class='bg-cyan text-white' dense>
     <label style='text-transform: uppercase;font-size: medium;'>{{ activeTab.name }}</label>
     <template v-slot:action>
       <q-btn v-if='showSave' flat push label='Save' icon='save' @click='onSave' :disable='inactiveSave'>
@@ -53,10 +53,8 @@ export default {
   setup(props, { emit }) {
     const $store = useStore();
     const activeTab = computed(() => $store.getters['settings/activeTab']);//active node ip
-    const dense = computed(() => $store.getters['settings/dense']);
 
     return {
-      dense,
       activeTab,
       onSave(e) {
         emit('on-save', e);

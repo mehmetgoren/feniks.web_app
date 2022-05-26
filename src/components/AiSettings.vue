@@ -24,24 +24,24 @@
     <q-page style='background-color: whitesmoke;'>
       <div v-if='enabled'>
         <div v-if='tab==="cocoList"' class='div_margin'>
-          <q-table :dense='dense' title='Coco Objects' :rows='cocoList' :columns='columns'
+          <q-table dense title='Coco Objects' :rows='cocoList' :columns='columns'
                    :pagination='initialPagination' :filter='cocoFilter'>
             <template v-slot:body='props'>
               <q-tr :props='props' :style="{ backgroundColor: props.row.selected ? 'whitesmoke': 'white'}">
                 <q-td key='label' :props='props' style='width: 25px;'>
-                  <q-checkbox v-model='props.row.selected' :dense='dense' color='amber' />
+                  <q-checkbox v-model='props.row.selected' dense color='amber' />
                 </q-td>
                 <q-td key='label' :props='props'>
                   {{ props.row.label }}
                 </q-td>
                 <q-td key='label' :props='props'>
-                  <q-input type='number' v-model='props.row.threshold' :dense='dense' outlined color='amber' />
+                  <q-input type='number' v-model='props.row.threshold' dense outlined color='amber' />
                 </q-td>
               </q-tr>
             </template>
             <template v-slot:top-left>
               <div class='row'>
-                <q-checkbox v-model='selectAll' :dense='true' color='amber' />
+                <q-checkbox v-model='selectAll' dense color='amber' />
                 <q-space style='margin-right: 15px;' />
                 <q-input borderless dense debounce='300' v-model.trim='cocoFilter' placeholder='Search'>
                   <template v-slot:append>
@@ -81,11 +81,11 @@
               </q-input>
 
               <q-space style='margin-left: 5px;' />
-              <q-btn color='orange' label='Save' icon='save' @click='onSave' :disable='inactiveSave' :dense='dense'>
+              <q-btn color='orange' label='Save' icon='save' @click='onSave' :disable='inactiveSave' dense>
                 <q-inner-loading :showing='inactiveSave' />
               </q-btn>
               <q-space style='margin-left: 5px;' />
-              <q-btn color='orange' label='Refresh' icon='restore_page' @click='onRefresh' :disable='inactiveRefresh' :dense='dense'>
+              <q-btn color='orange' label='Refresh' icon='restore_page' @click='onRefresh' :disable='inactiveRefresh' dense>
                 <q-inner-loading :showing='inactiveRefresh' />
               </q-btn>
             </template>
@@ -118,7 +118,7 @@
 
 <script lang='ts'>
 import { OdModel } from 'src/utils/models/od_model';
-import { computed, onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { LocalService } from 'src/utils/services/local_service';
 import { isNullOrEmpty, isNullOrUndefined } from 'src/utils/utils';
 import { NodeService } from 'src/utils/services/node_service';
@@ -143,7 +143,6 @@ export default {
   setup() {
     const router = useRouter();
     const $store = useStore();
-    const dense = computed(() => $store.getters['settings/dense']);
     const localService = new LocalService();
     const nodeService = new NodeService();
     const od = ref<OdModel>(localService.createEmptyOd());
@@ -242,7 +241,7 @@ export default {
     }
 
     return {
-      dense, od, cocoList, columns, cocoFilter, selectAll, inactiveSave, inactiveRefresh, enabled, separator,
+      od, cocoList, columns, cocoFilter, selectAll, inactiveSave, inactiveRefresh, enabled, separator,
       onSave, onRefresh, handleZonesCoordinatesChanged, handleMasksCoordinatesChanged, onGoBack,
       initialPagination: {
         page: 0,

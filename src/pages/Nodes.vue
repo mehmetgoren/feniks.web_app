@@ -7,20 +7,20 @@
       </q-card-section>
       <q-card-actions align='left'>
         <q-form style='max-width: 500px' id='frm1' v-if='selected' @submit='onSubmit' @reset='onReset' class='q-pa-xs'>
-          <q-input v-model='selected.node_address' filled :dense='dense' label='Node URL *' lazy-rules
+          <q-input v-model='selected.node_address' filled dense label='Node URL *' lazy-rules
             :rules="[ val => val && val.length > 0 || 'Please enter Node URL address']" />
 
-          <q-input :dense='dense' filled v-model='selected.name' label='Node Name *' lazy-rules
+          <q-input dense filled v-model='selected.name' label='Node Name *' lazy-rules
             :rules="[ val => val && val.length > 0 || 'Please enter name']" />
 
-          <q-input :dense='dense' filled label='Node Description *' v-model='selected.description' />
+          <q-input dense filled label='Node Description *' v-model='selected.description' />
 
           <q-toggle v-model='selected.enabled' label='Enabled' />
 
           <div class='q-pa-md q-gutter-sm'>
-            <q-btn label='Save' type='submit' color='primary' :dense='dense' icon='save' />
-            <q-btn @click='onDelete' label='Delete' color='red' :dense='dense' icon='remove' />
-            <q-btn label='Reset' type='reset' color='primary' flat class='q-ml-sm' :dense='dense' icon='restart_alt' />
+            <q-btn label='Save' type='submit' color='primary' dense icon='save' />
+            <q-btn @click='onDelete' label='Delete' color='red' dense icon='remove' />
+            <q-btn label='Reset' type='reset' color='primary' flat class='q-ml-sm' dense icon='restart_alt' />
           </div>
         </q-form>
       </q-card-actions>
@@ -53,15 +53,12 @@
 
 <script lang='ts'>
 import { NodeRepository } from 'src/utils/db';
-import { ref, onMounted, computed, watch } from 'vue';
-import { useStore } from 'src/store';
+import { ref, onMounted, watch } from 'vue';
 import {Node} from '../utils/entities';
 
 export default {
   name: 'AddNode',
   setup() {
-    const $store = useStore();
-    const dense = computed(() => $store.getters['settings/dense']);
     const nodeRep = ref(new NodeRepository());
     const nodes = ref();
     const selected = ref({ node_address: '', name: '', description: '', enabled: true });
@@ -114,7 +111,7 @@ export default {
       void dataBind();
     };
 
-    return { dense, selected, onSubmit, onReset, onDelete, nodes, columns, filter, selectionList };
+    return { selected, onSubmit, onReset, onDelete, nodes, columns, filter, selectionList };
   }
 };
 const columns = [

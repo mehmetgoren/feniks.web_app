@@ -11,7 +11,7 @@ import { OdModel } from 'src/utils/models/od_model';
 import { ImagesParams, FolderTreeItem, ImageItem } from 'src/utils/models/detected';
 import { OdVideoClipsViewModel } from 'src/utils/models/ai_clip_json_object';
 import { NetworkDiscoveryModel, OnvifModel } from 'src/utils/models/onvif_models';
-import { FrTrainViewModel } from 'src/utils/models/fr_models';
+import { FrTrainRename, FrTrainName, FrTrainScreenshotViewModel, FrTrainViewModel } from 'src/utils/models/fr_models';
 
 
 export class NodeService extends BaseService {
@@ -124,19 +124,39 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
-  public async getFrTrainPersons(): Promise<FrTrainViewModel[]>{
+  public async getFrTrainPersons(): Promise<FrTrainViewModel[]> {
     const resp = await api.get(this.LocalService.getNodeAddress('frtrainpersons'));
     return resp.data;
   }
 
-  public async getFrTrainPersonImages(person: string): Promise<ImageItem[]>{
+  public async getFrTrainPersonImages(person: string): Promise<ImageItem[]> {
     const resp = await api.get(this.LocalService.getNodeAddress(`frtrainpersonimages/${person}`));
     return resp.data;
   }
 
-  public async deleteFrTrainPersonImage(imgSrc: string): Promise<boolean>{
+  public async deleteFrTrainPersonImage(imgSrc: string): Promise<boolean> {
     const b64 = btoa(imgSrc);
     const resp = await api.delete(this.LocalService.getNodeAddress(`frtrainpersonimage/${b64}`));
+    return resp.data;
+  }
+
+  public async saveFrTrainPersonImage(model: FrTrainScreenshotViewModel): Promise<boolean> {
+    const resp = await api.post(this.LocalService.getNodeAddress('frtrainpersonimage'), model);
+    return resp.data;
+  }
+
+  public async renameFrTrainPersonName(model: FrTrainRename): Promise<boolean> {
+    const resp = await api.post(this.LocalService.getNodeAddress('frtrainpersonrename'), model);
+    return resp.data;
+  }
+
+  public async newFrTrainPerson(model: FrTrainName): Promise<boolean> {
+    const resp = await api.post(this.LocalService.getNodeAddress('frtrainpersonnew'), model);
+    return resp.data;
+  }
+
+  public async deleteFrTrainPerson(model: FrTrainName): Promise<boolean> {
+    const resp = await api.delete(this.LocalService.getNodeAddress('frtrainpersondelete'), { data: model });
     return resp.data;
   }
 

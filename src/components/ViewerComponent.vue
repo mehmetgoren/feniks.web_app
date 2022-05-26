@@ -1,6 +1,6 @@
 <template>
   <viewer ref='viewer' :images='images' :options='options'>
-    <img v-for='image in images' :key='image.id' :src='image.imagePath' alt='no image'>
+    <img v-for='image in images' :key='image.id' :src='image.imagePath' alt=''>
   </viewer>
 </template>
 

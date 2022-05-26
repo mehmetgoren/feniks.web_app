@@ -121,3 +121,8 @@ export function deepCopy(source: any): any {
   }
   return JSON.parse(JSON.stringify(source));
 }
+
+export function isFrDirNameValid(name: string): boolean{
+  const re = '/^[^\s^\x00-\x1f\\?*:"";<>|\/.][^\x00-\x1f\\?*:"";<>|\/]*[^\s^\x00-\x1f\\?*:"";<>|\/.]+$/g';
+  return name.match(re) === null;
+}

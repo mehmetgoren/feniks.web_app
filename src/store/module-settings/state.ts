@@ -10,6 +10,8 @@ export interface MenuLink {
   source?:SourceModel | null;
   isSource?:boolean | null;
   thumbnail?:string | null;
+
+  name?:string | null;
 }
 
 export interface MenuItem {

@@ -105,7 +105,8 @@
       <q-scroll-area class='fit'>
         <q-list padding class='text-grey-8'>
           <div v-for='(menu, index) in menus' :key='index'>
-            <q-item v-for='link in menu' :key='link.text' class='GNL__drawer-item'>
+            <q-item v-for='link in menu' :key='link.text' class='GNL__drawer-item'
+                    :active='!link.isSource&&link.name&&activeLeftMenu===link.name' active-class="my-menu-link">
               <q-item-section avatar v-if='!link.isSource' style='cursor: pointer;' v-ripple @click='onLeftMenuClick(link)'>
                 <q-icon v-if='!link.isSource' :name='link.icon' />
               </q-item-section>
@@ -248,6 +249,7 @@ export default {
     const showRecords = ref<boolean>(false);
     const selectedSourceId = ref<string>('');
     const emptyBase64Image = ref<string>(createEmptyBase64Image());
+    const activeLeftMenu = ref<string>()
 
     const tabs = ref();
     onMounted(async () => {
@@ -304,28 +306,32 @@ export default {
           {
             route: route + '&x=config',
             icon: 'settings',
-            text: 'Configuration'
+            text: 'Configuration',
+            name: 'config'
           }
         ];
         menuObject['stream_gallery'] = [
           {
             route: route + '&x=gallery',
             icon: 'grid_on',
-            text: 'Stream Gallery'
+            text: 'Stream Gallery',
+            name: 'stream_gallery'
           }
         ];
         menuObject['add_source'] = [
           {
             route: route + '&x=add_source',
             icon: 'add_box',
-            text: 'Add Source'
+            text: 'Add Source',
+            name: 'add_source'
           }
         ];
         menuObject['fr_train'] = [
           {
             route: route + '&x=fr_train',
             icon: 'face',
-            text: 'Face Training'
+            text: 'Face Training',
+            name: 'fr_train'
           }
         ];
         menuObject['cameras'] = menuLinks;
@@ -391,7 +397,7 @@ export default {
 
     return {
       homeNode, tab, leftDrawerOpen, search, showAdvanced, showDateOptions, exactPhrase, hasWords, excludeWords, byWebsite, byDate, menus,
-      tabs, loadingObject, sourceStreamStatus, showSettings, selectedSourceId, showRecords, emptyBase64Image,
+      tabs, loadingObject, sourceStreamStatus, showSettings, selectedSourceId, showRecords, emptyBase64Image, activeLeftMenu,
       onClear, toggleLeftDrawer, onTabClick, getThumbnail, onAiClick,
       onSaveSettingsClicked(sourceId: string) {
         showSettings.value = true;
@@ -421,6 +427,8 @@ export default {
   },
   methods: {
     onLeftMenuClick(link: MenuLink) {
+      //@ts-ignore
+      this.activeLeftMenu = link.name
       const me: any = this;
       // if (link.route === 'node') {
       //   me.$router.push('node-' +  link.route);
@@ -480,6 +488,10 @@ export default {
   animation: blinker 1s linear infinite;
   color: red;
   font-size: medium;
+}
+.my-menu-link{
+  color: white;
+  background: whitesmoke;
 }
 
 @keyframes blinker {

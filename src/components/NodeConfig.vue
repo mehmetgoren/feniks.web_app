@@ -11,7 +11,7 @@
         </q-toolbar>
         <q-space style='margin-bottom: 2px;' />
         <q-form id='frm1' class='q-pa-xs'>
-          <q-input v-model.trim='device.device_name' filled :dense='dense' label='Device Name' disable />
+          <q-input v-model.trim='device.device_name' filled dense label='Device Name' disable />
           <q-space style='height: 10px;' />
           <q-select emit-value map-options filled disable dense='dense'
                     v-model='device.device_type' :options='optDeviceTypes' label='Device Type' />
@@ -27,9 +27,9 @@
         </q-toolbar>
         <q-space style='margin: 2px;' />
         <q-form id='frm8' class='q-pa-xs'>
-          <q-input v-model.trim='redis.host' filled :dense='dense' label='Host' />
+          <q-input v-model.trim='redis.host' filled dense label='Host' />
           <q-space style='height: 10px;' />
-          <q-input v-model.number='redis.port' type='number' filled :dense='dense' label='Port' />
+          <q-input v-model.number='redis.port' type='number' filled dense label='Port' />
         </q-form>
         <q-space style='height: 10px;' />
 
@@ -39,16 +39,16 @@
         </q-toolbar>
         <q-space style='margin: 2px;' />
         <q-form id='frmPath' class='q-pa-xs' style='margin:0 5px 0 5px;'>
-          <q-input v-model.trim='general.root_folder_path' filled :dense='dense' label='Root Folder Path' />
+          <q-input v-model.trim='general.root_folder_path' filled dense label='Root Folder Path' />
           <q-space style='height: 10px;' />
-          <q-input v-model.number='general.heartbeat_interval' filled :dense='dense' label='Heartbeat Interval' />
+          <q-input v-model.number='general.heartbeat_interval' filled dense label='Heartbeat Interval' />
         </q-form>
         <q-space style='height: 10px;' />
         <q-toolbar class='bg-brown-5 text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
           <label style='text-transform: uppercase;font-size: medium'>Scan Network for IP Cameras</label>
         </q-toolbar>
         <q-form id='frmPath' class='q-pa-xs' style='margin:0 5px 0 5px;'>
-          <q-input v-model='networkScanResults.created_at' filled readonly :dense='dense' label='Last Scan At'/>
+          <q-input v-model='networkScanResults.created_at' filled readonly dense label='Last Scan At'/>
           <q-space style='height: 10px;' />
           <q-btn icon='radar' label='Scan Network for IP Cameras' color='brown-5' @click='onScanNetwork' :disable='showScanLoading'>
             <q-inner-loading :showing='showScanLoading' />
@@ -66,13 +66,13 @@
         </q-toolbar>
         <q-space style='margin: 2px;' />
         <q-form id='frm6' class='q-pa-xs'>
-          <q-input v-model.number='onceDetector.imagehash_threshold' type='number' filled :dense='dense'
+          <q-input v-model.number='onceDetector.imagehash_threshold' type='number' filled dense
                    label='Imagehash Threshold' />
           <q-space style='height: 10px;' />
-          <q-input v-model.number='onceDetector.psnr_threshold' type='number' filled :dense='dense'
+          <q-input v-model.number='onceDetector.psnr_threshold' type='number' filled dense
                    label='Psnr Threshold' />
           <q-space style='height: 10px;' />
-          <q-input v-model.number='onceDetector.ssim_threshold' type='number' filled :dense='dense'
+          <q-input v-model.number='onceDetector.ssim_threshold' type='number' filled dense
                    label='Ssim Threshold' />
         </q-form>
 
@@ -82,13 +82,13 @@
         </q-toolbar>
         <q-space style='height: 2px;' />
         <q-form id='frm7' class='q-pa-xs' style='margin:0 5px 0 5px;'>
-          <q-input v-model.number='sourceReader.buffer_size' type='number' filled :dense='dense' label='Buffer Size' />
+          <q-input v-model.number='sourceReader.buffer_size' type='number' filled dense label='Buffer Size' />
           <q-space style='height: 10px;' />
-          <q-input v-model.number='sourceReader.fps' type='number' filled :dense='dense' label='Fps' />
+          <q-input v-model.number='sourceReader.fps' type='number' filled dense label='Fps' />
           <q-space style='height: 10px;' />
-          <q-input v-model.number='sourceReader.max_retry' type='number' filled :dense='dense' label='Max Retry' />
+          <q-input v-model.number='sourceReader.max_retry' type='number' filled dense label='Max Retry' />
           <q-space style='height: 10px;' />
-          <q-input v-model.number='sourceReader.max_retry_in' type='number' filled :dense='dense' label='Max RetryIn' />
+          <q-input v-model.number='sourceReader.max_retry_in' type='number' filled dense label='Max RetryIn' />
           <q-space style='height: 10px;' />
         </q-form>
 
@@ -97,28 +97,28 @@
         </q-toolbar>
         <q-space style='margin: 2px;' />
         <q-form id='frm9' class='q-pa-xs'>
-          <q-toggle v-model='ffmpeg.use_double_quotes_for_path' filled :dense='dense'
+          <q-toggle v-model='ffmpeg.use_double_quotes_for_path' filled dense
                     label='Use double quotes on FFmpeg Commands' />
           <q-space style='height: 10px;' />
-          <q-input v-model.number='ffmpeg.max_operation_retry_count' type='number' filled :dense='dense'
+          <q-input v-model.number='ffmpeg.max_operation_retry_count' type='number' filled dense
                    label='Max retry count' />
           <q-space style='height: 10px;' />
-          <q-input v-model.number='ffmpeg.rtmp_server_init_interval' type='number' filled :dense='dense'
+          <q-input v-model.number='ffmpeg.rtmp_server_init_interval' type='number' filled dense
                    label='RTMP Service initialization Interval' />
           <q-space style='height: 10px;' />
-          <q-input v-model.number='ffmpeg.watch_dog_interval' type='number' filled :dense='dense'
+          <q-input v-model.number='ffmpeg.watch_dog_interval' type='number' filled dense
                    label='Watchdog Interval' />
           <q-space style='height: 10px;' />
-          <q-input v-model.number='ffmpeg.watch_dog_failed_wait_interval' type='number' filled :dense='dense'
+          <q-input v-model.number='ffmpeg.watch_dog_failed_wait_interval' type='number' filled dense
                    label='Watchdog on Fail Wait Internal' />
           <q-space style='height: 10px;' />
-          <q-input v-model.number='ffmpeg.start_task_wait_for_interval' type='number' filled :dense='dense'
+          <q-input v-model.number='ffmpeg.start_task_wait_for_interval' type='number' filled dense
                    label='Start Task Wait For Interval' />
           <q-space style='height: 10px;' />
-          <q-input v-model.number='ffmpeg.record_concat_limit' type='number' filled :dense='dense'
+          <q-input v-model.number='ffmpeg.record_concat_limit' type='number' filled dense
                    label='Recording Concat Limit' />
           <q-space style='height: 10px;' />
-          <q-input v-model.number='ffmpeg.record_video_file_indexer_interval' type='number' filled :dense='dense'
+          <q-input v-model.number='ffmpeg.record_video_file_indexer_interval' type='number' filled dense
                    label='Recording Video File Indexer Interval' />
         </q-form>
 
@@ -132,12 +132,12 @@
         </q-toolbar>
         <q-space style='margin: 2px;' />
         <q-form id='frm14' class='q-pa-xs'>
-          <q-toggle v-model='ai.overlay' filled :dense='dense' label='Overlay Detected Object' />
+          <q-toggle v-model='ai.overlay' filled dense label='Overlay Detected Object' />
           <q-space style='height: 10px;' />
-          <q-input v-model.number='ai.video_clip_duration' filled :dense='dense' label='Video Clip Duration' />
-          <q-input v-model.number='ai.face_recog_mtcnn_threshold' filled :dense='dense' label='Face Recognition MTCNN Threshold' />
-          <q-input v-model.number='ai.face_recog_prob_threshold' filled :dense='dense' label='Face Recognition Probability Threshold' />
-          <q-input v-model.number='ai.plate_recog_instance_count' filled :dense='dense' label='Automatic Plate Recognition Instance Count' />
+          <q-input v-model.number='ai.video_clip_duration' filled dense label='Video Clip Duration' />
+          <q-input v-model.number='ai.face_recog_mtcnn_threshold' filled dense label='Face Recognition MTCNN Threshold' />
+          <q-input v-model.number='ai.face_recog_prob_threshold' filled dense label='Face Recognition Probability Threshold' />
+          <q-input v-model.number='ai.plate_recog_instance_count' filled dense label='Automatic Plate Recognition Instance Count' />
         </q-form>
 
         <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin: 0 10px 0 10px; width: auto;'>
@@ -145,9 +145,9 @@
         </q-toolbar>
         <q-space style='margin: 2px;' />
         <q-form id='frm5' class='q-pa-xs' style='margin: 0 10px 0 10px'>
-          <q-input v-model.trim='torch.model_name' filled :dense='dense' label='Model Name' />
+          <q-input v-model.trim='torch.model_name' filled dense label='Model Name' />
           <q-space style='height: 10px;' />
-          <q-input v-model.trim='torch.model_name_specific' filled :dense='dense' label='Model Specific Name' />
+          <q-input v-model.trim='torch.model_name_specific' filled dense label='Model Specific Name' />
 
         </q-form>
         <q-space style='margin: 2px;' />
@@ -156,9 +156,9 @@
         </q-toolbar>
         <q-space style='margin: 2px;' />
         <q-form id='frm10' class='q-pa-xs' style='margin: 0 10px 0 10px'>
-          <q-input v-model='tf.model_name' filled :dense='dense' label='Model Name' />
+          <q-input v-model='tf.model_name' filled dense label='Model Name' />
           <q-space style='height: 10px;' />
-          <q-input v-model='tf.cache_folder' filled :dense='dense' label='Cache Folder' />
+          <q-input v-model='tf.cache_folder' filled dense label='Cache Folder' />
         </q-form>
 
         <q-space style='height: 10px;' />
@@ -167,7 +167,7 @@
         </q-toolbar>
         <q-space style='margin: 2px;' />
         <q-form id='frm4' class='q-pa-xs' style='margin: 0 10px 0 10px'>
-          <q-input v-model.trim='jetson.model_name' filled :dense='dense' label='Model Name' />
+          <q-input v-model.trim='jetson.model_name' filled dense label='Model Name' />
         </q-form>
 
       </div>
@@ -178,7 +178,7 @@
 
 <script lang='ts'>
 import { NodeService } from 'src/utils/services/node_service';
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import {
   Config,
   JetsonConfig,
@@ -189,7 +189,6 @@ import {
   RedisConfig,
   FFmpegConfig, TensorflowConfig, AiConfig, GeneralConfig
 } from 'src/utils/models/config';
-import { useStore } from 'src/store';
 import CommandBar from 'src/components/CommandBar.vue';
 import { List } from 'linqts';
 import { PublishService, SubscribeService } from 'src/utils/services/websocket_services';
@@ -201,8 +200,6 @@ export default {
   name: 'NodeConfig',
   components: { CommandBar },
   setup() {
-    const $store = useStore();
-    const dense = computed(() => $store.getters['settings/dense']);
     const nodeService = new NodeService();
     const publishService = new PublishService();
     const subscribeService = new SubscribeService();
@@ -284,7 +281,7 @@ export default {
       config, device, optDeviceTypes, onceDetector, sourceReader, redis,
       jetson, jetsonFilter, ffmpeg, tf, ai, general,
       torch, torchFilter, tfFilter, showScanLoading,
-      dense, modelMultiple, optServices, onSave, onRestore,
+      modelMultiple, optServices, onSave, onRestore,
       imageExtensions: ['jpg', 'jpeg', 'png', 'bmp', 'gif'],
       onScanNetwork: function() {
         void publishService.publishOnvif({}, OnvifAction.NetworkDiscovery);

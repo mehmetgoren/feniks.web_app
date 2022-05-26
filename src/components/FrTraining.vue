@@ -8,6 +8,10 @@
           <q-toolbar-title>
             <strong>Face Training</strong>
           </q-toolbar-title>
+          <q-btn label='Add New' icon-right='add' dense color='primary' style='margin-right: 15px' @click='onNew' />
+          <q-btn label='Start Train' icon-right='engineering' @click='onTraining' :disable='showTrainLoading' color='orange'>
+            <q-inner-loading :showing='showTrainLoading' />
+          </q-btn>
         </q-toolbar>
       </q-header>
 
@@ -29,36 +33,99 @@
       </q-drawer>
 
       <q-page-container>
+        <q-toolbar class='bg-deep-purple-9' style='margin-top: 1px;height: 56px'>
+          <q-toolbar-title><label class='text-white' style='font-size: larger;'>{{ selectedPerson.name }}</label></q-toolbar-title>
+        </q-toolbar>
         <q-page padding>
-          {{ selectedPerson }}
-          <ViewerComponent v-if='showGallery' :images='images' :show-delete='true' @on-delete='onImageDelete' />
+          <div class='row wrap justify-start content-stretch'>
+            <div class='col-3'>
+              <q-form class='q-gutter-md'>
+                <q-input filled v-model='selectedPerson.name' label='Person name *' hint='Name and surname'
+                         lazy-rules :rules="[ val => val && val.length > 0 || 'Please type something']" />
+                <q-btn v-if='mode===0' label='Rename' color='deep-purple-9' @click='onRename'
+                       :disable='showRenameLoading||!selectedPerson.name'>
+                  <q-inner-loading :showing='showRenameLoading' />
+                </q-btn>
+                <q-btn v-if='mode===1' label='Create' color='primary' @click='onAdNewSubmit'
+                       :disable='showAdNewSubmitLoading||!selectedPerson.name'>
+                  <q-inner-loading :showing='showAdNewSubmitLoading' />
+                </q-btn>
+                <q-btn v-if='mode===0' label='Delete' color='red' @click='onDelete'
+                       :disable='showDeleteLoading||!selectedPerson.name'>
+                  <q-inner-loading :showing='showDeleteLoading' />
+                </q-btn>
+                <q-separator size='2px' />
+                <q-select filled option-value='id' option-label='name' v-model='selectedSource' :options='sourceList'
+                          color='deep-purple-9' label='Select a Source to Take a Screenshot' dense :disable='mode===1' />
+                <q-btn label='Screenshot' icon-right='photo_camera' @click='onTakeScreenshot' :disable='showTakeScreenshot||mode===1'
+                       color='deep-purple-9'>
+                  <q-inner-loading :showing='showTakeScreenshot' />
+                </q-btn>
+                <q-separator size='2px' />
+                <q-uploader :factory='factoryFn' label='Upload JPEG Image' multiple
+                            accept='.jpg, image/*' max-files='1' :disable='mode===1' />
+              </q-form>
+            </div>
+            <div class='col-9'>
+              <ViewerComponent style='margin-left: 15px;' v-if='showGallery' :images='images' :show-delete='true' @on-delete='onImageDelete' />
+            </div>
+          </div>
           <q-inner-loading :showing='showPageLoading' />
         </q-page>
       </q-page-container>
     </q-layout>
   </div>
 </template>
-
 <script lang='ts'>
-import { onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import ViewerComponent from 'src/components/ViewerComponent.vue';
-import { FrTrainViewModel } from '../utils/models/fr_models';
+import { FaceTrainResponseEvent, FrTrainViewModel } from '../utils/models/fr_models';
 import { NodeService } from '../utils/services/node_service';
 import { ImageItem } from 'src/utils/models/detected';
+import { PublishService, SubscribeService } from 'src/utils/services/websocket_services';
+import { WsConnection } from 'src/utils/ws/connection';
+import { useQuasar } from 'quasar';
+import { List } from 'linqts';
+import { SourceModel } from 'src/utils/models/source_model';
+import { EditorImageResponseModel } from 'src/utils/entities';
+import { isFrDirNameValid } from 'src/utils/utils';
 
 export default {
   name: 'FrTraining',
-  components:{ViewerComponent},
+  components: { ViewerComponent },
   setup() {
+    const $q = useQuasar();
     const people = ref<FrTrainViewModel[]>([]);
     const selectedPerson = ref<FrTrainViewModel>({ name: '', image_paths: [] });
     const link = ref<string>('');
     const nodeService = new NodeService();
+    const publishService = new PublishService();
+    const subscribeService = new SubscribeService();
     const images = ref<ImageItem[]>([]);
     const showPageLoading = ref<boolean>(false);
     const showGallery = ref<boolean>(true);
+    const showTrainLoading = ref<boolean>(false);
+    const selectedSource = ref<SourceModel>(nodeService.LocalService.createEmptySource());
+    const sourceList = ref<SourceModel[]>([]);
+    const showTakeScreenshot = ref<boolean>(false);
+    let connFrTrain: WsConnection | null = null;
+    let connTakeScreenshot: WsConnection | null = null;
+    let prevSelectedPersonName: string | null = null;
+    const showRenameLoading = ref<boolean>(false);
+    const mode = ref<Mode>(0);
+    const showAdNewSubmitLoading = ref<boolean>(false);
+    const showDeleteLoading = ref<boolean>(false);
 
-    const dataBind = async () =>{
+    watch(mode, () => {
+      switch (mode.value) {
+        case Mode.Add:
+          selectedPerson.value = { name: '', image_paths: [] };
+          images.value = [];
+          break;
+      }
+    });
+
+    const dataBindImages = async () => {
       const items = await nodeService.getFrTrainPersons();
       if (items && items.length > 0) {
         for (const item of items) {
@@ -69,20 +136,67 @@ export default {
           }
         }
         link.value = items[0].name;
-        if (selectedPerson.value.name){
+        if (selectedPerson.value.name) {
           await onLeftPersonMenuClicked(selectedPerson.value);
-        }else{
+        } else {
           await onLeftPersonMenuClicked(items[0]);
         }
       }
       people.value = items;
+      return items;
+    };
+
+    const onTraining = () => {
+      showTrainLoading.value = true;
+      void publishService.publishFrTrain();
+    };
+
+    function onSubscribeFrTrain(event: MessageEvent) {
+      showTrainLoading.value = false;
+      const responseEvent: FaceTrainResponseEvent = JSON.parse(event.data);
+      $q.notify({
+        message: responseEvent.result ? 'Training Complete' : 'Training has been failed',
+        caption: '',
+        color: responseEvent.result ? 'green' : 'red'
+      });
+    }
+
+    function onScreenshotComplete(event: MessageEvent) {
+      const sp = selectedPerson.value;
+      const responseModel: EditorImageResponseModel = JSON.parse(event.data);
+      if (responseModel.id !== selectedSource.value.id || responseModel.event_type != 1) {
+        return;
+      }
+      showTakeScreenshot.value = false;
+      if (!responseModel.image_base64) {
+        $q.notify({ message: 'Taking screenshot has been failed', color: 'red' });
+        return;
+      }
+      nodeService.saveFrTrainPersonImage({ name: sp.name, base64_image: responseModel.image_base64 })
+        .then(() => {
+          $q.notify({ message: 'The screenshot has been saved', color: 'green' });
+          void dataBindImages();
+        }).catch(console.error);
     }
 
     onMounted(async () => {
-      await dataBind();
+      sourceList.value = await nodeService.getSourceList();
+      await dataBindImages();
+      connFrTrain = subscribeService.subscribeFrTrain(onSubscribeFrTrain);
+      connTakeScreenshot = subscribeService.subscribeEditor(onScreenshotComplete);
+    });
+
+    onBeforeUnmount(() => {
+      if (connFrTrain) {
+        connFrTrain.close();
+      }
+      if (connTakeScreenshot) {
+        connTakeScreenshot.close();
+      }
     });
 
     async function onLeftPersonMenuClicked(person: FrTrainViewModel) {
+      prevSelectedPersonName = person?.name;
       selectedPerson.value = person;
       link.value = person.name;
 
@@ -102,26 +216,125 @@ export default {
       }
     }
 
+    function onTakeScreenshot() {
+      if (!selectedSource.value.id) {
+        $q.notify({
+          message: 'Please Select a Source First',
+          caption: 'Warning',
+          color: 'red'
+        });
+        return;
+      }
+
+      const source = new List(sourceList.value).First(x => x?.id === selectedSource.value.id);
+      showTakeScreenshot.value = true;
+      void publishService.publishEditor({
+        id: source.id,
+        brand: source.brand,
+        name: source.name,
+        address: source.address,
+        event_type: 1
+      });
+    }
+
+    const toBase64 = (file: File) => new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
+
+    async function onDelete() {
+      showDeleteLoading.value = true;
+      try {
+        await nodeService.deleteFrTrainPerson({ name: selectedPerson.value.name });
+        mode.value = Mode.Add;
+        selectedPerson.value = {name:'', image_paths:[]};
+        await dataBindImages();
+      } finally {
+        showDeleteLoading.value = false;
+      }
+    }
+
     return {
       drawer: ref<boolean>(true),
-      people, selectedPerson, link, images, showPageLoading, showGallery,
-      onLeftPersonMenuClicked,
-      async onImageDelete(src: string){
+      people, selectedPerson, link, images, showPageLoading, showGallery, showTrainLoading, selectedSource, sourceList,
+      showTakeScreenshot, showRenameLoading, mode, showAdNewSubmitLoading, showDeleteLoading,
+      onLeftPersonMenuClicked, onTraining, onTakeScreenshot,
+      async onImageDelete(src: string) {
         await nodeService.deleteFrTrainPersonImage(src);
         showGallery.value = false;
         setTimeout(() => {
           showGallery.value = true;
-          void dataBind();
+          void dataBindImages();
         }, 100);
+      },
+      async factoryFn(files: any) {
+        if (!files || !files.length) {
+          return false;
+        }
+        const b64: any = await toBase64(files[0]);
+        if (!b64 || b64.length < 10) {
+          return false;
+        }
+        await nodeService.saveFrTrainPersonImage({ name: selectedPerson.value.name, base64_image: b64.split(',')[1] });
+        await dataBindImages();
+        return true;
+      },
+      async onRename() {
+        const name = selectedPerson.value.name;
+        if (!prevSelectedPersonName || !name || !isFrDirNameValid(name)) {
+          $q.notify({ message: 'Please enter valid name', color: 'red' });
+          return;
+        }
+        showRenameLoading.value = true;
+        try {
+          await nodeService.renameFrTrainPersonName({ original_name: prevSelectedPersonName, new_name: name });
+          await dataBindImages();
+          await onLeftPersonMenuClicked(selectedPerson.value);
+        } finally {
+          showRenameLoading.value = false;
+        }
+      },
+      onNew() {
+        mode.value = Mode.Add;
+      },
+      async onAdNewSubmit() {
+        showAdNewSubmitLoading.value = true;
+        try {
+          const result = await nodeService.newFrTrainPerson({ name: selectedPerson.value.name });
+          if (result) {
+            mode.value = Mode.Edit;
+            await dataBindImages();
+            await onLeftPersonMenuClicked(selectedPerson.value);
+          }
+        } finally {
+          showAdNewSubmitLoading.value = false;
+        }
+      },
+      onDelete() {
+        $q.dialog({
+          title: 'Confirm',
+          message: 'Are you sure you want to delete this person?',
+          cancel: true,
+          persistent: false
+        }).onOk(() => {
+          void onDelete();
+        });
       }
     };
   }
 };
 
+enum Mode {
+  Edit = 0,
+  Add = 1
+}
 </script>
 
-<style lang='sass'>
-.my-menu-link
-  color: white
-  background: $deep-purple-9
+<style scoped>
+.my-menu-link {
+  color: white;
+  background: #4527a0;
+}
 </style>

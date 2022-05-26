@@ -42,6 +42,11 @@ export class PublishService extends BaseService {
     const address = `${this.getPublishEndpointRoot()}/videomerge`;
     await api.post(address, event);
   }
+
+  public async publishFrTrain(): Promise<void>{
+    const address = `${this.getPublishEndpointRoot()}/frtrain`;
+    await api.post(address, {});
+  }
 }
 
 export class SubscribeService extends BaseService {
@@ -67,5 +72,9 @@ export class SubscribeService extends BaseService {
 
   public subscribeVideomerge(onMessage: ((this: WebSocket, ev: MessageEvent) => any)): WsConnection {
     return new WsConnection('wsvideomerge', onMessage);
+  }
+
+  public subscribeFrTrain(onMessage: ((this: WebSocket, ev: MessageEvent) => any)): WsConnection{
+    return new WsConnection('wsfrtrain', onMessage);
   }
 }
