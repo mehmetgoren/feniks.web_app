@@ -8,17 +8,17 @@
         <FlvPlayer v-if='stream&&stream.show&&stream.stream_type===0' :src='stream.src' :source-id='stream.id'
                    :enable-log='true' :ref='setStreamPlayers'
                    :enable-booster='stream.boosterEnabled' :seek-to-live-edge-internal='30' :gallery-index='index'/>
-        <FFmpegReaderPlayer v-if='stream&&stream.show&&stream.stream_type===1' :source-id='stream.id'
-                            :ref='setStreamPlayers' />
-        <HlsPlayer v-if='stream&&stream.show&&stream.stream_type===2' :src='stream.src' :source-id='stream.id'
+        <HlsPlayer v-if='stream&&stream.show&&stream.stream_type===1' :src='stream.src' :source-id='stream.id'
                    :ref='setStreamPlayers' :enable-log='true'
                    :enable-booster='stream.boosterEnabled' :seek-to-live-edge-internal='30' :gallery-index='index'/>
+        <FFmpegReaderPlayer v-if='stream&&stream.show&&stream.stream_type>1' :source-id='stream.id'
+                            :ref='setStreamPlayers'  />
 
         <StreamCommandBar v-if='stream.show' :stream='stream' @full-screen='onFullScreen' @stream-stop='onStreamStop'
                           @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh'
                           @deleted='onSourceDeleted' @restart='onRestart' @close='onStreamClose'
                           :take-screenshot-loading='stream.takeScreenshotLoading'
-                          :show-booster='stream.stream_type!==1'
+                          :show-booster='stream.stream_type<2'
                           :enable-booster='stream.boosterEnabled' @booster-changed='onBoosterChanged' />
 
         <q-inner-loading v-if='!stream.show' :showing='true' label='Please wait...' label-class='text-cyan' />
@@ -123,10 +123,11 @@ export default {
             const flvAddress = isRemoteServer ? streamModel.rtmp_flv_address.replace('127.0.0.1', serverIp) : streamModel.rtmp_flv_address;
             url = flvAddress;
             break;
-          case 1: //FFmpeg Reader
-            break;
-          case 2: //HLS
+          case 1: //HLS
             url = localService.getVideoAddress() + '/' + streamModel.id + '/stream.m3u8';
+            break;
+          case 2: //Direct Reader
+          case 3: //FFmpeg Reader
             break;
           default:
             throw new Error(`Stream type is not supported: ${streamModel.stream_type}`);
@@ -136,7 +137,7 @@ export default {
         stream.show = true;
         stream.loc = getGsLayout(stream.id);
         stream.takeScreenshotLoading = false;
-        stream.boosterEnabled = streamModel.stream_type == 0;
+        stream.boosterEnabled = streamModel.stream_type < 2;
         streamList.push(stream);
         open.value = false;
         if (isStartStream) {

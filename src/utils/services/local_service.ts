@@ -148,8 +148,9 @@ export class LocalService {
   public createStreamTypes(): SelectOption[] {
     return [
       { value: 0, label: 'FLV' },
-      { value: 1, label: 'FFmpeg Reader' },
-      { value: 2, label: 'HLS' }
+      { value: 1, label: 'HLS' },
+      { value: 2, label: 'Direct Reader' },
+      { value: 3, label: 'FFmpeg Reader' },
     ];
   }
 
