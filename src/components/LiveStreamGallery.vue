@@ -137,7 +137,7 @@ export default {
         stream.show = true;
         stream.loc = getGsLayout(stream.id);
         stream.takeScreenshotLoading = false;
-        stream.boosterEnabled = streamModel.stream_type < 2;
+        stream.boosterEnabled = streamModel.stream_type == 0; // default FLV is booster enabled
         streamList.push(stream);
         open.value = false;
         if (isStartStream) {

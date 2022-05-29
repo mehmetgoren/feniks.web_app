@@ -106,7 +106,7 @@
         <q-list padding class='text-grey-8'>
           <div v-for='(menu, index) in menus' :key='index'>
             <q-item v-for='link in menu' :key='link.text' class='GNL__drawer-item'
-                    :active='!link.isSource&&link.name&&activeLeftMenu===link.name' active-class="my-menu-link">
+                    :active='!link.isSource&&link.name&&activeLeftMenu===link.name' active-class='my-menu-link'>
               <q-item-section avatar v-if='!link.isSource' style='cursor: pointer;' v-ripple @click='onLeftMenuClick(link)'>
                 <q-icon v-if='!link.isSource' :name='link.icon' />
               </q-item-section>
@@ -128,20 +128,20 @@
               </q-item-section>
               <q-btn-dropdown v-if='link.isSource' color='primary' dropdown-icon='settings' :dense='true'>
                 <q-list>
-                  <q-item clickable v-close-popup @click='onSaveSettingsClicked(link.id)' v-ripple>
-                    <q-item-section side>
-                      <q-icon name='settings' color='cyan' />
-                    </q-item-section>
-                    <q-item-section>
-                      <q-item-label>Settings</q-item-label>
-                    </q-item-section>
-                  </q-item>
                   <q-item clickable v-close-popup @click='onStartStreaming(link)' v-ripple>
                     <q-item-section side>
                       <q-icon name='live_tv' color='cyan' />
                     </q-item-section>
                     <q-item-section>
                       <q-item-label>Start Streaming</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                  <q-item clickable v-close-popup @click='onSaveSettingsClicked(link.id)' v-ripple>
+                    <q-item-section side>
+                      <q-icon name='settings' color='cyan' />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label>Settings</q-item-label>
                     </q-item-section>
                   </q-item>
                   <q-item clickable v-close-popup @click='onShowRecordClicked(link.id)'>
@@ -158,6 +158,14 @@
                     </q-item-section>
                     <q-item-section>
                       <q-item-label>AI</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                  <q-item clickable v-close-popup @click='onOnvifClick(link)'>
+                    <q-item-section side>
+                      <q-icon name='settings_ethernet' color='brown-5' />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label>ONVIF</q-item-label>
                     </q-item-section>
                   </q-item>
                   <q-item clickable v-close-popup @click='onTakeScreenshotClicked(link)'>
@@ -201,6 +209,10 @@
     <SourceRecords :source-id='selectedSourceId' />
   </q-dialog>
 
+  <q-dialog v-model='showOnvif' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
+    <OnvifSettings :address='selectedSourceAddress' :color='"brown-5"' />
+  </q-dialog>
+
 </template>
 
 <script lang='ts'>
@@ -214,14 +226,14 @@ import { PublishService, SubscribeService } from 'src/utils/services/websocket_s
 import { EditorImageResponseModel, Node } from 'src/utils/entities';
 import SourceSettings from 'components/SourceSettings.vue';
 import SourceRecords from 'components/SourceRecords.vue';
+import OnvifSettings from 'components/OnvifSettings.vue';
 import { SourceModel } from 'src/utils/models/source_model';
 import { createEmptyBase64Image, startStream } from 'src/utils/utils';
 
 export default {
   name: 'Ionix Layout',
   components: {
-    SourceSettings,
-    SourceRecords
+    SourceSettings, SourceRecords, OnvifSettings
   },
   setup() {
     const homeNode: Node = { node_address: '', name: 'home', description: '', enabled: true };
@@ -249,7 +261,9 @@ export default {
     const showRecords = ref<boolean>(false);
     const selectedSourceId = ref<string>('');
     const emptyBase64Image = ref<string>(createEmptyBase64Image());
-    const activeLeftMenu = ref<string>()
+    const activeLeftMenu = ref<string>();
+    const selectedSourceAddress = ref<string>('');
+    const showOnvif = ref<boolean>(false);
 
     const tabs = ref();
     onMounted(async () => {
@@ -397,7 +411,7 @@ export default {
 
     return {
       homeNode, tab, leftDrawerOpen, search, showAdvanced, showDateOptions, exactPhrase, hasWords, excludeWords, byWebsite, byDate, menus,
-      tabs, loadingObject, sourceStreamStatus, showSettings, selectedSourceId, showRecords, emptyBase64Image, activeLeftMenu,
+      tabs, loadingObject, sourceStreamStatus, showSettings, selectedSourceId, showRecords, emptyBase64Image, activeLeftMenu, selectedSourceAddress, showOnvif,
       onClear, toggleLeftDrawer, onTabClick, getThumbnail, onAiClick,
       onSaveSettingsClicked(sourceId: string) {
         showSettings.value = true;
@@ -422,13 +436,17 @@ export default {
       },
       onSourceSettingsSave() {
         showSettings.value = false;
+      },
+      onOnvifClick(link: MenuLink) {
+        selectedSourceAddress.value = <string>link.source?.address;
+        showOnvif.value = true;
       }
     };
   },
   methods: {
     onLeftMenuClick(link: MenuLink) {
       //@ts-ignore
-      this.activeLeftMenu = link.name
+      this.activeLeftMenu = link.name;
       const me: any = this;
       // if (link.route === 'node') {
       //   me.$router.push('node-' +  link.route);
@@ -489,7 +507,8 @@ export default {
   color: red;
   font-size: medium;
 }
-.my-menu-link{
+
+.my-menu-link {
   color: white;
   background: whitesmoke;
 }
