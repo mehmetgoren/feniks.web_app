@@ -138,7 +138,7 @@ export default {
         return;
       }
       liveTracker.nextSeekedFromUser_ = false;
-      liveTracker.player_.currentTime(liveTracker.liveCurrentTime() - .2);
+      liveTracker.player_.currentTime(liveTracker.liveCurrentTime() - .3);
       if (this.enableLog) {
         console.log(`FlvPlayer(${this.sourceId}): seekToLiveEdge at ${new Date().toLocaleString()} by ${by}`);
       }

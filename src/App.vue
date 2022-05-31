@@ -1,10 +1,27 @@
 <template>
-  <router-view />
+  <router-view v-if='authenticated' />
+  <Login v-else />
 </template>
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { computed, defineComponent, ref, watch } from 'vue';
+import Login from 'pages/Login.vue';
+import { useStore } from 'src/store';
+import { User } from 'src/utils/models/user_model';
 
 export default defineComponent({
-  name: 'App'
+  name: 'App',
+  components: { Login },
+  setup(){
+    const $store = useStore();
+    const authenticated = ref<boolean>(false);
+    const currentUser = computed(() => $store.getters['settings/currentUser']);
+    watch(currentUser, (newUser: User | null) => {
+      authenticated.value = newUser !== null;
+    });
+
+    return {
+      authenticated
+    }
+  }
 })
 </script>

@@ -4,6 +4,7 @@ import { List } from 'linqts';
 import { Node } from 'src/utils/entities';
 import { SourceModel } from 'src/utils/models/source_model';
 import { LocalService } from 'src/utils/services/local_service';
+import { User } from 'src/utils/models/user_model';
 
 const mutation: MutationTree<ISettingsState> = {
   changeDense(state: ISettingsState, value: boolean) {
@@ -71,6 +72,9 @@ const mutation: MutationTree<ISettingsState> = {
   },
   aiSettingsSourceId(state: ISettingsState, sourceId: string){
     state.aiSettingsSourceId = sourceId;
+  },
+  currentUser(state: ISettingsState, user: User){
+    state.currentUser = user;
   }
 };
 

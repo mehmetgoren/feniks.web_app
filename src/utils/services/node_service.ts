@@ -12,6 +12,7 @@ import { ImagesParams, FolderTreeItem, ImageItem } from 'src/utils/models/detect
 import { OdVideoClipsViewModel } from 'src/utils/models/ai_clip_json_object';
 import { NetworkDiscoveryModel, OnvifModel } from 'src/utils/models/onvif_models';
 import { FrTrainRename, FrTrainName, FrTrainScreenshotViewModel, FrTrainViewModel } from 'src/utils/models/fr_models';
+import { LoginUserViewModel, RegisterUserViewModel, User } from 'src/utils/models/user_model';
 
 
 export class NodeService extends BaseService {
@@ -177,6 +178,16 @@ export class NodeService extends BaseService {
 
   public async getOnvif(address: string): Promise<OnvifModel> {
     const resp = await api.get(this.LocalService.getNodeAddress(`onvif/${address}`));
+    return resp.data;
+  }
+
+  public async login(user: LoginUserViewModel): Promise<User>{
+    const resp = await api.post(this.LocalService.getNodeAddress('login'), user);
+    return resp.data;
+  }
+
+  public async registerUser(user: RegisterUserViewModel): Promise<boolean>{
+    const resp = await api.post(this.LocalService.getNodeAddress('registeruser'), user);
     return resp.data;
   }
 }

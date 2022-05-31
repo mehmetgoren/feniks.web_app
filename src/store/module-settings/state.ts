@@ -1,17 +1,18 @@
 import { Node } from 'src/utils/entities';
 import { SourceModel } from 'src/utils/models/source_model';
+import { User } from 'src/utils/models/user_model';
 
 export interface MenuLink {
   route?: string | null;
   text?: string | null;
   icon?: string;
-  href?:string;
-  id?:string | null;
-  source?:SourceModel | null;
-  isSource?:boolean | null;
-  thumbnail?:string | null;
+  href?: string;
+  id?: string | null;
+  source?: SourceModel | null;
+  isSource?: boolean | null;
+  thumbnail?: string | null;
 
-  name?:string | null;
+  name?: string | null;
 }
 
 export interface MenuItem {
@@ -32,41 +33,38 @@ export interface ISettingsState {
   sourceStreamStatusChanged: boolean;
   aiSettingsClicked: boolean;
   aiSettingsSourceId: string;
+  currentUser: User | null;
 }
 
-export interface LoadingInfo{
-  id:string;
-  loading:boolean;
+export interface LoadingInfo {
+  id: string;
+  loading: boolean;
 }
 
 function state(): ISettingsState {
   const links: MenuItem = {
     links1: [
       { route: 'home?c=index', icon: 'web', text: 'Dashboard' },
-      { route: 'home?c=nodes', icon: 'add_box', text: 'Nodes'},
+      { route: 'home?c=nodes', icon: 'add_box', text: 'Nodes' }
     ],
     links2: [
-      { route: 'home?c=hub', icon: 'domain', text: 'Hub'},
-    ],
-    links3: [
-      { icon: 'open_in_new', text: 'Github', href:'https://github.com/mehmetgoren' },
-      { icon: 'open_in_new', text: 'Get the Android app' },
-      { icon: 'open_in_new', text: 'Get the iOS app' },
+      { route: 'home?c=hub', icon: 'hub', text: 'Hub' }
     ]
   };
   return {
     dense: true,
     menu: {
       'home': links,
-      '': links,
+      '': links
     },
-    activeTab: { name: 'home', description:'', enabled:true, node_address:'' },
-    activeLeftMenu:null,
-    sourceLoading: { id:'', loading:false },
-    addSourceClicked:false,
+    activeTab: { name: 'home', description: '', enabled: true, node_address: '' },
+    activeLeftMenu: null,
+    sourceLoading: { id: '', loading: false },
+    addSourceClicked: false,
     sourceStreamStatusChanged: false,
     aiSettingsClicked: false,
-    aiSettingsSourceId: ''
+    aiSettingsSourceId: '',
+    currentUser: null
   };
 }
 

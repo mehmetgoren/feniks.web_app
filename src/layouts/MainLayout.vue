@@ -376,6 +376,8 @@ export default {
       await sourceStreamDatabind();
     });
 
+    const currentUser = computed(() => $store.getters['settings/currentUser']);
+
     function onClear() {
       exactPhrase.value = '';
       hasWords.value = '';
@@ -410,7 +412,7 @@ export default {
     };
 
     return {
-      homeNode, tab, leftDrawerOpen, search, showAdvanced, showDateOptions, exactPhrase, hasWords, excludeWords, byWebsite, byDate, menus,
+      homeNode, tab, leftDrawerOpen, search, showAdvanced, showDateOptions, exactPhrase, hasWords, excludeWords, byWebsite, byDate, menus, currentUser,
       tabs, loadingObject, sourceStreamStatus, showSettings, selectedSourceId, showRecords, emptyBase64Image, activeLeftMenu, selectedSourceAddress, showOnvif,
       onClear, toggleLeftDrawer, onTabClick, getThumbnail, onAiClick,
       onSaveSettingsClicked(sourceId: string) {

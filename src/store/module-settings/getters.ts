@@ -2,6 +2,7 @@ import { GetterTree } from 'vuex';
 import { IState } from '../index';
 import { ISettingsState, LoadingInfo, MenuLink, MenuObject } from './state';
 import { Node } from 'src/utils/entities';
+import { User } from 'src/utils/models/user_model';
 
 const getters: GetterTree<ISettingsState, IState> = {
   dense(state : ISettingsState): boolean {
@@ -30,6 +31,9 @@ const getters: GetterTree<ISettingsState, IState> = {
   },
   aiSettingsSourceId(state: ISettingsState): string{
     return state.aiSettingsSourceId;
+  },
+  currentUser(state: ISettingsState): User | null{
+    return state.currentUser;
   }
 };
 
