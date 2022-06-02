@@ -43,6 +43,22 @@
           <q-space style='height: 10px;' />
           <q-input v-model.number='general.heartbeat_interval' filled dense label='Heartbeat Interval' />
         </q-form>
+
+        <q-space style='height: 10px;' />
+        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
+          <label style='text-transform: uppercase;font-size: medium'>UI Config</label>
+        </q-toolbar>
+        <q-space style='margin: 2px;' />
+        <q-form id='frmPath' class='q-pa-xs' style='margin:0 5px 0 5px;'>
+          <q-input v-model.number='ui.gs_width' filled dense label='Grid Stack Width' />
+          <q-space style='height: 10px;' />
+          <q-input v-model.number='ui.gs_height' filled dense label='Grid Stack Height' />
+          <q-space style='height: 10px;' />
+          <q-input v-model.number='ui.booster_interval' filled dense label='Booster Interval' />
+          <q-space style='height: 10px;' />
+          <q-input v-model.number='ui.seek_to_live_edge_internal' filled dense label='Seek to Live Edge Internal' />
+        </q-form>
+
         <q-space style='height: 10px;' />
         <q-toolbar class='bg-brown-5 text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
           <label style='text-transform: uppercase;font-size: medium'>Scan Network for IP Cameras</label>
@@ -187,7 +203,7 @@ import {
   OnceDetectorConfig,
   SourceReaderConfig,
   RedisConfig,
-  FFmpegConfig, TensorflowConfig, AiConfig, GeneralConfig
+  FFmpegConfig, TensorflowConfig, AiConfig, GeneralConfig, UiConfig
 } from 'src/utils/models/config';
 import CommandBar from 'src/components/CommandBar.vue';
 import { List } from 'linqts';
@@ -215,6 +231,7 @@ export default {
     const redis = ref<RedisConfig>();
     const ffmpeg = ref<FFmpegConfig>();
     const ai = ref<AiConfig>();
+    const ui = ref<UiConfig>();
 
     //jetson
     const jetson = ref<JetsonConfig>();
@@ -241,6 +258,7 @@ export default {
       tf.value = c.tensorflow;
       jetson.value = c.jetson;
       ai.value = c.ai;
+      ui.value = c.ui;
     };
 
     onMounted(async () => {
@@ -279,7 +297,7 @@ export default {
 
     return {
       config, device, optDeviceTypes, onceDetector, sourceReader, redis,
-      jetson, jetsonFilter, ffmpeg, tf, ai, general,
+      jetson, jetsonFilter, ffmpeg, tf, ai, general, ui,
       torch, torchFilter, tfFilter, showScanLoading,
       modelMultiple, optServices, onSave, onRestore,
       imageExtensions: ['jpg', 'jpeg', 'png', 'bmp', 'gif'],

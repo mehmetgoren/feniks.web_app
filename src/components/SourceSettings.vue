@@ -105,6 +105,8 @@
                           v-model='source.stream_type' color='cyan' @update:model-value='onStreamTypeChanged'
                           :options='streamTypes' label='Stream Type' transition-show='flip-up'
                           transition-hide='flip-down' />
+                <q-toggle v-if='source.stream_type < 2' dense v-model='source.booster_enabled' checked-icon='check' color='cyan'
+                          :label='"Booster " + (source.booster_enabled ? "Enabled" : "Disabled")' />
                 <q-select dense emit-value map-options filled v-model='source.stream_video_codec' color='cyan'
                           :options='streamVideoCodecs' label='Video Codec' transition-show='scale' transition-hide='scale' />
                 <q-select v-if='source.stream_video_codec !== 3' dense emit-value
@@ -440,8 +442,11 @@ export default {
       if (!source.value.stream_type) {
         return;
       }
-      if (source.value.stream_type > 1 && !source.value.record_enabled) {
-        source.value.stream_audio_codec = 0; // No Audio
+      if (source.value.stream_type > 1) {
+        source.value.booster_enabled = false;
+        if (!source.value.record_enabled){
+          source.value.stream_audio_codec = 0; // No Audio
+        }
       }
     };
 

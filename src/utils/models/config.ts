@@ -60,6 +60,13 @@ export interface AiConfig{
   plate_recog_instance_count: number;
 }
 
+export interface UiConfig{
+  gs_width:number;
+  gs_height:number;
+  booster_interval:number;
+  seek_to_live_edge_internal:number;
+}
+
 export interface Config {
   device: DeviceConfig;
   redis: RedisConfig;
@@ -71,4 +78,5 @@ export interface Config {
   general: GeneralConfig;
   ffmpeg: FFmpegConfig;
   ai: AiConfig;
+  ui: UiConfig;
 }

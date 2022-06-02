@@ -68,6 +68,8 @@ export interface SourceModel {
   ffmpeg_reader_width?: number | null;
   ffmpeg_reader_height?: number | null;
 
+  booster_enabled?: boolean | null;
+
   created_at?: string | null;
   // SourceModel section ends
 }

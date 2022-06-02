@@ -39,15 +39,15 @@ export default {
       default: false,
       required: true
     },
-    galleryIndex:{
-      type:Number,
-      default:0
+    galleryIndex: {
+      type: Number,
+      default: 0
     }
   },
   data() {
     return {
       player: null,
-      prevEvents:{},
+      prevEvents: {},
       setIntervalInstance: null
     };
   },
@@ -89,35 +89,37 @@ export default {
     if (this.seekToLiveEdgeInternal > 0) {
       const self = this;
       let index = this.galleryIndex;
-      if (index === undefined || index === null){
+      if (index === undefined || index === null) {
         index = 0;
       }
-      if (this.enableLog){
+      if (this.enableLog) {
         console.log(`FlvPlayer(${this.sourceId}): index is ${index} and enable booster is: ${this.enableBooster}`);
       }
-      setTimeout(()=>{
+      if (!this.enableBooster) {
+        console.log(`FlvPlayer(${this.sourceId}): booster mode will not be invoke setTimeout,  exiting now...`);
+        return;
+      }
+      setTimeout(() => {
         const interval = self.seekToLiveEdgeInternal * 1000;
         self.setIntervalInstance = setInterval(() => {
-          if (self.enableBooster){
-            if(self.seekable('waiting')){
-              self.seekToLiveEdge(self.player.liveTracker, 'interval');
-            }
+          if (self.seekable('waiting')) {
+            self.seekToLiveEdge(self.player.liveTracker, 'interval');
           }
         }, interval);
-      }, index*2000);
+      }, index * 2000);
     }
   },
   beforeUnmount() {
     if (this.player) {
       this.player.liveTracker.dispose();
       this.player.dispose();
-      if (this.enableLog){
+      if (this.enableLog) {
         console.log(`FlvPlayer(${this.sourceId}): the player has been disposed at ${new Date().toLocaleString()}`);
       }
     }
-    if (this.setIntervalInstance){
+    if (this.setIntervalInstance) {
       clearInterval(this.setIntervalInstance);
-      if (this.enableLog){
+      if (this.enableLog) {
         console.log(`FlvPlayer(${this.sourceId}): the interval has been cleared at ${new Date().toLocaleString()}`);
       }
     }
@@ -149,7 +151,7 @@ export default {
     pause() {
       this.player.pause();
     },
-    seekable(opName){
+    seekable(opName) {
       let prevEvent = this.prevEvents[opName];
       if (!prevEvent) {
         prevEvent = { opName: opName, createdAt: new Date() };
@@ -166,6 +168,11 @@ export default {
       return true;
     },
     setupEvents(self) {
+      if (!this.enableBooster) {
+        console.log(`FlvPlayer(${this.sourceId}): booster mode will not be invoke setupEvents,  exiting now...`);
+        return;
+      }
+
       // Open it if a camera which has a bad connection needs this fix. BUt remember handler 404 HLS error. Otherwise, it stacked refreshing.
       self.player.on('error', () => {
         if (self.seekable('error')) {

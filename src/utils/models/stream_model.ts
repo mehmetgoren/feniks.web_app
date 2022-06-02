@@ -42,6 +42,8 @@ export interface StreamModel {
   ai_clip_pid: number;
   ai_clip_args: string;
 
+  booster_enabled: boolean;
+
   concat_demuxer_pid: number;
   concat_demuxer_args: string;
 }

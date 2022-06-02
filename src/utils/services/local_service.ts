@@ -325,7 +325,7 @@ export class LocalService {
       stream_width: 0,
       stream_height: 0,
       stream_rotate: 0,
-      stream_audio_codec: 8, // copy
+      stream_audio_codec: 4, // aac
       stream_audio_channel: 0,
       stream_audio_quality: 0,
       stream_audio_sample_rate: 0,
@@ -340,7 +340,7 @@ export class LocalService {
       record_height: 0,
       record_segment_interval: 15,
       record_rotate: 0,
-      record_audio_codec: 8, //copy
+      record_audio_codec: 4, //aac
       record_audio_channel: 0,
       record_audio_quality: 0,
       record_audio_sample_rate: 0,
@@ -368,6 +368,8 @@ export class LocalService {
 
       record_enabled: false,
       ai_clip_enabled: false,
+
+      booster_enabled: false,
 
       created_at: ''
       // Source model ends
@@ -416,6 +418,8 @@ export class LocalService {
       ai_clip_enabled: false,
       ai_clip_pid: 0,
       ai_clip_args: '',
+
+      booster_enabled: false,
 
       concat_demuxer_pid: 0,
       concat_demuxer_args: ''

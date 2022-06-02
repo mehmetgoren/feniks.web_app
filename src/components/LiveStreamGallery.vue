@@ -7,19 +7,18 @@
       <div class='grid-stack-item-content' style='overflow: hidden !important;'>
         <FlvPlayer v-if='stream&&stream.show&&stream.stream_type===0' :src='stream.src' :source-id='stream.id'
                    :enable-log='true' :ref='setStreamPlayers'
-                   :enable-booster='stream.boosterEnabled' :seek-to-live-edge-internal='30' :gallery-index='index'/>
+                   :enable-booster='stream.booster_enabled' :seek-to-live-edge-internal='config.ui.seek_to_live_edge_internal' :gallery-index='index' />
         <HlsPlayer v-if='stream&&stream.show&&stream.stream_type===1' :src='stream.src' :source-id='stream.id'
                    :ref='setStreamPlayers' :enable-log='true'
-                   :enable-booster='stream.boosterEnabled' :seek-to-live-edge-internal='30' :gallery-index='index'/>
+                   :enable-booster='stream.booster_enabled' :seek-to-live-edge-internal='config.ui.seek_to_live_edge_internal' :gallery-index='index' />
         <FFmpegReaderPlayer v-if='stream&&stream.show&&stream.stream_type>1' :source-id='stream.id'
-                            :ref='setStreamPlayers'  />
+                            :ref='setStreamPlayers' />
 
         <StreamCommandBar v-if='stream.show' :stream='stream' @full-screen='onFullScreen' @stream-stop='onStreamStop'
                           @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh'
                           @deleted='onSourceDeleted' @restart='onRestart' @close='onStreamClose'
                           :take-screenshot-loading='stream.takeScreenshotLoading'
-                          :show-booster='stream.stream_type<2'
-                          :enable-booster='stream.boosterEnabled' @booster-changed='onBoosterChanged' />
+                          :show-booster='stream.stream_type<2' :enable-booster='stream.booster_enabled' />
 
         <q-inner-loading v-if='!stream.show' :showing='true' label='Please wait...' label-class='text-cyan' />
       </div>
@@ -55,6 +54,7 @@ import { WsConnection } from 'src/utils/ws/connection';
 import { checkIpIsLoopBack, isNullOrUndefined, startStream } from 'src/utils/utils';
 import { LocalService, GsLocation } from 'src/utils/services/local_service';
 import { NodeService } from 'src/utils/services/node_service';
+import { Config } from 'src/utils/models/config';
 // https://v3.vuejs.org/guide/migration/array-refs.html
 export default {
   name: 'LiveStreamGallery',
@@ -79,6 +79,7 @@ export default {
     const waitInterval = 500;
     const serverIp = localService.nodeIP;
     const isRemoteServer = !checkIpIsLoopBack(serverIp);
+    const config = ref<Config>();
 
     //
     let streamPlayers: any[] = [];
@@ -137,7 +138,6 @@ export default {
         stream.show = true;
         stream.loc = getGsLayout(stream.id);
         stream.takeScreenshotLoading = false;
-        stream.boosterEnabled = streamModel.stream_type == 0; // default FLV is booster enabled
         streamList.push(stream);
         open.value = false;
         if (isStartStream) {
@@ -218,7 +218,8 @@ export default {
       }
     }
 
-    onMounted(() => {
+    onMounted(async () => {
+      config.value = await nodeService.getConfig();
       connStartStream = subscribeService.subscribeStartStream(onSubscribeStartStream);
 
       function openStopStreamMessage(event: MessageEvent) {
@@ -245,7 +246,7 @@ export default {
         }
       });
 
-      void initActiveStreams();
+      await initActiveStreams();
     });
 
     onBeforeUnmount(() => {
@@ -318,26 +319,11 @@ export default {
       removeSource(stream);
     }
 
-    function onBoosterChanged(stream: StreamExtModel, boosterEnabled: boolean) {
-      stream.boosterEnabled = boosterEnabled;
-    }
-
     //events ends
 
     return {
-      open,
-      streamList,
-      setStreamPlayers,
-      onFullScreen,
-      onStreamStop,
-      onConnect,
-      onTakeScreenshot,
-      onRefresh,
-      onSourceDeleted,
-      onRestart,
-      onStreamClose,
-      showLoading,
-      onBoosterChanged
+      open, streamList, showLoading, config,
+      setStreamPlayers, onFullScreen, onStreamStop, onConnect, onTakeScreenshot, onRefresh, onSourceDeleted, onRestart, onStreamClose
     };
   }
 };
@@ -349,7 +335,6 @@ interface StreamExtModel extends StreamModel {
   size?: string | null;
   loc: GsLocation;
   takeScreenshotLoading: boolean;
-  boosterEnabled: boolean;
 }
 </script>
 <style scoped>
