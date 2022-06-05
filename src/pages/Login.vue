@@ -117,7 +117,6 @@ export default {
         return;
       }
       const user: User = await nodeService.login(loginUser.value);
-      console.warn(JSON.stringify(user));
       const token = user?.token;
       if (token && token.length && token.length === 8) {
         $store.commit('settings/currentUser', user);

@@ -3,6 +3,7 @@ import { isNullOrEmpty, isNullOrUndefined } from 'src/utils/utils';
 import { SourceModel } from 'src/utils/models/source_model';
 import { StreamModel } from 'src/utils/models/stream_model';
 import { OdModel } from 'src/utils/models/od_model';
+import { User } from 'src/utils/models/user_model';
 
 export class LocalService {
 
@@ -73,6 +74,18 @@ export class LocalService {
       localStorage.setItem('lastValidNode', json);
     }
     localStorage.setItem('setActiveTab', json);
+  }
+
+  public setCurrentUser(user: User){
+    sessionStorage.setItem('currentUser', JSON.stringify({username:user?.username, token:user?.token}));
+  }
+
+  public getCurrentUser(): User | null{
+    const json = sessionStorage.getItem('currentUser');
+    if (json){
+      return JSON.parse(json);
+    }
+    return null;
   }
 
   public saveGsLocation(sourceId: string, option: GsLocation) {

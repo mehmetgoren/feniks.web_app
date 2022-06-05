@@ -75,6 +75,7 @@ const mutation: MutationTree<ISettingsState> = {
   },
   currentUser(state: ISettingsState, user: User){
     state.currentUser = user;
+    new LocalService().setCurrentUser(user);
   }
 };
 

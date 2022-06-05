@@ -13,8 +13,8 @@ export default defineComponent({
   components: { Login },
   setup(){
     const $store = useStore();
-    const authenticated = ref<boolean>(false);
     const currentUser = computed(() => $store.getters['settings/currentUser']);
+    const authenticated = ref<boolean>(currentUser.value != null);
     watch(currentUser, (newUser: User | null) => {
       authenticated.value = newUser !== null;
     });

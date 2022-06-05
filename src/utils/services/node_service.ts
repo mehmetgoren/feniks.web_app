@@ -13,6 +13,7 @@ import { OdVideoClipsViewModel } from 'src/utils/models/ai_clip_json_object';
 import { NetworkDiscoveryModel, OnvifModel } from 'src/utils/models/onvif_models';
 import { FrTrainRename, FrTrainName, FrTrainScreenshotViewModel, FrTrainViewModel } from 'src/utils/models/fr_models';
 import { LoginUserViewModel, RegisterUserViewModel, User } from 'src/utils/models/user_model';
+import { ServiceModel } from 'src/utils/models/service_model';
 
 
 export class NodeService extends BaseService {
@@ -188,6 +189,21 @@ export class NodeService extends BaseService {
 
   public async registerUser(user: RegisterUserViewModel): Promise<boolean>{
     const resp = await api.post(this.LocalService.getNodeAddress('registeruser'), user);
+    return resp.data;
+  }
+
+  public async getServices(): Promise<ServiceModel[]>{
+    const resp = await api.get(this.LocalService.getNodeAddress('services'));
+    return resp.data;
+  }
+
+  public async getUsers(): Promise<User[]>{
+    const resp = await api.get(this.LocalService.getNodeAddress('users'));
+    return resp.data;
+  }
+
+  public async deleteUser(id: string) : Promise<number>{
+    const resp = await api.delete(this.LocalService.getNodeAddress(`users/${id}`));
     return resp.data;
   }
 }

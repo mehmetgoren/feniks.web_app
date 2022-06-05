@@ -3,6 +3,7 @@ import { IState } from '../index';
 import { ISettingsState, LoadingInfo, MenuLink, MenuObject } from './state';
 import { Node } from 'src/utils/entities';
 import { User } from 'src/utils/models/user_model';
+import { LocalService } from 'src/utils/services/local_service';
 
 const getters: GetterTree<ISettingsState, IState> = {
   dense(state : ISettingsState): boolean {
@@ -33,7 +34,11 @@ const getters: GetterTree<ISettingsState, IState> = {
     return state.aiSettingsSourceId;
   },
   currentUser(state: ISettingsState): User | null{
-    return state.currentUser;
+    let user = state.currentUser;
+    if (!user){
+      user = new LocalService().getCurrentUser();
+    }
+    return user;
   }
 };
 

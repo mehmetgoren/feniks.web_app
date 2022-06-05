@@ -117,8 +117,8 @@
                 <q-img :src="'data:image/png;base64, ' + (link.thumbnail ? link.thumbnail : emptyBase64Image)" spinner-color='white'
                        style='height: 80px; width: 200px; cursor: pointer;' class='rounded-borders'>
                   <div class='absolute-bottom text-subtitle1'>
-                    <q-icon v-if='sourceStreamStatus[link.id].streaming' name='live_tv' color='green' style='margin-right: 3px;' class='blink_me' />
-                    <q-icon v-if='sourceStreamStatus[link.id].recording' name='fiber_manual_record' color='red' style='margin-right: 3px;' class='blink_me' />
+                    <q-icon v-if='sourceStreamStatus[link.id]&&sourceStreamStatus[link.id].streaming' name='live_tv' color='green' style='margin-right: 3px;' class='blink_me' />
+                    <q-icon v-if='sourceStreamStatus[link.id]&&sourceStreamStatus[link.id].recording' name='fiber_manual_record' color='red' style='margin-right: 3px;' class='blink_me' />
                     <q-icon :name='link.icon' />
                     {{ link.text }}
                   </div>
