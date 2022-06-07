@@ -1,7 +1,7 @@
 <template>
   <div>
     <q-chip square color='primary' text-color='white' icon='videocam' style='margin-right: 15px;'>
-      {{ stream.name }} ({{ streamType }})
+      {{ stream.name }} ({{rtmpType}} / {{ streamType }})
     </q-chip>
     <q-icon v-if='stream.record' name='fiber_manual_record' size='sm' color='red' class='blink_me'>
       <label style='font-size: x-small; color: black;'>REC</label>
@@ -114,6 +114,10 @@ export default {
     const $store = useStore();
     const showSettings = ref<boolean>(false);
     const localService = new LocalService();
+    const rtmpType = computed(() => {
+      return new List<SelectOption>(localService.createRtmpServerTypes())
+        .FirstOrDefault(x => x?.value === props.stream.rtmp_server_type)?.label ?? '';
+    });
     const streamType = computed(() => {
       return new List<SelectOption>(localService.createStreamTypes())
         .FirstOrDefault(x => x?.value == props.stream.stream_type)?.label ?? '';
@@ -183,7 +187,7 @@ export default {
       },
       showRecord,
       onRecordClick,
-      streamType
+      rtmpType, streamType
     };
   }
 };

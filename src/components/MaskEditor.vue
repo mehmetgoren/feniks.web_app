@@ -151,7 +151,7 @@ export default {
       zonesService.value.unmarshalPoints(props.odModel.zones_list);
       masksService.value.unmarshalPoints(props.odModel.masks_list);
 
-      connTakeScreenshot = subscribeService.subscribeEditor((event: MessageEvent) => {
+      connTakeScreenshot = subscribeService.subscribeEditor('me',(event: MessageEvent) => {
         try {
           const responseModel: EditorImageResponseModel = JSON.parse(event.data);
           if (responseModel.id !== sourceId || responseModel.event_type != maskScreenshotType) {

@@ -233,7 +233,7 @@ export default {
 
       connStopStream = subscribeService.subscribeStopStream(openStopStreamMessage);
 
-      connTakeScreenshot = subscribeService.subscribeEditor((event: MessageEvent) => {
+      connTakeScreenshot = subscribeService.subscribeEditor( 'sg',(event: MessageEvent) => {
         console.log('subscribeEditor(event) called');
         const responseModel: EditorImageResponseModel = JSON.parse(event.data);
         if (responseModel.event_type != 1) {

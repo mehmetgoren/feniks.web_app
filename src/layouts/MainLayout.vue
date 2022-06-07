@@ -269,7 +269,7 @@ export default {
     onMounted(async () => {
       tabs.value = await nodeRep.value.getAll();
 
-      subscribeService.subscribeEditor((event: MessageEvent) => {
+      subscribeService.subscribeEditor('ml', (event: MessageEvent) => {
         const responseModel: EditorImageResponseModel = JSON.parse(event.data);
         if (responseModel.event_type != 2) {
           return;

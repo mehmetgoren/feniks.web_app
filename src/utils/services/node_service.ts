@@ -17,6 +17,9 @@ import { ServiceModel } from 'src/utils/models/service_model';
 
 
 export class NodeService extends BaseService {
+  constructor() {
+    super();
+  }
 
   public async getSourceList(): Promise<SourceModel[]> {
     const resp = await api.get(this.LocalService.getNodeAddress('sources'));
@@ -182,27 +185,27 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
-  public async login(user: LoginUserViewModel): Promise<User>{
+  public async login(user: LoginUserViewModel): Promise<User> {
     const resp = await api.post(this.LocalService.getNodeAddress('login'), user);
     return resp.data;
   }
 
-  public async registerUser(user: RegisterUserViewModel): Promise<boolean>{
+  public async registerUser(user: RegisterUserViewModel): Promise<boolean> {
     const resp = await api.post(this.LocalService.getNodeAddress('registeruser'), user);
     return resp.data;
   }
 
-  public async getServices(): Promise<ServiceModel[]>{
+  public async getServices(): Promise<ServiceModel[]> {
     const resp = await api.get(this.LocalService.getNodeAddress('services'));
     return resp.data;
   }
 
-  public async getUsers(): Promise<User[]>{
+  public async getUsers(): Promise<User[]> {
     const resp = await api.get(this.LocalService.getNodeAddress('users'));
     return resp.data;
   }
 
-  public async deleteUser(id: string) : Promise<number>{
+  public async deleteUser(id: string): Promise<number> {
     const resp = await api.delete(this.LocalService.getNodeAddress(`users/${id}`));
     return resp.data;
   }

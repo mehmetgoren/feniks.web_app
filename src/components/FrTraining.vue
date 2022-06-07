@@ -183,7 +183,7 @@ export default {
       sourceList.value = await nodeService.getSourceList();
       await dataBindImages();
       connFrTrain = subscribeService.subscribeFrTrain(onSubscribeFrTrain);
-      connTakeScreenshot = subscribeService.subscribeEditor(onScreenshotComplete);
+      connTakeScreenshot = subscribeService.subscribeEditor('frt', onScreenshotComplete);
     });
 
     onBeforeUnmount(() => {
