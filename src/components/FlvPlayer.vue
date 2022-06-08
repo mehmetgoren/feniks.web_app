@@ -1,9 +1,7 @@
 <template>
-  <div>
-    <video ref='videoPlayer' id='playerOne' class='video-js' controls preload='auto'>
-      <source :src='src' type='video/x-flv'>
-    </video>
-  </div>
+  <video ref='videoPlayer' class='video-js' controls preload='auto'>
+    <source :src='src' type='video/x-flv'>
+  </video>
 </template>
 
 <script>
@@ -65,6 +63,7 @@ export default {
         playToggle: false,
         progressControl: {},
         fullscreenToggle: {},
+        pictureInPictureToggle:true,
         volumeMenuButton: {
           inline: false,
           vertical: true
@@ -74,7 +73,9 @@ export default {
       preload: 'auto',
       autoplay: true,
       muted: true,
-      fluid: true,
+      responsive: true,
+      // fluid: true,
+      fill:true,
       liveui: true
     };
 
@@ -196,5 +197,11 @@ export default {
 
 .video-js.vjs-playing .vjs-tech {
   pointer-events: none;
+}
+
+.video-js.vjs-fill {
+  width: 100%;
+  height: 100%;
+  margin-bottom: -85px;
 }
 </style>

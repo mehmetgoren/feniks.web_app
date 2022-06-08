@@ -1,5 +1,5 @@
 <template>
-  <div class='video-player' v-if='reset'>
+  <div class='video-player' v-if='reset' style='width: 100%;height: 100%;margin-bottom: -85px;'>
     <video class='video-js' ref='video'>
       <track v-for='crtTrack in trackList' :kind='crtTrack.kind' :label='crtTrack.label' :src='crtTrack.src'
              :key='crtTrack.src'
@@ -62,6 +62,7 @@ export default {
           playToggle: false,
           progressControl: {},
           fullscreenToggle: {},
+          pictureInPictureToggle:true,
           volumeMenuButton: {
             inline: false,
             vertical: true
@@ -118,7 +119,9 @@ export default {
       options: {
         autoplay: true,
         muted: true,
-        fluid: true,
+        responsive: true,
+        // fluid: true,
+        fill:true,
         language: 'en',
         sources: [{
           type: 'application/x-mpegURL',

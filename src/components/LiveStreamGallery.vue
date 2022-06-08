@@ -3,7 +3,7 @@
     <div class='newWidget grid-stack-item ui-draggable ui-resizable ui-resizable-autohide'
          v-for='(stream, index) in streamList'
          :key='stream.id' :gs-w='stream.loc.w' :gs-h='stream.loc.h'
-         :gs-x='stream.loc.x' :gs-y='stream.loc.y' :gs-id='stream.id'>
+         :gs-x='stream.loc.x' :gs-y='stream.loc.y' :gs-id='stream.id' :gs-min-w='minWidth'>
       <div class='grid-stack-item-content' style='overflow: hidden !important;'>
         <FlvPlayer v-if='stream&&stream.show&&stream.stream_type===0' :src='stream.src' :source-id='stream.id'
                    :enable-log='true' :ref='setStreamPlayers'
@@ -80,6 +80,7 @@ export default {
     const serverIp = localService.nodeIP;
     const isRemoteServer = !checkIpIsLoopBack(serverIp);
     const config = ref<Config>();
+    const minWidth = ref<number>(4);
 
     //
     let streamPlayers: any[] = [];
@@ -111,6 +112,7 @@ export default {
           initGs();
           if (onGridInitialized) {
             onGridInitialized();
+            fixVideoJsFullScreenButton();
           }
         }).catch(console.error);
       }, waitInterval);
@@ -196,7 +198,7 @@ export default {
 
     function getGsLayout(sourceId: string) {
       const ui = config.value?.ui;
-      const w = ui?.gs_width ?? 4
+      const w = ui?.gs_width ?? 4;
       const h = ui?.gs_height ?? 3;
 
       const dividing = 12 / w;
@@ -204,8 +206,8 @@ export default {
 
       const gsLocations = localService.getGsLocations();
       let x = 0, y = 0;
-      const len = gsLocations.length
-      if (len > 0){
+      const len = gsLocations.length;
+      if (len > 0) {
         const remainder = len % dividing;
         x = remainder * w;
 
@@ -235,8 +237,25 @@ export default {
       }
     }
 
+    function fixVideoJsFullScreenButton(){
+      setTimeout(() => {
+        const fsButtons = document.getElementsByClassName('vjs-fullscreen-control');
+        if (fsButtons && fsButtons.length){
+          const len = fsButtons.length;
+          for(let j = 0; j < len; ++j){
+            //@ts-ignore
+            fsButtons[j].style.marginRight = '20px';
+          }
+        }
+      }, 3000);
+    }
+
     onMounted(async () => {
-      config.value = await nodeService.getConfig();
+      const cf = await nodeService.getConfig();
+      if (cf && cf.ui && cf.ui.gs_width) {
+        minWidth.value = cf.ui.gs_width;
+      }
+      config.value = cf;
       connStartStream = subscribeService.subscribeStartStream(onSubscribeStartStream);
 
       function openStopStreamMessage(event: MessageEvent) {
@@ -264,6 +283,8 @@ export default {
       });
 
       await initActiveStreams();
+
+      fixVideoJsFullScreenButton();
     });
 
     onBeforeUnmount(() => {
@@ -339,7 +360,7 @@ export default {
     //events ends
 
     return {
-      open, streamList, showLoading, config,
+      open, streamList, showLoading, config, minWidth,
       setStreamPlayers, onFullScreen, onStreamStop, onConnect, onTakeScreenshot, onRefresh, onSourceDeleted, onRestart, onStreamClose
     };
   }

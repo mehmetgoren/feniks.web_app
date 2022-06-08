@@ -33,14 +33,14 @@
       <q-inner-loading :showing='takeScreenshotLoading'>
       </q-inner-loading>
     </q-btn>
-    <q-btn v-if='showFullScreenButton' color='purple' rounded glossy icon='cast' @click='onFullScreenClick'>
-      <q-tooltip class='bg-accent'>Fullscreen</q-tooltip>
-    </q-btn>
     <q-btn color='orange' rounded glossy icon='psychology' @click='onAiClick'>
       <q-tooltip class='bg-orange'>AI</q-tooltip>
     </q-btn>
     <q-btn color='brown-5' rounded glossy icon='settings_ethernet' @click='onOnvifClick'>
       <q-tooltip class='bg-brown-5'>ONVIF</q-tooltip>
+    </q-btn>
+    <q-btn v-if='showFullScreenButton' color='primary' rounded glossy icon='fullscreen' @click='onFullScreenClick'>
+      <q-tooltip class='bg-primary'>Fullscreen</q-tooltip>
     </q-btn>
     <q-btn color='deep-orange' rounded glossy icon='close' @click='onClose'>
       <q-tooltip class='bg-deep-orange'>Close</q-tooltip>
