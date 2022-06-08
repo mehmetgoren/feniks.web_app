@@ -102,6 +102,20 @@ export class LocalService {
     return null;
   }
 
+  public getGsLocations(): GsLocation[] {
+    const ret: GsLocation[] = [];
+    Object.keys(localStorage).forEach(function(key){
+      const strValue = localStorage.getItem(key)
+      if (strValue){
+        const gso = JSON.parse(strValue);
+        if (gso && gso.x !== undefined && gso.y !== undefined){
+          ret.push(gso);
+        }
+      }
+    });
+    return ret;
+  }
+
   public deleteGsLocation(sourceId: string) {
     localStorage.removeItem(sourceId);
   }

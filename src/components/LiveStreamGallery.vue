@@ -195,7 +195,24 @@ export default {
     }
 
     function getGsLayout(sourceId: string) {
-      let ret: GsLocation = { w: 4, h: 3, x: 0, y: 0 };
+      const ui = config.value?.ui;
+      const w = ui?.gs_width ?? 4
+      const h = ui?.gs_height ?? 3;
+
+      const dividing = 12 / w;
+      const yMultiplier = h;
+
+      const gsLocations = localService.getGsLocations();
+      let x = 0, y = 0;
+      const len = gsLocations.length
+      if (len > 0){
+        const remainder = len % dividing;
+        x = remainder * w;
+
+        const result = parseInt((len / dividing).toString());
+        y = result * yMultiplier;
+      }
+      let ret: GsLocation = { w, h, x: x, y: y };
       const loc = localService.getGsLocation(sourceId);
       if (loc) {
         ret = { ...loc };
@@ -233,7 +250,7 @@ export default {
 
       connStopStream = subscribeService.subscribeStopStream(openStopStreamMessage);
 
-      connTakeScreenshot = subscribeService.subscribeEditor( 'sg',(event: MessageEvent) => {
+      connTakeScreenshot = subscribeService.subscribeEditor('lsg', (event: MessageEvent) => {
         console.log('subscribeEditor(event) called');
         const responseModel: EditorImageResponseModel = JSON.parse(event.data);
         if (responseModel.event_type != 1) {
