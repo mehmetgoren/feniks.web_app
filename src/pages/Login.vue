@@ -4,12 +4,12 @@
       <q-page class='window-height window-width row justify-center items-center' style='background: linear-gradient(#8274C5, #5A4A9F);'>
         <div v-if='mode===0' class='column q-pa-lg'>
           <div class='row'>
-            <q-card square class='shadow-24' style='width:300px;height:auto;'>
+            <q-card square class='shadow-24' style='width:310px;height:auto;'>
               <q-card-section class='bg-deep-purple-7'>
                 <q-toolbar class='text-primary'>
                   <q-img src='/pheoenix/phoenix(4).png' width='64px' />
                   <q-toolbar-title>
-                    <h4 class='text-h5 text-white q-my-md' style='margin-left: 15px'>FENIX® iVMS</h4>
+                    <h4 class='text-h5 text-white q-my-md' style='margin-left: 15px'>FENIKS® iVMS</h4>
                   </q-toolbar-title>
                 </q-toolbar>
               </q-card-section>
@@ -45,7 +45,7 @@
                 <q-toolbar class='text-primary'>
                   <q-img src='/pheoenix/phoenix(4).png' width='64px' />
                   <q-toolbar-title>
-                    <h4 class='text-h5 text-white q-my-md' style='margin-left: 15px'>FENIX® Registration</h4>
+                    <h4 class='text-h5 text-white q-my-md' style='margin-left: 15px'>FENIKS® Registration</h4>
                   </q-toolbar-title>
                 </q-toolbar>
               </q-card-section>
@@ -106,7 +106,7 @@ export default {
     const $store = useStore();
     const mode = ref<Mode>(Mode.Login);
     const loginUser = ref<LoginUserViewModel>({ username: 'admin', password: 'admin' });
-    const registerUser = ref<RegisterUserViewModel>({ email: 'admin@fenix.com', password: 'admin',
+    const registerUser = ref<RegisterUserViewModel>({ email: 'admin@feniks.com', password: 'admin',
       re_password: 'admin', username: 'admin' });
     const nodeService = new NodeService();
 

@@ -1,104 +1,48 @@
 <template>
   <q-layout view='hHh lpR fFf' class='bg-grey-1'>
-    <q-header elevated class='bg-white text-grey-8' height-hint='64'>
+    <q-header elevated class='bg-white text-grey-8'>
       <q-toolbar class='GNL__toolbar'>
         <q-btn flat dense round @click='toggleLeftDrawer' aria-label='Menu' icon='menu' class='q-mr-sm' />
 
         <q-toolbar-title v-if='$q.screen.gt.xs' shrink class='row items-center no-wrap'>
-          <img src='../../public/icons/logo-xs.png' alt='logo'>
+          <img src='../../public/icons/logo.png' width='60' alt='logo'>
           <span class='q-ml-sm'></span>
+          <q-tabs v-model='tab' align='left' v-if='tabs'>
+            <q-tab label='Home' key='home' name='home' id='home' @click='onTabClick(homeNode)' />
+            <q-tab v-for='tab in tabs' :key='tab.node_address' :label='tab.name' :name='tab.node_address' @click='onTabClick(tab)' />
+          </q-tabs>
         </q-toolbar-title>
 
-        <q-space />
-        <!--search panel-->
-        <q-input class='GNL__toolbar-input' outlined dense v-model='search' color='bg-grey-7 shadow-1'
-                 placeholder='Search for topics, locations & sources'>
-          <template v-slot:prepend>
-            <q-icon v-if="search === ''" name='search' />
-            <q-icon v-else name='clear' class='cursor-pointer' @click="search = ''" />
-          </template>
-          <template v-slot:append>
-            <q-btn
-              flats
-              dense
-              round
-              aria-label='Menu'
-              icon='arrow_drop_down'
-            >
-              <q-menu anchor='bottom end' self='top end'>
-                <div class='q-pa-md' style='width: 400px'>
-                  <div class='text-body2 text-grey q-mb-md'>
-                    Narrow your search results
-                  </div>
-
-                  <div class='row items-center'>
-                    <div class='col-3 text-subtitle2 text-grey'>
-                      Exact phrase
-                    </div>
-                    <div class='col-9 q-pl-md'>
-                      <q-input dense v-model='exactPhrase' />
-                    </div>
-
-                    <div class='col-3 text-subtitle2 text-grey'>
-                      Has words
-                    </div>
-                    <div class='col-9 q-pl-md'>
-                      <q-input dense v-model='hasWords' />
-                    </div>
-
-                    <div class='col-3 text-subtitle2 text-grey'>
-                      Exclude words
-                    </div>
-                    <div class='col-9 q-pl-md'>
-                      <q-input dense v-model='excludeWords' />
-                    </div>
-
-                    <div class='col-3 text-subtitle2 text-grey'>
-                      Website
-                    </div>
-                    <div class='col-9 q-pl-md'>
-                      <q-input dense v-model='byWebsite' />
-                    </div>
-
-                    <div class='col-12 q-pt-lg row justify-end'>
-                      <q-btn flat dense no-caps color='grey-7' size='md' style='min-width: 68px;' label='Search'
-                             v-close-popup />
-                      <q-btn flat dense no-caps color='grey-7' size='md' style='min-width: 68px;' @click='onClear'
-                             label='Clear' v-close-popup />
-                    </div>
-                  </div>
-                </div>
-              </q-menu>
-            </q-btn>
-          </template>
-        </q-input>
 
         <q-space />
         <!--  left panel panel-->
         <div class='q-gutter-sm row items-center no-wrap'>
-          <q-btn v-if='$q.screen.gt.sm' round dense flat color='text-grey-7' icon='apps'>
-            <q-tooltip>Google Apps</q-tooltip>
-          </q-btn>
           <q-btn round dense flat color='grey-8' icon='notifications'>
             <q-badge color='red' text-color='white' floating>
               2
             </q-badge>
             <q-tooltip>Notifications</q-tooltip>
           </q-btn>
-          <q-btn round flat>
-            <q-avatar size='26px'>
-              <img src='https://cdn.quasar.dev/img/boy-avatar.png' alt='avatar'>
-            </q-avatar>
-            <q-tooltip>Account</q-tooltip>
-          </q-btn>
+          <q-btn-dropdown icon='account_circle' round flat :label='currentUser?.username'>
+            <q-list>
+              <q-item clickable v-close-popup @click="onLogoutUser">
+                <q-item-section>
+                  <q-item-label>
+                    <q-avatar size='36px'>
+                      <q-icon name='logout' />
+                    </q-avatar>
+                    Logout
+                    <q-tooltip>Logout</q-tooltip>
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+
+            </q-list>
+
+          </q-btn-dropdown >
         </div>
 
       </q-toolbar>
-      <!--Node will sit here-->
-      <q-tabs v-model='tab' align='left' v-if='tabs'>
-        <q-tab label='Home' key='home' name='home' id='home' @click='onTabClick(homeNode)' />
-        <q-tab v-for='tab in tabs' :key='tab.node_address' :label='tab.name' :name='tab.node_address' @click='onTabClick(tab)' />
-      </q-tabs>
     </q-header>
 
     <q-drawer v-model='leftDrawerOpen' show-if-above bordered class='bg-white' :width='280'>
@@ -327,7 +271,7 @@ export default {
         menuObject['stream_gallery'] = [
           {
             route: route + '&x=gallery',
-            icon: 'grid_on',
+            icon: 'apps',
             text: 'Stream Gallery',
             name: 'stream_gallery'
           }
@@ -411,10 +355,15 @@ export default {
       void router.push(route);
     };
 
+    const onLogoutUser = async () => {
+      await nodeService.logoutUser(currentUser.value);
+      $store.commit('settings/currentUser', null);
+    }
+
     return {
       homeNode, tab, leftDrawerOpen, search, showAdvanced, showDateOptions, exactPhrase, hasWords, excludeWords, byWebsite, byDate, menus, currentUser,
       tabs, loadingObject, sourceStreamStatus, showSettings, selectedSourceId, showRecords, emptyBase64Image, activeLeftMenu, selectedSourceAddress, showOnvif,
-      onClear, toggleLeftDrawer, onTabClick, getThumbnail, onAiClick,
+      onClear, toggleLeftDrawer, onTabClick, getThumbnail, onAiClick, onLogoutUser,
       onSaveSettingsClicked(sourceId: string) {
         showSettings.value = true;
         selectedSourceId.value = sourceId;
@@ -478,7 +427,7 @@ export default {
     width: 55%
 
   &__drawer-item
-    line-height: 24px
+    line-height: 14px
     border-radius: 0 24px 24px 0
     margin-right: 12px
 

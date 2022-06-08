@@ -209,4 +209,9 @@ export class NodeService extends BaseService {
     const resp = await api.delete(this.LocalService.getNodeAddress(`users/${id}`));
     return resp.data;
   }
+
+  public async logoutUser(user: User): Promise<boolean>{
+    const resp = await api.post(this.LocalService.getNodeAddress('logoutuser'), user);
+    return resp.data;
+  }
 }

@@ -1,4 +1,5 @@
 import { LocalService } from 'src/utils/services/local_service';
+import { isNullOrEmpty } from 'src/utils/utils';
 
 export class WsConnection {
   private _ws: WebSocket | null;
@@ -7,6 +8,7 @@ export class WsConnection {
   private _closedByMe: boolean;
   private readonly _localService: LocalService;
   private readonly _adddress: string;
+  private _timeout: NodeJS.Timeout | null;
 
   constructor(endPoint: string, onMessage: ((this: WebSocket, ev: MessageEvent) => any) | null) {
     this._ws = null;
@@ -15,6 +17,7 @@ export class WsConnection {
     this._closedByMe = false;
     this._localService = new LocalService();
     this._adddress = `ws://${this._localService.nodeIP}:${this._localService.nodePort}/${this._endPoint}`;
+    this._timeout = null;
     this._init();
   }
 
@@ -31,9 +34,14 @@ export class WsConnection {
     this._ws.onclose = (ev) => {
       console.info('[WS] Closed, status: ' + ev.code);
       me._ws = null;
-      setTimeout(() => {
+      this._timeout = setTimeout(() => {
         if (!me._closedByMe) {
-          me._init();
+          const user = me._localService.getCurrentUser();
+          if (user != null && !isNullOrEmpty(user.token)){
+            me._init();
+          }else{
+            me.close();
+          }
         }
       }, 2000);
     };
@@ -51,6 +59,9 @@ export class WsConnection {
       this._ws.close();
       this._closedByMe = true;
       this._ws = null;
+      if (this._timeout){
+        clearTimeout(this._timeout);
+      }
       console.info('[WS] Closed by me');
     }
   }
