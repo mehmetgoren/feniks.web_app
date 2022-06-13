@@ -1,12 +1,11 @@
 <template>
   <div>
     <q-chip square color='primary' text-color='white' icon='videocam' style='margin-right: 15px;'>
-      {{ stream.name }} ({{rtmpType}} / {{ streamType }})
+      {{ stream.name }} ({{rtmpType}} / {{ streamType }}{{(enableBooster ? " / Boosted" : "")}})
     </q-chip>
     <q-icon v-if='stream.record' name='fiber_manual_record' size='sm' color='red' class='blink_me'>
       <label style='font-size: x-small; color: black;'>REC</label>
     </q-icon>
-    <q-toggle v-if='showBooster' :label='`Booster ${(enableBooster ? "Enabled" : "Disabled")} `' :model-value='enableBooster' disable/>
   </div>
   <q-separator style='margin-bottom: 5px;' />
   <q-btn-group>
@@ -96,11 +95,6 @@ export default {
     takeScreenshotLoading: {
       type: Boolean,
       default: false
-    },
-    showBooster: {
-      type: Boolean,
-      default: false,
-      required: true
     },
     enableBooster: {
       type: Boolean,
