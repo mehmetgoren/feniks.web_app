@@ -1,7 +1,6 @@
 import { GetterTree } from 'vuex';
 import { IState } from '../index';
 import { ISettingsState, LoadingInfo, MenuLink, MenuObject } from './state';
-import { Node } from 'src/utils/entities';
 import { User } from 'src/utils/models/user_model';
 import { LocalService } from 'src/utils/services/local_service';
 
@@ -12,8 +11,8 @@ const getters: GetterTree<ISettingsState, IState> = {
   menu(state : ISettingsState): MenuObject {
     return state.menu;
   },
-  activeTab(state : ISettingsState): Node {
-    return state.activeTab;
+  cameras(state: ISettingsState): MenuLink[]{
+    return state.menu['node']['cameras'];
   },
   activeLeftMenu(state : ISettingsState): MenuLink | null {
     return state.activeLeftMenu;

@@ -1,21 +1,28 @@
 <template>
 
   <div class='q-pa-sm'>
-    <q-card class='my-card' style='max-width: 350px'>
+    <q-card class='my-card'>
       <q-card-section class='bg-purple text-white'>
-        <div class='text-subtitle2'>Add a Node</div>
+        <div class='row items-center no-wrap'>
+          <div class='col text-subtitle2'>
+            Nodes
+          </div>
+          <div class='col-auto'>
+            <q-btn label='Go Back to Login' dense icon='arrow_back' @click='onGoBack' />
+          </div>
+        </div>
       </q-card-section>
       <q-card-actions align='left'>
-        <q-form style='max-width: 500px' id='frm1' v-if='selected' @submit='onSubmit' @reset='onReset' class='q-pa-xs'>
+        <q-form id='frm1' v-if='selected' @submit='onSubmit' @reset='onReset' class='q-pa-xs' style='width: 100%;'>
           <q-input v-model='selected.node_address' filled dense label='Node URL *' lazy-rules
-            :rules="[ val => val && val.length > 0 || 'Please enter Node URL address']" />
+                   :rules="[ val => val && val.length > 0 || 'Please enter Node URL address']" />
 
           <q-input dense filled v-model='selected.name' label='Node Name *' lazy-rules
-            :rules="[ val => val && val.length > 0 || 'Please enter name']" />
+                   :rules="[ val => val && val.length > 0 || 'Please enter name']" />
 
           <q-input dense filled label='Node Description *' v-model='selected.description' />
 
-          <q-toggle v-model='selected.enabled' label='Enabled' />
+          <q-toggle v-model='selected.active' label='Active' />
 
           <div class='q-pa-md q-gutter-sm'>
             <q-btn label='Save' type='submit' color='primary' dense icon='save' />
@@ -27,7 +34,7 @@
     </q-card>
     <q-space style='height: 10px;' />
     <q-table title='Nodes' :rows='nodes' :columns='columns' row-key='node_address'
-      :filter='filter' selection='single' v-model:selected='selectionList'>
+             :filter='filter' selection='single' v-model:selected='selectionList'>
       <template v-slot:top-right>
         <q-input borderless dense debounce='300' v-model='filter' placeholder='Search'>
           <template v-slot:append>
@@ -38,10 +45,7 @@
       <template v-slot:body-cell-enabled='props'>
         <q-td :props='props'>
           <div>
-            <q-toggle
-              v-model='props.value'
-              :color="props.value ? 'green' : 'red'" disabled
-            />
+            <q-toggle v-model='props.value' :color="props.value ? 'green' : 'red'" disabled />
           </div>
         </q-td>
       </template>
@@ -54,14 +58,16 @@
 <script lang='ts'>
 import { NodeRepository } from 'src/utils/db';
 import { ref, onMounted, watch } from 'vue';
-import {Node} from '../utils/entities';
+import { Node } from '../utils/entities';
 
 export default {
   name: 'AddNode',
-  setup() {
+  emits: ['on-go-back'],
+  //@ts-ignore
+  setup(props: any, { emit }) {
     const nodeRep = ref(new NodeRepository());
     const nodes = ref();
-    const selected = ref({ node_address: '', name: '', description: '', enabled: true });
+    const selected = ref({ node_address: '', name: '', description: '', active: false });
     const filter = ref('');
     const selectionList: any = ref([]);
 
@@ -87,7 +93,7 @@ export default {
         node_address: selected.value.node_address,
         name: selected.value.name,
         description: selected.value.description,
-        enabled: selected.value.enabled
+        active: selected.value.active
       };
       await nodeRep.value.save(node);
       await dataBind();
@@ -100,25 +106,29 @@ export default {
       node.node_address = '';
       node.name = '';
       node.description = '';
-      node.enabled = true;
+      node.active = true;
     };
 
-    const onDelete = (e: any) => {
-      console.log(e);
+    const onDelete = async () => {
       const node = selected.value;
-      nodeRep.value.delete(node);
+      await nodeRep.value.delete(node);
       (<any>document.getElementById('frm1')).reset();
-      void dataBind();
+      await dataBind();
     };
 
-    return { selected, onSubmit, onReset, onDelete, nodes, columns, filter, selectionList };
+    return {
+      selected, onSubmit, onReset, onDelete, nodes, columns, filter, selectionList,
+      onGoBack() {
+        emit('on-go-back', null);
+      }
+    };
   }
 };
 const columns = [
   { name: 'node_address', align: 'center', label: 'Node URL', field: 'node_address', sortable: true },
   { name: 'name', align: 'center', label: 'Name', field: 'name', sortable: true },
   { name: 'description', align: 'center', label: 'Description', field: 'description', sortable: true },
-  { name: 'enabled', align: 'center', label: 'Enabled', field: 'enabled', sortable: true }
+  { name: 'active', align: 'center', label: 'Active', field: 'active', sortable: true }
 ];
 </script>
 

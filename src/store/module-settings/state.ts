@@ -1,4 +1,3 @@
-import { Node } from 'src/utils/entities';
 import { SourceModel } from 'src/utils/models/source_model';
 import { User } from 'src/utils/models/user_model';
 
@@ -26,7 +25,6 @@ export interface MenuObject {
 export interface ISettingsState {
   dense: boolean;
   menu: MenuObject;
-  activeTab: Node;
   activeLeftMenu: MenuLink | null;
   sourceLoading: LoadingInfo;
   addSourceClicked: boolean;
@@ -43,21 +41,25 @@ export interface LoadingInfo {
 
 function state(): ISettingsState {
   const links: MenuItem = {
-    links1: [
-      { route: 'home?c=index', icon: 'web', text: 'Dashboard' },
-      { route: 'home?c=nodes', icon: 'add_box', text: 'Nodes' }
+    config: [
+      { route: 'node?x=config', icon: 'settings', text: 'Configuration', name:'config' },
     ],
-    links2: [
-      { route: 'home?c=hub', icon: 'hub', text: 'Hub' }
-    ]
+    stream_gallery: [
+      { route: 'node?x=stream_gallery', icon: 'apps', text: 'Stream Gallery', name:'stream_gallery' }
+    ],
+    add_source:[
+      { route: 'node?x=add_source', icon: 'add_box', text: 'Add Source', name:'add_source' }
+    ],
+    fr_train:[
+      { route: 'node?x=fr_train', icon: 'face', text: 'Face Training', name:'fr_train' }
+    ],
+    cameras:[]
   };
   return {
     dense: true,
     menu: {
-      'home': links,
-      '': links
+      'node':links
     },
-    activeTab: { name: 'home', description: '', enabled: true, node_address: '' },
     activeLeftMenu: null,
     sourceLoading: { id: '', loading: false },
     addSourceClicked: false,

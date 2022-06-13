@@ -272,7 +272,6 @@
 
 <script lang='ts'>
 import { ref, computed, onMounted, nextTick } from 'vue';
-import { useStore } from 'src/store';
 import { SourceModel } from 'src/utils/models/source_model';
 import CommandBar from 'src/components/CommandBar.vue';
 import OnvifSettings from 'components/OnvifSettings.vue';
@@ -281,6 +280,7 @@ import { useQuasar } from 'quasar';
 import { PublishService } from 'src/utils/services/websocket_services';
 import { isNullOrEmpty, isNullOrUndefined } from 'src/utils/utils';
 import { LocalService } from 'src/utils/services/local_service';
+import { StoreService } from 'src/utils/services/store_service';
 
 declare var $: any;
 export default {
@@ -296,7 +296,6 @@ export default {
   },
   //@ts-ignore
   setup(props: any, { emit }) {
-    const $store = useStore();
     const localService = new LocalService();
     const source = ref<SourceModel>(localService.createEmptySource());
     const showRecordDetail = computed(() => {
@@ -305,6 +304,7 @@ export default {
     });
     const step = ref<number>(1);
     const nodeService = new NodeService();
+    const storeService = new StoreService();
     const rtspTransports = ref(localService.createRtspTransport());
     const logLevels = ref(localService.createLogLevels());
     const accelerationEngines = ref(localService.createAccelerationEngines());
@@ -396,9 +396,9 @@ export default {
         event_type: 2
       }).then().catch(console.error);
       if (isAdded) {
-        $store.commit('settings/addSourceToLeftMenu', source.value);
+        storeService.addSourceToLeftMenu(source.value);
       } else {
-        $store.commit('settings/updateSourceToLeftMenu', source.value);
+        storeService.updateSourceToLeftMenu(source.value);
       }
       $q.notify({
         message: model.name + (' has been ' + (isAdded ? 'added' : 'saved')),
@@ -406,36 +406,48 @@ export default {
         position: 'bottom-right'
       });
       emit('on-save', e);
-      $store.commit('settings/notifySourceStreamStatusChanged');
+      storeService.setNotifySourceStreamStatusChanged();
     }
 
-    async function onDelete(e: any) {
+    function onDelete(e: any) {
       const model = source.value;
       if (isNullOrUndefined(model)) {
         return;
       }
-      let result = false;
-      try {
-        inactives.value.delete = true;
-        result = await nodeService.removeSource(<string>model.id);
-      } finally {
-        inactives.value.delete = false;
-      }
-      if (!result) {
+
+      $q.dialog({
+        title: 'Confirm',
+        message: 'Are you sure you want to delete this source?',
+        cancel: true,
+        persistent: false
+      }).onOk(() => {
+        void doDelete();
+      });
+
+      const doDelete = async () => {
+        let result = false;
+        try {
+          inactives.value.delete = true;
+          result = await nodeService.removeSource(<string>model.id);
+        } finally {
+          inactives.value.delete = false;
+        }
+        if (!result) {
+          $q.notify({
+            message: 'No source has been deleted',
+            color: 'green',
+            position: 'bottom-right'
+          });
+          return;
+        }
+        emit('on-delete', e);
+        storeService.removeSourceFromLeftMenu(<string>model.id);
         $q.notify({
-          message: 'No source has been deleted',
+          message: model.name + ' has been removed permanently',
           color: 'green',
           position: 'bottom-right'
         });
-        return;
-      }
-      emit('on-delete', e);
-      $store.commit('settings/removeSourceFromLeftMenu', model.id);
-      $q.notify({
-        message: model.name + ' has been removed permanently',
-        color: 'green',
-        position: 'bottom-right'
-      });
+      };
     }
 
     const onStreamTypeChanged = () => {

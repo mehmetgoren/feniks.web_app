@@ -2,7 +2,7 @@ export interface Node {
   node_address: string;
   name: string;
   description?: string;
-  enabled: boolean;
+  active: boolean;
 }
 
 export interface BaseEntity {

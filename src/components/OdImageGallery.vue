@@ -106,7 +106,7 @@ export default {
         const items = await nodeService.getOdImages({ rootPath: selection, sourceId: props.odModel.id });
         if (items && items.length > 0) {
           for (const item of items) {
-            item.imagePath = nodeService.LocalService.getNodeAddress(item.imagePath);
+            item.imagePath = await nodeService.LocalService.getNodeAddress(item.imagePath);
           }
         }
         images.value = items;

@@ -167,7 +167,6 @@ export default {
 
     const nodeService = new NodeService();
     const publishService = new PublishService();
-    const subscribeService = new SubscribeService();
     let connOnvif: WsConnection | null = null;
 
     function hackResultsBind() {
@@ -188,6 +187,9 @@ export default {
     }
 
     onMounted(async () => {
+      const nodeIp = await nodeService.LocalService.getNodeIP();
+      const subscribeService = new SubscribeService(nodeIp);
+
       if (addr.length > 0) {
         const serverOnvif = await nodeService.getOnvif(addr);
         if (serverOnvif != null) {

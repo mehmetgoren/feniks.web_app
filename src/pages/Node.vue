@@ -8,7 +8,6 @@
   <q-dialog v-model='showAddSource' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
     <SourceSettings @on-save='onSourceSettingsSave' />
   </q-dialog>
-
 </template>
 
 <script lang='ts'>
@@ -18,26 +17,21 @@ import LiveStreamGallery from 'components/LiveStreamGallery.vue';
 import SourceSettings from 'components/SourceSettings.vue';
 import AiSettings from 'components/AiSettings.vue';
 import FrTraining from 'components/FrTraining.vue';
-import { computed, ref, watch } from 'vue';
-import { useStore } from 'src/store';
+import { nextTick, onMounted, ref, watch } from 'vue';
 import { parseQs } from 'src/utils/utils';
 import { MenuLink } from 'src/store/module-settings/state';
+import { StoreService } from 'src/utils/services/store_service';
 
 export default {
   name: 'Node',
   components: { NodeConfig, LiveStreamGallery, SourceSettings, AiSettings, FrTraining },
   setup() {
-    const $store = useStore();
-    const activeTab = computed(() => $store.getters['settings/activeTab']);//active node ip
-    const activeLeftMenu = computed(() => $store.getters['settings/activeLeftMenu']);//active node ip
-    const addSourceClicked = computed(() => $store.getters['settings/addSourceClicked']);
-    const aiSettingsClicked = computed(() => $store.getters['settings/aiSettingsClicked']);
-    const selected = ref<number>(1);
+    const storeService = new StoreService();
+    const activeLeftMenu = storeService.activeLeftMenu;//active node ip
+    const addSourceClicked = storeService.addSourceClicked;
+    const aiSettingsClicked = storeService.aiSettingsClicked;
+    const selected = ref<number>(0);
     const showAddSource = ref<boolean>(false);
-
-    watch(activeTab, (newValue) => {
-      console.log('activeTab: ' + newValue.name);
-    });
 
     watch(addSourceClicked, () => {
       showAddSource.value = true;
@@ -47,11 +41,14 @@ export default {
       selected.value = 2;
     });
 
-    watch(activeLeftMenu, (newValue: MenuLink) => {
-      const queryStr = parseQs(<any>newValue.route);
+    const switchComponent = (route: string) => {
+      const queryStr = parseQs(route);
       switch (queryStr.x) {
         case 'config':
           selected.value = 0;
+          break;
+        case 'stream_gallery':
+          selected.value = 1;
           break;
         case 'add_source':
           selected.value = 1;
@@ -63,7 +60,20 @@ export default {
           selected.value = 3;
           break;
         default:
-          selected.value = 1;
+          selected.value = 0;
+      }
+    };
+
+    watch(activeLeftMenu, (newValue: MenuLink) => {
+      switchComponent(<any>newValue.route);
+    });
+
+    onMounted(() => {
+      const splits = window.location.href.split('?');
+      if (splits&&splits.length == 2){
+        nextTick().then(() => {
+          switchComponent(splits[1]);
+        }).catch(console.error);
       }
     });
 
@@ -89,7 +99,6 @@ export default {
 
 
     return {
-      activeTab,
       selected,
       showAddSource,
       onSourceSettingsSave() {

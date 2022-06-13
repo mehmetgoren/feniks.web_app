@@ -107,7 +107,7 @@ export default {
         const items = await nodeService.getAlprImages({ rootPath: selection, sourceId: props.sourceId });
         if (items.length > 0) {
           for (const item of items) {
-            item.imagePath = nodeService.LocalService.getNodeAddress(item.imagePath);
+            item.imagePath = await nodeService.LocalService.getNodeAddress(item.imagePath);
           }
         }
         images.value = items;

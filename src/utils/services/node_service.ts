@@ -22,17 +22,17 @@ export class NodeService extends BaseService {
   }
 
   public async getSourceList(): Promise<SourceModel[]> {
-    const resp = await api.get(this.LocalService.getNodeAddress('sources'));
+    const resp = await api.get(await this.LocalService.getNodeAddress('sources'));
     return new List(<SourceModel[]>resp.data).OrderBy(x => x.name).ToArray();
   }
 
   public async getSource(sourceId: string): Promise<SourceModel> {
-    const resp = await api.get(this.LocalService.getNodeAddress(`sources/${sourceId}`));
+    const resp = await api.get(await this.LocalService.getNodeAddress(`sources/${sourceId}`));
     return resp.data;
   }
 
   public async saveSource(model: SourceModel): Promise<SourceModel> {
-    const resp = await api.post(this.LocalService.getNodeAddress('sources'), model);
+    const resp = await api.post(await this.LocalService.getNodeAddress('sources'), model);
     return resp.data;
   }
 
@@ -40,178 +40,178 @@ export class NodeService extends BaseService {
     if (isNullOrEmpty(sourceId)) {
       return false;
     }
-    await api.delete(this.LocalService.getNodeAddress(`sources/${sourceId}`));
+    await api.delete(await this.LocalService.getNodeAddress(`sources/${sourceId}`));
     return true;
   }
 
   public async getSourceStreamStatus(): Promise<SourceStatusModel[]> {
-    const response = await api.get(this.LocalService.getNodeAddress('sourcestreamstatus'));
+    const response = await api.get(await this.LocalService.getNodeAddress('sourcestreamstatus'));
     return response.data;
   }
 
   public async getStreamList(): Promise<StreamModel[]> {
-    const resp = await api.get(this.LocalService.getNodeAddress('stream'));
+    const resp = await api.get(await this.LocalService.getNodeAddress('stream'));
     return resp.data;
   }
 
   public async getStream(sourceId: string): Promise<StreamModel> {
-    const resp = await api.get(this.LocalService.getNodeAddress(`stream/${sourceId}`));
+    const resp = await api.get(await this.LocalService.getNodeAddress(`stream/${sourceId}`));
     return resp.data;
   }
 
   public async getConfig(): Promise<Config> {
-    const resp = await api.get(this.LocalService.getNodeAddress('config'));
+    const resp = await api.get(await this.LocalService.getNodeAddress('config'));
     return resp.data;
   }
 
   public async saveConfig(config: Config): Promise<Config> {
-    const resp = await api.post(this.LocalService.getNodeAddress('config'), config);
+    const resp = await api.post(await this.LocalService.getNodeAddress('config'), config);
     return resp.data;
   }
 
   public async restoreConfig(): Promise<Config> {
-    const resp = await api.get(this.LocalService.getNodeAddress('restoreconfig'));
+    const resp = await api.get(await this.LocalService.getNodeAddress('restoreconfig'));
     return resp.data;
   }
 
   public async getRecordHours(sourceId: string, dateStr: string): Promise<string[]> {
-    const resp = await api.get(this.LocalService.getNodeAddress(`recordhours/${sourceId}/${dateStr}`));
+    const resp = await api.get(await this.LocalService.getNodeAddress(`recordhours/${sourceId}/${dateStr}`));
     return resp.data;
   }
 
   public async getRecords(sourceId: string, dateStr: string, hour: string): Promise<VideoFile[]> {
-    const resp = await api.get(this.LocalService.getNodeAddress(`records/${sourceId}/${dateStr}/${hour}`));
+    const resp = await api.get(await this.LocalService.getNodeAddress(`records/${sourceId}/${dateStr}/${hour}`));
     return resp.data;
   }
 
   public async deleteRecord(model: VideoFile): Promise<boolean> {
-    const resp = await api.delete(this.LocalService.getNodeAddress('records'), { data: model });
+    const resp = await api.delete(await this.LocalService.getNodeAddress('records'), { data: model });
     return resp.data;
   }
 
   public async getOd(sourceId: string): Promise<OdModel | null> {
-    const resp = await api.get(this.LocalService.getNodeAddress(`ods/${sourceId}`));
+    const resp = await api.get(await this.LocalService.getNodeAddress(`ods/${sourceId}`));
     return resp.data;
   }
 
   public async saveOd(model: OdModel): Promise<OdModel> {
-    const resp = await api.post(this.LocalService.getNodeAddress('ods'), model);
+    const resp = await api.post(await this.LocalService.getNodeAddress('ods'), model);
     return resp.data;
   }
 
   public async getOdImagesFolders(sourceId: string, date: string): Promise<FolderTreeItem[]> {
-    const resp = await api.get(this.LocalService.getNodeAddress(`odimagesfolders/${sourceId}/${date}`));
+    const resp = await api.get(await this.LocalService.getNodeAddress(`odimagesfolders/${sourceId}/${date}`));
     return [resp.data];
   }
 
   public async getOdImages(model: ImagesParams): Promise<ImageItem[]> {
-    const resp = await api.post(this.LocalService.getNodeAddress('odimages'), model);
+    const resp = await api.post(await this.LocalService.getNodeAddress('odimages'), model);
     return resp.data;
   }
 
   public async getOdVideoClips(sourceId: string, date: string): Promise<OdVideoClipsViewModel[]> {
-    const resp = await api.get(this.LocalService.getNodeAddress(`odvideoclips/${sourceId}/${date}`));
+    const resp = await api.get(await this.LocalService.getNodeAddress(`odvideoclips/${sourceId}/${date}`));
     return resp.data;
   }
 
   public async deleteOdVideoClip(item: OdVideoClipsViewModel): Promise<boolean> {
-    const resp = await api.delete(this.LocalService.getNodeAddress('odvideoclips'), { data: item });
+    const resp = await api.delete(await this.LocalService.getNodeAddress('odvideoclips'), { data: item });
     return resp.data;
   }
 
   public async getFrImagesFolders(sourceId: string, date: string): Promise<FolderTreeItem[]> {
-    const resp = await api.get(this.LocalService.getNodeAddress(`frimagesfolders/${sourceId}/${date}`));
+    const resp = await api.get(await this.LocalService.getNodeAddress(`frimagesfolders/${sourceId}/${date}`));
     return [resp.data];
   }
 
   public async getFrImages(model: ImagesParams): Promise<ImageItem[]> {
-    const resp = await api.post(this.LocalService.getNodeAddress('frimages'), model);
+    const resp = await api.post(await this.LocalService.getNodeAddress('frimages'), model);
     return resp.data;
   }
 
   public async getFrTrainPersons(): Promise<FrTrainViewModel[]> {
-    const resp = await api.get(this.LocalService.getNodeAddress('frtrainpersons'));
+    const resp = await api.get(await this.LocalService.getNodeAddress('frtrainpersons'));
     return resp.data;
   }
 
   public async getFrTrainPersonImages(person: string): Promise<ImageItem[]> {
-    const resp = await api.get(this.LocalService.getNodeAddress(`frtrainpersonimages/${person}`));
+    const resp = await api.get(await this.LocalService.getNodeAddress(`frtrainpersonimages/${person}`));
     return resp.data;
   }
 
   public async deleteFrTrainPersonImage(imgSrc: string): Promise<boolean> {
     const b64 = btoa(imgSrc);
-    const resp = await api.delete(this.LocalService.getNodeAddress(`frtrainpersonimage/${b64}`));
+    const resp = await api.delete(await this.LocalService.getNodeAddress(`frtrainpersonimage/${b64}`));
     return resp.data;
   }
 
   public async saveFrTrainPersonImage(model: FrTrainScreenshotViewModel): Promise<boolean> {
-    const resp = await api.post(this.LocalService.getNodeAddress('frtrainpersonimage'), model);
+    const resp = await api.post(await this.LocalService.getNodeAddress('frtrainpersonimage'), model);
     return resp.data;
   }
 
   public async renameFrTrainPersonName(model: FrTrainRename): Promise<boolean> {
-    const resp = await api.post(this.LocalService.getNodeAddress('frtrainpersonrename'), model);
+    const resp = await api.post(await this.LocalService.getNodeAddress('frtrainpersonrename'), model);
     return resp.data;
   }
 
   public async newFrTrainPerson(model: FrTrainName): Promise<boolean> {
-    const resp = await api.post(this.LocalService.getNodeAddress('frtrainpersonnew'), model);
+    const resp = await api.post(await this.LocalService.getNodeAddress('frtrainpersonnew'), model);
     return resp.data;
   }
 
   public async deleteFrTrainPerson(model: FrTrainName): Promise<boolean> {
-    const resp = await api.delete(this.LocalService.getNodeAddress('frtrainpersondelete'), { data: model });
+    const resp = await api.delete(await this.LocalService.getNodeAddress('frtrainpersondelete'), { data: model });
     return resp.data;
   }
 
   public async getAlprImagesFolders(sourceId: string, date: string): Promise<FolderTreeItem[]> {
-    const resp = await api.get(this.LocalService.getNodeAddress(`alprimagesfolders/${sourceId}/${date}`));
+    const resp = await api.get(await this.LocalService.getNodeAddress(`alprimagesfolders/${sourceId}/${date}`));
     return [resp.data];
   }
 
   public async getAlprImages(model: ImagesParams): Promise<ImageItem[]> {
-    const resp = await api.post(this.LocalService.getNodeAddress('alprimages'), model);
+    const resp = await api.post(await this.LocalService.getNodeAddress('alprimages'), model);
     return resp.data;
   }
 
   public async getOnvifNetwork(): Promise<NetworkDiscoveryModel> {
-    const resp = await api.get(this.LocalService.getNodeAddress('onvifnetwork'));
+    const resp = await api.get(await this.LocalService.getNodeAddress('onvifnetwork'));
     return resp.data;
   }
 
   public async getOnvif(address: string): Promise<OnvifModel> {
-    const resp = await api.get(this.LocalService.getNodeAddress(`onvif/${address}`));
+    const resp = await api.get(await this.LocalService.getNodeAddress(`onvif/${address}`));
     return resp.data;
   }
 
   public async login(user: LoginUserViewModel): Promise<User> {
-    const resp = await api.post(this.LocalService.getNodeAddress('login'), user);
+    const resp = await api.post(await this.LocalService.getNodeAddress('login'), user);
     return resp.data;
   }
 
   public async registerUser(user: RegisterUserViewModel): Promise<boolean> {
-    const resp = await api.post(this.LocalService.getNodeAddress('registeruser'), user);
+    const resp = await api.post(await this.LocalService.getNodeAddress('registeruser'), user);
     return resp.data;
   }
 
   public async getServices(): Promise<ServiceModel[]> {
-    const resp = await api.get(this.LocalService.getNodeAddress('services'));
+    const resp = await api.get(await this.LocalService.getNodeAddress('services'));
     return resp.data;
   }
 
   public async getUsers(): Promise<User[]> {
-    const resp = await api.get(this.LocalService.getNodeAddress('users'));
+    const resp = await api.get(await this.LocalService.getNodeAddress('users'));
     return resp.data;
   }
 
   public async deleteUser(id: string): Promise<number> {
-    const resp = await api.delete(this.LocalService.getNodeAddress(`users/${id}`));
+    const resp = await api.delete(await this.LocalService.getNodeAddress(`users/${id}`));
     return resp.data;
   }
 
   public async logoutUser(user: User): Promise<boolean>{
-    const resp = await api.post(this.LocalService.getNodeAddress('logoutuser'), user);
+    const resp = await api.post(await this.LocalService.getNodeAddress('logoutuser'), user);
     return resp.data;
   }
 }

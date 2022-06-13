@@ -122,7 +122,6 @@ import { onMounted, ref, watch } from 'vue';
 import { LocalService } from 'src/utils/services/local_service';
 import { isNullOrEmpty, isNullOrUndefined } from 'src/utils/utils';
 import { NodeService } from 'src/utils/services/node_service';
-import { useStore } from 'src/store';
 import { Config } from 'src/utils/models/config';
 import MaskEditor from 'components/MaskEditor.vue';
 import OdImageGallery from 'components/OdImageGallery.vue';
@@ -130,6 +129,7 @@ import OdSourceVideoClips from 'components/OdSourceVideoClips.vue';
 import FrImageGallery from 'components/FrImageGallery.vue';
 import AlprImageGallery from 'components/AlprImageGallery.vue';
 import { useRouter } from 'vue-router';
+import { StoreService } from 'src/utils/services/store_service';
 
 export default {
   name: 'AiSettings',
@@ -142,9 +142,9 @@ export default {
   },
   setup() {
     const router = useRouter();
-    const $store = useStore();
     const localService = new LocalService();
     const nodeService = new NodeService();
+    const storeService = new StoreService();
     const od = ref<OdModel>(localService.createEmptyOd());
     const enabled = ref<boolean>(true);
     const config = ref<Config>();
@@ -159,7 +159,8 @@ export default {
     const inactiveSave = ref<boolean>(false);
     const inactiveRefresh = ref<boolean>(false);
     const separator = 'º';
-    const sourceId = $store.getters['settings/aiSettingsSourceId'];
+    const sourceId = storeService.getAiSettingsSourceId();
+
 
     watch(selectAll, (newValue: boolean) => {
       for (const item of cocoList.value) {
@@ -234,10 +235,7 @@ export default {
     }
 
     function onGoBack() {
-      const lastValidNode = localService.getLastValidNode();
-      if (lastValidNode?.node_address) {
-        void router.push('node?n=' + lastValidNode.node_address + '&x=gallery');
-      }
+      void router.push('node?x=stream_gallery');
     }
 
     return {

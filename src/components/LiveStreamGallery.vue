@@ -48,13 +48,13 @@ import 'gridstack/dist/h5/gridstack-dd-native';
 import 'gridstack/dist/gridstack-h5.js';
 // // OR to get legacy jquery-ui drag&drop (support Mobile touch devices, h5 does not yet)
 import 'gridstack/dist/jq/gridstack-dd-jqueryui';
-import { useStore } from 'src/store';
 import { PublishService, SubscribeService } from 'src/utils/services/websocket_services';
 import { WsConnection } from 'src/utils/ws/connection';
 import { checkIpIsLoopBack, isNullOrUndefined, startStream } from 'src/utils/utils';
 import { LocalService, GsLocation } from 'src/utils/services/local_service';
 import { NodeService } from 'src/utils/services/node_service';
 import { Config } from 'src/utils/models/config';
+import { StoreService } from 'src/utils/services/store_service';
 // https://v3.vuejs.org/guide/migration/array-refs.html
 export default {
   name: 'LiveStreamGallery',
@@ -65,10 +65,9 @@ export default {
     StreamCommandBar
   },
   setup() {
-    const $store = useStore();
     const open = ref<boolean>(false);
     const publishService = new PublishService();
-    const subscribeService = new SubscribeService();
+    const storeService = new StoreService();
     let connStartStream: WsConnection | null = null;
     let connStopStream: WsConnection | null = null;
     let connTakeScreenshot: WsConnection | null = null;
@@ -77,8 +76,8 @@ export default {
     const showLoading = ref<boolean>(false);
     let grid: GridStack | null = null;
     const waitInterval = 500;
-    const serverIp = localService.nodeIP;
-    const isRemoteServer = !checkIpIsLoopBack(serverIp);
+    let serverIp = '';
+    let isRemoteServer = false;
     const config = ref<Config>();
     const minWidth = ref<number>(4);
 
@@ -100,7 +99,7 @@ export default {
     };
     const onStreamStop = (stream: StreamExtModel) => {
       void publishService.publishStopStream(<any>stream);
-      $store.commit('settings/notifySourceStreamStatusChanged');
+      storeService.setNotifySourceStreamStatusChanged();
     };
     const streamList = reactive<Array<StreamExtModel>>([]);
     //
@@ -127,7 +126,7 @@ export default {
             url = flvAddress;
             break;
           case 1: //HLS
-            url = localService.getVideoAddress() + '/' + streamModel.id + '/stream.m3u8';
+            url = localService.getHlsAddress(serverIp, streamModel.id);
             break;
           case 2: //Direct Reader
           case 3: //FFmpeg Reader
@@ -143,15 +142,15 @@ export default {
         streamList.push(stream);
         open.value = false;
         if (isStartStream) {
-          loadInitGrid(() => $store.commit('settings/setSourceLoading', { id: stream.id, loading: false }));
+          loadInitGrid(() => storeService.setSourceLoading(stream.id, false));
         }
       } else {
         if (isStartStream) {
-          $store.commit('settings/setSourceLoading', { id: streamModel.id, loading: false });
+          storeService.setSourceLoading(streamModel.id, false);
         }
       }
       if (isStartStream) {
-        $store.commit('settings/notifySourceStreamStatusChanged');
+        storeService.setNotifySourceStreamStatusChanged();
       }
     };
 
@@ -251,6 +250,10 @@ export default {
     }
 
     onMounted(async () => {
+      serverIp = await localService.getNodeIP();
+      isRemoteServer = !checkIpIsLoopBack(serverIp);
+
+      const subscribeService = new SubscribeService(serverIp);
       const cf = await nodeService.getConfig();
       if (cf && cf.ui && cf.ui.gs_width) {
         minWidth.value = cf.ui.gs_width;
@@ -329,7 +332,7 @@ export default {
       }
       removeSource(stream);
       const sourceModel = await nodeService.getSource(stream.id);
-      startStream($store, publishService, sourceModel);
+      startStream(storeService, publishService, sourceModel);
     }
 
     function onTakeScreenshot(stream: StreamExtModel) {

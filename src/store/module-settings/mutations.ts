@@ -1,7 +1,6 @@
 import { MutationTree } from 'vuex';
 import { ISettingsState, LoadingInfo, MenuItem, MenuLink } from './state';
 import { List } from 'linqts';
-import { Node } from 'src/utils/entities';
 import { SourceModel } from 'src/utils/models/source_model';
 import { LocalService } from 'src/utils/services/local_service';
 import { User } from 'src/utils/models/user_model';
@@ -14,7 +13,7 @@ const mutation: MutationTree<ISettingsState> = {
     state.menu[obj.name] = obj.menu;
   },
   setSourceThumbnail(state: ISettingsState, obj: { sourceId: string, thumbnail: string }) {
-    const key = 'node?n=' + state.activeTab.node_address;
+    const key = 'node';
     const menu = state.menu[key];
     if (!menu)
       return;
@@ -24,10 +23,6 @@ const mutation: MutationTree<ISettingsState> = {
       source.thumbnail = obj.thumbnail;
     }
   },
-  setActiveTab(state: ISettingsState, value: Node) {
-    state.activeTab = value;
-    new LocalService().setActiveTab(value);
-  },
   setActiveLeftMenu(state: ISettingsState, value: MenuLink) {
     state.activeLeftMenu = value;
   },
@@ -35,7 +30,7 @@ const mutation: MutationTree<ISettingsState> = {
     state.sourceLoading = value;
   },
   addSourceToLeftMenu(state: ISettingsState, source: SourceModel){
-    const route = 'node?n=' + source.address;
+    const route = 'node';
     const menuLink: MenuLink = {
       route: route + '&source=' + source.id,
       icon: 'videocam',
@@ -45,10 +40,10 @@ const mutation: MutationTree<ISettingsState> = {
       isSource: true,
       thumbnail: null
     };
-    state.menu['node?n=' + state.activeTab.node_address]['cameras'].push(menuLink);
+    state.menu['node']['cameras'].push(menuLink);
   },
   updateSourceToLeftMenu(state: ISettingsState, source: SourceModel){
-    const cameras = [...state.menu['node?n=' + state.activeTab.node_address]['cameras']];
+    const cameras = [...state.menu['node']['cameras']];
     for (let j = 0; j < cameras.length; ++j){
       if (cameras[j].id === source.id){
         cameras[j].text = source.name;
@@ -58,8 +53,8 @@ const mutation: MutationTree<ISettingsState> = {
     }
   },
   removeSourceFromLeftMenu(state: ISettingsState, sourceId: string){
-    const cameras = [...state.menu['node?n=' + state.activeTab.node_address]['cameras']];
-    state.menu['node?n=' + state.activeTab.node_address]['cameras'] = cameras.filter(x => x.id != sourceId);
+    const cameras = [...state.menu['node']['cameras']];
+    state.menu['node']['cameras'] = cameras.filter(x => x.id != sourceId);
   },
   addSourceClicked(state: ISettingsState){
     state.addSourceClicked = !state.addSourceClicked;

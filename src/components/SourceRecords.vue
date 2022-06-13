@@ -150,7 +150,6 @@ export default {
     const recordEnabled = ref<boolean>(false);
     const nodeService = new NodeService();
     const publishService = new PublishService();
-    const subscribeService = new SubscribeService();
     let connVideoMerge: WsConnection | null = null;
     const hours = ref<Hour[]>([]);
     const showPlayer = ref<boolean>(false);
@@ -158,7 +157,7 @@ export default {
     const filter = ref('');
     const innerFilter = ref('');
     const stream = ref<StreamModel>(nodeService.LocalService.createEmptyStream());
-    const nodeAddress = ref<string>(nodeService.LocalService.nodeAddress);
+    const nodeAddress = ref<string>('');
     const selectedDate = ref<string>(getTodayString());
     const showMergeLoading = ref<boolean>(false);
     let prevProps: any = null;
@@ -183,6 +182,10 @@ export default {
     };
 
     onMounted(async () => {
+      const nodeIp = await nodeService.LocalService.getNodeIP();
+      const subscribeService = new SubscribeService(nodeIp);
+
+      nodeAddress.value = await nodeService.LocalService.getNodeAddress('');
       stream.value = await nodeService.getStream(props.sourceId);
       recordEnabled.value = stream.value.record_enabled;
 

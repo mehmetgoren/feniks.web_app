@@ -6,26 +6,16 @@
 
         <q-toolbar-title v-if='$q.screen.gt.xs' shrink class='row items-center no-wrap'>
           <img src='../../public/icons/logo.png' width='60' alt='logo'>
-          <span class='q-ml-sm'></span>
-          <q-tabs v-model='tab' align='left' v-if='tabs'>
-            <q-tab label='Home' key='home' name='home' id='home' @click='onTabClick(homeNode)' />
-            <q-tab v-for='tab in tabs' :key='tab.node_address' :label='tab.name' :name='tab.node_address' @click='onTabClick(tab)' />
-          </q-tabs>
+          <span class='q-ml-sm'>{{ currentNode.name }} / {{ currentNode.node_address }}</span>
         </q-toolbar-title>
 
 
         <q-space />
         <!--  left panel panel-->
         <div class='q-gutter-sm row items-center no-wrap'>
-          <q-btn round dense flat color='grey-8' icon='notifications'>
-            <q-badge color='red' text-color='white' floating>
-              2
-            </q-badge>
-            <q-tooltip>Notifications</q-tooltip>
-          </q-btn>
           <q-btn-dropdown icon='account_circle' round flat :label='currentUser?.username'>
             <q-list>
-              <q-item clickable v-close-popup @click="onLogoutUser">
+              <q-item clickable v-close-popup @click='onLogoutUser'>
                 <q-item-section>
                   <q-item-label>
                     <q-avatar size='36px'>
@@ -36,10 +26,9 @@
                   </q-item-label>
                 </q-item-section>
               </q-item>
-
             </q-list>
 
-          </q-btn-dropdown >
+          </q-btn-dropdown>
         </div>
 
       </q-toolbar>
@@ -61,8 +50,10 @@
                 <q-img :src="'data:image/png;base64, ' + (link.thumbnail ? link.thumbnail : emptyBase64Image)" spinner-color='white'
                        style='height: 80px; width: 200px; cursor: pointer;' class='rounded-borders'>
                   <div class='absolute-bottom text-subtitle1'>
-                    <q-icon v-if='sourceStreamStatus[link.id]&&sourceStreamStatus[link.id].streaming' name='live_tv' color='green' style='margin-right: 3px;' class='blink_me' />
-                    <q-icon v-if='sourceStreamStatus[link.id]&&sourceStreamStatus[link.id].recording' name='fiber_manual_record' color='red' style='margin-right: 3px;' class='blink_me' />
+                    <q-icon v-if='sourceStreamStatus[link.id]&&sourceStreamStatus[link.id].streaming' name='live_tv' color='green' style='margin-right: 3px;'
+                            class='blink_me' />
+                    <q-icon v-if='sourceStreamStatus[link.id]&&sourceStreamStatus[link.id].recording' name='fiber_manual_record' color='red'
+                            style='margin-right: 3px;' class='blink_me' />
                     <q-icon :name='link.icon' />
                     {{ link.text }}
                   </div>
@@ -129,9 +120,9 @@
                     <q-item-label>Test</q-item-label>
                   </q-item-section>
                 </q-item>
-                <q-inner-loading v-if='loadingObject[link.id]' :showing='true'>
-                  <q-spinner-gears size='50px' color='primary' />
-                </q-inner-loading>
+<!--                <q-inner-loading v-if='loadingObject[link.id]' :showing='true'>-->
+<!--                  <q-spinner-gears size='50px' color='primary' />-->
+<!--                </q-inner-loading>-->
               </q-btn-dropdown>
             </q-item>
             <q-separator v-if='menu.length' inset class='q-my-sm' />
@@ -146,7 +137,7 @@
   </q-layout>
 
   <q-dialog v-model='showSettings' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
-    <SourceSettings :source-id='selectedSourceId' @on-save='onSourceSettingsSave' />
+    <SourceSettings :source-id='selectedSourceId' @on-save='onSourceSettingsSave' @on-delete='onSourceDelete' />
   </q-dialog>
 
   <q-dialog v-model='showRecords' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
@@ -160,12 +151,10 @@
 </template>
 
 <script lang='ts'>
-import { computed, onMounted, reactive, ref, watch } from 'vue';
-import { useStore } from 'src/store';
-import { useRouter, useRoute } from 'vue-router';
-import { NodeRepository } from 'src/utils/db';
+import { onMounted, reactive, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { NodeService } from 'src/utils/services/node_service';
-import { MenuItem, MenuLink, LoadingInfo } from 'src/store/module-settings/state';
+import { MenuLink, LoadingInfo } from 'src/store/module-settings/state';
 import { PublishService, SubscribeService } from 'src/utils/services/websocket_services';
 import { EditorImageResponseModel, Node } from 'src/utils/entities';
 import SourceSettings from 'components/SourceSettings.vue';
@@ -173,6 +162,8 @@ import SourceRecords from 'components/SourceRecords.vue';
 import OnvifSettings from 'components/OnvifSettings.vue';
 import { SourceModel } from 'src/utils/models/source_model';
 import { createEmptyBase64Image, startStream } from 'src/utils/utils';
+import { NodeRepository } from 'src/utils/db';
+import { StoreService } from 'src/utils/services/store_service';
 
 export default {
   name: 'Ionix Layout',
@@ -180,127 +171,33 @@ export default {
     SourceSettings, SourceRecords, OnvifSettings
   },
   setup() {
-    const homeNode: Node = { node_address: '', name: 'home', description: '', enabled: true };
-    const tab = ref<string>('home');
     const router = useRouter();
-    const route = useRoute();
-    const path = computed(() => route.path);
-    const $store = useStore();
     const leftDrawerOpen = ref(false);
-    const search = ref('');
-    const showAdvanced = ref(false);
-    const showDateOptions = ref(false);
-    const exactPhrase = ref('');
-    const hasWords = ref('');
-    const excludeWords = ref('');
-    const byWebsite = ref('');
-    const byDate = ref('Any time');
-    const nodeRep = ref(new NodeRepository());
     const nodeService = new NodeService();
+    const currentNode = ref<Node>(nodeService.LocalService.createEmptyNode());
     const publishService = new PublishService();
-    const subscribeService = new SubscribeService();
+    const storeService = new StoreService();
     const loadingObject = reactive<any>({});
     const sourceStreamStatus = reactive<any>({});
     const showSettings = ref<boolean>(false);
     const showRecords = ref<boolean>(false);
     const selectedSourceId = ref<string>('');
     const emptyBase64Image = ref<string>(createEmptyBase64Image());
-    const activeLeftMenu = ref<string>();
+    const activeLeftMenu = ref<string>('config');
     const selectedSourceAddress = ref<string>('');
     const showOnvif = ref<boolean>(false);
 
-    const tabs = ref();
-    onMounted(async () => {
-      tabs.value = await nodeRep.value.getAll();
+    const menus = ref(storeService.getNode());
 
-      subscribeService.subscribeEditor('ml', (event: MessageEvent) => {
-        const responseModel: EditorImageResponseModel = JSON.parse(event.data);
-        if (responseModel.event_type != 2) {
-          return;
-        }
-        $store.commit('settings/setSourceThumbnail', {
-          sourceId: responseModel.id,
-          thumbnail: responseModel.image_base64
-        });
-      });
-    });
-    const getPureMenuPath = () => {
-      let path_str: any = path.value;
-      path_str = path_str.split('-')[0];
-      path_str = path_str.replace('/', '');
-      return path_str;
-    };
-    const menus = ref($store.getters['settings/menu'][getPureMenuPath()]);
-
-    const onTabClick = async (tab: Node) => {
-      $store.commit('settings/setActiveTab', tab);
-      const menu = $store.getters['settings/menu'];
-      if (tab.name === 'home') {
-        menus.value = menu[''];
-        await router.push('home');
-        return;
-      }
-      const route = 'node?n=' + tab.node_address;
-      if (!menu[route]) {
-        const sources = await nodeService.getSourceList();
-        const menuLinks: MenuLink[] = [];
-        for (const source of sources) {
+    const loadSources = async () => {
+      const sources = await nodeService.getSourceList();
+      for (const source of sources) {
+        storeService.addSourceToLeftMenu(source);
+        setTimeout(() => {
           getThumbnail(source);
-          const menuLink: MenuLink = {
-            route: route + '&source=' + source.id,
-            icon: 'videocam',
-            text: source.name,
-            id: source.id,
-            source: source,
-            isSource: true,
-            thumbnail: null
-          };
-          loadingObject[<string>menuLink.id] = false;
-          menuLinks.push(menuLink);
-        }
-        await sourceStreamDatabind();
-        const menuObject: MenuItem = {};
-        menuObject['config'] = [
-          {
-            route: route + '&x=config',
-            icon: 'settings',
-            text: 'Configuration',
-            name: 'config'
-          }
-        ];
-        menuObject['stream_gallery'] = [
-          {
-            route: route + '&x=gallery',
-            icon: 'apps',
-            text: 'Stream Gallery',
-            name: 'stream_gallery'
-          }
-        ];
-        menuObject['add_source'] = [
-          {
-            route: route + '&x=add_source',
-            icon: 'add_box',
-            text: 'Add Source',
-            name: 'add_source'
-          }
-        ];
-        menuObject['fr_train'] = [
-          {
-            route: route + '&x=fr_train',
-            icon: 'face',
-            text: 'Face Training',
-            name: 'fr_train'
-          }
-        ];
-        menuObject['cameras'] = menuLinks;
-
-        $store.commit('settings/addMenu', {
-          name: route,
-          menu: menuObject
         });
+        loadingObject[<string>source.id] = false;
       }
-      menus.value = menu[route];
-      await router.push('node?n=' + tab.node_address);
     };
 
     async function sourceStreamDatabind() {
@@ -310,25 +207,38 @@ export default {
       }
     }
 
-    const sourceLoading = computed(() => $store.getters['settings/sourceLoading']);
+    const sourceLoading = storeService.sourceLoading;
     watch(sourceLoading, (obj: LoadingInfo) => {
       loadingObject[obj.id] = obj.loading;
+      console.log(JSON.stringify(obj))
     });
 
-    const sourceStreamStatusChanged = computed(() => $store.getters['settings/sourceStreamStatusChanged']);
+    const sourceStreamStatusChanged = storeService.sourceStreamStatusChanged;
     watch(sourceStreamStatusChanged, async () => {
       await sourceStreamDatabind();
     });
 
-    const currentUser = computed(() => $store.getters['settings/currentUser']);
+    onMounted(async () => {
+      const an = await new NodeRepository().getActiveNode();
+      if (an) {
+        currentNode.value = an;
+      }
 
-    function onClear() {
-      exactPhrase.value = '';
-      hasWords.value = '';
-      excludeWords.value = '';
-      byWebsite.value = '';
-      byDate.value = 'Any time';
-    }
+      const nodeIp = await nodeService.LocalService.getNodeIP();
+      const subscribeService = new SubscribeService(nodeIp);
+
+      subscribeService.subscribeEditor('ml', (event: MessageEvent) => {
+        const responseModel: EditorImageResponseModel = JSON.parse(event.data);
+        if (responseModel.event_type == 2) {
+          storeService.setSourceThumbnail(responseModel);
+        }
+        storeService.setSourceLoading(<string>responseModel.id, false);
+      });
+      await loadSources();
+      await sourceStreamDatabind();
+    });
+
+    const currentUser = storeService.currentUser;
 
     function toggleLeftDrawer() {
       leftDrawerOpen.value = !leftDrawerOpen.value;
@@ -342,34 +252,32 @@ export default {
         address: source.address,
         event_type: 2
       }).then().catch(console.error);
+      storeService.setSourceLoading(<string>source.id, true);
     }
 
     const onAiClick = (sourceId: string) => {
-      const tab = nodeService.LocalService.getLastValidNode();
-      if (tab == null) {
-        return;
-      }
-      $store.commit('settings/aiSettingsClicked');
-      $store.commit('settings/aiSettingsSourceId', sourceId);
-      const route = 'node?n=' + tab.node_address + '&x=ai';
+      storeService.setAiSettingsClicked();
+      storeService.setAiSettingsSourceId(sourceId);
+      const route = 'node?x=ai';
       void router.push(route);
     };
 
     const onLogoutUser = async () => {
       await nodeService.logoutUser(currentUser.value);
-      $store.commit('settings/currentUser', null);
-    }
+      storeService.setCurrentUser(null);
+      await router.push('/');
+    };
 
     return {
-      homeNode, tab, leftDrawerOpen, search, showAdvanced, showDateOptions, exactPhrase, hasWords, excludeWords, byWebsite, byDate, menus, currentUser,
-      tabs, loadingObject, sourceStreamStatus, showSettings, selectedSourceId, showRecords, emptyBase64Image, activeLeftMenu, selectedSourceAddress, showOnvif,
-      onClear, toggleLeftDrawer, onTabClick, getThumbnail, onAiClick, onLogoutUser,
+      leftDrawerOpen, menus, currentUser, currentNode,
+      loadingObject, sourceStreamStatus, showSettings, selectedSourceId, showRecords, emptyBase64Image, activeLeftMenu, selectedSourceAddress, showOnvif,
+      toggleLeftDrawer, getThumbnail, onAiClick, onLogoutUser,
       onSaveSettingsClicked(sourceId: string) {
         showSettings.value = true;
         selectedSourceId.value = sourceId;
       },
       onStartStreaming(link: MenuLink) {
-        startStream($store, publishService, <SourceModel>link.source);
+        startStream(storeService, publishService, <SourceModel>link.source);
       },
       onShowRecordClicked(sourceId: string) {
         showRecords.value = true;
@@ -384,6 +292,7 @@ export default {
           address: source.address,
           event_type: 1
         });
+        storeService.setSourceLoading(<string>source.id, true);
       },
       onSourceSettingsSave() {
         showSettings.value = false;
@@ -391,6 +300,9 @@ export default {
       onOnvifClick(link: MenuLink) {
         selectedSourceAddress.value = <string>link.source?.address;
         showOnvif.value = true;
+      },
+      onSourceDelete() {
+        showSettings.value = false;
       }
     };
   },

@@ -1,14 +1,17 @@
-import { Node } from 'src/utils/entities';
 import { isNullOrEmpty, isNullOrUndefined } from 'src/utils/utils';
 import { SourceModel } from 'src/utils/models/source_model';
 import { StreamModel } from 'src/utils/models/stream_model';
 import { OdModel } from 'src/utils/models/od_model';
 import { User } from 'src/utils/models/user_model';
+import { NodeRepository } from 'src/utils/db';
+import { Node } from 'src/utils/entities';
 
 export class LocalService {
 
-  public getVideoAddress() {
-    return `${this.nodeHttpProtocol}://${this.nodeIP}:${this.nodePort}/livestream`;
+  private readonly rep: NodeRepository = new NodeRepository();
+
+  public getHlsAddress(nodeIp: string, sourceId: string) {
+    return `${this.nodeHttpProtocol}://${nodeIp}:${this.nodePort}/livestream/${sourceId}/stream.m3u8`;
   }
 
   get hubHttpProtocol(): string {
@@ -32,8 +35,8 @@ export class LocalService {
     return 'http';
   }
 
-  get nodeIP(): string {
-    const node = this.getLastValidNode();
+  async getNodeIP(): Promise<string> {
+    const node = await this.rep.getActiveNode();
     if (node) {
       return node.node_address;
     }
@@ -44,36 +47,11 @@ export class LocalService {
     return '2072';
   }
 
-  get nodeAddress(): string {
-    return `${this.nodeHttpProtocol}://${this.nodeIP}:${this.nodePort}`;
-  }
-
-  public getNodeAddress(route: string): string {
-    return `${this.nodeHttpProtocol}://${this.nodeIP}:${this.nodePort}/${route}`;
-  }
-
-  public getLastValidNode(): Node | null {
-    const json = localStorage.getItem('lastValidNode');
-    if (json) {
-      return JSON.parse(json);
-    }
-    return null;
-  }
-
-  public getActiveTab(): Node | null {
-    const json = localStorage.getItem('setActiveTab');
-    if (json) {
-      return JSON.parse(json);
-    }
-    return null;
-  }
-
-  public setActiveTab(node: Node) {
-    const json = JSON.stringify(node);
-    if (node.node_address) {
-      localStorage.setItem('lastValidNode', json);
-    }
-    localStorage.setItem('setActiveTab', json);
+  public async getNodeAddress(route: string): Promise<string> {
+    const nodeIp = await this.getNodeIP();
+    if (isNullOrEmpty(route))
+      return `${this.nodeHttpProtocol}://${nodeIp}:${this.nodePort}`;
+    return `${this.nodeHttpProtocol}://${nodeIp}:${this.nodePort}/${route}`;
   }
 
   public setCurrentUser(user: User){
@@ -634,6 +612,15 @@ export class LocalService {
       return '';
     }
     return base64;
+  }
+
+  public createEmptyNode():Node{
+    return {
+      name:'',
+      node_address:'',
+      description:'',
+      active:false
+    };
   }
 }
 

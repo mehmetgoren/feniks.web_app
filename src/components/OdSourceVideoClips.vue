@@ -103,7 +103,7 @@ export default {
     const stream = ref<StreamModel>(nodeService.LocalService.createEmptyStream());
     const rows = ref<OdVideoClipsViewModel[]>([]);
     const filter = ref<string>('');
-    const webMngrAddress = ref<string>(nodeService.LocalService.getNodeAddress(''));
+    const webMngrAddress = ref<string>('');
     const refreshLoading = ref<boolean>(false);
     let selectedDate = getTodayString();
     let selectedHour = getCurrentHour();
@@ -129,6 +129,7 @@ export default {
     };
 
     onMounted(async () => {
+      webMngrAddress.value = await nodeService.LocalService.getNodeAddress('');
       stream.value = await nodeService.getStream(props.sourceId);
       await refreshFn();
     });
@@ -143,8 +144,6 @@ export default {
     }
 
     function onRowClick(props: any){
-      // console.log(props);
-      // alert(JSON.stringify(props))
       restorePrev();
       props.expand = !props.expand;
       prevProps = props;

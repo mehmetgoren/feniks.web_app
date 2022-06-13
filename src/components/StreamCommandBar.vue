@@ -73,8 +73,8 @@ import { SourceModel } from 'src/utils/models/source_model';
 import { StreamModel } from 'src/utils/models/stream_model';
 import { LocalService, SelectOption } from 'src/utils/services/local_service';
 import { List } from 'linqts';
-import { useStore } from 'src/store';
 import { useRouter } from 'vue-router';
+import { StoreService } from 'src/utils/services/store_service';
 
 export default {
   name: 'StreamCommandBar',
@@ -111,9 +111,9 @@ export default {
   //@ts-ignore
   setup(props: any, { emit }) {
     const router = useRouter();
-    const $store = useStore();
     const showSettings = ref<boolean>(false);
     const localService = new LocalService();
+    const storeService = new StoreService();
     const rtmpType = computed(() => {
       return new List<SelectOption>(localService.createRtmpServerTypes())
         .FirstOrDefault(x => x?.value === props.stream.rtmp_server_type)?.label ?? '';
@@ -131,13 +131,9 @@ export default {
     };
 
     const onAiClick = () => {
-      const tab = nodeService.LocalService.getLastValidNode();
-      if (tab == null) {
-        return;
-      }
-      $store.commit('settings/aiSettingsClicked');
-      $store.commit('settings/aiSettingsSourceId', props.stream.id);
-      const route = 'node?n=' + tab.node_address + '&x=ai';
+      storeService.setAiSettingsClicked();
+      storeService.setAiSettingsSourceId(props.stream.id);
+      const route = 'node?x=ai';
       void router.push(route);
     };
     const showOnvif = ref<boolean>(false);

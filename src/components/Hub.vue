@@ -2,18 +2,12 @@
   <div class='q-pa-sm'>
     <q-card class='my-card' style='max-width: 570px' >
       <q-card-section class='bg-purple text-white'>
-        <div class='text-subtitle2'>Predefined Cameras</div>
+        <div class='text-subtitle2'>Predefined Cameras (From Main Hub Server)</div>
       </q-card-section>
       <q-card-actions align='left'>
-        <q-table
-          title='Cameras'
-          :rows='cameras'
-          :columns='columns'
-          row-key='id'
-          :filter='filter'
-        >
+        <q-table title='Cameras' :rows='cameras' :columns='columns' row-key='id' :filter='filter'>
           <template v-slot:top-right>
-            <q-input borderless dense debounce='300' v-model='filter' placeholder='Search'>
+            <q-input borderless debounce='300' v-model='filter' placeholder='Search'>
               <template v-slot:append>
                 <q-icon name='search' />
               </template>
@@ -26,14 +20,11 @@
 </template>
 
 <script lang='ts'>
-import { useStore } from 'src/store';
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import { HubService } from '../utils/services/hub_service';
 export default {
   name: 'Hub',
   setup(){
-    const $store = useStore();
-    const dense = computed(() => $store.getters['settings/dense']);
     const cameraService = ref(new HubService());
     const cameras = ref();
     const filter = ref('');
@@ -46,7 +37,7 @@ export default {
       cameras.value = await cameraService.value.getAll();
     };
 
-    return {dense, cameras, columns, filter};
+    return {cameras, columns, filter};
   }
 };
 const columns = [

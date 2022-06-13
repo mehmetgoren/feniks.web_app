@@ -1,6 +1,6 @@
 <template>
   <div id='q-app'>
-    <q-layout view='lHh Lpr fff'>
+    <q-layout v-if='mode < 2' view='lHh Lpr fff'>
       <q-page class='window-height window-width row justify-center items-center' style='background: linear-gradient(#8274C5, #5A4A9F);'>
         <div v-if='mode===0' class='column q-pa-lg'>
           <div class='row'>
@@ -34,11 +34,12 @@
               </q-card-actions>
               <q-card-section class='text-center q-pa-sm'>
                 <p class='text-grey-6' style='cursor: pointer;' @click='onGoRegister'>Register</p>
+                <p class='text-grey-6' style='cursor: pointer;' @click='onGoNodes'>Nodes</p>
               </q-card-section>
             </q-card>
           </div>
         </div>
-        <div v-else class='column q-pa-lg'>
+        <div v-else-if='mode===1' class='column q-pa-lg'>
           <div class='row'>
             <q-card square class='shadow-24' style='width:400px;'>
               <q-card-section class='bg-deep-purple-7'>
@@ -89,26 +90,37 @@
         </div>
       </q-page>
     </q-layout>
+    <Nodes v-if='mode===2' @on-go-back='onNodesGoBack'/>
   </div>
 </template>
 
 <script lang='ts'>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { LoginUserViewModel, RegisterUserViewModel, User } from 'src/utils/models/user_model';
 import { NodeService } from 'src/utils/services/node_service';
 import { useQuasar } from 'quasar';
-import { useStore } from 'src/store';
+import Nodes from 'src/pages/Nodes.vue';
+import { NodeRepository } from 'src/utils/db';
+import { useRouter } from 'vue-router';
+import { StoreService } from 'src/utils/services/store_service';
 
 export default {
   name: 'Login',
+  components:{Nodes},
   setup() {
     const $q = useQuasar();
-    const $store = useStore();
+    const router = useRouter();
     const mode = ref<Mode>(Mode.Login);
     const loginUser = ref<LoginUserViewModel>({ username: 'admin', password: 'admin' });
     const registerUser = ref<RegisterUserViewModel>({ email: 'admin@feniks.com', password: 'admin',
       re_password: 'admin', username: 'admin' });
     const nodeService = new NodeService();
+    const nodeRepository = new NodeRepository();
+    const storeService = new StoreService();
+
+    onMounted(async () => {
+      mode.value = await nodeRepository.hasAnyNode() ? Mode.Login : Mode.Nodes;
+    });
 
     const onLogin = async () => {
       const u = loginUser.value;
@@ -119,7 +131,8 @@ export default {
       const user: User = await nodeService.login(loginUser.value);
       const token = user?.token;
       if (token && token.length && token.length === 8) {
-        $store.commit('settings/currentUser', user);
+        storeService.setCurrentUser(user);
+        await router.push('node?x=config');
       } else {
         $q.notify({ message: 'Username and/or Password are incorrect', color: 'red' });
       }
@@ -146,6 +159,12 @@ export default {
       },
       onReturnLogin() {
         mode.value = Mode.Login;
+      },
+      onGoNodes(){
+        mode.value = Mode.Nodes;
+      },
+      onNodesGoBack(){
+        mode.value = Mode.Login;
       }
     };
   }
@@ -153,7 +172,8 @@ export default {
 
 enum Mode {
   Login = 0,
-  Register = 1
+  Register = 1,
+  Nodes = 2
 }
 </script>
 

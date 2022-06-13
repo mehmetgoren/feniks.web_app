@@ -10,13 +10,13 @@ export class WsConnection {
   private readonly _adddress: string;
   private _timeout: NodeJS.Timeout | null;
 
-  constructor(endPoint: string, onMessage: ((this: WebSocket, ev: MessageEvent) => any) | null) {
+  constructor(nodeIp: string, endPoint: string, onMessage: ((this: WebSocket, ev: MessageEvent) => any) | null) {
     this._ws = null;
     this._endPoint = endPoint;
     this._onMessage = onMessage;
     this._closedByMe = false;
     this._localService = new LocalService();
-    this._adddress = `ws://${this._localService.nodeIP}:${this._localService.nodePort}/${this._endPoint}`;
+    this._adddress = `ws://${nodeIp}:${this._localService.nodePort}/${this._endPoint}`;
     this._timeout = null;
     this._init();
   }

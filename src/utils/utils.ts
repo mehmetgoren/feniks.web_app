@@ -1,13 +1,15 @@
-import { IState } from 'src/store';
 import { PublishService } from 'src/utils/services/websocket_services';
-import { Store } from 'vuex';
 import { SourceModel } from 'src/utils/models/source_model';
 import axios from 'axios';
+import { StoreService } from 'src/utils/services/store_service';
 
 
-export function parseQs(qs = window.location.search) {
+export function parseQs(qs = window.location.search): any {
   const urlSearchParams = new URLSearchParams(qs);
-  return Object.fromEntries(urlSearchParams.entries());
+  const ret:any = {};
+  const arr  = urlSearchParams.entries().next().value;
+  ret[arr[0].replace('node?', '')] = arr[1];
+  return ret;
 }
 
 export function myDateToJsDate(dateString: string): Date {
@@ -70,12 +72,12 @@ export function isNullOrEmpty(val: string | undefined | null) {
   return isNullOrUndefined(val) ? true : val.length === 0;
 }
 
-export function startStream($store: Store<IState>, publishService: PublishService, source: SourceModel) {
+export function startStream(storeService: StoreService, publishService: PublishService, source: SourceModel) {
   if (isNullOrEmpty(source?.id)) {
     console.error('invalid source object. Streaming request will not ben sent');
     return;
   }
-  $store.commit('settings/setSourceLoading', { id: source.id, loading: true });
+  storeService.setSourceLoading(<string>source.id, true);
   publishService.publishStartStream(source).then(() => {
     console.log('stream request has been started');
   }).catch((err) => {
@@ -125,4 +127,8 @@ export function deepCopy(source: any): any {
 export function isFrDirNameValid(name: string): boolean{
   const re = '/^[^\s^\x00-\x1f\\?*:"";<>|\/.][^\x00-\x1f\\?*:"";<>|\/]*[^\s^\x00-\x1f\\?*:"";<>|\/.]+$/g';
   return name.match(re) === null;
+}
+
+export function generateHtmlColor(): string {
+  return '#'+(Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0');
 }

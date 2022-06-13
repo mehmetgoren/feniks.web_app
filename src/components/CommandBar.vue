@@ -1,6 +1,6 @@
 <template>
   <q-banner inline-actions rounded class='bg-cyan text-white' dense>
-    <label style='text-transform: uppercase;font-size: medium;'>{{ activeTab.name }}</label>
+    <label style='text-transform: uppercase;font-size: medium;'>{{ currentNode.name }}</label>
     <template v-slot:action>
       <q-btn v-if='showSave' flat push label='Save' icon='save' @click='onSave' :disable='inactiveSave'>
         <q-inner-loading :showing='inactiveSave' />
@@ -16,8 +16,9 @@
 </template>
 
 <script>
-import { computed } from 'vue';
-import { useStore } from 'src/store';
+import { onMounted, ref } from 'vue';
+import { NodeRepository } from 'src/utils/db';
+import { LocalService } from 'src/utils/services/local_service';
 
 export default {
   name: 'CommandBar',
@@ -51,11 +52,14 @@ export default {
   },
 
   setup(props, { emit }) {
-    const $store = useStore();
-    const activeTab = computed(() => $store.getters['settings/activeTab']);//active node ip
+    const currentNode = ref(new LocalService().createEmptyNode());
+
+    onMounted(async () =>{
+      currentNode.value = await new NodeRepository().getActiveNode();
+    });
 
     return {
-      activeTab,
+      currentNode,
       onSave(e) {
         emit('on-save', e);
       },

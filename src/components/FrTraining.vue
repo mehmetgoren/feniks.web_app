@@ -100,7 +100,6 @@ export default {
     const link = ref<string>('');
     const nodeService = new NodeService();
     const publishService = new PublishService();
-    const subscribeService = new SubscribeService();
     const images = ref<ImageItem[]>([]);
     const showPageLoading = ref<boolean>(false);
     const showGallery = ref<boolean>(true);
@@ -131,7 +130,7 @@ export default {
         for (const item of items) {
           if (item && item.image_paths && item.image_paths.length) {
             for (let j = 0; j < item.image_paths.length; ++j) {
-              item.image_paths[j] = nodeService.LocalService.getNodeAddress(item.image_paths[j]);
+              item.image_paths[j] = await nodeService.LocalService.getNodeAddress(item.image_paths[j]);
             }
           }
         }
@@ -180,6 +179,8 @@ export default {
     }
 
     onMounted(async () => {
+      const nodeIp = await nodeService.LocalService.getNodeIP();
+      const subscribeService = new SubscribeService(nodeIp);
       sourceList.value = await nodeService.getSourceList();
       await dataBindImages();
       connFrTrain = subscribeService.subscribeFrTrain(onSubscribeFrTrain);
@@ -206,7 +207,7 @@ export default {
         if (items && items.length > 0) {
           for (const item of items) {
             if (item && item.imagePath) {
-              item.imagePath = nodeService.LocalService.getNodeAddress(item.imagePath);
+              item.imagePath = await nodeService.LocalService.getNodeAddress(item.imagePath);
             }
           }
         }

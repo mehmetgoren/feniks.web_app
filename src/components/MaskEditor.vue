@@ -69,7 +69,7 @@
 </template>
 
 <script lang='ts'>
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
+import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 import { SourceModel } from 'src/utils/models/source_model';
 import { NodeService } from 'src/utils/services/node_service';
 import { PublishService, SubscribeService } from 'src/utils/services/websocket_services';
@@ -77,7 +77,6 @@ import { EditorImageResponseModel } from 'src/utils/entities';
 import { WsConnection } from 'src/utils/ws/connection';
 import { createEmptyBase64Image, deepCopy, isNullOrEmpty } from 'src/utils/utils';
 import { nanoid } from 'nanoid';
-import { useStore } from 'src/store';
 import { List } from 'linqts';
 
 export default {
@@ -95,11 +94,8 @@ export default {
   emits: ['zones-coordinates-changed', 'masks-coordinates-changed'],
   //@ts-ignore
   setup(props: any, { emit }) {
-    const $store = useStore();
-    const dense = computed(() => $store.getters['settings/dense']);
     const nodeService = new NodeService();
     const publishService = new PublishService();
-    const subscribeService = new SubscribeService();
     const localService = nodeService.LocalService;
     const source = ref<SourceModel>(localService.createEmptySource());
     const width = ref<number>(1280);
@@ -137,6 +133,8 @@ export default {
     };
 
     onMounted(async () => {
+      const nodeIp = await localService.getNodeIP();
+      const subscribeService = new SubscribeService(nodeIp);
       const sourceId = props.odModel.id;
       if (isNullOrEmpty(sourceId)) {
         return;
@@ -317,7 +315,7 @@ export default {
     }
 
     return {
-      dense, source, width, height, base64Image, zonesService, selected, loadingObject, tab, masksService,
+      source, width, height, base64Image, zonesService, selected, loadingObject, tab, masksService,
       handleClick, handleRightClick, handleDragStart, handleDragEnd, handleDragging, onAdd, onTableSelected, onDelete, onTabsChanged,
       columns: [
         { name: 'coordinates', align: 'left', label: 'Zone Coordinates', field: 'coordinates', sortable: true },

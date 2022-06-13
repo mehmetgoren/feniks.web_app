@@ -7,6 +7,7 @@ import { onMounted, onUnmounted, ref } from 'vue';
 import { WsConnection } from 'src/utils/ws/connection';
 import { SubscribeService } from 'src/utils/services/websocket_services';
 import { NodeService } from 'src/utils/services/node_service';
+import { LocalService } from 'src/utils/services/local_service';
 
 export default {
   name: 'FFmpegReaderPlayer',
@@ -18,7 +19,6 @@ export default {
     }
   },
   setup(props: any) {
-    const subscribeService = new SubscribeService();
     let conn: WsConnection | null = null;
     const src = ref<string>('');
     const width = ref<number>(640);
@@ -31,6 +31,7 @@ export default {
     }
 
     onMounted(async () => {
+      const subscribeService = new SubscribeService(await new LocalService().getNodeIP());
       if (props.sourceId.length > 0) {
         const stream = await nodeService.getStream(props.sourceId);
         if (stream) {

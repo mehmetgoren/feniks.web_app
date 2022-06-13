@@ -2,10 +2,11 @@
   <div class='q-pa-md q-gutter-sm'>
     <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='width: 99.5%'>
       <q-icon name='important_devices' size='28px' />
-      <label style='text-transform: uppercase;font-size: medium;'> {{ activeTab.name }}</label>
+      <label style='text-transform: uppercase;font-size: medium;'> {{ currentNode.name }}</label>
       <q-tabs v-model='tab' narrow-indicator inline-label align='left'>
         <q-tab name='config' icon='settings_applications' label='Config' />
         <q-tab name='general' icon='developer_board' label='General' />
+        <q-tab name='info' icon='analytics' label='Info' />
       </q-tabs>
     </q-toolbar>
   </div>
@@ -225,40 +226,46 @@
     </q-form>
 
   </div>
+  <div class='q-pa-md q-gutter-sm' v-if='config&&tab==="info"'>
+    <div class='row'>
+      <div class='col-6'>
+        <Dashboard />
+      </div>
+      <div class='col-6'>
+        <Hub />
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang='ts'>
 import { NodeService } from 'src/utils/services/node_service';
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import {
-  Config,
-  JetsonConfig,
-  DeviceConfig,
-  TorchConfig,
-  OnceDetectorConfig,
-  SourceReaderConfig,
-  RedisConfig,
+  Config, JetsonConfig, DeviceConfig, TorchConfig, OnceDetectorConfig, SourceReaderConfig, RedisConfig,
   FFmpegConfig, TensorflowConfig, AiConfig, GeneralConfig, UiConfig
 } from 'src/utils/models/config';
-import CommandBar from 'src/components/CommandBar.vue';
 import { List } from 'linqts';
 import { PublishService, SubscribeService } from 'src/utils/services/websocket_services';
 import { NetworkDiscoveryModel, OnvifAction, OnvifEvent } from 'src/utils/models/onvif_models';
 import { fixArrayDates, myDateToJsDate } from 'src/utils/utils';
 import { WsConnection } from 'src/utils/ws/connection';
-import { useStore } from 'src/store';
 import { ServiceModel } from 'src/utils/models/service_model';
 import { User } from 'src/utils/models/user_model';
 import { useQuasar } from 'quasar';
+import { NodeRepository } from 'src/utils/db';
+import { Node } from 'src/utils/entities';
+import CommandBar from 'src/components/CommandBar.vue';
+import Dashboard from 'components/Dashboard.vue';
+import Hub from 'components/Hub.vue';
 
 export default {
   name: 'NodeConfig',
-  components: { CommandBar },
+  components: { CommandBar, Dashboard, Hub },
   setup() {
     const $q = useQuasar();
     const nodeService = new NodeService();
     const publishService = new PublishService();
-    const subscribeService = new SubscribeService();
     const config = ref<Config>();
     const device = ref<DeviceConfig>();
     const general = ref<GeneralConfig>();
@@ -287,8 +294,7 @@ export default {
     const networkScanResults = ref<NetworkDiscoveryModel>({});
     let connOnvif: WsConnection | null = null;
 
-    const $store = useStore();
-    const activeTab = computed(() => $store.getters['settings/activeTab']);//active node ip
+    const currentNode = ref<Node>(nodeService.LocalService.createEmptyNode());
 
     const services = ref<ServiceModel[]>([]);
     const users = ref<User[]>([]);
@@ -317,6 +323,13 @@ export default {
     };
 
     onMounted(async () => {
+      const nodeIp = await nodeService.LocalService.getNodeIP();
+      const subscribeService = new SubscribeService(nodeIp);
+
+      const an = await new NodeRepository().getActiveNode();
+      if (an) {
+        currentNode.value = an;
+      }
       config.value = await nodeService.getConfig();
       const deviceServices = getDeviceServices(config.value);
       modelMultiple.value = deviceServices;
@@ -360,7 +373,7 @@ export default {
       config, device, optDeviceTypes, onceDetector, sourceReader, redis,
       jetson, jetsonFilter, ffmpeg, tf, ai, general, ui,
       torch, torchFilter, tfFilter, showScanLoading, users,
-      modelMultiple, optServices, activeTab, tab: ref<string>('config'),
+      modelMultiple, optServices, currentNode, tab: ref<string>('config'),
       imageExtensions: ['jpg', 'jpeg', 'png', 'bmp', 'gif'],
       onSave, onRestore, onScanNetwork: function() {
         void publishService.publishOnvif({}, OnvifAction.NetworkDiscovery);
@@ -425,19 +438,19 @@ function createNetworkColumns() {
 
 function createServiceColumns() {
   return [
-    { name: 'name', align: 'center', label: 'Name', field: 'name', sortable: true },
-    { name: 'description', align: 'center', label: 'Description', field: 'description', sortable: true },
-    { name: 'platform', align: 'center', label: 'Platform', field: 'platform', sortable: true },
-    { name: 'platform_version', align: 'center', label: 'Platform Version', field: 'platform_version', sortable: true },
-    { name: 'hostname', align: 'center', label: 'Hostname', field: 'hostname', sortable: true },
-    { name: 'ip_address', align: 'center', label: 'Ip Address', field: 'ip_address', sortable: true },
-    { name: 'mac_address', align: 'center', label: 'Mac Address', field: 'mac_address', sortable: true },
-    { name: 'processor', align: 'center', label: 'Processor', field: 'processor', sortable: true },
-    { name: 'cpu_count', align: 'center', label: 'Cpu Count', field: 'cpu_count', sortable: true },
-    { name: 'ram', align: 'center', label: 'Memory', field: 'ram', sortable: true },
-    { name: 'pid', align: 'center', label: 'PID', field: 'pid', sortable: true },
-    { name: 'created_at', align: 'center', label: 'Created At', field: 'created_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true },
-    { name: 'heartbeat', align: 'center', label: 'Heartbeat', field: 'heartbeat', format: (val: any) => `${val.toLocaleString()}`, sortable: true }
+    { name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true },
+    { name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true },
+    { name: 'platform', align: 'left', label: 'Platform', field: 'platform', sortable: true },
+    { name: 'platform_version', align: 'left', label: 'Platform Version', field: 'platform_version', sortable: true },
+    { name: 'hostname', align: 'left', label: 'Hostname', field: 'hostname', sortable: true },
+    { name: 'ip_address', align: 'left', label: 'Ip Address', field: 'ip_address', sortable: true },
+    { name: 'mac_address', align: 'left', label: 'Mac Address', field: 'mac_address', sortable: true },
+    { name: 'processor', align: 'left', label: 'Processor', field: 'processor', sortable: true },
+    { name: 'cpu_count', align: 'left', label: 'Cpu Count', field: 'cpu_count', sortable: true },
+    { name: 'ram', align: 'left', label: 'Memory', field: 'ram', sortable: true },
+    { name: 'pid', align: 'left', label: 'PID', field: 'pid', sortable: true },
+    { name: 'created_at', align: 'left', label: 'Created At', field: 'created_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true },
+    { name: 'heartbeat', align: 'left', label: 'Heartbeat', field: 'heartbeat', format: (val: any) => `${val.toLocaleString()}`, sortable: true }
   ];
 }
 
