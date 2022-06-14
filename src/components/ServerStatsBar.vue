@@ -7,7 +7,7 @@
       <q-spinner-hourglass size='75%' color='cyan' />
     </q-inner-loading>
   </div>
-  <div class='q-pa-md q-gutter-sm'>
+  <div class='q-pa-md q-gutter-sm' v-if='showCpu'>
     <div v-if='cpu' class='row'>
       <label style='float: left;width: 80%;color: #455a64'> {{ cpu.cpu_count }} CPU{{ (cpu.cpu_count > 0 ? 's' : '') }}</label>
       <label style='float: right;color: #455a64;'>{{ cpu.usage_percent_human }}</label>
@@ -17,7 +17,7 @@
     </div>
   </div>
 
-  <div class='q-pa-md q-gutter-sm'>
+  <div class='q-pa-md q-gutter-sm' v-if='showMemory'>
     <div v-if='memory' class='row'>
       <label style='float:left;width: 80%;color: #455a64'> {{ memory.used_human }} / {{ memory.total_human }} RAM</label>
       <label style='float:right;width:auto;color: #455a64;'>{{ memory.usage_percent_human }}</label>
@@ -27,7 +27,7 @@
     </div>
   </div>
 
-  <div class='q-pa-md q-gutter-sm'>
+  <div class='q-pa-md q-gutter-sm' v-if='showDisk'>
     <div v-if='disk' class='row'>
       <label style='float: left;width: 80%;color: #455a64'> {{ disk.used_human }} / {{ disk.total_human }} DISK</label>
       <label style='float: right;color: #455a64'>{{ disk.usage_percent_human }}</label>
@@ -37,19 +37,21 @@
     </div>
   </div>
 
-  <div class='q-pa-md q-gutter-sm'>
+  <div class='q-pa-md q-gutter-sm' v-if='showNetwork'>
     <div v-if='network' class='row'>
       <table>
         <tr>
           <td>TOTAL DOWNLOAD</td>
-          <td>: {{ network.download_human }}</td>
+          <td>:</td>
+          <td style='text-align: right;'>{{ network.download_human }}</td>
           <td>
             <q-icon name='download' />
           </td>
         </tr>
         <tr>
           <td>TOTAL UPLOAD</td>
-          <td>: {{ network.upload_human }}</td>
+          <td>:</td>
+          <td style='text-align: right;'>{{ network.upload_human }}</td>
           <td>
             <q-icon name='upload' />
           </td>
@@ -58,11 +60,12 @@
     </div>
   </div>
 
-  <div class='q-pa-md q-gutter-sm'>
+  <div class='q-pa-md q-gutter-sm' v-if='showCurrentTime'>
     <div v-if='currentTime' class='row'>
       <label style='float: left;width: 100%;color: #455a64;font-size: large;text-align: center;display: block;'>{{ currentTime.toDateString() }} </label>
       <label
-        style='float: left;width: 100%;color: #455a64;font-size: x-large;text-align: center;display: block;'>{{ currentTime.toLocaleTimeString('en-GB') }} </label>
+        style='float: left;width: 100%;color: #455a64;font-size: x-large;text-align: center;display: block;'>{{ currentTime.toLocaleTimeString('en-GB')
+        }} </label>
     </div>
   </div>
 
@@ -75,6 +78,7 @@ import { CpuInfo, DiskInfo, MemoryInfo, NetworkInfo } from 'src/utils/models/ser
 import { Node } from 'src/utils/entities';
 import { NodeRepository } from 'src/utils/db';
 
+declare var $: any;
 export default {
   name: 'ServerStatsBar',
   setup() {
@@ -88,6 +92,11 @@ export default {
     const currentTime = ref(new Date());
     let dateTimeInterval: NodeJS.Timer | null = null;
     const showLoading = ref<boolean>(false);
+    const showNetwork = ref<boolean>(true);
+    const showCurrentTime = ref<boolean>(true);
+    const showDisk = ref<boolean>(true);
+    const showMemory = ref<boolean>(true);
+    const showCpu = ref<boolean>(true);
 
     const dataBind = async () => {
       const stats = await nodeService.getServerStats();
@@ -128,7 +137,23 @@ export default {
       } finally {
         showLoading.value = false;
       }
+
+      $(window).resize(function() {
+        showWidgets();
+      });
+      showWidgets();
     });
+
+    function showWidgets(){
+      const w = $(window).width();
+      showNetwork.value = w > 1820;
+      showCurrentTime.value = w > 1405;
+      showDisk.value = w > 1160;
+      showMemory.value = w > 880;
+      showCpu.value = w > 560;
+      console.clear()
+      console.log(w)
+    }
 
     onUnmounted(() => {
       if (mineInterval) {
@@ -140,7 +165,8 @@ export default {
     });
 
     return {
-      currentNode, cpu, memory, disk, network, currentTime, showLoading
+      currentNode, cpu, memory, disk, network, currentTime, showLoading,
+      showNetwork, showCurrentTime, showDisk, showMemory, showCpu
     };
   }
 };

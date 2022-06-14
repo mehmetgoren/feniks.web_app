@@ -1,5 +1,5 @@
 <template>
-  <div class='q-pa-md q-gutter-sm'>
+  <div class='q-pa-md q-gutter-sm' style='margin-bottom: -35px;'>
     <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='width: 99.5%'>
       <q-icon name='important_devices' size='28px' />
       <label style='text-transform: uppercase;font-size: medium;'> {{ currentNode.name }}</label>
@@ -8,11 +8,12 @@
         <q-tab name='general' icon='developer_board' label='General' />
         <q-tab name='info' icon='analytics' label='Info' />
       </q-tabs>
+      <q-toolbar-title></q-toolbar-title>
+      <CommandBar v-if='tab==="config"' :show-delete='false' @on-save='onSave' @on-restore='onRestore'/>
     </q-toolbar>
   </div>
 
   <div class='q-pa-md q-gutter-sm' v-if='config&&tab==="config"'>
-    <CommandBar :show-delete='false' @on-save='onSave' @on-restore='onRestore' style='margin-bottom:5px;' />
     <div class='row'>
 
       <div class='col-4'>
@@ -185,7 +186,7 @@
 
     </div>
   </div>
-  <div class='q-pa-md q-gutter-sm' v-if='config&&tab==="general"'>
+  <div class='q-pa-md q-gutter-sm' v-if='config&&tab==="general"' style='margin-top: -45px;'>
     <q-space style='height: 10px;' />
     <q-toolbar class='bg-brown-5 text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
       <label style='text-transform: uppercase;font-size: medium'>Scan Network for IP Cameras</label>

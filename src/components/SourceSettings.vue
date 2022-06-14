@@ -7,6 +7,7 @@
           <label style='text-transform: uppercase;font-size: medium'> {{ source.name }}</label>
         </q-toolbar-title>
         <q-space />
+        <CommandBar :show-restore='false' @on-save='onSave' :inactive-save='inactives.save' @on-delete='onDelete' :inactive-delete='inactives.delete' />
         <q-btn dense flat icon='close' v-close-popup>
           <q-tooltip class='bg-white text-primary'>Close</q-tooltip>
         </q-btn>
@@ -16,9 +17,6 @@
     <q-page-container>
       <q-page padding style='background-color: whitesmoke;'>
 
-        <div class='q-pa-md q-gutter-sm' style='margin-bottom: -25px'>
-          <CommandBar :show-restore='false' @on-save='onSave' :inactive-save='inactives.save' @on-delete='onDelete' :inactive-delete='inactives.delete' />
-        </div>
         <div class='q-pa-md'>
           <q-btn-group push>
             <q-btn push label='Basics' color='cyan' icon='videocam' @click='step=1' />
@@ -258,6 +256,7 @@
                 <q-btn flat @click='step = source.record_enabled ? 6 : 5' color='cyan' label='Back' class='q-ml-sm' />
               </q-stepper-navigation>
             </q-step>
+
           </q-stepper>
         </div>
       </q-page>
