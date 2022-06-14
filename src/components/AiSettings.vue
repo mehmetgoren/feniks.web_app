@@ -204,7 +204,6 @@ export default {
         }
         if (!isNullOrEmpty(sourceId)) {
           const odModel = await nodeService.getOd(sourceId);
-          console.log(odModel);
           if (odModel === null) {
             enabled.value = false;
             return;
@@ -235,7 +234,7 @@ export default {
     }
 
     function onGoBack() {
-      void router.push('node?x=stream_gallery');
+      window.location.reload();
     }
 
     return {
