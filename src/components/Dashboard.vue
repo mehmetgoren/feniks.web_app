@@ -1,5 +1,5 @@
 <template>
-  <DoughnutChart :chartData='minutesData' />
+  <DoughnutChart v-if='minutesData' :chartData='minutesData' />
 </template>
 
 <script lang='ts'>

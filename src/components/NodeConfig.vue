@@ -9,7 +9,7 @@
         <q-tab name='info' icon='analytics' label='Info' />
       </q-tabs>
       <q-toolbar-title></q-toolbar-title>
-      <CommandBar v-if='tab==="config"' :show-delete='false' @on-save='onSave' @on-restore='onRestore'/>
+      <CommandBar v-if='tab==="config"' :show-delete='false' @on-save='onSave' @on-restore='onRestore' />
     </q-toolbar>
   </div>
 
@@ -49,7 +49,7 @@
           <label style='text-transform: uppercase;font-size: medium'>General Config</label>
         </q-toolbar>
         <q-space style='margin: 2px;' />
-        <q-form id='frmPath' class='q-pa-xs' style='margin:0 5px 0 5px;'>
+        <q-form class='q-pa-xs' style='margin:0 5px 0 5px;'>
           <q-input v-model.trim='general.root_folder_path' filled dense label='Root Folder Path' />
           <q-space style='height: 10px;' />
           <q-input v-model.number='general.heartbeat_interval' filled dense label='Heartbeat Interval' />
@@ -60,7 +60,7 @@
           <label style='text-transform: uppercase;font-size: medium'>UI Config</label>
         </q-toolbar>
         <q-space style='margin: 2px;' />
-        <q-form id='frmPath' class='q-pa-xs' style='margin:0 5px 0 5px;'>
+        <q-form class='q-pa-xs' style='margin:0 5px 0 5px;'>
           <q-input v-model.number='ui.gs_width' filled dense label='Grid Stack Width' />
           <q-space style='height: 10px;' />
           <q-input v-model.number='ui.gs_height' filled dense label='Grid Stack Height' />
@@ -191,7 +191,7 @@
     <q-toolbar class='bg-brown-5 text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
       <label style='text-transform: uppercase;font-size: medium'>Scan Network for IP Cameras</label>
     </q-toolbar>
-    <q-form id='frmPath' class='q-pa-xs' style='margin:0 5px 0 5px;'>
+    <q-form class='q-pa-xs' style='margin:0 5px 0 5px;'>
       <q-input v-model='networkScanResults.created_at' filled readonly dense label='Last Scan At' />
       <q-space style='height: 10px;' />
       <q-btn icon='radar' label='Scan Network for IP Cameras' color='brown-5' @click='onScanNetwork' :disable='showScanLoading'>
@@ -206,7 +206,7 @@
     <q-toolbar class='bg-yellow-14 text-black shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
       <label style='text-transform: uppercase;font-size: medium'>Node Running Services</label>
     </q-toolbar>
-    <q-form id='frmPath' class='q-pa-xs' style='margin:0 5px 0 5px;'>
+    <q-form class='q-pa-xs' style='margin:0 5px 0 5px;'>
       <q-table :pagination='initialPagination' :rows='services' row-key='name' :columns='servicesColumns' color='yellow-14' />
     </q-form>
 
@@ -214,7 +214,7 @@
     <q-toolbar class='bg-teal text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
       <label style='text-transform: uppercase;font-size: medium'>Node Users</label>
     </q-toolbar>
-    <q-form id='frmPath' class='q-pa-xs' style='margin:0 5px 0 5px;'>
+    <q-form class='q-pa-xs' style='margin:0 5px 0 5px;'>
       <q-table :pagination='initialPagination' :rows='users' row-key='id' :columns='userColumns' color='teal'>
         <template v-slot:body-cell-delete='props'>
           <q-td :props='props'>
@@ -226,6 +226,14 @@
       </q-table>
     </q-form>
 
+    <q-space style='height: 10px;' />
+    <q-toolbar class='bg-light-blue-6 text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
+      <label style='text-transform: uppercase;font-size: medium'>RTSP Templates</label>
+    </q-toolbar>
+    <q-form class='q-pa-xs' style='margin:0 5px 0 5px;'>
+      <q-table :pagination='initialPagination' :rows='rtmpTemplates' row-key='id' :columns='rtmpTemplatesColumns' color='light-blue-6'/>
+    </q-form>
+
   </div>
   <div class='q-pa-md q-gutter-sm' v-if='config&&tab==="info"'>
     <div class='row'>
@@ -234,6 +242,20 @@
       </div>
       <div class='col-6'>
         <Hub />
+      </div>
+    </div>
+    <div class='row'>
+      <q-toolbar class='bg-lime-6 text-white shadow-2 rounded-borders' style='margin-bottom: -12px;' >
+        <q-tabs v-model='otherTabs' narrow-indicator inline-label align='left'>
+          <q-tab name='failedstreams' icon='sms_failed' label='Failed Streams' />
+          <q-tab name='recstucks' icon='radio_button_checked' label='Stuck Records' />
+        </q-tabs>
+      </q-toolbar>
+      <div class='q-pa-md q-gutter-sm' v-if='otherTabs==="failedstreams"'>
+        <q-table :pagination='initialPagination' :rows='failedStreams' row-key='id' :columns='failedStreamsColumns' color='lime-6'/>
+      </div>
+      <div class='q-pa-md q-gutter-sm' v-if='otherTabs==="recstucks"'>
+        <q-table :pagination='initialPagination' :rows='recStucks' row-key='id' :columns='recStucksColumns' color='lime-6'/>
       </div>
     </div>
   </div>
@@ -259,6 +281,7 @@ import { Node } from 'src/utils/entities';
 import CommandBar from 'src/components/CommandBar.vue';
 import Dashboard from 'components/Dashboard.vue';
 import Hub from 'components/Hub.vue';
+import { FailedStreamModel, RecStuckModel, RtspTemplateModel } from 'src/utils/models/others_models';
 
 export default {
   name: 'NodeConfig',
@@ -299,6 +322,10 @@ export default {
 
     const services = ref<ServiceModel[]>([]);
     const users = ref<User[]>([]);
+    const rtmpTemplates = ref<RtspTemplateModel[]>([]);
+
+    const failedStreams = ref<FailedStreamModel[]>([]);
+    const recStucks = ref<RecStuckModel[]>([]);
 
     const setConfigValue = (c: Config) => {
       device.value = c.device;
@@ -340,6 +367,14 @@ export default {
       networkScanResults.value.created_at = myDateToJsDate(<string>networkScanResults.value.created_at).toLocaleString();
 
       await dataBind();
+
+      rtmpTemplates.value = await nodeService.getRtspTemplates();
+
+      failedStreams.value = await nodeService.getFailedStreams();
+      fixArrayDates(failedStreams.value, 'last_check_at');
+
+      recStucks.value = await nodeService.getRecStucks();
+      fixArrayDates(recStucks.value, 'last_check_at');
 
       connOnvif = subscribeService.subscribeOnvif((event: MessageEvent) => {
         const result: OnvifEvent = JSON.parse(event.data);
@@ -396,7 +431,11 @@ export default {
         }).onOk(() => {
           void onDelete(user);
         });
-      }
+      },
+      rtmpTemplates, rtmpTemplatesColumns:createRtmpTemplatesColumns(),
+      otherTabs:ref<string>('failedstreams'),
+      failedStreams, failedStreamsColumns: createFailedStreamsColumns(),
+      recStucks, recStucksColumns:createRecStucksColumns()
     };
   }
 };
@@ -464,6 +503,58 @@ function createUserColumns() {
     { name: 'delete', align: 'center', label: 'Delete', field: 'delete' }
   ];
 }
+
+function createRtmpTemplatesColumns() {
+  const align = 'left';
+  return [
+    { name: 'name', align, label: 'Name', field: 'name', sortable: true },
+    { name: 'description', align, label: 'Description', field: 'description', sortable: true },
+    { name: 'brand', align, label: 'Brand', field: 'brand', sortable: true },
+    { name: 'default_user', align, label: 'Default User', field: 'default_user', sortable: true },
+    { name: 'default_password', align, label: 'DefaultPassword', field: 'default_password', sortable: true },
+    { name: 'default_port', align, label: 'Default Port', field: 'default_port', sortable: true },
+    { name: 'address', align, label: 'Address', field: 'address', sortable: true },
+    { name: 'route', align, label: 'Route', field: 'route', sortable: true },
+    { name: 'templates', align, label: 'Templates', field: 'templates', sortable: true }
+  ];
+}
+
+function createFailedStreamsColumns() {
+  const align = 'left';
+  return [
+    { name: 'brand', align, label: 'Brand', field: 'brand', sortable: true },
+    { name: 'name', align, label: 'Name', field: 'name', sortable: true },
+    { name: 'address', align, label: 'Address', field: 'address', sortable: true },
+
+    { name: 'rtmp_container_failed_count', align, label: 'RTMP Container Failed Count', field: 'rtmp_container_failed_count', sortable: true },
+    { name: 'rtmp_feeder_failed_count', align, label: 'RTMP Feeder Failed Count', field: 'rtmp_feeder_failed_count', sortable: true },
+    { name: 'hls_failed_count', align, label: 'HLS Failed Count', field: 'hls_failed_count', sortable: true },
+    { name: 'ffmpeg_reader_failed_count', align, label: 'FFmpeg Reader Failed Count', field: 'ffmpeg_reader_failed_count', sortable: true },
+    { name: 'record_failed_count', align, label: 'Record Failed Count', field: 'record_failed_count', sortable: true },
+    { name: 'snapshot_failed_count', align, label: 'Snapshot Failed Count', field: 'snapshot_failed_count', sortable: true },
+    { name: 'record_stuck_process_count', align, label: 'Record Stuck Process Count', field: 'record_stuck_process_count', sortable: true },
+    { name: 'last_check_at', align, label: 'Last Check At', field: 'last_check_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true },
+  ];
+}
+
+function createRecStucksColumns(){
+  const align = 'left';
+  return [
+    { name: 'brand', align, label: 'Brand', field: 'brand', sortable: true },
+    { name: 'name', align, label: 'Name', field: 'name', sortable: true },
+    { name: 'address', align, label: 'Address', field: 'address', sortable: true },
+
+    { name: 'record_segment_interval', align, label: 'Record Segment Interval', field: 'record_segment_interval', sortable: true },
+    { name: 'record_output_dir', align, label: 'Record Output Dir', field: 'record_output_dir', sortable: true },
+    { name: 'file_ext', align, label: 'File Extension', field: 'file_ext', sortable: true },
+    { name: 'last_modified_file', align, label: 'Last Modified File', field: 'last_modified_file', sortable: true },
+    { name: 'last_modified_size', align, label: 'Last Modified Size', field: 'last_modified_size', sortable: true },
+    { name: 'failed_count', align, label: 'Failed Count', field: 'failed_count', sortable: true },
+    { name: 'failed_modified_file', align, label: 'Failed Modified File', field: 'failed_modified_file', sortable: true },
+    { name: 'last_check_at', align, label: 'Last Check At', field: 'last_check_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true },
+  ];
+}
+
 </script>
 
 <style scoped>

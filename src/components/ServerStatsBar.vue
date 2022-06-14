@@ -151,8 +151,6 @@ export default {
       showDisk.value = w > 1160;
       showMemory.value = w > 880;
       showCpu.value = w > 560;
-      console.clear()
-      console.log(w)
     }
 
     onUnmounted(() => {
