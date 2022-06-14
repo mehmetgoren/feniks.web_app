@@ -1,6 +1,6 @@
 <template>
   <div>
-    <q-chip square color='primary' text-color='white' icon='videocam' style='margin-right: 15px;'>
+    <q-chip square :class='{"transparent": transparent}' color='primary' text-color='white' icon='videocam' style='margin-right: 15px;'>
       {{ stream.name }} ({{rtmpType}} / {{ streamType }}{{(enableBooster ? " / Boosted" : "")}})
     </q-chip>
     <q-icon v-if='stream.record' name='fiber_manual_record' size='sm' color='red' class='blink_me'>
@@ -100,12 +100,17 @@ export default {
       type: Boolean,
       default: false,
       required: true
+    },
+    transparent:{
+      type: Boolean,
+      default: false,
+      required: true
     }
   },
   //@ts-ignore
   setup(props: any, { emit }) {
     const router = useRouter();
-    const dense = ref<boolean>(false);
+    const dense = ref<boolean>(props.transparent);
     const showSettings = ref<boolean>(false);
     const localService = new LocalService();
     const storeService = new StoreService();

@@ -256,8 +256,10 @@ export default {
 
     const onLogoutUser = async () => {
       await nodeService.logoutUser(currentUser.value);
+      nodeService.LocalService.setCurrentUser(null);
       storeService.setCurrentUser(null);
       await router.push('/');
+      window.location.reload();
     };
 
     return {

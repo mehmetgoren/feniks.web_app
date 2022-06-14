@@ -128,7 +128,6 @@ import OdImageGallery from 'components/OdImageGallery.vue';
 import OdSourceVideoClips from 'components/OdSourceVideoClips.vue';
 import FrImageGallery from 'components/FrImageGallery.vue';
 import AlprImageGallery from 'components/AlprImageGallery.vue';
-import { useRouter } from 'vue-router';
 import { StoreService } from 'src/utils/services/store_service';
 
 export default {
@@ -141,7 +140,6 @@ export default {
     AlprImageGallery
   },
   setup() {
-    const router = useRouter();
     const localService = new LocalService();
     const nodeService = new NodeService();
     const storeService = new StoreService();

@@ -54,8 +54,9 @@ export class LocalService {
     return `${this.nodeHttpProtocol}://${nodeIp}:${this.nodePort}/${route}`;
   }
 
-  public setCurrentUser(user: User){
-    sessionStorage.setItem('currentUser', JSON.stringify({username:user?.username, token:user?.token}));
+  public setCurrentUser(user: User | null){
+    //@ts-ignore
+    sessionStorage.setItem('currentUser', user === null ? null : JSON.stringify({username:user.username, token:user.token}));
   }
 
   public getCurrentUser(): User | null{
