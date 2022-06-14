@@ -14,6 +14,7 @@ import { NetworkDiscoveryModel, OnvifModel } from 'src/utils/models/onvif_models
 import { FrTrainRename, FrTrainName, FrTrainScreenshotViewModel, FrTrainViewModel } from 'src/utils/models/fr_models';
 import { LoginUserViewModel, RegisterUserViewModel, User } from 'src/utils/models/user_model';
 import { ServiceModel } from 'src/utils/models/service_model';
+import { ServerStats } from 'src/utils/models/server_stats';
 
 
 export class NodeService extends BaseService {
@@ -212,6 +213,11 @@ export class NodeService extends BaseService {
 
   public async logoutUser(user: User): Promise<boolean>{
     const resp = await api.post(await this.LocalService.getNodeAddress('logoutuser'), user);
+    return resp.data;
+  }
+
+  public async getServerStats(): Promise<ServerStats>{
+    const resp = await api.get(await this.LocalService.getNodeAddress('serverstats'));
     return resp.data;
   }
 }

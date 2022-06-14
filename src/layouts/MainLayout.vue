@@ -6,10 +6,8 @@
 
         <q-toolbar-title v-if='$q.screen.gt.xs' shrink class='row items-center no-wrap'>
           <img src='../../public/icons/logo.png' width='60' alt='logo'>
-          <span class='q-ml-sm'>{{ currentNode.name }} / {{ currentNode.node_address }}</span>
         </q-toolbar-title>
-
-
+        <ServerStatsBar />
         <q-space />
         <!--  left panel panel-->
         <div class='q-gutter-sm row items-center no-wrap'>
@@ -58,7 +56,9 @@
                     {{ link.text }}
                   </div>
                   <q-inner-loading v-if='loadingObject[link.id]' :showing='true' label='Please wait...' label-class='text-cyan'
-                                   label-style='font-size: 1.1em' />
+                                   label-style='font-size: 1.1em'>
+                    <q-spinner-hourglass size='75%' color='cyan' />
+                  </q-inner-loading>
                 </q-img>
               </q-item-section>
               <q-btn-dropdown v-if='link.isSource' color='primary' dropdown-icon='settings' :dense='true'>
@@ -120,9 +120,9 @@
                     <q-item-label>Test</q-item-label>
                   </q-item-section>
                 </q-item>
-<!--                <q-inner-loading v-if='loadingObject[link.id]' :showing='true'>-->
-<!--                  <q-spinner-gears size='50px' color='primary' />-->
-<!--                </q-inner-loading>-->
+                <!--                <q-inner-loading v-if='loadingObject[link.id]' :showing='true'>-->
+                <!--                  <q-spinner-gears size='50px' color='primary' />-->
+                <!--                </q-inner-loading>-->
               </q-btn-dropdown>
             </q-item>
             <q-separator v-if='menu.length' inset class='q-my-sm' />
@@ -156,25 +156,24 @@ import { useRouter } from 'vue-router';
 import { NodeService } from 'src/utils/services/node_service';
 import { MenuLink, LoadingInfo } from 'src/store/module-settings/state';
 import { PublishService, SubscribeService } from 'src/utils/services/websocket_services';
-import { EditorImageResponseModel, Node } from 'src/utils/entities';
+import { EditorImageResponseModel } from 'src/utils/entities';
 import SourceSettings from 'components/SourceSettings.vue';
 import SourceRecords from 'components/SourceRecords.vue';
 import OnvifSettings from 'components/OnvifSettings.vue';
+import ServerStatsBar from 'components/ServerStatsBar.vue';
 import { SourceModel } from 'src/utils/models/source_model';
 import { createEmptyBase64Image, startStream } from 'src/utils/utils';
-import { NodeRepository } from 'src/utils/db';
 import { StoreService } from 'src/utils/services/store_service';
 
 export default {
   name: 'Ionix Layout',
   components: {
-    SourceSettings, SourceRecords, OnvifSettings
+    SourceSettings, SourceRecords, OnvifSettings, ServerStatsBar
   },
   setup() {
     const router = useRouter();
     const leftDrawerOpen = ref(false);
     const nodeService = new NodeService();
-    const currentNode = ref<Node>(nodeService.LocalService.createEmptyNode());
     const publishService = new PublishService();
     const storeService = new StoreService();
     const loadingObject = reactive<any>({});
@@ -186,7 +185,6 @@ export default {
     const activeLeftMenu = ref<string>('config');
     const selectedSourceAddress = ref<string>('');
     const showOnvif = ref<boolean>(false);
-
     const menus = ref(storeService.getNode());
 
     const loadSources = async () => {
@@ -210,7 +208,6 @@ export default {
     const sourceLoading = storeService.sourceLoading;
     watch(sourceLoading, (obj: LoadingInfo) => {
       loadingObject[obj.id] = obj.loading;
-      console.log(JSON.stringify(obj))
     });
 
     const sourceStreamStatusChanged = storeService.sourceStreamStatusChanged;
@@ -219,11 +216,6 @@ export default {
     });
 
     onMounted(async () => {
-      const an = await new NodeRepository().getActiveNode();
-      if (an) {
-        currentNode.value = an;
-      }
-
       const nodeIp = await nodeService.LocalService.getNodeIP();
       const subscribeService = new SubscribeService(nodeIp);
 
@@ -269,7 +261,7 @@ export default {
     };
 
     return {
-      leftDrawerOpen, menus, currentUser, currentNode,
+      leftDrawerOpen, menus, currentUser,
       loadingObject, sourceStreamStatus, showSettings, selectedSourceId, showRecords, emptyBase64Image, activeLeftMenu, selectedSourceAddress, showOnvif,
       toggleLeftDrawer, getThumbnail, onAiClick, onLogoutUser,
       onSaveSettingsClicked(sourceId: string) {

@@ -6,10 +6,10 @@
          :gs-x='stream.loc.x' :gs-y='stream.loc.y' :gs-id='stream.id' :gs-min-w='minWidth'>
       <div class='grid-stack-item-content' style='overflow: hidden !important;'>
         <FlvPlayer v-if='stream&&stream.show&&stream.stream_type===0' :src='stream.src' :source-id='stream.id'
-                   :enable-log='true' :ref='setStreamPlayers'
+                   :enable-log='false' :ref='setStreamPlayers'
                    :enable-booster='stream.booster_enabled' :seek-to-live-edge-internal='config.ui.seek_to_live_edge_internal' :gallery-index='index' />
         <HlsPlayer v-if='stream&&stream.show&&stream.stream_type===1' :src='stream.src' :source-id='stream.id'
-                   :ref='setStreamPlayers' :enable-log='true'
+                   :ref='setStreamPlayers' :enable-log='false'
                    :enable-booster='stream.booster_enabled' :seek-to-live-edge-internal='config.ui.seek_to_live_edge_internal' :gallery-index='index' />
         <FFmpegReaderPlayer v-if='stream&&stream.show&&stream.stream_type>1' :source-id='stream.id'
                             :ref='setStreamPlayers' />
@@ -24,9 +24,10 @@
       </div>
     </div>
   </div>
-  <q-inner-loading :showing='showLoading' style='text-align: center;'>
-    <q-spinner-gears size='50%' color='cyan' />
-  </q-inner-loading>
+    <q-inner-loading :showing='showLoading' style='text-align: center;'>
+<!--      <q-spinner-gears size='50%' color='cyan' />-->
+      <q-spinner-hourglass size="50%"  color="cyan" />
+    </q-inner-loading>
 </template>
 
 <script lang='ts'>

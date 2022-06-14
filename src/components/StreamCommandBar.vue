@@ -9,39 +9,39 @@
   </div>
   <q-separator style='margin-bottom: 5px;' />
   <q-btn-group>
-    <q-btn color='cyan' rounded glossy icon-right='settings' @click='onSettingsClick'>
+    <q-btn :dense='dense' color='cyan' rounded glossy icon-right='settings' @click='onSettingsClick'>
       <q-tooltip class='bg-cyan'>Settings</q-tooltip>
     </q-btn>
-    <q-btn color='secondary' rounded glossy icon='sync' @click='onRefresh'>
+    <q-btn :dense='dense' color='secondary' rounded glossy icon='sync' @click='onRefresh'>
       <q-tooltip class='bg-secondary'>Refresh</q-tooltip>
     </q-btn>
-    <q-btn color='secondary' rounded glossy icon='power' @click='onConnectClick'>
+    <q-btn :dense='dense' color='secondary' rounded glossy icon='power' @click='onConnectClick'>
       <q-tooltip class='bg-secondary'>Connect</q-tooltip>
     </q-btn>
-    <q-btn color='secondary' rounded glossy icon='restart_alt' @click='onRestartClick'>
+    <q-btn :dense='dense' color='secondary' rounded glossy icon='restart_alt' @click='onRestartClick'>
       <q-tooltip class='bg-secondary'>Restart</q-tooltip>
     </q-btn>
-    <q-btn color='deep-orange' rounded glossy icon='power_off' @click='onStreamStopClick'>
+    <q-btn :dense='dense' color='deep-orange' rounded glossy icon='power_off' @click='onStreamStopClick'>
       <q-tooltip class='bg-deep-orange'>Stop</q-tooltip>
     </q-btn>
-    <q-btn color='purple' rounded glossy icon='dvr' @click='onRecordClick'>
+    <q-btn :dense='dense' color='purple' rounded glossy icon='dvr' @click='onRecordClick'>
       <q-tooltip class='bg-accent'>Playback</q-tooltip>
     </q-btn>
-    <q-btn color='purple' rounded glossy icon='photo_camera' @click='onTakeScreenshot'>
+    <q-btn :dense='dense' color='purple' rounded glossy icon='photo_camera' @click='onTakeScreenshot'>
       <q-tooltip class='bg-accent'>Take a screenshot</q-tooltip>
       <q-inner-loading :showing='takeScreenshotLoading'>
       </q-inner-loading>
     </q-btn>
-    <q-btn color='orange' rounded glossy icon='psychology' @click='onAiClick'>
+    <q-btn :dense='dense' color='orange' rounded glossy icon='psychology' @click='onAiClick'>
       <q-tooltip class='bg-orange'>AI</q-tooltip>
     </q-btn>
-    <q-btn color='brown-5' rounded glossy icon='settings_ethernet' @click='onOnvifClick'>
+    <q-btn :dense='dense' color='brown-5' rounded glossy icon='settings_ethernet' @click='onOnvifClick'>
       <q-tooltip class='bg-brown-5'>ONVIF</q-tooltip>
     </q-btn>
-    <q-btn v-if='showFullScreenButton' color='primary' rounded glossy icon='fullscreen' @click='onFullScreenClick'>
+    <q-btn :dense='dense' v-if='showFullScreenButton' color='primary' rounded glossy icon='fullscreen' @click='onFullScreenClick'>
       <q-tooltip class='bg-primary'>Fullscreen</q-tooltip>
     </q-btn>
-    <q-btn color='deep-orange' rounded glossy icon='close' @click='onClose'>
+    <q-btn :dense='dense' color='deep-orange' rounded glossy icon='close' @click='onClose'>
       <q-tooltip class='bg-deep-orange'>Close</q-tooltip>
     </q-btn>
   </q-btn-group>
@@ -105,6 +105,7 @@ export default {
   //@ts-ignore
   setup(props: any, { emit }) {
     const router = useRouter();
+    const dense = ref<boolean>(false);
     const showSettings = ref<boolean>(false);
     const localService = new LocalService();
     const storeService = new StoreService();
@@ -175,7 +176,7 @@ export default {
         emit('close', props.stream);
         showSettings.value = false;
       },
-      showRecord,
+      showRecord, dense,
       onRecordClick,
       rtmpType, streamType
     };
