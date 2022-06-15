@@ -255,6 +255,13 @@ export default {
     },
 
     setupEvents(self) {
+      self.player.on('useractive', function(){
+        self.$emit('user-activity', {sourceId: self.sourceId, userActive: true});
+      });
+      self.player.on('userinactive', function(){
+        self.$emit('user-activity', {sourceId: self.sourceId, userActive: false});
+      });
+
       if (!this.enableBooster) {
         console.log(`HlsPlayer(${this.sourceId}): booster mode will not be invoke setupEvents,  exiting now...`);
         return;

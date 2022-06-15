@@ -96,6 +96,11 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
+  public async getOds(): Promise<OdModel[]> {
+    const resp = await api.get(await this.LocalService.getNodeAddress('ods'));
+    return resp.data;
+  }
+
   public async saveOd(model: OdModel): Promise<OdModel> {
     const resp = await api.post(await this.LocalService.getNodeAddress('ods'), model);
     return resp.data;

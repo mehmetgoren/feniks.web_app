@@ -1,4 +1,4 @@
-# ionix app (ionix-ui)
+# feniks app (feniks-ui)
 
 a ui for read, detection, cloud integration and manager services
 

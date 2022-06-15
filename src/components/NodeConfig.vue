@@ -249,11 +249,15 @@
         <q-tabs v-model='otherTabs' narrow-indicator inline-label align='left'>
           <q-tab name='failedstreams' icon='sms_failed' label='Failed Streams' />
           <q-tab name='recstucks' icon='radio_button_checked' label='Stuck Records' />
+          <q-tab name='ods' icon='collections' label='Object Detection Models' />
           <q-tab name='various' icon='notes' label='Various Infos' />
         </q-tabs>
       </q-toolbar>
       <div v-if='otherTabs==="failedstreams"' class='q-pa-md q-gutter-sm' style='margin-left: -22px;'>
         <q-table :pagination='initialPagination' :rows='failedStreams' row-key='id' :columns='failedStreamsColumns' color='lime-6' />
+      </div>
+      <div v-if='otherTabs==="ods"' class='q-pa-md q-gutter-sm' style='margin-left: -22px;'>
+        <q-table :pagination='initialPagination' :rows='ods' row-key='id' :columns='odColumns' color='lime-6' />
       </div>
       <div v-if='otherTabs==="recstucks"' class='q-pa-md q-gutter-sm' style='margin-left: -22px;'>
         <q-table :pagination='initialPagination' :rows='recStucks' row-key='id' :columns='recStucksColumns' color='lime-6' />
@@ -308,6 +312,7 @@ import CommandBar from 'src/components/CommandBar.vue';
 import Dashboard from 'components/Dashboard.vue';
 import Hub from 'components/Hub.vue';
 import { FailedStreamModel, RecStuckModel, RtspTemplateModel, VariousInfos } from 'src/utils/models/others_models';
+import { OdModel } from 'src/utils/models/od_model';
 
 export default {
   name: 'NodeConfig',
@@ -353,6 +358,7 @@ export default {
     const failedStreams = ref<FailedStreamModel[]>([]);
     const recStucks = ref<RecStuckModel[]>([]);
     const variousInfos = ref<VariousInfos>({ rtmp_port_counter: 0, rtmp_container_zombies: [], ffmpeg_process_zombies: [] });
+    const ods = ref<OdModel[]>([]);
 
     const setConfigValue = (c: Config) => {
       device.value = c.device;
@@ -404,6 +410,9 @@ export default {
       fixArrayDates(recStucks.value, 'last_check_at');
 
       variousInfos.value = await nodeService.getVariousInfos();
+
+      ods.value = await nodeService.getOds();
+      fixArrayDates(ods.value, 'created_at');
 
       connOnvif = subscribeService.subscribeOnvif((event: MessageEvent) => {
         const result: OnvifEvent = JSON.parse(event.data);
@@ -465,7 +474,8 @@ export default {
       otherTabs: ref<string>('failedstreams'),
       failedStreams, failedStreamsColumns: createFailedStreamsColumns(),
       recStucks, recStucksColumns: createRecStucksColumns(),
-      variousInfos
+      variousInfos,
+      ods, odColumns:createOdColumns()
     };
   }
 };
@@ -582,6 +592,25 @@ function createRecStucksColumns() {
     { name: 'failed_count', align, label: 'Failed Count', field: 'failed_count', sortable: true },
     { name: 'failed_modified_file', align, label: 'Failed Modified File', field: 'failed_modified_file', sortable: true },
     { name: 'last_check_at', align, label: 'Last Check At', field: 'last_check_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true }
+  ];
+}
+
+function createOdColumns(){
+  const align = 'left';
+  const style = 'max-width:200px;white-space: nowrap;overflow: hidden !important;text-overflow: ellipsis;';
+  return [
+    { name: 'brand', align, label: 'Brand', field: 'brand', sortable: true },
+    { name: 'name', align, label: 'Name', field: 'name', sortable: true },
+    { name: 'address', align, label: 'Address', field: 'address', sortable: true },
+
+    { name: 'created_at', align, label: 'Created At', field: 'created_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true },
+
+    { name: 'threshold_list', align, label: 'Threshold List', field: 'threshold_list', sortable: true, style},
+    { name: 'selected_list', align, label: 'Selected List', field: 'selected_list', sortable: true, style },
+    { name: 'zones_list', align, label: 'Zones List', field: 'zones_list', sortable: true },
+    { name: 'masks_list', align, label: 'Masks List', field: 'masks_list', sortable: true },
+    { name: 'start_time', align, label: 'Start Time', field: 'start_time', sortable: true },
+    { name: 'end_time', align, label: 'End Time', field: 'end_time', sortable: true }
   ];
 }
 

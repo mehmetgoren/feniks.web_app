@@ -7,14 +7,16 @@
       <div class='grid-stack-item-content' style='overflow: hidden !important;'>
         <FlvPlayer v-if='stream&&stream.show&&stream.stream_type===0' :src='stream.src' :source-id='stream.id'
                    :enable-log='false' :ref='setStreamPlayers'
-                   :enable-booster='stream.booster_enabled' :seek-to-live-edge-internal='config.ui.seek_to_live_edge_internal' :gallery-index='index' />
+                   :enable-booster='stream.booster_enabled' :seek-to-live-edge-internal='config.ui.seek_to_live_edge_internal' :gallery-index='index'
+                   @user-activity='onUserActivity' />
         <HlsPlayer v-if='stream&&stream.show&&stream.stream_type===1' :src='stream.src' :source-id='stream.id'
                    :ref='setStreamPlayers' :enable-log='false'
-                   :enable-booster='stream.booster_enabled' :seek-to-live-edge-internal='config.ui.seek_to_live_edge_internal' :gallery-index='index' />
+                   :enable-booster='stream.booster_enabled' :seek-to-live-edge-internal='config.ui.seek_to_live_edge_internal' :gallery-index='index'
+                   @user-activity='onUserActivity' />
         <FFmpegReaderPlayer v-if='stream&&stream.show&&stream.stream_type>1' :source-id='stream.id'
                             :ref='setStreamPlayers' />
 
-        <StreamCommandBar v-if='stream.show' :stream='stream' @full-screen='onFullScreen' @stream-stop='onStreamStop'
+        <StreamCommandBar v-if='stream.show' :stream='stream' :hide='stream.hide' @full-screen='onFullScreen' @stream-stop='onStreamStop'
                           @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh'
                           @deleted='onSourceDeleted' @restart='onRestart' @close='onStreamClose'
                           :take-screenshot-loading='stream.takeScreenshotLoading'
@@ -140,6 +142,7 @@ export default {
         stream.show = true;
         stream.loc = getGsLayout(stream.id);
         stream.takeScreenshotLoading = false;
+        stream.hide = false;
         streamList.push(stream);
         open.value = false;
         if (isStartStream) {
@@ -361,11 +364,19 @@ export default {
       removeSource(stream);
     }
 
+    function onUserActivity(obj: any){
+      const sourceId: string = obj.sourceId;
+      const stream = new List<StreamExtModel>(streamList).FirstOrDefault(x => x?.id == sourceId);
+      if (stream){
+        stream.hide = !obj.userActive;
+      }
+    }
+
     //events ends
 
     return {
       open, streamList, showLoading, config, minWidth,
-      setStreamPlayers, onFullScreen, onStreamStop, onConnect, onTakeScreenshot, onRefresh, onSourceDeleted, onRestart, onStreamClose
+      setStreamPlayers, onFullScreen, onStreamStop, onConnect, onTakeScreenshot, onRefresh, onSourceDeleted, onRestart, onStreamClose, onUserActivity
     };
   }
 };
@@ -377,6 +388,7 @@ interface StreamExtModel extends StreamModel {
   size?: string | null;
   loc: GsLocation;
   takeScreenshotLoading: boolean;
+  hide:boolean;
 }
 </script>
 <style scoped>

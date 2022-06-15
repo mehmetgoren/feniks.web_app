@@ -84,7 +84,6 @@ export default {
     this.player.player_.handleTechClick_ = function() {
     };
 
-
     this.setupEvents(this);
 
     if (this.seekToLiveEdgeInternal > 0) {
@@ -169,6 +168,13 @@ export default {
       return true;
     },
     setupEvents(self) {
+      self.player.on('useractive', function(){
+        self.$emit('user-activity', {sourceId: self.sourceId, userActive: true});
+      });
+      self.player.on('userinactive', function(){
+        self.$emit('user-activity', {sourceId: self.sourceId, userActive: false});
+      });
+
       if (!this.enableBooster) {
         console.log(`FlvPlayer(${this.sourceId}): booster mode will not be invoke setupEvents,  exiting now...`);
         return;

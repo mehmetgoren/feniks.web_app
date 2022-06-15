@@ -167,8 +167,8 @@ module.exports = configure(function (ctx) {
       },
 
       manifest: {
-        name: 'ionix app',
-        short_name: 'ionix app',
+        name: 'feniks app',
+        short_name: 'feniks app',
         description: 'a ui for read, detection, cloud integration and manager services',
         display: 'standalone',
         orientation: 'portrait',
@@ -234,7 +234,7 @@ module.exports = configure(function (ctx) {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: 'ionix-ui'
+        appId: 'feniks-ui'
       },
 
       // "chain" is a webpack-chain object https://github.com/neutrinojs/webpack-chain
