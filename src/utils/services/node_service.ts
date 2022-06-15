@@ -15,7 +15,7 @@ import { FrTrainRename, FrTrainName, FrTrainScreenshotViewModel, FrTrainViewMode
 import { LoginUserViewModel, RegisterUserViewModel, User } from 'src/utils/models/user_model';
 import { ServiceModel } from 'src/utils/models/service_model';
 import { ServerStats } from 'src/utils/models/server_stats';
-import { FailedStreamModel, RecStuckModel, RtspTemplateModel } from 'src/utils/models/others_models';
+import { FailedStreamModel, RecStuckModel, RtspTemplateModel, VariousInfos } from 'src/utils/models/others_models';
 
 
 export class NodeService extends BaseService {
@@ -234,6 +234,11 @@ export class NodeService extends BaseService {
 
   public async getRecStucks():Promise<RecStuckModel[]>{
     const resp = await api.get(await this.LocalService.getNodeAddress('recstucks'));
+    return resp.data;
+  }
+
+  public async getVariousInfos():Promise<VariousInfos>{
+    const resp = await api.get(await this.LocalService.getNodeAddress('various'));
     return resp.data;
   }
 }

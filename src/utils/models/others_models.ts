@@ -42,3 +42,9 @@ export interface RecStuckModel {
   failed_modified_file: string;
   last_check_at: string;
 }
+
+export interface VariousInfos{
+  rtmp_port_counter: number;
+  rtmp_container_zombies:string[];
+  ffmpeg_process_zombies:number[];
+}

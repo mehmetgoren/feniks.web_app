@@ -231,7 +231,7 @@
       <label style='text-transform: uppercase;font-size: medium'>RTSP Templates</label>
     </q-toolbar>
     <q-form class='q-pa-xs' style='margin:0 5px 0 5px;'>
-      <q-table :pagination='initialPagination' :rows='rtmpTemplates' row-key='id' :columns='rtmpTemplatesColumns' color='light-blue-6'/>
+      <q-table :pagination='initialPagination' :rows='rtmpTemplates' row-key='id' :columns='rtmpTemplatesColumns' color='light-blue-6' />
     </q-form>
 
   </div>
@@ -245,17 +245,43 @@
       </div>
     </div>
     <div class='row'>
-      <q-toolbar class='bg-lime-6 text-white shadow-2 rounded-borders' style='margin-bottom: -12px;' >
+      <q-toolbar class='bg-lime-6 text-white shadow-2 rounded-borders' style='margin-bottom: -12px;'>
         <q-tabs v-model='otherTabs' narrow-indicator inline-label align='left'>
           <q-tab name='failedstreams' icon='sms_failed' label='Failed Streams' />
           <q-tab name='recstucks' icon='radio_button_checked' label='Stuck Records' />
+          <q-tab name='various' icon='notes' label='Various Infos' />
         </q-tabs>
       </q-toolbar>
-      <div class='q-pa-md q-gutter-sm' v-if='otherTabs==="failedstreams"'>
-        <q-table :pagination='initialPagination' :rows='failedStreams' row-key='id' :columns='failedStreamsColumns' color='lime-6'/>
+      <div v-if='otherTabs==="failedstreams"' class='q-pa-md q-gutter-sm' style='margin-left: -22px;'>
+        <q-table :pagination='initialPagination' :rows='failedStreams' row-key='id' :columns='failedStreamsColumns' color='lime-6' />
       </div>
-      <div class='q-pa-md q-gutter-sm' v-if='otherTabs==="recstucks"'>
-        <q-table :pagination='initialPagination' :rows='recStucks' row-key='id' :columns='recStucksColumns' color='lime-6'/>
+      <div v-if='otherTabs==="recstucks"' class='q-pa-md q-gutter-sm' style='margin-left: -22px;'>
+        <q-table :pagination='initialPagination' :rows='recStucks' row-key='id' :columns='recStucksColumns' color='lime-6' />
+      </div>
+      <div v-if='otherTabs==="various"' class='q-pa-md q-gutter-sm' style='margin-left: -22px;'>
+        <table style='width: 500px;'>
+          <tr>
+            <td>
+              <q-input v-model='variousInfos.rtmp_port_counter' type='number' label='RTMP Counter' readonly />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <q-input v-model='variousInfos.ffmpeg_process_zombies.length' type='number' label='Total detected Zombie FFmpeg Processes' readonly />
+            </td>
+          </tr>
+        </table>
+        <q-list bordered class='rounded-borders'>
+          <q-item-label header>Zombie RTMP Containers</q-item-label>
+          <q-item clickable v-ripple v-for='zr in variousInfos.rtmp_container_zombies' :key='zr'>
+            <q-item-section>
+              <q-item-label caption lines='2'>
+                {{ zr }}
+              </q-item-label>
+            </q-item-section>
+            <q-separator inset='item' />
+          </q-item>
+        </q-list>
       </div>
     </div>
   </div>
@@ -281,7 +307,7 @@ import { Node } from 'src/utils/entities';
 import CommandBar from 'src/components/CommandBar.vue';
 import Dashboard from 'components/Dashboard.vue';
 import Hub from 'components/Hub.vue';
-import { FailedStreamModel, RecStuckModel, RtspTemplateModel } from 'src/utils/models/others_models';
+import { FailedStreamModel, RecStuckModel, RtspTemplateModel, VariousInfos } from 'src/utils/models/others_models';
 
 export default {
   name: 'NodeConfig',
@@ -326,6 +352,7 @@ export default {
 
     const failedStreams = ref<FailedStreamModel[]>([]);
     const recStucks = ref<RecStuckModel[]>([]);
+    const variousInfos = ref<VariousInfos>({ rtmp_port_counter: 0, rtmp_container_zombies: [], ffmpeg_process_zombies: [] });
 
     const setConfigValue = (c: Config) => {
       device.value = c.device;
@@ -375,6 +402,8 @@ export default {
 
       recStucks.value = await nodeService.getRecStucks();
       fixArrayDates(recStucks.value, 'last_check_at');
+
+      variousInfos.value = await nodeService.getVariousInfos();
 
       connOnvif = subscribeService.subscribeOnvif((event: MessageEvent) => {
         const result: OnvifEvent = JSON.parse(event.data);
@@ -432,10 +461,11 @@ export default {
           void onDelete(user);
         });
       },
-      rtmpTemplates, rtmpTemplatesColumns:createRtmpTemplatesColumns(),
-      otherTabs:ref<string>('failedstreams'),
+      rtmpTemplates, rtmpTemplatesColumns: createRtmpTemplatesColumns(),
+      otherTabs: ref<string>('failedstreams'),
       failedStreams, failedStreamsColumns: createFailedStreamsColumns(),
-      recStucks, recStucksColumns:createRecStucksColumns()
+      recStucks, recStucksColumns: createRecStucksColumns(),
+      variousInfos
     };
   }
 };
@@ -533,11 +563,11 @@ function createFailedStreamsColumns() {
     { name: 'record_failed_count', align, label: 'Record Failed Count', field: 'record_failed_count', sortable: true },
     { name: 'snapshot_failed_count', align, label: 'Snapshot Failed Count', field: 'snapshot_failed_count', sortable: true },
     { name: 'record_stuck_process_count', align, label: 'Record Stuck Process Count', field: 'record_stuck_process_count', sortable: true },
-    { name: 'last_check_at', align, label: 'Last Check At', field: 'last_check_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true },
+    { name: 'last_check_at', align, label: 'Last Check At', field: 'last_check_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true }
   ];
 }
 
-function createRecStucksColumns(){
+function createRecStucksColumns() {
   const align = 'left';
   return [
     { name: 'brand', align, label: 'Brand', field: 'brand', sortable: true },
@@ -551,7 +581,7 @@ function createRecStucksColumns(){
     { name: 'last_modified_size', align, label: 'Last Modified Size', field: 'last_modified_size', sortable: true },
     { name: 'failed_count', align, label: 'Failed Count', field: 'failed_count', sortable: true },
     { name: 'failed_modified_file', align, label: 'Failed Modified File', field: 'failed_modified_file', sortable: true },
-    { name: 'last_check_at', align, label: 'Last Check At', field: 'last_check_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true },
+    { name: 'last_check_at', align, label: 'Last Check At', field: 'last_check_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true }
   ];
 }
 
