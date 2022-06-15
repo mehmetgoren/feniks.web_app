@@ -1,6 +1,7 @@
 <template>
   <q-space style='margin-top: 10px;'></q-space>
-  <div v-if='source.snapshot_enabled' class='absolute' :style="{width: width + 'px', height: height + 'px'}" @click='handleClick'>
+<!--  v-if='source.snapshot_enabled'-->
+  <div v-if='odModel?.id' class='absolute' :style="{width: width + 'px', height: height + 'px'}" @click='handleClick'>
     <img id='img-mask-editor' alt='no image' :width='width' :height='height' :src="'data:image/png;base64, ' + base64Image">
     <div class='absolute inset-0 right-0 bottom-0' style='inset: -20px;'>
       <div v-for='(dot, index) in selected.dots' :key='index' :id="'dotDiv' + index" class='bg-gray-900 rounded-full absolute z-20' draggable='true'
@@ -64,7 +65,7 @@
     </q-input>
   </div>
   <div v-else>
-    <label class='blink_me'>AI Service is not available.</label>
+    <label class='blink_me'>AI Snapshot is not available. Please enabled it first by editing from source settings.</label>
   </div>
 </template>
 
@@ -135,14 +136,14 @@ export default {
     onMounted(async () => {
       const nodeIp = await localService.getNodeIP();
       const subscribeService = new SubscribeService(nodeIp);
-      const sourceId = props.odModel.id;
+      const sourceId = props.odModel?.id;
       if (isNullOrEmpty(sourceId)) {
         return;
       }
       source.value = await nodeService.getSource(sourceId);
-      if (!source.value.snapshot_enabled) {
-        return;
-      }
+      // if (!source.value.snapshot_enabled) {
+      //   return;
+      // }
       width.value = <number>source.value.snapshot_width;
       height.value = <number>source.value.snapshot_height;
 

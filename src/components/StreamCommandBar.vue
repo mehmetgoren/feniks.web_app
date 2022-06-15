@@ -1,7 +1,7 @@
 <template>
   <div>
     <q-chip square :class='{"transparent": transparent}' color='primary' text-color='white' icon='videocam' style='margin-right: 15px;'>
-      {{ stream.name }} ({{rtmpType}} / {{ streamType }}{{(enableBooster ? " / Boosted" : "")}})
+      {{ stream.name }} ({{rtmpType}} / {{ streamType }}{{(enableBooster ? " / Boosted" : "")}}{{(stream.snapshot_enabled ? " / AI" : "")}})
     </q-chip>
     <q-icon v-if='stream.record' name='fiber_manual_record' size='sm' color='red' class='blink_me'>
       <label style='font-size: x-small; color: black;'>REC</label>
