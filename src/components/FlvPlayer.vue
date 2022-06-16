@@ -63,7 +63,7 @@ export default {
         playToggle: false,
         progressControl: {},
         fullscreenToggle: {},
-        pictureInPictureToggle:true,
+        pictureInPictureToggle: true,
         volumeMenuButton: {
           inline: false,
           vertical: true
@@ -75,13 +75,13 @@ export default {
       muted: true,
       responsive: true,
       // fluid: true,
-      fill:true,
+      fill: true,
       liveui: true
     };
 
     this.player = videojs(this.$refs.videoPlayer, options);
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    this.player.player_.handleTechClick_ = function() {
+    this.player.player_.handleTechClick_ = function () {
     };
 
     this.setupEvents(this);
@@ -96,7 +96,9 @@ export default {
         console.log(`FlvPlayer(${this.sourceId}): index is ${index} and enable booster is: ${this.enableBooster}`);
       }
       if (!this.enableBooster) {
-        console.log(`FlvPlayer(${this.sourceId}): booster mode will not be invoke setTimeout,  exiting now...`);
+        if (this.enableLog) {
+          console.log(`FlvPlayer(${this.sourceId}): booster mode will not be invoke setTimeout,  exiting now...`);
+        }
         return;
       }
       setTimeout(() => {
@@ -154,7 +156,7 @@ export default {
     seekable(opName) {
       let prevEvent = this.prevEvents[opName];
       if (!prevEvent) {
-        prevEvent = { opName: opName, createdAt: new Date() };
+        prevEvent = {opName: opName, createdAt: new Date()};
         this.prevEvents[opName] = prevEvent;
       }
       const diff = new Date().getTime() - prevEvent.createdAt.getTime();
@@ -168,15 +170,17 @@ export default {
       return true;
     },
     setupEvents(self) {
-      self.player.on('useractive', function(){
+      self.player.on('useractive', function () {
         self.$emit('user-activity', {sourceId: self.sourceId, userActive: true});
       });
-      self.player.on('userinactive', function(){
+      self.player.on('userinactive', function () {
         self.$emit('user-activity', {sourceId: self.sourceId, userActive: false});
       });
 
       if (!this.enableBooster) {
-        console.log(`FlvPlayer(${this.sourceId}): booster mode will not be invoke setupEvents,  exiting now...`);
+        if (this.enableLog) {
+          console.log(`FlvPlayer(${this.sourceId}): booster mode will not be invoke setupEvents,  exiting now...`);
+        }
         return;
       }
 

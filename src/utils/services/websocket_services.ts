@@ -98,4 +98,8 @@ export class SubscribeService extends BaseService {
   public subscribeFrTrain(onMessage: ((this: WebSocket, ev: MessageEvent) => any)): WsConnection {
     return new WsConnection(this.nodeIp, this.setAuth('wsfrtrain', null), onMessage);
   }
+
+  public subscribeUserLogout(onMessage: ((this: WebSocket, ev: MessageEvent) => any)): WsConnection {
+    return new WsConnection(this.nodeIp, this.setAuth('wsuserlogout', null), onMessage);
+  }
 }

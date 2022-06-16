@@ -3,7 +3,7 @@
     <video class='video-js' ref='video'>
       <track v-for='crtTrack in trackList' :kind='crtTrack.kind' :label='crtTrack.label' :src='crtTrack.src'
              :key='crtTrack.src'
-             :srcLang='crtTrack.srcLang' :default='crtTrack.default' />
+             :srcLang='crtTrack.srcLang' :default='crtTrack.default'/>
     </video>
   </div>
 </template>
@@ -62,7 +62,7 @@ export default {
           playToggle: false,
           progressControl: {},
           fullscreenToggle: {},
-          pictureInPictureToggle:true,
+          pictureInPictureToggle: true,
           volumeMenuButton: {
             inline: false,
             vertical: true
@@ -121,7 +121,7 @@ export default {
         muted: true,
         responsive: true,
         // fluid: true,
-        fill:true,
+        fill: true,
         language: 'en',
         sources: [{
           type: 'application/x-mpegURL',
@@ -144,7 +144,9 @@ export default {
           console.log(`HlsPlayer(${this.sourceId}): index is ${index} and enable booster is: ${this.enableBooster}`);
         }
         if (!this.enableBooster) {
-          console.log(`HlsPlayer(${this.sourceId}): booster mode will not be invoke setTimeout, exiting now...`);
+          if (this.enableLog) {
+            console.log(`HlsPlayer(${this.sourceId}): booster mode will not be invoke setTimeout, exiting now...`);
+          }
           return;
         }
 
@@ -196,7 +198,7 @@ export default {
           this.$emit(event, this.player);
         }
         if (value) {
-          this.$emit(this.customEventName, { [event]: value });
+          this.$emit(this.customEventName, {[event]: value});
         }
       };
       // avoid error "VIDEOJS: ERROR: Unable to find plugin: __ob__"
@@ -206,7 +208,7 @@ export default {
       videoOptions.liveui = true;
       // player
       const self = this;
-      this.player = videojs(this.$refs.video, videoOptions, function() {
+      this.player = videojs(this.$refs.video, videoOptions, function () {
         // events
         const events = DEFAULT_EVENTS.concat(self.events).concat(self.globalEvents);
         // watch events
@@ -222,13 +224,13 @@ export default {
           }
         }
         // watch timeupdate
-        this.on('timeupdate', function() {
+        this.on('timeupdate', function () {
           emitPlayerState('timeupdate', this.currentTime());
         });
         // player ready
         self.$emit('ready', this);
       });
-      this.player.player_.handleTechClick_ = function() {
+      this.player.player_.handleTechClick_ = function () {
         if (this.enableLog) {
           console.log(`HlsPlayer(${this.sourceId}): the player was clicked but we are ignoring it`);
         }
@@ -240,7 +242,7 @@ export default {
     seekable(opName) {
       let prevEvent = this.prevEvents[opName];
       if (!prevEvent) {
-        prevEvent = { opName: opName, createdAt: new Date() };
+        prevEvent = {opName: opName, createdAt: new Date()};
         this.prevEvents[opName] = prevEvent;
       }
       const diff = new Date().getTime() - prevEvent.createdAt.getTime();
@@ -255,15 +257,17 @@ export default {
     },
 
     setupEvents(self) {
-      self.player.on('useractive', function(){
+      self.player.on('useractive', function () {
         self.$emit('user-activity', {sourceId: self.sourceId, userActive: true});
       });
-      self.player.on('userinactive', function(){
+      self.player.on('userinactive', function () {
         self.$emit('user-activity', {sourceId: self.sourceId, userActive: false});
       });
 
       if (!this.enableBooster) {
-        console.log(`HlsPlayer(${this.sourceId}): booster mode will not be invoke setupEvents,  exiting now...`);
+        if (this.enableLog) {
+          console.log(`HlsPlayer(${this.sourceId}): booster mode will not be invoke setupEvents,  exiting now...`);
+        }
         return;
       }
 

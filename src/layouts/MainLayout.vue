@@ -162,7 +162,7 @@ import SourceRecords from 'components/SourceRecords.vue';
 import OnvifSettings from 'components/OnvifSettings.vue';
 import ServerStatsBar from 'components/ServerStatsBar.vue';
 import { SourceModel } from 'src/utils/models/source_model';
-import { createEmptyBase64Image, startStream } from 'src/utils/utils';
+import {createEmptyBase64Image, startStream, userLogout} from 'src/utils/utils';
 import { StoreService } from 'src/utils/services/store_service';
 
 export default {
@@ -256,10 +256,7 @@ export default {
 
     const onLogoutUser = async () => {
       await nodeService.logoutUser(currentUser.value);
-      nodeService.LocalService.setCurrentUser(null);
-      storeService.setCurrentUser(null);
-      await router.push('/');
-      window.location.reload();
+      await userLogout(nodeService.LocalService, storeService, router);
     };
 
     return {

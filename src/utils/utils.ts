@@ -2,6 +2,7 @@ import { PublishService } from 'src/utils/services/websocket_services';
 import { SourceModel } from 'src/utils/models/source_model';
 import axios from 'axios';
 import { StoreService } from 'src/utils/services/store_service';
+import {LocalService} from 'src/utils/services/local_service';
 
 
 export function parseQs(qs = window.location.search): any {
@@ -131,4 +132,13 @@ export function isFrDirNameValid(name: string): boolean{
 
 export function generateHtmlColor(): string {
   return '#'+(Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0');
+}
+
+export async function userLogout(localService: LocalService, storeService: StoreService, router: any){
+  localService.setCurrentUser(null);
+  storeService.setCurrentUser(null);
+  await router.push('/');
+  setTimeout(() => {
+    window.location.reload();
+  }, 250);
 }

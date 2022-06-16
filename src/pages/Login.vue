@@ -30,7 +30,9 @@
                 </q-form>
               </q-card-section>
               <q-card-actions class='q-px-lg'>
-                <q-btn unelevated size='lg' color='purple-4' class='full-width text-white' icon='login' label='Login' @click='onLogin' />
+                <q-btn unelevated size='lg' color='purple-4' class='full-width text-white' icon='login' label='Login' @click='onLogin' >
+                  <q-inner-loading :showing='showLoginLoading' />
+                </q-btn>
               </q-card-actions>
               <q-card-section class='text-center q-pa-sm'>
                 <p class='text-grey-6' style='cursor: pointer;' @click='onGoRegister'>Register</p>
@@ -117,24 +119,30 @@ export default {
     const nodeService = new NodeService();
     const nodeRepository = new NodeRepository();
     const storeService = new StoreService();
+    const showLoginLoading = ref<boolean>(false);
 
     onMounted(async () => {
       mode.value = await nodeRepository.hasAnyNode() ? Mode.Login : Mode.Nodes;
     });
 
     const onLogin = async () => {
-      const u = loginUser.value;
-      if (!u.username || !u.password) {
-        $q.notify({ message: 'Please enter credentials', color: 'red' });
-        return;
-      }
-      const user: User = await nodeService.login(loginUser.value);
-      const token = user?.token;
-      if (token && token.length && token.length === 8) {
-        storeService.setCurrentUser(user);
-        await router.push('node?x=config');
-      } else {
-        $q.notify({ message: 'Username and/or Password are incorrect', color: 'red' });
+      showLoginLoading.value = true;
+      try {
+        const u = loginUser.value;
+        if (!u.username || !u.password) {
+          $q.notify({message: 'Please enter credentials', color: 'red'});
+          return;
+        }
+        const user: User = await nodeService.login(loginUser.value);
+        const token = user?.token;
+        if (token && token.length && token.length === 8) {
+          storeService.setCurrentUser(user);
+          await router.push('node?x=config');
+        } else {
+          $q.notify({message: 'Username and/or Password are incorrect', color: 'red'});
+        }
+      }finally {
+        showLoginLoading.value = false;
       }
     };
 
@@ -152,7 +160,7 @@ export default {
       mode.value = result ? Mode.Login : Mode.Register;
     };
     return {
-      mode, loginUser, registerUser,
+      mode, loginUser, registerUser, showLoginLoading,
       onLogin, onRegister,
       onGoRegister() {
         mode.value = Mode.Register;
