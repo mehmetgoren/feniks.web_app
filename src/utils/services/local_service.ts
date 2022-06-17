@@ -309,7 +309,7 @@ export class LocalService {
       // FFmpeg model starts
       id: '',
       address: '',
-      rtsp_transport: 0,
+      rtsp_transport: 1, //TCP
 
       analyzation_duration: 1000000, // or set to 100000 if you are using RTSP and having stream issues.
       probe_size: 1000000, //or set to 100000 if you are using RTSP and having stream issues.
