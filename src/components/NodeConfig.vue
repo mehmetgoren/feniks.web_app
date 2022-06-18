@@ -247,12 +247,16 @@
     <div class='row'>
       <q-toolbar class='bg-lime-6 text-white shadow-2 rounded-borders' style='margin-bottom: -12px;'>
         <q-tabs v-model='otherTabs' narrow-indicator inline-label align='left'>
+          <q-tab name="gpu" icon="memory" label="GPU" />
           <q-tab name='failedstreams' icon='sms_failed' label='Failed Streams' />
           <q-tab name='recstucks' icon='radio_button_checked' label='Stuck Records' />
           <q-tab name='ods' icon='collections' label='Object Detection Models' />
           <q-tab name='various' icon='notes' label='Various Infos' />
         </q-tabs>
       </q-toolbar>
+      <div v-if='otherTabs==="gpu"' class='q-pa-md q-gutter-sm' style='margin-left: -22px;'>
+        <GpuInfo/>
+      </div>
       <div v-if='otherTabs==="failedstreams"' class='q-pa-md q-gutter-sm' style='margin-left: -22px;'>
         <q-table :pagination='initialPagination' :rows='failedStreams' row-key='id' :columns='failedStreamsColumns' color='lime-6' />
       </div>
@@ -311,12 +315,13 @@ import { Node } from 'src/utils/entities';
 import CommandBar from 'src/components/CommandBar.vue';
 import Dashboard from 'components/Dashboard.vue';
 import Hub from 'components/Hub.vue';
+import GpuInfo from 'components/GpuInfo.vue';
 import { FailedStreamModel, RecStuckModel, RtspTemplateModel, VariousInfos } from 'src/utils/models/others_models';
 import { OdModel } from 'src/utils/models/od_model';
 
 export default {
   name: 'NodeConfig',
-  components: { CommandBar, Dashboard, Hub },
+  components: { CommandBar, Dashboard, Hub, GpuInfo },
   setup() {
     const $q = useQuasar();
     const nodeService = new NodeService();
@@ -471,7 +476,7 @@ export default {
         });
       },
       rtmpTemplates, rtmpTemplatesColumns: createRtmpTemplatesColumns(),
-      otherTabs: ref<string>('failedstreams'),
+      otherTabs: ref<string>('gpu'),
       failedStreams, failedStreamsColumns: createFailedStreamsColumns(),
       recStucks, recStucksColumns: createRecStucksColumns(),
       variousInfos,

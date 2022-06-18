@@ -16,6 +16,7 @@ import { LoginUserViewModel, RegisterUserViewModel, User } from 'src/utils/model
 import { ServiceModel } from 'src/utils/models/service_model';
 import { ServerStats } from 'src/utils/models/server_stats';
 import { FailedStreamModel, RecStuckModel, RtspTemplateModel, VariousInfos } from 'src/utils/models/others_models';
+import {NvidiaGpuModel} from 'src/utils/models/gpu';
 
 
 export class NodeService extends BaseService {
@@ -244,6 +245,11 @@ export class NodeService extends BaseService {
 
   public async getVariousInfos():Promise<VariousInfos>{
     const resp = await api.get(await this.LocalService.getNodeAddress('various'));
+    return resp.data;
+  }
+
+  public async getNvidiaSmi():Promise<NvidiaGpuModel>{
+    const resp = await api.get(await this.LocalService.getNodeAddress('nvidiasmi'));
     return resp.data;
   }
 }
