@@ -267,7 +267,7 @@
         <q-table :pagination='initialPagination' :rows='recStucks' row-key='id' :columns='recStucksColumns' color='lime-6' />
       </div>
       <div v-if='otherTabs==="various"' class='q-pa-md q-gutter-sm' style='margin-left: -22px;'>
-        <table style='width: 500px;'>
+        <table style='width: 500px;' class="bg-teal-1">
           <tr>
             <td>
               <q-input v-model='variousInfos.rtmp_port_counter' type='number' label='RTMP Counter' readonly />
@@ -279,7 +279,7 @@
             </td>
           </tr>
         </table>
-        <q-list bordered class='rounded-borders'>
+        <q-list bordered class='rounded-borders bg-teal-1'>
           <q-item-label header>Zombie RTMP Containers</q-item-label>
           <q-item clickable v-ripple v-for='zr in variousInfos.rtmp_container_zombies' :key='zr'>
             <q-item-section>

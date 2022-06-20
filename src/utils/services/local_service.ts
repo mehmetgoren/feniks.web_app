@@ -155,8 +155,10 @@ export class LocalService {
     return [
       { value: 0, label: 'FLV' },
       { value: 1, label: 'HLS' },
-      { value: 2, label: 'Direct Reader' },
-      { value: 3, label: 'FFmpeg Reader' },
+      { value: 2, label: 'WebSockets' },
+      //disabled only on UI
+      // { value: 2, label: 'Direct Reader' },
+      // { value: 3, label: 'FFmpeg Reader' },
     ];
   }
 
