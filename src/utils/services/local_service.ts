@@ -339,7 +339,7 @@ export class LocalService {
       stream_audio_sample_rate: 0,
       stream_audio_volume: 100,
 
-      record_file_type: 0,
+      record_file_type: 0, //MP4
       record_video_codec: 5, //copy
       record_quality: 0,
       record_preset: 0,
@@ -363,7 +363,7 @@ export class LocalService {
       description: '',
 
       enabled: true,
-      rtmp_server_type: 1, //LIVEGO
+      rtmp_server_type: 1, //SRS Realtime
 
       snapshot_enabled: false,
       snapshot_frame_rate: 1,

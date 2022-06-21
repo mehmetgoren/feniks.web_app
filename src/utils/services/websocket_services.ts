@@ -1,10 +1,11 @@
-import { EditorEvent } from 'src/utils/entities';
-import { SourceModel } from 'src/utils/models/source_model';
-import { api } from 'boot/axios';
-import { BaseService } from 'src/utils/services/base_service';
-import { WsConnection } from 'src/utils/ws/connection';
-import { OnvifEvent, OnvifAction, OnvifParams } from 'src/utils/models/onvif_models';
-import { VideMergeRequestEvent } from 'src/utils/models/video_merge';
+import {EditorEvent} from 'src/utils/entities';
+import {SourceModel} from 'src/utils/models/source_model';
+import {api} from 'boot/axios';
+import {BaseService} from 'src/utils/services/base_service';
+import {WsConnection} from 'src/utils/ws/connection';
+import {OnvifEvent, OnvifAction, OnvifParams} from 'src/utils/models/onvif_models';
+import {VideMergeRequestEvent} from 'src/utils/models/video_merge';
+import {ProbeRequestEvent} from 'src/utils/models/various';
 
 export class PublishService extends BaseService {
   constructor() {
@@ -39,7 +40,7 @@ export class PublishService extends BaseService {
 
   public async publishOnvif(op: OnvifParams, type: OnvifAction) {
     const address = `${await this.getPublishEndpointRoot()}/onvif`;
-    const par: OnvifEvent = { type: type, base64_model: btoa(JSON.stringify(op)) };
+    const par: OnvifEvent = {type: type, base64_model: btoa(JSON.stringify(op))};
     await api.post(address, par);
   }
 
@@ -52,10 +53,17 @@ export class PublishService extends BaseService {
     const address = `${await this.getPublishEndpointRoot()}/frtrain`;
     await api.post(address, {});
   }
+
+  public async publishProbe(rtspAddress: string): Promise<void> {
+    const address = `${await this.getPublishEndpointRoot()}/probe`;
+    const params: ProbeRequestEvent = {address: rtspAddress};
+    await api.post(address, params);
+  }
 }
 
 export class SubscribeService extends BaseService {
   private readonly nodeIp: string;
+
   constructor(nodeIp: string) {
     super();
     this.nodeIp = nodeIp;
@@ -97,6 +105,10 @@ export class SubscribeService extends BaseService {
 
   public subscribeFrTrain(onMessage: ((this: WebSocket, ev: MessageEvent) => any)): WsConnection {
     return new WsConnection(this.nodeIp, this.setAuth('wsfrtrain', null), onMessage);
+  }
+
+  public subscribeProbe(onMessage: ((this: WebSocket, ev: MessageEvent) => any)): WsConnection {
+    return new WsConnection(this.nodeIp, this.setAuth('wsprobe', null), onMessage);
   }
 
   public subscribeUserLogout(onMessage: ((this: WebSocket, ev: MessageEvent) => any)): WsConnection {

@@ -61,6 +61,12 @@
                     </q-icon>
                   </template>
                   <template v-slot:after>
+                    <q-btn flat icon="query_stats" @click="onFindOptimalSettings">
+                      <q-tooltip transition-show="rotate" transition-hide="rotate">
+                        Find Optimal Settings for Camera
+                      </q-tooltip>
+                      <q-inner-loading :showing='showFindOptimalSettings' />
+                    </q-btn>
                     <q-btn dense color='brown-5' flat icon='settings_ethernet' label='Hack By ONVIF©' @click='showOnvif = true' />
                   </template>
                 </q-input>
@@ -187,7 +193,6 @@
 
             <q-step id='step5' :name='5' title='Snapshot for AI' icon='psychology' color='cyan' :done='step > 5'>
               <q-form class='q-gutter-md'>
-                <q-separator style='margin: 5px;' />
                 <q-toggle dense v-model='source.snapshot_enabled' checked-icon='check' color='cyan'
                           :label='"AI Snapshot " + (source.snapshot_enabled ? "Enabled" : "Disabled")' />
                 <q-input v-if='source.snapshot_enabled' dense filled v-model.number='source.snapshot_frame_rate'
@@ -287,10 +292,12 @@ import CommandBar from 'src/components/CommandBar.vue';
 import OnvifSettings from 'components/OnvifSettings.vue';
 import { NodeService } from 'src/utils/services/node_service';
 import { useQuasar } from 'quasar';
-import { PublishService } from 'src/utils/services/websocket_services';
-import { isNullOrEmpty, isNullOrUndefined } from 'src/utils/utils';
+import {PublishService, SubscribeService} from 'src/utils/services/websocket_services';
+import {findBestSettings, isNullOrEmpty, isNullOrUndefined} from 'src/utils/utils';
 import { LocalService } from 'src/utils/services/local_service';
 import { StoreService } from 'src/utils/services/store_service';
+import {WsConnection} from 'src/utils/ws/connection';
+import {ProbeResponseEvent, ProbeResult} from 'src/utils/models/various';
 
 declare var $: any;
 export default {
@@ -335,10 +342,12 @@ export default {
     const inactives = ref({ save: false, delete: false });
     const showOnvif = ref<boolean>(false);
     const recommendedRtspAddresses = ref<string[]>([]);
+    const showFindOptimalSettings = ref<boolean>(false);
 
     const publishService = new PublishService();
     const $q = useQuasar();
     let to : NodeJS.Timer | null = null;
+    let conn: WsConnection | null = null;
 
     onMounted(async () => {
       if (!isNullOrEmpty(props.sourceId)) {
@@ -353,6 +362,21 @@ export default {
           }
         }
       }
+
+      const subscribeService = new SubscribeService(await new LocalService().getNodeIP());
+      conn = subscribeService.subscribeProbe((event: MessageEvent) => {
+        try{
+          const responseModel: ProbeResponseEvent = JSON.parse(event.data);
+          if (!responseModel?.result_b64){
+            return;
+          }
+          const probeResult: ProbeResult = JSON.parse(atob(responseModel.result_b64));
+          findBestSettings(source.value, probeResult);
+        }finally {
+          showFindOptimalSettings.value = false;
+        }
+      });
+
       to = setTimeout(() => {
         for (let j = 1; j <= 7; ++j) {
           jqueryWorks(j);
@@ -361,6 +385,9 @@ export default {
     });
 
     onBeforeUnmount(() => {
+      if (conn){
+        conn.close();
+      }
       if (to){
         clearTimeout(to);
       }
@@ -489,13 +516,43 @@ export default {
       }
     };
 
+    const onFindOptimalSettings = () => {
+      if (!source.value.address){
+        $q.notify({
+          message: 'Please enter "Address" fields',
+          caption: 'Invalid',
+          color: 'red-14',
+          position: 'bottom-right'
+        });
+        return;
+      }
+      const fn = (address: string) => {
+        showFindOptimalSettings.value = true;
+        void publishService.publishProbe(address);
+      };
+      if (!source.value.id){ //new
+        fn(source.value.address);
+      }else{ //edit
+        $q.dialog({
+          title: 'Confirm',
+          message: 'Are you sure you want to load optimal settings?',
+          cancel: true,
+          persistent: false
+        }).onOk(() => {
+          //@ts-ignore
+          fn(source.value.address);
+        });
+      }
+    };
+
     return {
       source, showRecordDetail, step, rtspTransports, logLevels,
       accelerationEngines, videoDecoders, streamTypes,
       audioCodecs, streamVideoCodecs, presets, recommendedRtspAddresses,
       streamRotations, rtmpServerTypes, audioChannels, inactives, showOnvif,
       audioQualities, audioSampleRates, recordFileTypes, recordVideoCodecs,
-      recordPresets, recordRotations, onSave, onDelete, onStep1Click, onRecordChange, onStreamTypeChanged
+      recordPresets, recordRotations, showFindOptimalSettings,
+      onSave, onDelete, onStep1Click, onRecordChange, onStreamTypeChanged, onFindOptimalSettings
     };
   }
 };

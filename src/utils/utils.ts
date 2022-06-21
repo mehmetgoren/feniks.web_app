@@ -3,6 +3,7 @@ import { SourceModel } from 'src/utils/models/source_model';
 import axios from 'axios';
 import { StoreService } from 'src/utils/services/store_service';
 import {LocalService} from 'src/utils/services/local_service';
+import {ProbeResult} from 'src/utils/models/various';
 
 
 export function parseQs(qs = window.location.search): any {
@@ -141,4 +142,69 @@ export async function userLogout(localService: LocalService, storeService: Store
   setTimeout(() => {
     window.location.reload();
   }, 250);
+}
+
+export function findBestSettings(source: SourceModel, probeResult: ProbeResult): boolean{
+  const f = probeResult.format;
+  if (f.nb_streams < 1){
+    return false;
+  }
+  const hasAudio = f.nb_streams > 1;
+  const v = probeResult.streams[0]; //video
+  const fps = parseInt(v.avg_frame_rate.split('/')[0]);
+  if (f.format_name === 'rtsp'){
+    source.rtsp_transport = 1; //TCP
+  }
+  source.rtmp_server_type = 1; //SRS Realtime
+  source.stream_type = 0; //FLV
+  //todo: test it with dahua
+  if (parseFloat(v.start_time) > 0.){
+    source.booster_enabled = true;
+  }
+  source.input_frame_rate = fps;
+  source.stream_video_codec = 3; // copy
+  source.preset = 1; //ultra fast
+  // source.stream_frame_rate = fps;
+  // source.stream_width = v.width;
+  // source.stream_height = v.height;
+  source.ffmpeg_reader_width = 1280;
+  source.ffmpeg_reader_height = 720;
+  source.ffmpeg_reader_frame_rate = fps;
+
+  const a = hasAudio ? probeResult.streams[1] : null;
+  const audioCodecs = hasAudio ? new LocalService().createAudioCodecs() : null;
+  if (hasAudio){
+    // @ts-ignore
+    for(const opt of audioCodecs){
+      if (opt.label.toLowerCase() === a?.codec_name){
+        source.stream_audio_codec = opt.value;
+        break;
+      }
+    }
+    source.stream_audio_channel = 0; //Source
+    source.stream_audio_quality = 0; //Auto
+    source.stream_audio_sample_rate = 0; //Auto
+    source.stream_audio_volume = 100;
+  }
+
+  source.snapshot_frame_rate = 1;
+  source.snapshot_width = 640;
+  source.snapshot_height = 360;
+
+  source.record_file_type = 0; //MP4
+  source.record_preset = 1; //ultra fast
+  source.record_video_codec = 5; //copy
+  source.record_segment_interval = 15;
+  source.record_frame_rate = 0;
+  if (hasAudio){
+    source.record_audio_codec = source.stream_audio_codec;
+    source.record_audio_channel = source.stream_audio_channel;
+    source.record_audio_quality = source.stream_audio_quality;
+    source.record_audio_sample_rate = source.stream_audio_sample_rate; //Auto
+    source.record_audio_volume = source.stream_audio_volume;
+  }
+
+  source.log_level = 5; //Warning
+
+  return true;
 }
