@@ -49,6 +49,17 @@
               <q-form class='q-gutter-md'>
                 <q-input dense filled v-model.trim='source.address' color='cyan' label='Address'
                          lazy-rules :rules="[ val => val && val.length > 0 || 'Please type something']">
+                  <template v-slot:prepend  v-if="recommendedRtspAddresses.length">
+                    <q-icon name="list" >
+                      <q-popup-proxy>
+                        <q-list bordered separator>
+                          <q-item clickable v-ripple v-for="ra in recommendedRtspAddresses" :key="ra" @click="() => source.address = ra">
+                            <q-item-section>{{ra}}</q-item-section>
+                          </q-item>
+                        </q-list>
+                      </q-popup-proxy>
+                    </q-icon>
+                  </template>
                   <template v-slot:after>
                     <q-btn dense color='brown-5' flat icon='settings_ethernet' label='Hack By ONVIF©' @click='showOnvif = true' />
                   </template>
@@ -264,13 +275,13 @@
   </q-layout>
 
   <q-dialog v-model='showOnvif' full-width full-height>
-    <OnvifSettings :color='"cyan"' :address='source.address' />
+    <OnvifSettings :color='"brown-5"' :address='source.address' />
   </q-dialog>
 
 </template>
 
 <script lang='ts'>
-import { ref, computed, onMounted, nextTick } from 'vue';
+import {ref, computed, onMounted, nextTick, onBeforeUnmount} from 'vue';
 import { SourceModel } from 'src/utils/models/source_model';
 import CommandBar from 'src/components/CommandBar.vue';
 import OnvifSettings from 'components/OnvifSettings.vue';
@@ -323,19 +334,36 @@ export default {
     const recordRotations = ref(localService.createRotations());
     const inactives = ref({ save: false, delete: false });
     const showOnvif = ref<boolean>(false);
+    const recommendedRtspAddresses = ref<string[]>([]);
 
     const publishService = new PublishService();
     const $q = useQuasar();
+    let to : NodeJS.Timer | null = null;
 
     onMounted(async () => {
       if (!isNullOrEmpty(props.sourceId)) {
         source.value = await nodeService.getSource(props.sourceId);
+      }else{
+        const onfn = await nodeService.getOnvifNetwork();
+        if (onfn&&onfn.results){
+          for (const r of onfn.results){
+            if (r.address){
+              recommendedRtspAddresses.value.push(`rtsp://user:password@${r.address}/route`);
+            }
+          }
+        }
       }
-      setTimeout(() => {
+      to = setTimeout(() => {
         for (let j = 1; j <= 7; ++j) {
           jqueryWorks(j);
         }
       }, 100);
+    });
+
+    onBeforeUnmount(() => {
+      if (to){
+        clearTimeout(to);
+      }
     });
 
     const jqueryWorks = (divIdIndex: number) => {
@@ -464,7 +492,7 @@ export default {
     return {
       source, showRecordDetail, step, rtspTransports, logLevels,
       accelerationEngines, videoDecoders, streamTypes,
-      audioCodecs, streamVideoCodecs, presets,
+      audioCodecs, streamVideoCodecs, presets, recommendedRtspAddresses,
       streamRotations, rtmpServerTypes, audioChannels, inactives, showOnvif,
       audioQualities, audioSampleRates, recordFileTypes, recordVideoCodecs,
       recordPresets, recordRotations, onSave, onDelete, onStep1Click, onRecordChange, onStreamTypeChanged
