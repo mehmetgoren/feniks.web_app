@@ -61,7 +61,7 @@
                     </q-icon>
                   </template>
                   <template v-slot:after>
-                    <q-btn flat icon="query_stats" @click="onFindOptimalSettings">
+                    <q-btn flat icon="query_stats" @click="onFindOptimalSettings" :disable="showFindOptimalSettings">
                       <q-tooltip transition-show="rotate" transition-hide="rotate">
                         Find Optimal Settings for Camera
                       </q-tooltip>
