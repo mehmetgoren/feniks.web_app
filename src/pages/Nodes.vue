@@ -67,7 +67,7 @@ export default {
   setup(props: any, { emit }) {
     const nodeRep = ref(new NodeRepository());
     const nodes = ref();
-    const selected = ref({ node_address: '', name: '', description: '', active: false });
+    const selected = ref({ node_address: window.location.hostname, name: '', description: '', active: false });
     const filter = ref('');
     const selectionList: any = ref([]);
 
