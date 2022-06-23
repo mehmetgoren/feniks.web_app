@@ -617,6 +617,24 @@ export class LocalService {
     return base64;
   }
 
+  public saveThumbnail(sourceId: string | null, base64Img: string) {
+    if (!sourceId){
+      return;
+    }
+    sessionStorage.setItem(`thbnl${sourceId}`, base64Img);
+  }
+
+  public getThumbnail(sourceId: string | null): string {
+    if (!sourceId){
+      return '';
+    }
+    const base64 = sessionStorage.getItem(`thbnl${sourceId}`);
+    if (!base64) {
+      return '';
+    }
+    return base64;
+  }
+
   public createEmptyNode():Node{
     return {
       name:'',

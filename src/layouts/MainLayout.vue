@@ -2,13 +2,13 @@
   <q-layout view='hHh lpR fFf' class='bg-grey-1'>
     <q-header elevated class='bg-white text-grey-8'>
       <q-toolbar class='GNL__toolbar'>
-        <q-btn flat dense round @click='toggleLeftDrawer' aria-label='Menu' icon='menu' class='q-mr-sm' />
+        <q-btn flat dense round @click='toggleLeftDrawer' aria-label='Menu' icon='menu' class='q-mr-sm'/>
 
         <q-toolbar-title v-if='$q.screen.gt.xs' shrink class='row items-center no-wrap'>
           <img src='../../public/icons/logo.png' width='60' alt='logo'>
         </q-toolbar-title>
-        <ServerStatsBar />
-        <q-space />
+        <ServerStatsBar/>
+        <q-space/>
         <!--  left panel panel-->
         <div class='q-gutter-sm row items-center no-wrap'>
           <q-btn-dropdown icon='account_circle' round flat :label='currentUser?.username'>
@@ -17,7 +17,7 @@
                 <q-item-section>
                   <q-item-label>
                     <q-avatar size='36px'>
-                      <q-icon name='logout' />
+                      <q-icon name='logout'/>
                     </q-avatar>
                     Logout
                     <q-tooltip>Logout</q-tooltip>
@@ -39,7 +39,7 @@
             <q-item v-for='link in menu' :key='link.text' class='GNL__drawer-item'
                     :active='!link.isSource&&link.name&&activeLeftMenu===link.name' active-class='my-menu-link'>
               <q-item-section avatar v-if='!link.isSource' style='cursor: pointer;' v-ripple @click='onLeftMenuClick(link)'>
-                <q-icon v-if='!link.isSource' :name='link.icon' />
+                <q-icon v-if='!link.isSource' :name='link.icon'/>
               </q-item-section>
               <q-item-section v-if='!link.isSource' style='cursor: pointer;' v-ripple @click='onLeftMenuClick(link)'>
                 <q-item-label>{{ link.text }}</q-item-label>
@@ -48,16 +48,17 @@
                 <q-img :src="'data:image/png;base64, ' + (link.thumbnail ? link.thumbnail : emptyBase64Image)" spinner-color='white'
                        style='height: 80px; width: 200px; cursor: pointer;' class='rounded-borders'>
                   <div class='absolute-bottom text-subtitle1'>
-                    <q-icon v-if='sourceStreamStatus[link.id]&&sourceStreamStatus[link.id].streaming' name='live_tv' color='green' style='margin-right: 3px;'
-                            class='blink_me' />
+                    <q-icon v-if='sourceStreamStatus[link.id]&&sourceStreamStatus[link.id].streaming' name='live_tv' color='green'
+                            style='margin-right: 3px;'
+                            class='blink_me'/>
                     <q-icon v-if='sourceStreamStatus[link.id]&&sourceStreamStatus[link.id].recording' name='fiber_manual_record' color='red'
-                            style='margin-right: 3px;' class='blink_me' />
-                    <q-icon :name='link.icon' />
+                            style='margin-right: 3px;' class='blink_me'/>
+                    <q-icon :name='link.icon'/>
                     {{ link.text }}
                   </div>
                   <q-inner-loading v-if='loadingObject[link.id]' :showing='true' label='Please wait...' label-class='text-cyan'
                                    label-style='font-size: 1.1em'>
-                    <q-spinner-hourglass size='75%' color='cyan' />
+                    <q-spinner-hourglass size='75%' color='cyan'/>
                   </q-inner-loading>
                 </q-img>
               </q-item-section>
@@ -65,7 +66,7 @@
                 <q-list>
                   <q-item clickable v-close-popup @click='onStartStreaming(link)' v-ripple>
                     <q-item-section side>
-                      <q-icon name='live_tv' color='cyan' />
+                      <q-icon name='live_tv' color='cyan'/>
                     </q-item-section>
                     <q-item-section>
                       <q-item-label>Start Streaming</q-item-label>
@@ -73,7 +74,7 @@
                   </q-item>
                   <q-item clickable v-close-popup @click='onSaveSettingsClicked(link.id)' v-ripple>
                     <q-item-section side>
-                      <q-icon name='settings' color='cyan' />
+                      <q-icon name='settings' color='cyan'/>
                     </q-item-section>
                     <q-item-section>
                       <q-item-label>Settings</q-item-label>
@@ -81,7 +82,7 @@
                   </q-item>
                   <q-item clickable v-close-popup @click='onShowRecordClicked(link.id)'>
                     <q-item-section side>
-                      <q-icon name='dvr' color='purple' />
+                      <q-icon name='dvr' color='purple'/>
                     </q-item-section>
                     <q-item-section>
                       <q-item-label>Playback</q-item-label>
@@ -89,7 +90,7 @@
                   </q-item>
                   <q-item clickable v-close-popup @click='onAiClick(link.id)'>
                     <q-item-section side>
-                      <q-icon name='psychology' color='orange' />
+                      <q-icon name='psychology' color='orange'/>
                     </q-item-section>
                     <q-item-section>
                       <q-item-label>AI</q-item-label>
@@ -97,7 +98,7 @@
                   </q-item>
                   <q-item clickable v-close-popup @click='onOnvifClick(link)'>
                     <q-item-section side>
-                      <q-icon name='settings_ethernet' color='brown-5' />
+                      <q-icon name='settings_ethernet' color='brown-5'/>
                     </q-item-section>
                     <q-item-section>
                       <q-item-label>ONVIF</q-item-label>
@@ -105,7 +106,7 @@
                   </q-item>
                   <q-item clickable v-close-popup @click='onTakeScreenshotClicked(link)'>
                     <q-item-section side>
-                      <q-icon name='photo_camera' color='purple' />
+                      <q-icon name='photo_camera' color='purple'/>
                     </q-item-section>
                     <q-item-section>
                       <q-item-label>Take a screenshot</q-item-label>
@@ -114,7 +115,7 @@
                 </q-list>
                 <q-item clickable v-close-popup @click='getThumbnail(link.source)'>
                   <q-item-section side>
-                    <q-icon name='center_focus_strong' color='purple' />
+                    <q-icon name='center_focus_strong' color='purple'/>
                   </q-item-section>
                   <q-item-section>
                     <q-item-label>Test</q-item-label>
@@ -125,45 +126,45 @@
                 <!--                </q-inner-loading>-->
               </q-btn-dropdown>
             </q-item>
-            <q-separator v-if='menu.length' inset class='q-my-sm' />
+            <q-separator v-if='menu.length' inset class='q-my-sm'/>
           </div>
         </q-list>
       </q-scroll-area>
     </q-drawer>
 
     <q-page-container>
-      <router-view />
+      <router-view/>
     </q-page-container>
   </q-layout>
 
   <q-dialog v-model='showSettings' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
-    <SourceSettings :source-id='selectedSourceId' @on-save='onSourceSettingsSave' @on-delete='onSourceDelete' />
+    <SourceSettings :source-id='selectedSourceId' @on-save='onSourceSettingsSave' @on-delete='onSourceDelete'/>
   </q-dialog>
 
   <q-dialog v-model='showRecords' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
-    <SourceRecords :source-id='selectedSourceId' />
+    <SourceRecords :source-id='selectedSourceId'/>
   </q-dialog>
 
   <q-dialog v-model='showOnvif' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
-    <OnvifSettings :address='selectedSourceAddress' :color='"brown-5"' />
+    <OnvifSettings :address='selectedSourceAddress' :color='"brown-5"'/>
   </q-dialog>
 
 </template>
 
 <script lang='ts'>
-import { onMounted, reactive, ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import { NodeService } from 'src/utils/services/node_service';
-import { MenuLink, LoadingInfo } from 'src/store/module-settings/state';
-import { PublishService, SubscribeService } from 'src/utils/services/websocket_services';
-import { EditorImageResponseModel } from 'src/utils/entities';
+import {onMounted, reactive, ref, watch} from 'vue';
+import {useRouter} from 'vue-router';
+import {NodeService} from 'src/utils/services/node_service';
+import {MenuLink, LoadingInfo} from 'src/store/module-settings/state';
+import {PublishService, SubscribeService} from 'src/utils/services/websocket_services';
+import {EditorImageResponseModel} from 'src/utils/entities';
 import SourceSettings from 'components/SourceSettings.vue';
 import SourceRecords from 'components/SourceRecords.vue';
 import OnvifSettings from 'components/OnvifSettings.vue';
 import ServerStatsBar from 'components/ServerStatsBar.vue';
-import { SourceModel } from 'src/utils/models/source_model';
+import {SourceModel} from 'src/utils/models/source_model';
 import {createEmptyBase64Image, startStream, userLogout} from 'src/utils/utils';
-import { StoreService } from 'src/utils/services/store_service';
+import {StoreService} from 'src/utils/services/store_service';
 
 export default {
   name: 'Ionix Layout',
@@ -174,6 +175,7 @@ export default {
     const router = useRouter();
     const leftDrawerOpen = ref(false);
     const nodeService = new NodeService();
+    const localService = nodeService.LocalService;
     const publishService = new PublishService();
     const storeService = new StoreService();
     const loadingObject = reactive<any>({});
@@ -192,7 +194,7 @@ export default {
       for (const source of sources) {
         storeService.addSourceToLeftMenu(source);
         setTimeout(() => {
-          getThumbnail(source);
+          _getThumbnail(source);
         });
         loadingObject[<string>source.id] = false;
       }
@@ -225,6 +227,7 @@ export default {
           storeService.setSourceThumbnail(responseModel);
         }
         storeService.setSourceLoading(<string>responseModel.id, false);
+        localService.saveThumbnail(responseModel.id??'', responseModel.image_base64);
       });
       await loadSources();
       await sourceStreamDatabind();
@@ -234,6 +237,22 @@ export default {
 
     function toggleLeftDrawer() {
       leftDrawerOpen.value = !leftDrawerOpen.value;
+    }
+
+    function _getThumbnail(source: SourceModel){
+      const thumbnail = localService.getThumbnail(source.id??'');
+      if (thumbnail) {
+        storeService.setSourceThumbnail({
+          id: source.id,
+          name: source.name,
+          brand: source.brand,
+          address: source.address,
+          event_type: 2,
+          image_base64: thumbnail
+        });
+      } else {
+        getThumbnail(source);
+      }
     }
 
     function getThumbnail(source: SourceModel) {
@@ -260,9 +279,22 @@ export default {
     };
 
     return {
-      leftDrawerOpen, menus, currentUser,
-      loadingObject, sourceStreamStatus, showSettings, selectedSourceId, showRecords, emptyBase64Image, activeLeftMenu, selectedSourceAddress, showOnvif,
-      toggleLeftDrawer, getThumbnail, onAiClick, onLogoutUser,
+      leftDrawerOpen,
+      menus,
+      currentUser,
+      loadingObject,
+      sourceStreamStatus,
+      showSettings,
+      selectedSourceId,
+      showRecords,
+      emptyBase64Image,
+      activeLeftMenu,
+      selectedSourceAddress,
+      showOnvif,
+      toggleLeftDrawer,
+      getThumbnail,
+      onAiClick,
+      onLogoutUser,
       onSaveSettingsClicked(sourceId: string) {
         showSettings.value = true;
         selectedSourceId.value = sourceId;

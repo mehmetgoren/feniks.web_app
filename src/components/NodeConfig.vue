@@ -401,8 +401,11 @@ export default {
       modelMultiple.value = deviceServices;
       optServices.value = deviceServices;
       setConfigValue(config.value);
-      networkScanResults.value = await nodeService.getOnvifNetwork();
-      networkScanResults.value.created_at = myDateToJsDate(<string>networkScanResults.value.created_at).toLocaleString();
+      const on = await nodeService.getOnvifNetwork();
+      if (on){
+        networkScanResults.value = on;
+        networkScanResults.value.created_at = myDateToJsDate(<string>networkScanResults.value.created_at).toLocaleString();
+      }
 
       await dataBind();
 

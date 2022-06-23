@@ -183,12 +183,12 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
-  public async getOnvifNetwork(): Promise<NetworkDiscoveryModel> {
+  public async getOnvifNetwork(): Promise<NetworkDiscoveryModel | null> {
     const resp = await api.get(await this.LocalService.getNodeAddress('onvifnetwork'));
     return resp.data;
   }
 
-  public async getOnvif(address: string): Promise<OnvifModel> {
+  public async getOnvif(address: string): Promise<OnvifModel | null> {
     const resp = await api.get(await this.LocalService.getNodeAddress(`onvif/${address}`));
     return resp.data;
   }

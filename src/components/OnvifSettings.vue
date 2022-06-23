@@ -192,7 +192,7 @@ export default {
 
       if (addr.length > 0) {
         const serverOnvif = await nodeService.getOnvif(addr);
-        if (serverOnvif != null) {
+        if (serverOnvif) {
           model.value = serverOnvif;
           hackResultsBind();
         }
