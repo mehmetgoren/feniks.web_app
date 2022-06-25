@@ -2,10 +2,8 @@
   <q-layout view='hHh lpR fFf' class='bg-grey-1'>
     <q-header elevated class='bg-white text-grey-8'>
       <q-toolbar class='GNL__toolbar'>
-        <q-btn flat dense round @click='toggleLeftDrawer' aria-label='Menu' icon='menu' class='q-mr-sm'/>
-
-        <q-toolbar-title v-if='$q.screen.gt.xs' shrink class='row items-center no-wrap'>
-          <img src='../../public/icons/logo.png' width='60' alt='logo'>
+        <q-toolbar-title shrink class='row items-center no-wrap'>
+          <q-img src='../../public/icons/logo.png' style="cursor: pointer; width: 60px;" @click='toggleLeftDrawer' />
         </q-toolbar-title>
         <ServerStatsBar/>
         <q-space/>
