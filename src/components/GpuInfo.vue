@@ -78,6 +78,9 @@
              :rows='nvidiaSmi.processes' row-key='id' :columns='processColumns' color='lime-6'>
     </q-table>
   </div>
+  <div v-else-if="!hasNvidiaGpu">
+    <label class='blink_me'>No Nvidia GPU was detected.</label>
+  </div>
 
 </template>
 
@@ -94,15 +97,17 @@ export default {
     const nvidiaSmi = ref<NvidiaGpuModel | null>(null);
     const refresh = ref<boolean>(false);
     let interval: NodeJS.Timer | null = null;
+    const hasNvidiaGpu = ref<boolean>(true);
 
     const dataBind = async () => {
       nvidiaSmi.value = await nodeService.getNvidiaSmi();
+      hasNvidiaGpu.value = nvidiaSmi.value != null;
     }
 
     onMounted(async () => {
       await dataBind();
       interval = setInterval(() => {
-        if (refresh.value) {
+        if (hasNvidiaGpu.value && refresh.value) {
           void dataBind();
         }
       }, 1000);
@@ -115,7 +120,7 @@ export default {
     });
 
     return {
-      nvidiaSmi, refresh,
+      nvidiaSmi, refresh, hasNvidiaGpu,
       initialPagination: {
         rowsPerPage: 10
       },
@@ -134,5 +139,15 @@ function createProcessColumns() {
 </script>
 
 <style scoped>
+.blink_me {
+  animation: blinker 1s linear infinite;
+  color: red;
+  font-size: medium;
+}
 
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
 </style>
