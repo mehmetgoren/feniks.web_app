@@ -195,6 +195,11 @@
               <q-form class='q-gutter-md'>
                 <q-toggle dense v-model='source.snapshot_enabled' checked-icon='check' color='cyan'
                           :label='"AI Snapshot " + (source.snapshot_enabled ? "Enabled" : "Disabled")' />
+                <q-select v-if='source.snapshot_enabled' dense emit-value
+                          map-options filled v-model='source.snapshot_type' color='cyan'
+                          :options='snapshotTypes' label='Snapshot Type' transition-show='scale' transition-hide='scale' >
+                  <q-tooltip><strong>Be Careful about OpenCV Persistent type since it demands hardware much more and requires a different service running.</strong></q-tooltip>
+                </q-select>
                 <q-input v-if='source.snapshot_enabled' dense filled v-model.number='source.snapshot_frame_rate'
                          type='number' label='Frame Rate' color='cyan' />
                 <q-input v-if='source.snapshot_enabled' dense filled v-model.number='source.snapshot_width'
@@ -339,6 +344,7 @@ export default {
     const recordVideoCodecs = ref(localService.createRecordVideoCodecs());
     const recordPresets = ref(localService.createPresets());
     const recordRotations = ref(localService.createRotations());
+    const snapshotTypes = ref(localService.createSnapshotType());
     const inactives = ref({ save: false, delete: false });
     const showOnvif = ref<boolean>(false);
     const recommendedRtspAddresses = ref<string[]>([]);
@@ -551,7 +557,7 @@ export default {
       audioCodecs, streamVideoCodecs, presets, recommendedRtspAddresses,
       streamRotations, rtmpServerTypes, audioChannels, inactives, showOnvif,
       audioQualities, audioSampleRates, recordFileTypes, recordVideoCodecs,
-      recordPresets, recordRotations, showFindOptimalSettings,
+      recordPresets, recordRotations, showFindOptimalSettings, snapshotTypes,
       onSave, onDelete, onStep1Click, onRecordChange, onStreamTypeChanged, onFindOptimalSettings
     };
   }

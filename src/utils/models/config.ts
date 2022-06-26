@@ -1,7 +1,6 @@
 export interface DeviceConfig {
   device_name: string;
   device_type: number;
-  device_services: number[];
 }
 
 export interface RedisConfig {
@@ -30,7 +29,7 @@ export interface OnceDetectorConfig {
 }
 
 export interface SourceReaderConfig {
-  fps: number;
+  resize_img: boolean;
   buffer_size: number;
   max_retry: number;
   max_retry_in: number;

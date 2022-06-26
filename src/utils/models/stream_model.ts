@@ -34,6 +34,7 @@ export interface StreamModel {
 
   snapshot_enabled: boolean;
   snapshot_pid: number;
+  snapshot_type: number;
   snapshot_frame_rate: number;
   snapshot_width: number;
   snapshot_height: number;

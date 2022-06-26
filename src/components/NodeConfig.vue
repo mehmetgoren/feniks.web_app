@@ -26,10 +26,6 @@
           <q-space style='height: 10px;' />
           <q-select emit-value map-options filled disable dense='dense'
                     v-model='device.device_type' :options='optDeviceTypes' label='Device Type' />
-          <q-space style='height: 10px;' />
-          <q-select filled v-model='modelMultiple' multiple :options='optServices'
-                    dense='dense'
-                    use-chips stack-label label='Running Services' disable />
         </q-form>
 
         <q-space style='height: 10px;' />
@@ -94,9 +90,11 @@
         </q-toolbar>
         <q-space style='height: 2px;' />
         <q-form id='frm7' class='q-pa-xs' style='margin:0 5px 0 5px;'>
-          <q-input v-model.number='sourceReader.buffer_size' type='number' filled dense label='Buffer Size' />
+          <q-toggle v-model='sourceReader.resize_img' filled dense label='Resize Image' >
+            <q-tooltip><strong>Be careful about it. It costs too much CPU time.</strong></q-tooltip>
+          </q-toggle>
           <q-space style='height: 10px;' />
-          <q-input v-model.number='sourceReader.fps' type='number' filled dense label='Fps' />
+          <q-input v-model.number='sourceReader.buffer_size' type='number' filled dense label='Buffer Size' />
           <q-space style='height: 10px;' />
           <q-input v-model.number='sourceReader.max_retry' type='number' filled dense label='Max Retry' />
           <q-space style='height: 10px;' />
@@ -302,7 +300,6 @@ import {
   Config, JetsonConfig, DeviceConfig, TorchConfig, OnceDetectorConfig, SourceReaderConfig, RedisConfig,
   FFmpegConfig, TensorflowConfig, AiConfig, GeneralConfig, UiConfig
 } from 'src/utils/models/config';
-import { List } from 'linqts';
 import { PublishService, SubscribeService } from 'src/utils/services/websocket_services';
 import { NetworkDiscoveryModel, OnvifAction, OnvifEvent } from 'src/utils/models/onvif_models';
 import { fixArrayDates, myDateToJsDate } from 'src/utils/utils';
@@ -330,8 +327,6 @@ export default {
     const device = ref<DeviceConfig>();
     const general = ref<GeneralConfig>();
 
-    const modelMultiple = ref();
-    const optServices = ref();
     const optDeviceTypes = ref(getDeviceTypes());
     const onceDetector = ref<OnceDetectorConfig>();
     const sourceReader = ref<SourceReaderConfig>();
@@ -397,9 +392,6 @@ export default {
         currentNode.value = an;
       }
       config.value = await nodeService.getConfig();
-      const deviceServices = getDeviceServices(config.value);
-      modelMultiple.value = deviceServices;
-      optServices.value = deviceServices;
       setConfigValue(config.value);
       const on = await nodeService.getOnvifNetwork();
       if (on){
@@ -455,7 +447,7 @@ export default {
       config, device, optDeviceTypes, onceDetector, sourceReader, redis,
       jetson, jetsonFilter, ffmpeg, tf, ai, general, ui,
       torch, torchFilter, tfFilter, showScanLoading, users,
-      modelMultiple, optServices, currentNode, tab: ref<string>('config'),
+      currentNode, tab: ref<string>('config'),
       imageExtensions: ['jpg', 'jpeg', 'png', 'bmp', 'gif'],
       onSave, onRestore, onScanNetwork: function() {
         void publishService.publishOnvif({}, OnvifAction.NetworkDiscovery);
@@ -487,22 +479,6 @@ export default {
     };
   }
 };
-
-function getDeviceServices(config: Config | any): any[] {
-  const all =
-    new List([{ value: 1, label: 'Stream-Reading' }, { value: 2, label: 'Detection' }, {
-      value: 4,
-      label: 'Cloud Integration'
-    }]);
-  const selected = [];
-  for (const serviceNo of config.device.device_services) {
-    const item = all.FirstOrDefault(x => x?.value == serviceNo);
-    if (item) {
-      selected.push(item);
-    }
-  }
-  return selected;
-}
 
 function getDeviceTypes() {
   return [{ value: 0, label: 'PC' }, { value: 1, label: 'IoT' }];
