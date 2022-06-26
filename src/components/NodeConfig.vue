@@ -29,18 +29,6 @@
         </q-form>
 
         <q-space style='height: 10px;' />
-        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='width: auto;'>
-          <label style='text-transform: uppercase;font-size: medium'>Redis Config</label>
-        </q-toolbar>
-        <q-space style='margin: 2px;' />
-        <q-form id='frm8' class='q-pa-xs'>
-          <q-input v-model.trim='redis.host' filled dense label='Host' />
-          <q-space style='height: 10px;' />
-          <q-input v-model.number='redis.port' type='number' filled dense label='Port' />
-        </q-form>
-        <q-space style='height: 10px;' />
-
-        <q-space style='height: 10px;' />
         <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
           <label style='text-transform: uppercase;font-size: medium'>General Config</label>
         </q-toolbar>
@@ -145,8 +133,11 @@
           <q-toggle v-model='ai.overlay' filled dense label='Overlay Detected Object' />
           <q-space style='height: 10px;' />
           <q-input v-model.number='ai.video_clip_duration' filled dense label='Video Clip Duration' />
+          <q-space style='height: 10px;' />
           <q-input v-model.number='ai.face_recog_mtcnn_threshold' filled dense label='Face Recognition MTCNN Threshold' />
+          <q-space style='height: 10px;' />
           <q-input v-model.number='ai.face_recog_prob_threshold' filled dense label='Face Recognition Probability Threshold' />
+          <q-space style='height: 10px;' />
           <q-input v-model.number='ai.plate_recog_instance_count' filled dense label='Automatic Plate Recognition Instance Count' />
         </q-form>
 
@@ -297,7 +288,7 @@
 import { NodeService } from 'src/utils/services/node_service';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import {
-  Config, JetsonConfig, DeviceConfig, TorchConfig, OnceDetectorConfig, SourceReaderConfig, RedisConfig,
+  Config, JetsonConfig, DeviceConfig, TorchConfig, OnceDetectorConfig, SourceReaderConfig,
   FFmpegConfig, TensorflowConfig, AiConfig, GeneralConfig, UiConfig
 } from 'src/utils/models/config';
 import { PublishService, SubscribeService } from 'src/utils/services/websocket_services';
@@ -330,7 +321,6 @@ export default {
     const optDeviceTypes = ref(getDeviceTypes());
     const onceDetector = ref<OnceDetectorConfig>();
     const sourceReader = ref<SourceReaderConfig>();
-    const redis = ref<RedisConfig>();
     const ffmpeg = ref<FFmpegConfig>();
     const ai = ref<AiConfig>();
     const ui = ref<UiConfig>();
@@ -364,7 +354,6 @@ export default {
       device.value = c.device;
       onceDetector.value = c.once_detector;
       sourceReader.value = c.source_reader;
-      redis.value = c.redis;
       general.value = c.general;
       ffmpeg.value = c.ffmpeg;
       torch.value = c.torch;
@@ -444,7 +433,7 @@ export default {
 
 
     return {
-      config, device, optDeviceTypes, onceDetector, sourceReader, redis,
+      config, device, optDeviceTypes, onceDetector, sourceReader,
       jetson, jetsonFilter, ffmpeg, tf, ai, general, ui,
       torch, torchFilter, tfFilter, showScanLoading, users,
       currentNode, tab: ref<string>('config'),

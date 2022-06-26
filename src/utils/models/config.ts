@@ -3,11 +3,6 @@ export interface DeviceConfig {
   device_type: number;
 }
 
-export interface RedisConfig {
-  host: string;
-  port: number;
-}
-
 export interface JetsonConfig {
   model_name: string;
 }
@@ -68,7 +63,6 @@ export interface UiConfig{
 
 export interface Config {
   device: DeviceConfig;
-  redis: RedisConfig;
   jetson: JetsonConfig;
   torch: TorchConfig;
   tensorflow: TensorflowConfig;
