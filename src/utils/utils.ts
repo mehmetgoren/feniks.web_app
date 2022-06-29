@@ -1,15 +1,15 @@
-import { PublishService } from 'src/utils/services/websocket_services';
-import { SourceModel } from 'src/utils/models/source_model';
+import {PublishService} from 'src/utils/services/websocket_services';
+import {SourceModel} from 'src/utils/models/source_model';
 import axios from 'axios';
-import { StoreService } from 'src/utils/services/store_service';
+import {StoreService} from 'src/utils/services/store_service';
 import {LocalService} from 'src/utils/services/local_service';
 import {ProbeResult} from 'src/utils/models/various';
 
 
 export function parseQs(qs = window.location.search): any {
   const urlSearchParams = new URLSearchParams(qs);
-  const ret:any = {};
-  const arr  = urlSearchParams.entries().next().value;
+  const ret: any = {};
+  const arr = urlSearchParams.entries().next().value;
   ret[arr[0].replace('node?', '')] = arr[1];
   return ret;
 }
@@ -24,7 +24,7 @@ export function myDateToJsDate(dateString: string): Date {
       const hour = parseInt(splits[3]);
       const minute = parseInt(splits[4]);
       const second = parseInt(splits[5]);
-      return new Date(year, month, day, hour, minute, second);
+      return new Date(year, Math.max(month-1, 0), day, hour, minute, second);
     }
   }
   return new Date(0);
@@ -55,7 +55,7 @@ export function getTodayString(separator = '_') {
   return `${today.getFullYear()}${separator}${monthStr}${separator}${dayStr}`;
 }
 
-export function getCurrentHour(){
+export function getCurrentHour() {
   const today = new Date();
   const hour = today.getHours();
   let hourStr = hour.toString();
@@ -63,6 +63,32 @@ export function getCurrentHour(){
     hourStr = '0' + hourStr;
   }
   return hourStr;
+}
+
+export function timeSince(date: Date): string {
+  // @ts-ignore
+  const seconds = Math.floor((new Date() - date) / 1000);
+  let interval = seconds / 31536000;
+  if (interval > 1) {
+    return Math.floor(interval) + ' years';
+  }
+  interval = seconds / 2592000;
+  if (interval > 1) {
+    return Math.floor(interval) + ' months';
+  }
+  interval = seconds / 86400;
+  if (interval > 1) {
+    return Math.floor(interval) + ' days';
+  }
+  interval = seconds / 3600;
+  if (interval > 1) {
+    return Math.floor(interval) + ' hours';
+  }
+  interval = seconds / 60;
+  if (interval > 1) {
+    return Math.floor(interval) + ' minutes';
+  }
+  return Math.floor(seconds) + ' seconds';
 }
 
 export function isNullOrUndefined(val: any) {
@@ -126,16 +152,24 @@ export function deepCopy(source: any): any {
   return JSON.parse(JSON.stringify(source));
 }
 
-export function isFrDirNameValid(name: string): boolean{
+export function isFrDirNameValid(name: string): boolean {
   const re = '/^[^\s^\x00-\x1f\\?*:"";<>|\/.][^\x00-\x1f\\?*:"";<>|\/]*[^\s^\x00-\x1f\\?*:"";<>|\/.]+$/g';
   return name.match(re) === null;
 }
 
 export function generateHtmlColor(): string {
-  return '#'+(Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0');
+  return '#' + (Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0');
 }
 
-export async function userLogout(localService: LocalService, storeService: StoreService, router: any){
+export function cutFloatString(val: number, size = 4): string{
+  if (val){
+    const str = val.toString();
+    return str.substring(0, size);
+  }
+  return '';
+}
+
+export async function userLogout(localService: LocalService, storeService: StoreService, router: any) {
   localService.setCurrentUser(null);
   storeService.setCurrentUser(null);
   await router.push('/');
@@ -144,21 +178,21 @@ export async function userLogout(localService: LocalService, storeService: Store
   }, 250);
 }
 
-export function findBestSettings(source: SourceModel, probeResult: ProbeResult): boolean{
+export function findBestSettings(source: SourceModel, probeResult: ProbeResult): boolean {
   const f = probeResult.format;
-  if (f.nb_streams < 1){
+  if (f.nb_streams < 1) {
     return false;
   }
   const hasAudio = f.nb_streams > 1;
   const v = probeResult.streams[0]; //video
   const fps = parseInt(v.avg_frame_rate.split('/')[0]);
-  if (f.format_name === 'rtsp'){
+  if (f.format_name === 'rtsp') {
     source.rtsp_transport = 1; //TCP
   }
   source.rtmp_server_type = 1; //SRS Realtime
   source.stream_type = 0; //FLV
   //todo: test it with dahua
-  if (parseFloat(v.start_time) > 0.){
+  if (parseFloat(v.start_time) > 0.) {
     source.booster_enabled = true;
   }
   source.input_frame_rate = fps;
@@ -173,10 +207,10 @@ export function findBestSettings(source: SourceModel, probeResult: ProbeResult):
 
   const a = hasAudio ? probeResult.streams[1] : null;
   const audioCodecs = hasAudio ? new LocalService().createAudioCodecs() : null;
-  if (hasAudio){
+  if (hasAudio) {
     // @ts-ignore
-    for(const opt of audioCodecs){
-      if (opt.label.toLowerCase() === a?.codec_name){
+    for (const opt of audioCodecs) {
+      if (opt.label.toLowerCase() === a?.codec_name) {
         source.stream_audio_codec = opt.value;
         break;
       }
@@ -196,7 +230,7 @@ export function findBestSettings(source: SourceModel, probeResult: ProbeResult):
   source.record_video_codec = 5; //copy
   source.record_segment_interval = 15;
   source.record_frame_rate = 0;
-  if (hasAudio){
+  if (hasAudio) {
     source.record_audio_codec = source.stream_audio_codec;
     source.record_audio_channel = source.stream_audio_channel;
     source.record_audio_quality = source.stream_audio_quality;

@@ -111,6 +111,10 @@ export class SubscribeService extends BaseService {
     return new WsConnection(this.nodeIp, this.setAuth('wsprobe', null), onMessage);
   }
 
+  public subscribeNotifier(onMessage: ((this: WebSocket, ev: MessageEvent) => any)): WsConnection {
+    return new WsConnection(this.nodeIp, this.setAuth('wsnotifier', null), onMessage);
+  }
+
   public subscribeUserLogout(onMessage: ((this: WebSocket, ev: MessageEvent) => any)): WsConnection {
     return new WsConnection(this.nodeIp, this.setAuth('wsuserlogout', null), onMessage);
   }

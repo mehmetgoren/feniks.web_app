@@ -9,6 +9,7 @@
         <q-space/>
         <!--  left panel panel-->
         <div class='q-gutter-sm row items-center no-wrap'>
+          <Notifier  style="margin-right: -15px"/>
           <q-btn-dropdown icon='account_circle' round flat :label='currentUser?.username'>
             <q-list>
               <q-item clickable v-close-popup @click='onLogoutUser'>
@@ -150,7 +151,7 @@
 </template>
 
 <script lang='ts'>
-import {onMounted, reactive, ref, watch} from 'vue';
+import {onBeforeUnmount, onMounted, reactive, ref, watch} from 'vue';
 import {useRouter} from 'vue-router';
 import {NodeService} from 'src/utils/services/node_service';
 import {MenuLink, LoadingInfo} from 'src/store/module-settings/state';
@@ -163,11 +164,14 @@ import ServerStatsBar from 'components/ServerStatsBar.vue';
 import {SourceModel} from 'src/utils/models/source_model';
 import {createEmptyBase64Image, startStream, userLogout} from 'src/utils/utils';
 import {StoreService} from 'src/utils/services/store_service';
+import {WsConnection} from 'src/utils/ws/connection';
+import Notifier from 'components/Notifier.vue';
 
 export default {
   name: 'Ionix Layout',
   components: {
-    SourceSettings, SourceRecords, OnvifSettings, ServerStatsBar
+    SourceSettings, SourceRecords, OnvifSettings,
+    ServerStatsBar, Notifier
   },
   setup() {
     const router = useRouter();
@@ -186,6 +190,7 @@ export default {
     const selectedSourceAddress = ref<string>('');
     const showOnvif = ref<boolean>(false);
     const menus = ref(storeService.getNode());
+    let editorConnection: WsConnection | null = null;
 
     const loadSources = async () => {
       const sources = await nodeService.getSourceList();
@@ -218,8 +223,7 @@ export default {
     onMounted(async () => {
       const nodeIp = await nodeService.LocalService.getNodeIP();
       const subscribeService = new SubscribeService(nodeIp);
-
-      subscribeService.subscribeEditor('ml', (event: MessageEvent) => {
+      editorConnection = subscribeService.subscribeEditor('ml', (event: MessageEvent) => {
         const responseModel: EditorImageResponseModel = JSON.parse(event.data);
         if (responseModel.event_type == 2) {
           storeService.setSourceThumbnail(responseModel);
@@ -227,8 +231,13 @@ export default {
         storeService.setSourceLoading(<string>responseModel.id, false);
         localService.saveThumbnail(responseModel.id??'', responseModel.image_base64);
       });
+
       await loadSources();
       await sourceStreamDatabind();
+    });
+
+    onBeforeUnmount(() =>{
+      editorConnection?.close();
     });
 
     const currentUser = storeService.currentUser;

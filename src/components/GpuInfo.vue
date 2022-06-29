@@ -115,7 +115,7 @@ export default {
 
     onBeforeUnmount(() => {
       if (interval) {
-        clearTimeout(interval);
+        clearInterval(interval);
       }
     });
 

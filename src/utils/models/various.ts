@@ -80,3 +80,8 @@ export interface ProbeResult {
   streams: Stream[];
   format: Format;
 }
+
+export interface NotifierResponseEvent{
+  base_64_object:string;
+  type:number;
+}
