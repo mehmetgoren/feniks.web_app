@@ -17,6 +17,7 @@ import { ServiceModel } from 'src/utils/models/service_model';
 import { ServerStats } from 'src/utils/models/server_stats';
 import { FailedStreamModel, RecStuckModel, RtspTemplateModel, VariousInfos } from 'src/utils/models/others_models';
 import {NvidiaGpuModel} from 'src/utils/models/gpu';
+import {TelegramViewModel} from 'src/utils/models/cloud_models';
 
 
 export class NodeService extends BaseService {
@@ -250,6 +251,21 @@ export class NodeService extends BaseService {
 
   public async getNvidiaSmi():Promise<NvidiaGpuModel>{
     const resp = await api.get(await this.LocalService.getNodeAddress('nvidiasmi'));
+    return resp.data;
+  }
+
+  public async getTelegramViewModel():Promise<TelegramViewModel>{
+    const resp = await api.get(await this.LocalService.getNodeAddress('telegram'));
+    return resp.data;
+  }
+
+  public async saveTelegramViewModel(viewModel: TelegramViewModel):Promise<boolean>{
+    const resp = await api.post(await this.LocalService.getNodeAddress('telegram'), viewModel);
+    return resp.data;
+  }
+
+  public async deleteTelegramUser(userId: number): Promise<boolean>{
+    const resp = await api.delete(await this.LocalService.getNodeAddress(`telegramuser/${userId}`));
     return resp.data;
   }
 }

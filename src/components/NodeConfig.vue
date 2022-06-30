@@ -5,6 +5,7 @@
       <label style='text-transform: uppercase;font-size: medium;'> {{ currentNode.name }}</label>
       <q-tabs v-model='tab' narrow-indicator inline-label align='left'>
         <q-tab name='config' icon='settings_applications' label='Config' />
+        <q-tab name='cloud' icon='cloud' label='Cloud' />
         <q-tab name='general' icon='developer_board' label='General' />
         <q-tab name='info' icon='analytics' label='Info' />
       </q-tabs>
@@ -175,6 +176,9 @@
 
     </div>
   </div>
+  <div class='q-pa-md q-gutter-sm' v-if='config&&tab==="cloud"'>
+    <Cloud />
+  </div>
   <div class='q-pa-md q-gutter-sm' v-if='config&&tab==="general"' style='margin-top: -45px;'>
     <q-space style='height: 10px;' />
     <q-toolbar class='bg-brown-5 text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
@@ -306,10 +310,11 @@ import Hub from 'components/Hub.vue';
 import GpuInfo from 'components/GpuInfo.vue';
 import { FailedStreamModel, RecStuckModel, RtspTemplateModel, VariousInfos } from 'src/utils/models/others_models';
 import { OdModel } from 'src/utils/models/od_model';
+import Cloud from 'components/Cloud.vue';
 
 export default {
   name: 'NodeConfig',
-  components: { CommandBar, Dashboard, Hub, GpuInfo },
+  components: {Cloud, CommandBar, Dashboard, Hub, GpuInfo },
   setup() {
     const $q = useQuasar();
     const nodeService = new NodeService();
