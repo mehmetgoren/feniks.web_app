@@ -1,23 +1,23 @@
-import { api } from 'boot/axios';
-import { Config } from 'src/utils/models/config';
-import { BaseService } from 'src/utils/services/base_service';
-import { List } from 'linqts';
-import { SourceModel } from 'src/utils/models/source_model';
-import { VideoFile } from 'src/utils/entities';
-import { isNullOrEmpty } from 'src/utils/utils';
-import { StreamModel } from 'src/utils/models/stream_model';
-import { SourceStatusModel } from 'src/utils/models/source_status_model';
-import { OdModel } from 'src/utils/models/od_model';
-import { ImagesParams, FolderTreeItem, ImageItem } from 'src/utils/models/detected';
-import { OdVideoClipsViewModel } from 'src/utils/models/ai_clip_json_object';
-import { NetworkDiscoveryModel, OnvifModel } from 'src/utils/models/onvif_models';
-import { FrTrainRename, FrTrainName, FrTrainScreenshotViewModel, FrTrainViewModel } from 'src/utils/models/fr_models';
-import { LoginUserViewModel, RegisterUserViewModel, User } from 'src/utils/models/user_model';
-import { ServiceModel } from 'src/utils/models/service_model';
-import { ServerStats } from 'src/utils/models/server_stats';
-import { FailedStreamModel, RecStuckModel, RtspTemplateModel, VariousInfos } from 'src/utils/models/others_models';
+import {api} from 'boot/axios';
+import {Config} from 'src/utils/models/config';
+import {BaseService} from 'src/utils/services/base_service';
+import {List} from 'linqts';
+import {SourceModel} from 'src/utils/models/source_model';
+import {VideoFile} from 'src/utils/entities';
+import {isNullOrEmpty} from 'src/utils/utils';
+import {StreamModel} from 'src/utils/models/stream_model';
+import {SourceStatusModel} from 'src/utils/models/source_status_model';
+import {OdModel} from 'src/utils/models/od_model';
+import {ImagesParams, FolderTreeItem, ImageItem} from 'src/utils/models/detected';
+import {OdVideoClipsViewModel} from 'src/utils/models/ai_clip_json_object';
+import {NetworkDiscoveryModel, OnvifModel} from 'src/utils/models/onvif_models';
+import {FrTrainRename, FrTrainName, FrTrainScreenshotViewModel, FrTrainViewModel} from 'src/utils/models/fr_models';
+import {LoginUserViewModel, RegisterUserViewModel, User} from 'src/utils/models/user_model';
+import {ServiceModel} from 'src/utils/models/service_model';
+import {ServerStats} from 'src/utils/models/server_stats';
+import {FailedStreamModel, RecStuckModel, RtspTemplateModel, VariousInfos} from 'src/utils/models/others_models';
 import {NvidiaGpuModel} from 'src/utils/models/gpu';
-import {TelegramViewModel} from 'src/utils/models/cloud_models';
+import {GdriveViewModel, TelegramViewModel} from 'src/utils/models/cloud_models';
 
 
 export class NodeService extends BaseService {
@@ -89,7 +89,7 @@ export class NodeService extends BaseService {
   }
 
   public async deleteRecord(model: VideoFile): Promise<boolean> {
-    const resp = await api.delete(await this.LocalService.getNodeAddress('records'), { data: model });
+    const resp = await api.delete(await this.LocalService.getNodeAddress('records'), {data: model});
     return resp.data;
   }
 
@@ -124,7 +124,7 @@ export class NodeService extends BaseService {
   }
 
   public async deleteOdVideoClip(item: OdVideoClipsViewModel): Promise<boolean> {
-    const resp = await api.delete(await this.LocalService.getNodeAddress('odvideoclips'), { data: item });
+    const resp = await api.delete(await this.LocalService.getNodeAddress('odvideoclips'), {data: item});
     return resp.data;
   }
 
@@ -170,7 +170,7 @@ export class NodeService extends BaseService {
   }
 
   public async deleteFrTrainPerson(model: FrTrainName): Promise<boolean> {
-    const resp = await api.delete(await this.LocalService.getNodeAddress('frtrainpersondelete'), { data: model });
+    const resp = await api.delete(await this.LocalService.getNodeAddress('frtrainpersondelete'), {data: model});
     return resp.data;
   }
 
@@ -219,53 +219,63 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
-  public async logoutUser(user: User): Promise<boolean>{
+  public async logoutUser(user: User): Promise<boolean> {
     const resp = await api.post(await this.LocalService.getNodeAddress('logoutuser'), user);
     return resp.data;
   }
 
-  public async getServerStats(): Promise<ServerStats>{
+  public async getServerStats(): Promise<ServerStats> {
     const resp = await api.get(await this.LocalService.getNodeAddress('serverstats'));
     return resp.data;
   }
 
-  public async getRtspTemplates():Promise<RtspTemplateModel[]>{
+  public async getRtspTemplates(): Promise<RtspTemplateModel[]> {
     const resp = await api.get(await this.LocalService.getNodeAddress('rtsptemplates'));
     return resp.data;
   }
 
-  public async getFailedStreams():Promise<FailedStreamModel[]>{
+  public async getFailedStreams(): Promise<FailedStreamModel[]> {
     const resp = await api.get(await this.LocalService.getNodeAddress('failedstreams'));
     return resp.data;
   }
 
-  public async getRecStucks():Promise<RecStuckModel[]>{
+  public async getRecStucks(): Promise<RecStuckModel[]> {
     const resp = await api.get(await this.LocalService.getNodeAddress('recstucks'));
     return resp.data;
   }
 
-  public async getVariousInfos():Promise<VariousInfos>{
+  public async getVariousInfos(): Promise<VariousInfos> {
     const resp = await api.get(await this.LocalService.getNodeAddress('various'));
     return resp.data;
   }
 
-  public async getNvidiaSmi():Promise<NvidiaGpuModel>{
+  public async getNvidiaSmi(): Promise<NvidiaGpuModel> {
     const resp = await api.get(await this.LocalService.getNodeAddress('nvidiasmi'));
     return resp.data;
   }
 
-  public async getTelegramViewModel():Promise<TelegramViewModel>{
+  public async getTelegramViewModel(): Promise<TelegramViewModel> {
     const resp = await api.get(await this.LocalService.getNodeAddress('telegram'));
     return resp.data;
   }
 
-  public async saveTelegramViewModel(viewModel: TelegramViewModel):Promise<boolean>{
+  public async saveTelegramViewModel(viewModel: TelegramViewModel): Promise<boolean> {
     const resp = await api.post(await this.LocalService.getNodeAddress('telegram'), viewModel);
     return resp.data;
   }
 
-  public async deleteTelegramUser(userId: number): Promise<boolean>{
+  public async deleteTelegramUser(userId: number): Promise<boolean> {
     const resp = await api.delete(await this.LocalService.getNodeAddress(`telegramuser/${userId}`));
+    return resp.data;
+  }
+
+  public async getGdriveViewModel(): Promise<GdriveViewModel> {
+    const resp = await api.get(await this.LocalService.getNodeAddress('gdrive'));
+    return resp.data;
+  }
+
+  public async saveGdriveViewModel(viewModel: GdriveViewModel): Promise<boolean> {
+    const resp = await api.post(await this.LocalService.getNodeAddress('gdrive'), viewModel);
     return resp.data;
   }
 }

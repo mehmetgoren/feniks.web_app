@@ -1,24 +1,32 @@
-export interface TelegramBot{
+export interface TelegramBot {
   token: string;
   url: string;
 }
 
-export interface TelegramUser{
-  id:number;
+export interface TelegramUser {
+  id: number;
 
-  first_name:string;
-  last_name:string;
-  username:string;
-  language_code:string;
-  is_bot:boolean;
+  first_name: string;
+  last_name: string;
+  username: string;
+  language_code: string;
+  is_bot: boolean;
 
-  can_join_groups:boolean;
-  can_read_all_group_messages:boolean;
-  supports_inline_queries:boolean;
+  can_join_groups: boolean;
+  can_read_all_group_messages: boolean;
+  supports_inline_queries: boolean;
 }
 
-export interface TelegramViewModel{
+export interface TelegramViewModel {
   enabled: boolean;
   bot: TelegramBot;
   users: TelegramUser[];
+}
+
+export interface GdriveViewModel {
+  auth_code: string;
+  credentials_json: string;
+  enabled: boolean;
+  token_json: string;
+  url: string;
 }
