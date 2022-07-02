@@ -1,10 +1,10 @@
 <template>
   <q-btn round dense flat color="grey-8" icon="notifications">
-    <q-badge v-show="list.length" color="red" text-color="white" floating>
-      {{list.length}}{{list.length > 9 ? '+' : ''}}
+    <q-badge v-show="noShownLength" color="red" text-color="white" floating>
+      {{noShownLength}}{{noShownLength > 9 ? '+' : ''}}
     </q-badge>
     <q-tooltip>Notifications</q-tooltip>
-    <q-popup-proxy>
+    <q-popup-proxy @show="onPopupShow" v-model="popupShow">
       <q-list bordered class="rounded-borders" style="max-width: 350px">
         <q-item-label v-show="list.length" header>Notifications</q-item-label>
         <q-item v-for="item in list" v-ripple :key="item.id">
@@ -34,7 +34,7 @@
 
 <script lang="ts">
 import {NodeService} from 'src/utils/services/node_service';
-import {onBeforeUnmount, onMounted, ref} from 'vue';
+import {computed, onBeforeUnmount, onMounted, ref} from 'vue';
 import {NotifierResponseEvent} from 'src/utils/models/various';
 import {WsConnection} from 'src/utils/ws/connection';
 import {SubscribeService} from 'src/utils/services/websocket_services';
@@ -42,12 +42,16 @@ import {ObjectDetectionModel} from 'src/utils/models/od_model';
 import {cutFloatString, myDateToJsDate, timeSince} from 'src/utils/utils';
 import {FaceRecognitionModel} from 'src/utils/models/fr_models';
 import {AlprResponse} from 'src/utils/models/alpr_models';
+import {List} from 'linqts';
 
 export default {
   name: 'Notifier',
   setup(){
     const list = ref<NotificationViewModel[]>([]);
-
+    const noShownLength = computed(() => {
+      return new List(list.value).Count(x => x?.shown === false);
+    })
+    const popupShow = ref<boolean>(false);
     const nodeService = new NodeService();
     const cachedSources:any = {};
     let notifierConnection: WsConnection | null = null;
@@ -95,7 +99,7 @@ export default {
     }
 
     const setUpTimes = (model: any): NotificationViewModel => {
-      const item: NotificationViewModel = {};
+      const item: NotificationViewModel = {shown:popupShow.value};
       item.source_name = cachedSources[model.source_id].name;
       if (model.created_at){
         item.created_at = myDateToJsDate(model.created_at);
@@ -179,8 +183,15 @@ export default {
       setupImage(alrp, item);
     }
 
+    const onPopupShow = () => {
+      for(const item of list.value){
+        item.shown = true;
+      }
+    }
+
     return{
-      list
+      list, noShownLength, popupShow,
+      onPopupShow
     }
   }
 }
@@ -191,6 +202,7 @@ interface NotificationViewModel {
   time_since?:string;
   base64_image?: string;
   id?:string;
+  shown:boolean
 }
 </script>
 
