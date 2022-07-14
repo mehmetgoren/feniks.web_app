@@ -344,7 +344,7 @@ export default {
     const recordVideoCodecs = ref(localService.createRecordVideoCodecs());
     const recordPresets = ref(localService.createPresets());
     const recordRotations = ref(localService.createRotations());
-    const snapshotTypes = ref(localService.createSnapshotType());
+    const snapshotTypes = ref(localService.createSnapshotTypes());
     const inactives = ref({ save: false, delete: false });
     const showOnvif = ref<boolean>(false);
     const recommendedRtspAddresses = ref<string[]>([]);

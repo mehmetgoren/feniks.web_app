@@ -306,10 +306,17 @@ export class LocalService {
     ];
   }
 
-  public createSnapshotType(): SelectOption[] {
+  public createSnapshotTypes(): SelectOption[] {
     return [
       {value: 0, label: 'Standard'},
       {value: 1, label: 'OpenCVPersistent'},
+    ];
+  }
+
+  public createDbTypes(): SelectOption[] {
+    return [
+      {value: 0, label: 'SQLite'},
+      {value: 1, label: 'MongoDB'}
     ];
   }
 

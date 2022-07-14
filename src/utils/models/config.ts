@@ -35,6 +35,11 @@ export interface GeneralConfig {
   heartbeat_interval: number;
 }
 
+export interface DbConfig{
+  type: number;
+  connection_string: string;
+}
+
 export interface FFmpegConfig {
   use_double_quotes_for_path: boolean;
   max_operation_retry_count: number;
@@ -69,6 +74,7 @@ export interface Config {
   once_detector: OnceDetectorConfig;
   source_reader: SourceReaderConfig;
   general: GeneralConfig;
+  db: DbConfig;
   ffmpeg: FFmpegConfig;
   ai: AiConfig;
   ui: UiConfig;

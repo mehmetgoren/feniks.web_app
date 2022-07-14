@@ -86,6 +86,7 @@ import { onMounted, ref } from 'vue';
 import { OdVideoClipsViewModel } from 'src/utils/models/ai_clip_json_object';
 import { NodeService } from 'src/utils/services/node_service';
 import { downloadFile, fixArrayDates, getCurrentHour, getTodayString } from 'src/utils/utils';
+import {useQuasar} from 'quasar';
 
 export default {
   name: 'OdSourceVideoClips',
@@ -99,6 +100,7 @@ export default {
     VideoPlayer, DateTimeSelector
   },
   setup(props: any) {
+    const $q = useQuasar()
     const nodeService = new NodeService();
     const stream = ref<StreamModel>(nodeService.LocalService.createEmptyStream());
     const rows = ref<OdVideoClipsViewModel[]>([]);
@@ -138,9 +140,17 @@ export default {
       downloadFile(url, fileName, 'video/mp4');
     }
 
-    async function handleDeleteClip(item: OdVideoClipsViewModel) {
-      await nodeService.deleteOdVideoClip(item);
-      await refreshFn();
+    function handleDeleteClip(item: OdVideoClipsViewModel) {
+      $q.dialog({
+        title: 'Confirm',
+        message: 'Are you sure you want to delete this video clip?',
+        cancel: true,
+        persistent: false
+      }).onOk(() => {
+        nodeService.deleteOdVideoClip(item).then(() => {
+          void refreshFn();
+        }).catch(console.error)
+      });
     }
 
     function onRowClick(props: any){
