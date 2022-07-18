@@ -1,9 +1,11 @@
 export interface VideMergeRequestEvent {
-  id: string;
+  source_id: string;
   date_str: string;
 }
 
 export interface VideMergeResponseEvent{
-  id: string;
-  result: boolean;
+  source_id: string;
+  output_file_name: string;
+  merged_video_filenames: string[];
+  merged_video_file_duration: number;
 }

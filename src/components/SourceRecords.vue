@@ -114,7 +114,7 @@ import { VideoFile } from 'src/utils/entities';
 import { NodeService } from 'src/utils/services/node_service';
 import { WsConnection } from 'src/utils/ws/connection';
 import VideoPlayer from 'src/components/VideoPlayer.vue';
-import { fixArrayDates, getTodayString } from 'src/utils/utils';
+import {fixArrayDates, getTodayString, isNullOrEmpty} from 'src/utils/utils';
 import axios from 'axios';
 import { StreamModel } from 'src/utils/models/stream_model';
 import { PublishService, SubscribeService } from 'src/utils/services/websocket_services';
@@ -194,7 +194,7 @@ export default {
       connVideoMerge = subscribeService.subscribeVideomerge((event: MessageEvent) => {
         try{
           const resp: VideMergeResponseEvent = JSON.parse(event.data)
-          if (resp.result){
+          if (!isNullOrEmpty(resp.output_file_name)){
             const p = prevProps;
             restoreList();
             dataBind().then(() => {
@@ -305,7 +305,7 @@ export default {
         }
         values.push(row.hour);
         const fixedSelectedDate = values.join('_');
-        void publishService.publishVideoMerge({id:props.sourceId, date_str: fixedSelectedDate});
+        void publishService.publishVideoMerge({source_id:props.sourceId, date_str: fixedSelectedDate});
         showMergeLoading.value = true;
       });
     };
