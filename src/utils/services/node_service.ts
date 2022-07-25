@@ -18,6 +18,7 @@ import {ServerStats} from 'src/utils/models/server_stats';
 import {FailedStreamModel, RecStuckModel, RtspTemplateModel, VariousInfos} from 'src/utils/models/others_models';
 import {NvidiaGpuModel} from 'src/utils/models/gpu';
 import {GdriveViewModel, TelegramViewModel} from 'src/utils/models/cloud_models';
+import {AiDataDto, QueryAiDataParams} from 'src/utils/models/ai_data_dtos';
 
 
 export class NodeService extends BaseService {
@@ -276,6 +277,11 @@ export class NodeService extends BaseService {
 
   public async saveGdriveViewModel(viewModel: GdriveViewModel): Promise<boolean> {
     const resp = await api.post(await this.LocalService.getNodeAddress('gdrive'), viewModel);
+    return resp.data;
+  }
+
+  public async queryAiData(model: QueryAiDataParams):Promise<AiDataDto[]>{
+    const resp = await api.post(await this.LocalService.getNodeAddress('queryaidata'), model);
     return resp.data;
   }
 }

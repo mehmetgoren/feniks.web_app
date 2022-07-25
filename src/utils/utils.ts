@@ -40,7 +40,7 @@ export function fixArrayDates(list: any[], ...fields: string[]) {
   });
 }
 
-export function getTodayString(separator = '_') {
+export function getTodayString(separator = '_'): string {
   const today = new Date();
   const month = today.getMonth() + 1;
   let monthStr = month.toString();

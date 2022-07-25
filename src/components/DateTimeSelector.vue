@@ -1,31 +1,37 @@
 <template>
-  <q-input v-model='selectedDate' mask='YYYY-MM-DD' type='date' filled dense :color='color' readonly
-           style='cursor: pointer;width: 155px;' >
-    <q-popup-proxy v-model='showSelectedDate' cover transition-show='scale' transition-hide='scale'>
-      <q-date v-model='selectedDate' :color='color' mask='YYYY-MM-DD'>
-        <div class='row items-center justify-end q-gutter-sm'>
-          <q-btn label='OK' :color='color' flat v-close-popup />
-        </div>
-      </q-date>
-    </q-popup-proxy>
-    <template v-slot:append>
-      <q-icon name='event' :color='color' />
-    </template>
-  </q-input>
-
-  <q-input v-if='showHour' filled v-model="selectedHour" mask="time" dense :color='color' readonly style='margin-left: 5px;width: 100px;cursor: pointer;'>
-    <q-popup-proxy v-model='showSelectedHour' cover transition-show="scale" transition-hide="scale">
-      <q-time v-model="selectedHour" format24h :minute-options='[0]' :color='color'>
-        <div class="row items-center justify-end">
-          <q-btn v-close-popup label="Close" :color='color' flat  />
-        </div>
-      </q-time>
-    </q-popup-proxy>
-    <template v-slot:append>
-      <q-icon name="access_time" :color='color' />
-    </template>
-  </q-input>
-
+  <table>
+    <tr>
+      <td>
+        <q-input v-model='selectedDate' mask='YYYY-MM-DD' type='date' filled dense :color='color' readonly
+                 style='cursor: pointer;width: 155px;' >
+          <q-popup-proxy v-model='showSelectedDate' cover transition-show='scale' transition-hide='scale'>
+            <q-date v-model='selectedDate' :color='color' mask='YYYY-MM-DD'>
+              <div class='row items-center justify-end q-gutter-sm'>
+                <q-btn label='OK' :color='color' flat v-close-popup />
+              </div>
+            </q-date>
+          </q-popup-proxy>
+          <template v-slot:append>
+            <q-icon name='event' :color='color' />
+          </template>
+        </q-input>
+      </td>
+      <td v-if='showHour'>
+        <q-input filled v-model="selectedHour" mask="time" dense :color='color' readonly style='margin-left: 5px;width: 100px;cursor: pointer;'>
+          <q-popup-proxy v-model='showSelectedHour' cover transition-show="scale" transition-hide="scale">
+            <q-time v-model="selectedHour" format24h :minute-options='[0]' :color='color'>
+              <div class="row items-center justify-end">
+                <q-btn v-close-popup label="Close" :color='color' flat  />
+              </div>
+            </q-time>
+          </q-popup-proxy>
+          <template v-slot:append>
+            <q-icon name="access_time" :color='color' />
+          </template>
+        </q-input>
+      </td>
+    </tr>
+  </table>
 </template>
 
 <script lang='ts'>

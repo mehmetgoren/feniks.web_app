@@ -13,6 +13,7 @@
         <q-tab :disable='!enabled' name='videoClipList' icon='featured_video' label='Video Clips' />
         <q-tab :disable='!enabled' name='frList' icon='face' label='Face Recognition' />
         <q-tab :disable='!enabled' name='alprList' icon='drive_eta' label='License Plate Recognition' />
+        <q-tab :disable='!enabled' name='aidata' icon='lens_blur' label='Ai Data' />
       </q-tabs>
       <q-space />
       <q-btn icon-right='reply' color='orange' @click='onGoBack' dense>
@@ -107,6 +108,9 @@
         <div v-if='tab==="alprList"'>
           <AlprImageGallery :source-id='od.id' />
         </div>
+        <div v-if='tab==="aidata"'>
+          <AiDataSource :source-id='od.id' />
+        </div>
       </div>
       <div v-else>
         <label class='blink_me'>AI Service is not available.</label>
@@ -128,6 +132,7 @@ import OdImageGallery from 'components/OdImageGallery.vue';
 import OdSourceVideoClips from 'components/OdSourceVideoClips.vue';
 import FrImageGallery from 'components/FrImageGallery.vue';
 import AlprImageGallery from 'components/AlprImageGallery.vue';
+import AiDataSource from 'components/AiDataSource.vue';
 import { StoreService } from 'src/utils/services/store_service';
 
 export default {
@@ -137,7 +142,8 @@ export default {
     OdImageGallery,
     OdSourceVideoClips,
     FrImageGallery,
-    AlprImageGallery
+    AlprImageGallery,
+    AiDataSource
   },
   setup() {
     const localService = new LocalService();

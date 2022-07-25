@@ -10,6 +10,7 @@ import 'video.js/dist/video-js.css';
 
 export default {
   name: 'VideoPlayer',
+  emits: ['on-player-ready'],
   props: {
     src: {
       type: String,
@@ -39,6 +40,7 @@ export default {
       ]
     }
     this.player = videojs(this.$refs.videoPlayer, videoOptions);
+    this.$emit('on-player-ready', this.player);
   },
   beforeUnmount() {
     if (this.player) {
