@@ -7,6 +7,8 @@
 <script>
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
+import {isNullOrEmpty} from 'src/utils/utils';
+import {LocalService} from 'src/utils/services/local_service';
 
 export default {
   name: 'VideoPlayer',
@@ -14,11 +16,11 @@ export default {
   props: {
     src: {
       type: String,
-      default: 'http://vjs.zencdn.net/v/oceans.mp4',
+      default: ''
     },
-    autoPlay:{
-      type:Boolean,
-      required:true
+    autoPlay: {
+      type: Boolean,
+      required: true
     }
   },
   data() {
@@ -27,20 +29,31 @@ export default {
     }
   },
   mounted() {
-    const autoPlay = this.autoPlay;
-    const videoOptions = {
+    function initPlayer(self, src) {
+      const autoPlay = self.autoPlay;
+      const videoOptions = {
         fluid: true,
         autoplay: autoPlay,
         controls: true,
         sources: [
-        {
-          src:this.src,
-          type: 'video/mp4'
-        }
-      ]
+          {
+            src: src,
+            type: 'video/mp4'
+          }
+        ]
+      }
+      self.player = videojs(self.$refs.videoPlayer, videoOptions);
+      self.$emit('on-player-ready', self.player);
     }
-    this.player = videojs(this.$refs.videoPlayer, videoOptions);
-    this.$emit('on-player-ready', this.player);
+
+    if (isNullOrEmpty(this.src)) {
+      const me = this;
+      new LocalService().getNodeAddress('blank.mp4').then(addr => {
+        initPlayer(me, addr);
+      }).catch(console.error);
+    } else {
+      initPlayer(this, this.src);
+    }
   },
   beforeUnmount() {
     if (this.player) {

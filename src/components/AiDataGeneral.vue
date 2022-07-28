@@ -87,15 +87,18 @@
                   </q-img>
                 </div>
                 <div style="float: left;width: 100%;margin-top: 5px;">
-                  <q-table :rows="detailRows" :color="color" :columns="detailColumns" :hide-pagination="true" :hide-header="true"/>
-                </div>
-                <div style="float: left;width: 100%;margin-top: 5px;">
-                  <q-btn :color='color' icon='theaters' label='Download Video'
-                         @click='handleDownloadVideo(selectedItem.video_file.name, "clip")'>
-                    <q-inner-loading :loading="downloadVideoLoading"/>
-                  </q-btn>
-                  <q-btn :color='color' icon='photo_camera' label='Open Snapshot' @click='handleOpenSnapshot(selectedItem.image_file_name)'
-                  style="margin-left: 5px;"/>
+                  <q-table :rows="detailRows" :color="color" :columns="detailColumns" :hide-pagination="true" :hide-header="true">
+                    <template v-slot:top-left>
+                      <q-btn :color='color' icon='theaters' label='Download Video'
+                             @click='handleDownloadVideo(selectedItem.video_file.name, "clip")'>
+                        <q-inner-loading :loading="downloadVideoLoading"/>
+                      </q-btn>
+                    </template>
+                    <template v-slot:top-right>
+                      <q-btn :color='color' icon='photo_camera' label='Open Snapshot' @click='handleOpenSnapshot(selectedItem.image_file_name)'
+                             style="margin-left: 5px;"/>
+                    </template>
+                  </q-table>
                 </div>
               </div>
             </div>
@@ -247,11 +250,12 @@ export default {
           }, 250);
         }).catch(console.error);
       }
+
       detailRows.value.length = 0;
       detailRows.value.push({key: 'Label', value: row.pred_cls_name});
       detailRows.value.push({key: 'Score', value: row.pred_score?.toString() ?? '0'});
       //@ts-ignore
-      detailRows.value.push({key: 'Created At', value: row.created_at.toLocaleTimeString()});
+      detailRows.value.push({key: 'Created At', value: `${row.created_at.toLocaleDateString()} ${row.created_at.toLocaleTimeString()}`});
       detailRows.value.push({key: 'Appears at', value: row.video_file?.object_appears_at?.toString() ?? '0'});
 
       showDialog.value = true;
