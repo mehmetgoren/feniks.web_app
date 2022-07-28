@@ -72,3 +72,10 @@ export interface QueryAiDataAdvancedParams {
   sort: SortInfo;
   paging: PagingInfo;
 }
+
+export interface AiDataDeleteOptions{
+  ai_type?: AiDataType;
+  id?: string;
+  delete_image:boolean;
+  delete_video:boolean;
+}

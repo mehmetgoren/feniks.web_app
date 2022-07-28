@@ -18,7 +18,7 @@ import {ServerStats} from 'src/utils/models/server_stats';
 import {FailedStreamModel, RecStuckModel, RtspTemplateModel, VariousInfos} from 'src/utils/models/others_models';
 import {NvidiaGpuModel} from 'src/utils/models/gpu';
 import {GdriveViewModel, TelegramViewModel} from 'src/utils/models/cloud_models';
-import {AiDataDto, QueryAiDataAdvancedParams, QueryAiDataParams} from 'src/utils/models/ai_data_dtos';
+import {AiDataDeleteOptions, AiDataDto, QueryAiDataAdvancedParams, QueryAiDataParams} from 'src/utils/models/ai_data_dtos';
 
 
 export class NodeService extends BaseService {
@@ -292,6 +292,11 @@ export class NodeService extends BaseService {
 
   public async queryAiDataCount(model: QueryAiDataAdvancedParams): Promise<number>{
     const resp = await api.post(await this.LocalService.getNodeAddress('queryaidatacount'), model);
+    return resp.data;
+  }
+
+  public async deleteAiData(model: AiDataDeleteOptions): Promise<boolean>{
+    const resp = await api.delete(await this.LocalService.getNodeAddress('deleteaidata'), {data: model});
     return resp.data;
   }
 }

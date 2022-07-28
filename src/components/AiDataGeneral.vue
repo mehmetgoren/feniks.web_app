@@ -61,7 +61,7 @@
     </div>
   </div>
   <q-dialog v-model="showDialog" transition-show="rotate" transition-hide="rotate">
-    <q-layout view='lHh lpr lFf' container class='shadow-2 rounded-borders' style="max-height: 60%;max-width: 75%;">
+    <q-layout view='lHh lpr lFf' container class='shadow-2 rounded-borders' style="max-height: 70%;max-width: 85%;">
       <q-header elevated :class="'bg-' + color">
         <q-toolbar>
           <q-btn flat round dense :icon='selectedFeature.icon'/>
@@ -89,14 +89,15 @@
                 <div style="float: left;width: 100%;margin-top: 5px;">
                   <q-table :rows="detailRows" :color="color" :columns="detailColumns" :hide-pagination="true" :hide-header="true">
                     <template v-slot:top-left>
-                      <q-btn :color='color' icon='theaters' label='Download Video'
+                      <q-btn :color='color' dense icon-right='theaters' label='Download Video'
                              @click='handleDownloadVideo(selectedItem.video_file.name, "clip")'>
                         <q-inner-loading :loading="downloadVideoLoading"/>
                       </q-btn>
+                      <q-btn :color='color' dense icon-right='photo_camera' label='Open Snapshot' @click='handleOpenSnapshot(selectedItem.image_file_name)'
+                             style="margin-left: 5px;"/>
                     </template>
                     <template v-slot:top-right>
-                      <q-btn :color='color' icon='photo_camera' label='Open Snapshot' @click='handleOpenSnapshot(selectedItem.image_file_name)'
-                             style="margin-left: 5px;"/>
+                      <q-btn color='red' dense icon-right='delete' label='Delete Event' @click='handleDelete()' />
                     </template>
                   </q-table>
                 </div>
@@ -107,22 +108,44 @@
       </q-page-container>
     </q-layout>
   </q-dialog>
+
+  <q-dialog v-model="showDelete" transition-show="rotate" transition-hide="rotate">
+    <q-card>
+      <q-card-section>
+        <div class="text-h6">Deletion of an AI Data</div>
+      </q-card-section>
+
+      <q-card-section class="q-pt-none">
+        <q-checkbox v-model="deleteRecordTemp" label="Delete the Record permanently" disable  />
+        <q-checkbox v-model="dlt.delete_image" label="Delete the image and all related other records permanently"  />
+        <q-checkbox v-model="dlt.delete_video" label="Delete the video and all related other images and records permanently"  />
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn flat label="Cancel" color="primary" v-close-popup />
+        <q-btn flat label="Delete" color="red" @click="onDoDelete" />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+
 </template>
 
 <script lang="ts">
 import {nextTick, onMounted, ref, watch} from 'vue';
-import {AiDataDto, QueryAiDataAdvancedParams, SelectedAiFeature, SortBy} from 'src/utils/models/ai_data_dtos';
+import {AiDataDeleteOptions, AiDataDto, QueryAiDataAdvancedParams, SelectedAiFeature, SortBy} from 'src/utils/models/ai_data_dtos';
 import VideoPlayer from 'src/components/VideoPlayer.vue';
 import DateTimeSelector from 'components/DateTimeSelector.vue';
 import {SourceModel} from 'src/utils/models/source_model';
 import {NodeService} from 'src/utils/services/node_service';
 import {downloadFile, getCurrentHour, getPrevHourDatetime, getTodayString} from 'src/utils/utils';
 import {setUpDatesAndPaths} from 'src/utils/path_utils';
+import {useQuasar} from 'quasar';
 
 export default {
   name: 'AiDataGeneral',
   components: {DateTimeSelector, VideoPlayer},
   setup() {
+    const $q = useQuasar();
     const color = ref<string>('deep-purple-14');
     const tab = ref<string>('od');
     const sources = ref<SourceModel[]>([]);
@@ -185,6 +208,8 @@ export default {
     const selectedItem = ref<AiDataDto | null>(null);
     const detailRows = ref<KeyValuePair[]>([]);
     const downloadVideoLoading = ref<boolean>(false);
+    const showDelete = ref<boolean>(false);
+    const dlt = ref<AiDataDeleteOptions>({delete_image:false, delete_video:false});
     let videoPlayer: any = null;
 
     async function dataBind() {
@@ -286,6 +311,29 @@ export default {
       }
     }
 
+    function handleDelete(){
+      showDelete.value = true;
+    }
+
+    async function onDoDelete(){
+      if (selectedItem.value === null){
+        $q.notify({ message: 'Not enough argument to delete this record', color: 'red' });
+        return;
+      }
+      showDelete.value = false;
+      loading.value = true;
+      try {
+        dlt.value.ai_type = params.value.ai_type;
+        dlt.value.id = selectedItem.value.id;
+        await nodeService.deleteAiData(dlt.value);
+        await dataBind();
+        $q.notify({ message: 'The record has been deleted', color: 'green' });
+      } finally {
+        loading.value = false;
+        showDialog.value = false;
+      }
+    }
+
     const onVideoPlayerReady = (player: any) => {
       videoPlayer = player;
     }
@@ -311,9 +359,11 @@ export default {
 
     return {
       tab, color, params, sources, selectedFeature, sourceDic, rows, pagination, loading, showDialog, selectedItem, detailRows, downloadVideoLoading,
+      showDelete, dlt,
       onStartDateTimeChanged, onEndDateTimeChanged, onSourceIdChanged, onLabelChanged, parseDate, parseTime, onRequest, dataBind, onLabelClear,
-      onRowClick, onVideoPlayerReady, handleDownloadVideo, handleOpenSnapshot,
-      columns: createColumns(), detailColumns: createDetailColumns()
+      onRowClick, onVideoPlayerReady, handleDownloadVideo, handleOpenSnapshot, handleDelete, onDoDelete,
+      columns: createColumns(), detailColumns: createDetailColumns(),
+      deleteRecordTemp:ref<boolean>(true)
     }
   }
 }
