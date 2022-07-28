@@ -281,7 +281,7 @@ export default {
       detailRows.value.push({key: 'Score', value: row.pred_score?.toString() ?? '0'});
       //@ts-ignore
       detailRows.value.push({key: 'Created At', value: `${row.created_at.toLocaleDateString()} ${row.created_at.toLocaleTimeString()}`});
-      detailRows.value.push({key: 'Appears at', value: row.video_file?.object_appears_at?.toString() ?? '0'});
+      detailRows.value.push({key: 'Appears at', value: (row.video_file?.object_appears_at?.toString() ?? '0') + ' sec.'});
 
       showDialog.value = true;
     }
