@@ -13,7 +13,7 @@
     <div class='q-pa-md q-gutter-sm' style='margin-top: -15px;'>
       <div class="row">
         <div class="col-4">
-          <DateTimeSelector :color='color' :show-hour='true' @date-changed='onDateChanged' @hour-changed='onHourChanged'/>
+          <DateTimeSelector width-date="187" :dense="true" :color='color' :show-hour='true' @date-changed='onDateChanged' @hour-changed='onHourChanged'/>
           <q-toggle dense v-model='params.no_preparing_video_file' :color='color' @update:model-value='onNoPreparingVideoFileChanged'
                     :label='(params.no_preparing_video_file ? "Do Not" : "") + " Include Preparing Video File"' />
           <q-input dense filled v-model.trim='params.pred_class_name' label='Label' :color='color' @update:model-value="onLabelChanged" style="width: 300px" />
@@ -79,7 +79,7 @@ import {onMounted, ref, watch} from 'vue';
 import {getCurrentHour, getTodayString} from 'src/utils/utils';
 import DateTimeSelector from 'src/components/DateTimeSelector.vue';
 import {NodeService} from 'src/utils/services/node_service';
-import {AiDataDto, QueryAiDataParams} from 'src/utils/models/ai_data_dtos';
+import {AiDataDto, QueryAiDataParams, SelectedAiFeature} from 'src/utils/models/ai_data_dtos';
 import VideoPlayer from 'components/VideoPlayer.vue';
 import {setUpDatesAndPaths} from 'src/utils/path_utils';
 
@@ -111,21 +111,21 @@ export default {
           params.value.ai_type = 0;
           selectedFeature.value.name = 'Object Detection';
           selectedFeature.value.icon = 'collections';
-          void aiDatabind();
+          void databind();
           break;
         case 'fr':
           color.value = 'deep-orange-7';
           params.value.ai_type = 1;
           selectedFeature.value.name = 'Face Recognition';
           selectedFeature.value.icon = 'face';
-          void aiDatabind();
+          void databind();
           break;
         case 'alpr':
           color.value = 'blue-grey-6';
           params.value.ai_type = 2;
           selectedFeature.value.name = 'License Plate Recognition';
           selectedFeature.value.icon = 'drive_eta';
-          void aiDatabind();
+          void databind();
           break;
       }
     })
@@ -136,10 +136,10 @@ export default {
     const leftItems = ref<AiDataDto[]>([]);
     const selectedItem = ref<AiDataDto | null>(null);
     const leftPanelLoading = ref<boolean>(false);
-    const selectedFeature = ref<SelectedFeature>({name:'Object Detection', icon:'collections'});
+    const selectedFeature = ref<SelectedAiFeature>({name:'Object Detection', icon:'collections'});
     let videoPlayer: any = null;
 
-    const aiDatabind = async () => {
+    const databind = async () => {
       leftPanelLoading.value = true;
       try{
         params.value.date_time_str = `${selectedDate}_${selectedHour}`;
@@ -156,7 +156,7 @@ export default {
     };
 
     onMounted(async () => {
-      await aiDatabind();
+      await databind();
     });
 
     const onLeftItemChanged = (leftItem: AiDataDto) => {
@@ -164,14 +164,13 @@ export default {
         selectedItem.value = leftItem;
         if (videoPlayer != null){
           videoPlayer.src(leftItem.video_file.name);
-          videoPlayer.currentTime(leftItem.video_file.object_appears_at);
+          videoPlayer.currentTime(Math.max(leftItem.video_file.object_appears_at-2, 0));
           videoPlayer.play();
         }
       }
     }
 
     const isVfAvailable = (item: AiDataDto): boolean => {
-      console.warn(JSON.stringify(item));
       return (item?.video_file?.name?.length ?? 0) > 0;
     };
 
@@ -183,25 +182,21 @@ export default {
       tab, color, selectedDate, selectedHour, leftItems, selectedItem, params, leftPanelLoading, selectedFeature,
       onDateChanged(dateStr: string) {
         selectedDate = dateStr;
-        void aiDatabind();
+        void databind();
       },
       onHourChanged(hour: string) {
         selectedHour = hour;
-        void aiDatabind();
+        void databind();
       },
       onNoPreparingVideoFileChanged() {
-        void aiDatabind();
+        void databind();
       },
       onLabelChanged(){
-        void aiDatabind();
+        void databind();
       },
       onLeftItemChanged, isVfAvailable, onVideoPlayerReady
     }
   }
-}
-interface SelectedFeature {
-  name: string;
-  icon: string;
 }
 </script>
 

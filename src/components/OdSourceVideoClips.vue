@@ -67,7 +67,7 @@
               </template>
 
               <template v-slot:top-right>
-                <DateTimeSelector color='orange' :show-hour='true' @date-changed='onDateChanged' @hour-changed='onHourChanged' />
+                <DateTimeSelector :dense="true" color='orange' :show-hour='true' @date-changed='onDateChanged' @hour-changed='onHourChanged' />
               </template>
             </q-table>
             <q-inner-loading :showing='refreshLoading' color='orange' size='64px' />

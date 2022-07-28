@@ -10,21 +10,21 @@
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
-    "nanoid": "^3.1.30",
-    "video.js": "^7.17.0",
-    "flv.js": "^1.6.2",
-    "videojs-flvjs-es6": "^1.0.1",
     "@quasar/extras": "^1.12.4",
     "axios": "^0.24.0",
     "core-js": "^3.20.0",
     "dexie": "^3.2.0",
-    "linqts": "^1.14.4",
-    "quasar": "^2.4.13",
-    "vue-chart-3": "^3.0.4",
-    "vuex": "^4.0.2",
-    "gridstack": "^4.4.1",
     "downloadjs": "^1.4.7",
-    "v-viewer": "^3.0.10"
+    "flv.js": "^1.6.2",
+    "gridstack": "^4.4.1",
+    "linqts": "^1.14.4",
+    "nanoid": "^3.1.30",
+    "quasar": "^2.4.13",
+    "v-viewer": "^3.0.10",
+    "video.js": "^7.17.0",
+    "videojs-flvjs-es6": "^1.0.1",
+    "vue-chart-3": "^3.0.4",
+    "vuex": "^4.0.2"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.16.5",

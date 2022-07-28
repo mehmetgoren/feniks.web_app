@@ -33,3 +33,42 @@ export interface AiDataDto {
   video_file: VideoFileDto;
   ai_clip: AiClip;
 }
+
+export interface SelectedAiFeature {
+  name: string;
+  icon: string;
+}
+
+export enum SortBy {
+  Ascending = 1,
+  Descending = -1
+}
+
+export interface SortInfo {
+  enabled: boolean;
+  field: string;
+  sort: SortBy;
+}
+
+export interface PagingInfo {
+  enabled: boolean;
+  page: number;
+  take: number;
+}
+
+export enum AiDataType{
+  Od = 0,
+  Fr = 1,
+  Alpr = 2
+}
+
+export interface QueryAiDataAdvancedParams {
+  ai_type: AiDataType;
+  source_id: string;
+  start_date_time_str: string;
+  end_date_time_str: string;
+  pred_class_name: string;
+  no_preparing_video_file: boolean;
+  sort: SortInfo;
+  paging: PagingInfo;
+}

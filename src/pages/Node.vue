@@ -4,6 +4,7 @@
     <LiveStreamGallery v-if='selected===1' />
     <AiSettings v-if='selected===2' />
     <FrTraining v-if='selected===3' />
+    <AiDataGeneral v-if='selected===4' />
   </div>
   <q-dialog v-model='showAddSource' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
     <SourceSettings @on-save='onSourceSettingsSave' />
@@ -21,10 +22,11 @@ import { nextTick, onMounted, ref, watch } from 'vue';
 import { parseQs } from 'src/utils/utils';
 import { MenuLink } from 'src/store/module-settings/state';
 import { StoreService } from 'src/utils/services/store_service';
+import AiDataGeneral from 'components/AiDataGeneral.vue';
 
 export default {
   name: 'Node',
-  components: { NodeConfig, LiveStreamGallery, SourceSettings, AiSettings, FrTraining },
+  components: {AiDataGeneral, NodeConfig, LiveStreamGallery, SourceSettings, AiSettings, FrTraining },
   setup() {
     const storeService = new StoreService();
     const activeLeftMenu = storeService.activeLeftMenu;//active node ip
@@ -59,6 +61,9 @@ export default {
         case 'fr_train':
           selected.value = 3;
           break;
+        case 'ai_data':
+          selected.value = 4;
+          break;
         default:
           selected.value = 0;
       }
@@ -87,6 +92,10 @@ export default {
         }
         if (toQs.x === 'fr_train' && fromQs.x === 'ai') {
           selected.value = 3;
+          return;
+        }
+        if (toQs.x === 'ai_data' && fromQs.x === 'ai') {
+          selected.value = 4;
           return;
         }
       }

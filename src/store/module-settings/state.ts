@@ -53,6 +53,9 @@ function state(): ISettingsState {
     fr_train:[
       { route: 'node?x=fr_train', icon: 'face', text: 'Face Training', name:'fr_train' }
     ],
+    ai_data:[
+      { route: 'node?x=ai_data', icon: 'lens_blur', text: 'AI Data', name:'ai_data' }
+    ],
     cameras:[]
   };
   return {

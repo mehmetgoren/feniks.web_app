@@ -9,7 +9,7 @@
             <q-icon name='directions_car'></q-icon>
           </q-toolbar-title>
           <div style='background-color: whitesmoke;margin-right: 5px;'>
-            <DateTimeSelector color='orange' :show-hour='false' @date-changed='onDateChanged'/>
+            <DateTimeSelector :dense="true" color='orange' :show-hour='false' @date-changed='onDateChanged'/>
           </div>
           <q-btn color='orange' label='Refresh' icon='restore_page' @click='onRefresh' :disable='refreshLoading' dense>
             <q-inner-loading :showing='refreshLoading' />

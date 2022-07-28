@@ -4,6 +4,7 @@ import axios from 'axios';
 import {StoreService} from 'src/utils/services/store_service';
 import {LocalService} from 'src/utils/services/local_service';
 import {ProbeResult} from 'src/utils/models/various';
+import { date } from 'quasar'
 
 
 export function parseQs(qs = window.location.search): any {
@@ -55,7 +56,7 @@ export function getTodayString(separator = '_'): string {
   return `${today.getFullYear()}${separator}${monthStr}${separator}${dayStr}`;
 }
 
-export function getCurrentHour() {
+export function getCurrentHour(): string {
   const today = new Date();
   const hour = today.getHours();
   let hourStr = hour.toString();
@@ -63,6 +64,29 @@ export function getCurrentHour() {
     hourStr = '0' + hourStr;
   }
   return hourStr;
+}
+
+export function getPrevHourDatetime(separator = '_') {
+  const now = new Date();
+  const prevHourDate = date.addToDate(now, { hours: -1 })
+
+  const month = prevHourDate.getMonth() + 1;
+  let monthStr = month.toString();
+  if (month < 10) {
+    monthStr = '0' + monthStr;
+  }
+  const day = prevHourDate.getDate();
+  let dayStr = day.toString();
+  if (day < 10) {
+    dayStr = '0' + dayStr;
+  }
+
+  const prevHour = prevHourDate.getHours();
+  let hourStr = prevHour.toString();
+  if (prevHour < 10) {
+    hourStr = '0' + hourStr;
+  }
+  return `${prevHourDate.getFullYear()}${separator}${monthStr}${separator}${dayStr}${separator}${hourStr}`;
 }
 
 export function timeSince(date: Date): string {
