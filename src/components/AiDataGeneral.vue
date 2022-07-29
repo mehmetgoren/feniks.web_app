@@ -424,13 +424,13 @@ export default {
       showDelete, dlt, loadingExport,
       onStartDateTimeChanged, onEndDateTimeChanged, onSourceIdChanged, onLabelChanged, parseDate, parseTime, onRequest, dataBind, onLabelClear,
       onRowClick, onVideoPlayerReady, handleDownloadVideo, handleOpenSnapshot, handleDelete, onDoDelete, onExportData,
-      columns: createColumns(), detailColumns: createDetailColumns(),
+      columns: createColumns(true), detailColumns: createDetailColumns(),
       deleteRecordTemp: ref<boolean>(true)
     }
   }
 }
 
-function createColumns(includeImageColumn = false): any[] {
+function createColumns(includeImageColumn: boolean): any[] {
   const align = 'center';
   const ret = [];
   if (includeImageColumn) {
