@@ -54,6 +54,10 @@
             </q-tr>
           </template>
           <template v-slot:top-right>
+            <q-btn :color="color" icon="archive" label="Export to CSV" no-caps @click="onExportData">
+              <q-inner-loading :color="color" :showing="loadingExport"/>
+            </q-btn>
+            <q-space style="margin-left: 5px;" />
             <q-btn icon='refresh' label='Refresh' :color='color' @click='dataBind'/>
           </template>
         </q-table>
@@ -93,11 +97,12 @@
                              @click='handleDownloadVideo(selectedItem.video_file.name, "clip")'>
                         <q-inner-loading :loading="downloadVideoLoading"/>
                       </q-btn>
-                      <q-btn :color='color' dense icon-right='photo_camera' label='Open Snapshot' @click='handleOpenSnapshot(selectedItem.image_file_name)'
+                      <q-btn :color='color' dense icon-right='photo_camera' label='Open Snapshot'
+                             @click='handleOpenSnapshot(selectedItem.image_file_name)'
                              style="margin-left: 5px;"/>
                     </template>
                     <template v-slot:top-right>
-                      <q-btn color='red' dense icon-right='delete' label='Delete Event' @click='handleDelete()' />
+                      <q-btn color='red' dense icon-right='delete' label='Delete Event' @click='handleDelete()'/>
                     </template>
                   </q-table>
                 </div>
@@ -116,14 +121,14 @@
       </q-card-section>
 
       <q-card-section class="q-pt-none">
-        <q-checkbox v-model="deleteRecordTemp" label="Delete the Record permanently" disable  />
-        <q-checkbox v-model="dlt.delete_image" label="Delete the image and all related other records permanently"  />
-        <q-checkbox v-model="dlt.delete_video" label="Delete the video and all related other images and records permanently"  />
+        <q-checkbox v-model="deleteRecordTemp" label="Delete the Record permanently" disable/>
+        <q-checkbox v-model="dlt.delete_image" label="Delete the image and all related other records permanently"/>
+        <q-checkbox v-model="dlt.delete_video" label="Delete the video and all related other images and records permanently"/>
       </q-card-section>
 
       <q-card-actions align="right">
-        <q-btn flat label="Cancel" color="primary" v-close-popup />
-        <q-btn flat label="Delete" color="red" @click="onDoDelete" />
+        <q-btn flat label="Cancel" color="primary" v-close-popup/>
+        <q-btn flat label="Delete" color="red" @click="onDoDelete"/>
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -137,9 +142,9 @@ import VideoPlayer from 'src/components/VideoPlayer.vue';
 import DateTimeSelector from 'components/DateTimeSelector.vue';
 import {SourceModel} from 'src/utils/models/source_model';
 import {NodeService} from 'src/utils/services/node_service';
-import {downloadFile, getCurrentHour, getPrevHourDatetime, getTodayString} from 'src/utils/utils';
+import {deepCopy, downloadFile, getCurrentHour, getPrevHourDatetime, getTodayString, myDateToJsDate} from 'src/utils/utils';
 import {setUpDatesAndPaths} from 'src/utils/path_utils';
-import {useQuasar} from 'quasar';
+import {useQuasar, exportFile} from 'quasar';
 
 export default {
   name: 'AiDataGeneral',
@@ -209,7 +214,8 @@ export default {
     const detailRows = ref<KeyValuePair[]>([]);
     const downloadVideoLoading = ref<boolean>(false);
     const showDelete = ref<boolean>(false);
-    const dlt = ref<AiDataDeleteOptions>({delete_image:false, delete_video:false});
+    const loadingExport = ref<boolean>(false);
+    const dlt = ref<AiDataDeleteOptions>({delete_image: false, delete_video: false});
     let videoPlayer: any = null;
 
     async function dataBind() {
@@ -311,13 +317,13 @@ export default {
       }
     }
 
-    function handleDelete(){
+    function handleDelete() {
       showDelete.value = true;
     }
 
-    async function onDoDelete(){
-      if (selectedItem.value === null){
-        $q.notify({ message: 'Not enough argument to delete this record', color: 'red' });
+    async function onDoDelete() {
+      if (selectedItem.value === null) {
+        $q.notify({message: 'Not enough argument to delete this record', color: 'red'});
         return;
       }
       showDelete.value = false;
@@ -327,10 +333,66 @@ export default {
         dlt.value.id = selectedItem.value.id;
         await nodeService.deleteAiData(dlt.value);
         await dataBind();
-        $q.notify({ message: 'The record has been deleted', color: 'green' });
+        $q.notify({message: 'The record has been deleted', color: 'green'});
       } finally {
         loading.value = false;
         showDialog.value = false;
+      }
+    }
+
+    function wrapCsvValue(val: any, formatFn?: any, row?: AiDataDto): string {
+      let formatted = formatFn !== void 0
+        ? formatFn(val, row)
+        : val
+
+      formatted = formatted === void 0 || formatted === null
+        ? ''
+        : String(formatted)
+
+      formatted = formatted.split('"').join('""')
+
+      return `"${formatted}"`
+    }
+
+    async function onExportData() {
+      loadingExport.value = true;
+      try {
+        const copyParams: QueryAiDataAdvancedParams = deepCopy(params.value);
+        copyParams.paging.enabled = false;
+        const records = await nodeService.queryAiDataAdvanced(copyParams);
+        for (const record of records) {
+          record.created_at = myDateToJsDate(record.created_at).toUTCString();
+          record.source_id = sourceDic.value[record.source_id].name;
+        }
+        const columns = createColumns(false);
+        const content = [columns.map(col => wrapCsvValue(col.label))].concat(
+          records.map(record => columns.map(col => wrapCsvValue(
+            typeof col.field === 'function'
+              //@ts-ignore
+              ? col.field(record)
+              //@ts-ignore
+              : record[col.field === void 0 ? col.name : col.field],
+            //@ts-ignore
+            col.format,
+            record
+          )).join(','))
+        ).join('\r\n')
+
+        const status = exportFile(
+          'table-export.csv',
+          content,
+          'text/csv'
+        )
+
+        if (status !== true) {
+          $q.notify({
+            message: 'Browser denied file download...',
+            color: 'negative',
+            icon: 'warning'
+          })
+        }
+      } finally {
+        loadingExport.value = false;
       }
     }
 
@@ -359,27 +421,30 @@ export default {
 
     return {
       tab, color, params, sources, selectedFeature, sourceDic, rows, pagination, loading, showDialog, selectedItem, detailRows, downloadVideoLoading,
-      showDelete, dlt,
+      showDelete, dlt, loadingExport,
       onStartDateTimeChanged, onEndDateTimeChanged, onSourceIdChanged, onLabelChanged, parseDate, parseTime, onRequest, dataBind, onLabelClear,
-      onRowClick, onVideoPlayerReady, handleDownloadVideo, handleOpenSnapshot, handleDelete, onDoDelete,
+      onRowClick, onVideoPlayerReady, handleDownloadVideo, handleOpenSnapshot, handleDelete, onDoDelete, onExportData,
       columns: createColumns(), detailColumns: createDetailColumns(),
-      deleteRecordTemp:ref<boolean>(true)
+      deleteRecordTemp: ref<boolean>(true)
     }
   }
 }
 
-function createColumns() {
+function createColumns(includeImageColumn = false): any[] {
   const align = 'center';
-  return [
-    {name: 'image_file_name', align: 'left', label: '', field: 'image_file_name', sortable: false},
-    {name: 'source_id', align, label: 'Camera', field: 'source_id', sortable: true},
-    {name: 'pred_cls_name', align, label: 'Label', field: 'pred_cls_name', sortable: true},
-    {name: 'pred_score', align, label: 'Score', field: 'pred_score', sortable: true},
-    {name: 'created_at', align, label: 'Created At', field: 'created_at', sortable: true},
-  ];
+  const ret = [];
+  if (includeImageColumn) {
+    ret.push({name: 'image_file_name', align: 'left', label: '', field: 'image_file_name', sortable: false});
+  }
+  ret.push({name: 'source_id', align, label: 'Camera', field: 'source_id', sortable: true});
+  ret.push({name: 'pred_cls_name', align, label: 'Label', field: 'pred_cls_name', sortable: true});
+  ret.push({name: 'pred_score', align, label: 'Score', field: 'pred_score', sortable: true});
+  ret.push({name: 'created_at', align, label: 'Created At', field: 'created_at', sortable: true});
+
+  return ret;
 }
 
-function createDetailColumns() {
+function createDetailColumns(): any[] {
   const align = 'left';
   return [
     {name: 'key', align, label: '', field: 'key', sortable: false},
