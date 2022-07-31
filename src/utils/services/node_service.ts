@@ -280,6 +280,11 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
+  public async resetGdriveTokenAndUrl(): Promise<boolean>{
+    const resp = await api.post(await this.LocalService.getNodeAddress('resetgdrivetokenandurl'));
+    return resp.data;
+  }
+
   public async queryAiData(model: QueryAiDataParams):Promise<AiDataDto[]>{
     const resp = await api.post(await this.LocalService.getNodeAddress('queryaidata'), model);
     return resp.data;

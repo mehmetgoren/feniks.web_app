@@ -14,15 +14,18 @@
             <q-space style='margin-bottom: 15px;' />
             <q-input v-model='gdriveModel.auth_code' label='Auth Code' dense filled color="blue-grey-6" />
             <q-space style='margin-bottom: 15px;' />
-            <q-input v-model="gdriveModel.token_json" filled type="textarea" label="Credentials" rows="8" readonly />
+            <q-input v-model="gdriveModel.token_json" filled type="textarea" label="Credentials" rows="8" disable />
             <q-space style='margin-bottom: 15px;' />
-            <q-input v-model='gdriveModel.url' label='URL' dense filled color="blue-grey-6" readonly />
+            <q-input v-model='gdriveModel.url' label='URL' dense filled color="blue-grey-6" disable />
 
             <div class='q-pa-md q-gutter-sm'>
               <q-btn label='Save' type='submit' color='blue-grey-6' dense icon='save' :disable="gdriveSubmitLoading">
                 <q-inner-loading :showing='gdriveSubmitLoading' />
               </q-btn>
               <q-btn label='Refresh' type='reset' color='blue-grey-6' flat class='q-ml-sm' dense icon='restart_alt' />
+              <q-btn label='Reset Credentials' color='red' dense icon='report' :disable="gdriveResetLoading" @click="onResetGdriveTokenAndUrl">
+                <q-inner-loading :showing='gdriveResetLoading' />
+              </q-btn>
             </div>
           </q-form>
         </q-card-actions>
@@ -93,6 +96,7 @@ export default {
     const filter = ref<string>('');
     const telegramSubmitLoading = ref<boolean>(false);
     const gdriveSubmitLoading = ref<boolean>(false);
+    const gdriveResetLoading = ref<boolean>(false);
 
     async function telegramDataBind() {
       telegramModel.value = await nodeService.getTelegramViewModel();
@@ -154,9 +158,30 @@ export default {
       await gdriveDatabind();
     };
 
+    const onResetGdriveTokenAndUrl = () =>{
+      const doResetGdriveTokenAndUrl = async () => {
+        gdriveResetLoading.value = true;
+        try{
+          await nodeService.resetGdriveTokenAndUrl();
+          await gdriveDatabind();
+        }finally {
+          gdriveResetLoading.value = false;
+        }
+      };
+
+      $q.dialog({
+        title: 'Confirm',
+        message: 'Are you sure you want to reset GDrive integration?',
+        cancel: true,
+        persistent: false
+      }).onOk(() => {
+        void doResetGdriveTokenAndUrl();
+      });
+    };
+
     return {
-      telegramModel, filter, telegramSubmitLoading, gdriveModel, gdriveSubmitLoading,
-      onTelegramSubmit, onTelegramReset, onGdriveSubmit, onGdriveReset,
+      telegramModel, filter, telegramSubmitLoading, gdriveModel, gdriveSubmitLoading, gdriveResetLoading,
+      onTelegramSubmit, onTelegramReset, onGdriveSubmit, onGdriveReset, onResetGdriveTokenAndUrl,
       onDeleteUser(telegramUser: TelegramUser) {
         $q.dialog({
           title: 'Confirm',
