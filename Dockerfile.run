@@ -1,0 +1,4 @@
+DO NOT forget the RUN "quasar build" before you run this script
+
+docker build -t webapp:v1.0.0 .
+docker run -it --restart unless-stopped --name webapp-instance -p 8080:80 webapp:v1.0.0
