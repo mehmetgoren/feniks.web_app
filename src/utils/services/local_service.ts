@@ -155,10 +155,7 @@ export class LocalService {
     return [
       {value: 0, label: 'FLV'},
       {value: 1, label: 'HLS'},
-      {value: 2, label: 'WebSockets'},
-      //disabled only on UI
-      // { value: 2, label: 'Direct Reader' },
-      // { value: 3, label: 'FFmpeg Reader' },
+      {value: 2, label: 'WebSockets'} // It is PIPE_READER on server side
     ];
   }
 
@@ -422,7 +419,7 @@ export class LocalService {
       rtmp_container_ports: '',
       rtmp_container_commands: '',
 
-      ffmpeg_reader_pid: 0,
+      mp_ffmpeg_reader_owner_pid: 0,
       ffmpeg_reader_frame_rate: 1,
       ffmpeg_reader_width: 640,
       ffmpeg_reader_height: 360,

@@ -22,7 +22,7 @@ export interface StreamModel {
   rtmp_container_ports: string;
   rtmp_container_commands: string;
 
-  ffmpeg_reader_pid: number;
+  mp_ffmpeg_reader_owner_pid: number;
   ffmpeg_reader_frame_rate: number;
   ffmpeg_reader_width: number;
   ffmpeg_reader_height: number;

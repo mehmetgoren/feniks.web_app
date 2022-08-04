@@ -3,7 +3,7 @@
     <q-chip square :class='{"transparent": transparent}' color='primary' text-color='white' icon='videocam'>
       {{ stream.name }} ({{ rtmpType }} / {{ streamType }}{{ (enableBooster ? ' / Boosted' : '') }}{{ (stream.snapshot_enabled ? ' / AI' : '') }})
     </q-chip>
-    <q-icon v-if='stream.record_enabled' name='fiber_manual_record' size='sm' color='red' class='blink_me'>
+    <q-icon style="margin-left: 5px;" v-if='stream.record_enabled' name='fiber_manual_record' size='sm' color='red' class='blink_me'>
       <label style='font-size: x-small; color: black;'>REC</label>
     </q-icon>
     <q-separator style='margin-bottom: 5px;' />
