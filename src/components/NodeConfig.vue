@@ -8,9 +8,10 @@
         <q-tab name='cloud' icon='cloud' label='Cloud'/>
         <q-tab name='general' icon='developer_board' label='General'/>
         <q-tab name='info' icon='analytics' label='Info'/>
+        <q-tab name="others" icon="dashboard" label="Others"/>
       </q-tabs>
       <q-toolbar-title></q-toolbar-title>
-      <CommandBar v-if='tab==="config"' :show-delete='false' @on-save='onSave' @on-restore='onRestore'/>
+      <CommandBar v-if='tab==="config"' :show-delete='false' @on-save='onSave' @on-restore='onRestore'></CommandBar>
     </q-toolbar>
   </div>
 
@@ -208,15 +209,23 @@
 
     <q-space style='height: 10px;'/>
     <q-toolbar class='bg-yellow-14 text-black shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
-      <label style='text-transform: uppercase;font-size: medium'>Node Running Services</label>
+      <label style='text-transform: uppercase;font-size: medium'>Running Services</label>
     </q-toolbar>
     <q-form class='q-pa-xs' style='margin:0 5px 0 5px;'>
-      <q-table :pagination='initialPagination' :rows='services' row-key='name' :columns='servicesColumns' color='yellow-14'/>
+      <q-table :pagination='initialPagination' :rows='services' row-key='name' :columns='servicesColumns' color='yellow-14'>
+        <template v-slot:body-cell-restart='props'>
+          <q-td :props='props' v-if="props.row.instance_type===1">
+              <q-btn color='primary' icon='restart_alt'  label="Restart" @click='onRestartService(props.row)'>
+                <q-inner-loading :showing='restartLoading[props.row.name]' />
+              </q-btn>
+          </q-td>
+        </template>
+      </q-table>
     </q-form>
 
     <q-space style='height: 10px;'/>
     <q-toolbar class='bg-teal text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
-      <label style='text-transform: uppercase;font-size: medium'>Node Users</label>
+      <label style='text-transform: uppercase;font-size: medium'>Users</label>
     </q-toolbar>
     <q-form class='q-pa-xs' style='margin:0 5px 0 5px;'>
       <q-table :pagination='initialPagination' :rows='users' row-key='id' :columns='userColumns' color='teal'>
@@ -240,14 +249,6 @@
 
   </div>
   <div class='q-pa-md q-gutter-sm' v-if='config&&tab==="info"'>
-    <div class='row'>
-      <div class='col-6'>
-        <Dashboard/>
-      </div>
-      <div class='col-6'>
-        <Hub/>
-      </div>
-    </div>
     <div class='row'>
       <q-toolbar class='bg-lime-6 text-white shadow-2 rounded-borders' style='margin-bottom: -12px;'>
         <q-tabs v-model='otherTabs' narrow-indicator inline-label align='left'>
@@ -294,6 +295,17 @@
             <q-separator inset='item'/>
           </q-item>
         </q-list>
+      </div>
+    </div>
+  </div>
+
+  <div class='q-pa-md q-gutter-sm' v-if='config&&tab==="others"'>
+    <div class='row'>
+      <div class='col-6'>
+        <Dashboard/>
+      </div>
+      <div class='col-6'>
+        <Hub/>
       </div>
     </div>
   </div>
@@ -361,6 +373,7 @@ export default {
     const currentNode = ref<Node>(nodeService.LocalService.createEmptyNode());
 
     const services = ref<ServiceModel[]>([]);
+    const restartLoading = ref<any>({});
     const users = ref<User[]>([]);
     const rtmpTemplates = ref<RtspTemplateModel[]>([]);
 
@@ -385,6 +398,9 @@ export default {
 
     const dataBind = async () => {
       const svcs = await nodeService.getServices();
+      for (const svc of svcs){
+        restartLoading.value[svc.name] = false;
+      }
       fixArrayDates(svcs, 'created_at', 'heartbeat');
       services.value = svcs;
       const usrs = await nodeService.getUsers();
@@ -439,6 +455,7 @@ export default {
 
     const onSave = async () => {
       await nodeService.saveConfig(<Config>config.value);
+      await nodeService.restartAllServices();
     };
 
     const onRestore = async () => {
@@ -452,10 +469,19 @@ export default {
     };
 
 
+    const onRestartService = async (service: ServiceModel) => {
+      restartLoading.value[service.name] = true;
+      try{
+        await nodeService.restartService(service);
+      }finally {
+        restartLoading.value[service.name] = false;
+      }
+    };
+
     return {
       config, device, optDeviceTypes, onceDetector, sourceReader,
       jetson, jetsonFilter, ffmpeg, tf, ai, general, ui, db, dbTypes,
-      torch, torchFilter, tfFilter, showScanLoading, users,
+      torch, torchFilter, tfFilter, showScanLoading, users, restartLoading,
       currentNode, tab: ref<string>('config'),
       imageExtensions: ['jpg', 'jpeg', 'png', 'bmp', 'gif'],
       onSave, onRestore, onScanNetwork: function () {
@@ -484,7 +510,8 @@ export default {
       failedStreams, failedStreamsColumns: createFailedStreamsColumns(),
       recStucks, recStucksColumns: createRecStucksColumns(),
       variousInfos,
-      ods, odColumns: createOdColumns()
+      ods, odColumns: createOdColumns(),
+      onRestartService
     };
   }
 };
@@ -522,8 +549,12 @@ function createServiceColumns() {
     {name: 'cpu_count', align: 'left', label: 'Cpu Count', field: 'cpu_count', sortable: true},
     {name: 'ram', align: 'left', label: 'Memory', field: 'ram', sortable: true},
     {name: 'pid', align: 'left', label: 'PID', field: 'pid', sortable: true},
+    {name: 'instance_type', align: 'left', label: 'Instance Type', field: 'instance_type',
+      format: (val: number) => val === 1 ? 'Docker Container' : 'Systemd', sortable: true},
+    {name: 'instance_name', align: 'left', label: 'Instance Name', field: 'instance_name', sortable: true},
     {name: 'created_at', align: 'left', label: 'Created At', field: 'created_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true},
-    {name: 'heartbeat', align: 'left', label: 'Heartbeat', field: 'heartbeat', format: (val: any) => `${val.toLocaleString()}`, sortable: true}
+    {name: 'heartbeat', align: 'left', label: 'Heartbeat', field: 'heartbeat', format: (val: any) => `${val.toLocaleString()}`, sortable: true},
+    {name: 'restart', align: 'center', label: '', field: 'restart'}
   ];
 }
 

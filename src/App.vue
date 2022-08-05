@@ -3,7 +3,7 @@
   <Login v-else/>
 </template>
 <script lang="ts">
-import {defineComponent, ref, watch} from 'vue';
+import {defineComponent, onMounted, ref, watch} from 'vue';
 import Login from 'pages/Login.vue';
 import {User} from 'src/utils/models/user_model';
 import {isNullOrEmpty, userLogout} from 'src/utils/utils';
@@ -11,12 +11,14 @@ import {StoreService} from 'src/utils/services/store_service';
 import {SubscribeService} from 'src/utils/services/websocket_services';
 import {LocalService} from 'src/utils/services/local_service';
 import {useRouter} from 'vue-router';
+import {NodeService} from 'src/utils/services/node_service';
 
 export default defineComponent({
   name: 'App',
   components: {Login},
   setup() {
     const router = useRouter();
+    const nodeService = new NodeService();
     const storeService = new StoreService();
     const currentUser = storeService.currentUser;
     const authenticated = ref<boolean>(currentUser.value != null);
@@ -25,6 +27,10 @@ export default defineComponent({
       if (authenticated.value) {
         void registerUserLogout();
       }
+    });
+
+    onMounted(() => {
+      void nodeService.registerWebAppService();
     });
 
     const registerUserLogout = async () => {

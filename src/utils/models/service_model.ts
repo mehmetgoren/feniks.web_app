@@ -10,6 +10,8 @@ export interface ServiceModel {
   cpu_count: number;
   ram: string;
   pid: number;
+  instance_type: number;
+  instance_name: string;
   created_at: string;
   heartbeat: string;
 }

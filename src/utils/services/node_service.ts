@@ -210,6 +210,26 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
+  public async registerWebAppService():Promise<boolean>{
+    const resp = await api.post(await this.LocalService.getNodeAddress('registerwebappservice'));
+    return resp.data;
+  }
+
+  public async restartService(service: ServiceModel): Promise<boolean> {
+    const resp = await api.post(await this.LocalService.getNodeAddress('restartservice'), service);
+    return resp.data;
+  }
+
+  public async restartAfterCloudChanges():Promise<boolean>{
+    const resp = await api.post(await this.LocalService.getNodeAddress('restartaftercloudchanges'));
+    return resp.data;
+  }
+
+  public async restartAllServices():Promise<boolean>{
+    const resp = await api.post(await this.LocalService.getNodeAddress('restartallservices'));
+    return resp.data;
+  }
+
   public async getUsers(): Promise<User[]> {
     const resp = await api.get(await this.LocalService.getNodeAddress('users'));
     return resp.data;

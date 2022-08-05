@@ -129,6 +129,7 @@ export default {
         }
         await nodeService.saveTelegramViewModel(telegramModel.value);
         await telegramDataBind();
+        await nodeService.restartAfterCloudChanges();
       } finally {
         telegramSubmitLoading.value = false;
       }
@@ -148,6 +149,7 @@ export default {
       try {
         if (gdriveModel.value){
           await nodeService.saveGdriveViewModel(gdriveModel.value);
+          await nodeService.restartAfterCloudChanges();
         }
       }finally {
         gdriveSubmitLoading.value = false;
