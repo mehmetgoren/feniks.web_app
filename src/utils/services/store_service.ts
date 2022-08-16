@@ -62,35 +62,19 @@ export class StoreService {
     return computed(() => this.$store.getters['settings/currentUser']);
   }
 
-  public setCurrentUser(user: User | null) {
-    this.$store.commit('settings/currentUser', user);
+  public get aiSettingsSourceId() {
+    return computed(() => this.$store.getters['settings/aiSettingsSourceId']);
   }
 
-  public setAiSettingsClicked() {
-    this.$store.commit('settings/aiSettingsClicked');
+  public setCurrentUser(user: User | null) {
+    this.$store.commit('settings/currentUser', user);
   }
 
   public setAiSettingsSourceId(sourceId: string) {
     this.$store.commit('settings/aiSettingsSourceId', sourceId);
   }
 
-  public getAiSettingsSourceId(): string {
-    return this.$store.getters['settings/aiSettingsSourceId'];
-  }
-
   public setNotifySourceStreamStatusChanged() {
     this.$store.commit('settings/notifySourceStreamStatusChanged');
-  }
-
-  public get activeLeftMenu() {
-    return computed(() => this.$store.getters['settings/activeLeftMenu']);
-  }
-
-  public get addSourceClicked() {
-    return computed(() => this.$store.getters['settings/addSourceClicked']);
-  }
-
-  public get aiSettingsClicked() {
-    return computed(() => this.$store.getters['settings/aiSettingsClicked']);
   }
 }

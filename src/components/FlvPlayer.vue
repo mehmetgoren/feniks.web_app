@@ -154,7 +154,13 @@ export default {
         return;
       }
       liveTracker.nextSeekedFromUser_ = false;
-      liveTracker.player_.currentTime(liveTracker.liveCurrentTime() - this.myBoosterInterval);
+      const player = liveTracker.player_;
+      player.currentTime(liveTracker.liveCurrentTime() - this.myBoosterInterval);
+      // const dim = player.controlBar.progressControl.currentDimensions();
+      player.controlBar.progressControl.disable();
+      // player.controlBar.progressControl.hide();
+      // player.controlBar.progressControl.dimensions(dim);
+      // player.controlBar.progressControl.show();
       if (this.enableLog) {
         console.log(`FlvPlayer(${this.sourceId}): seekToLiveEdge at ${new Date().toLocaleString()} by ${by}`);
       }

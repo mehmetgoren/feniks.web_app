@@ -8,28 +8,28 @@
         <FlvPlayer v-if='stream&&stream.show&&stream.stream_type===0' :src='stream.src' :source-id='stream.id'
                    :enable-log='false' :ref='setStreamPlayers'
                    :enable-booster='stream.booster_enabled' :seek-to-live-edge-internal='config.ui.seek_to_live_edge_internal' :gallery-index='index'
-                   @user-activity='onUserActivity' :booster-interval="config.ui.booster_interval" />
+                   @user-activity='onUserActivity' :booster-interval="config.ui.booster_interval"/>
         <HlsPlayer v-if='stream&&stream.show&&stream.stream_type===1' :src='stream.src' :source-id='stream.id'
                    :ref='setStreamPlayers' :enable-log='false'
                    :enable-booster='stream.booster_enabled' :seek-to-live-edge-internal='config.ui.seek_to_live_edge_internal' :gallery-index='index'
-                   @user-activity='onUserActivity' />
+                   @user-activity='onUserActivity'/>
         <FFmpegReaderPlayer v-if='stream&&stream.show&&stream.stream_type>1' :source-id='stream.id'
-                            :ref='setStreamPlayers' />
+                            :ref='setStreamPlayers'/>
 
         <StreamCommandBar v-if='stream.show' :stream='stream' :hide='stream.hide' @full-screen='onFullScreen' @stream-stop='onStreamStop'
                           @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh'
                           @deleted='onSourceDeleted' @restart='onRestart' @close='onStreamClose'
                           :take-screenshot-loading='stream.takeScreenshotLoading'
-                          :enable-booster='stream.booster_enabled' :transparent='stream.stream_type<2' />
+                          :enable-booster='stream.booster_enabled' :transparent='stream.stream_type<2'/>
 
-        <q-inner-loading v-if='!stream.show' :showing='true' label='Please wait...' label-class='text-cyan' />
+        <q-inner-loading v-if='!stream.show' :showing='true' label='Please wait...' label-class='text-cyan'/>
       </div>
     </div>
   </div>
-    <q-inner-loading :showing='showLoading' style='text-align: center;'>
-<!--      <q-spinner-gears size='50%' color='cyan' />-->
-      <q-spinner-hourglass size="50%"  color="cyan" />
-    </q-inner-loading>
+  <q-inner-loading :showing='showLoading' style='text-align: center;'>
+    <!--      <q-spinner-gears size='50%' color='cyan' />-->
+    <q-spinner-hourglass size="50%" color="cyan"/>
+  </q-inner-loading>
 </template>
 
 <script lang='ts'>
@@ -37,35 +37,32 @@ import {
   onMounted, reactive, ref, nextTick,
   onBeforeUpdate, onBeforeUnmount
 } from 'vue';
-import { StreamModel } from 'src/utils/models/stream_model';
-import { EditorImageResponseModel } from 'src/utils/entities';
-import { List } from 'linqts';
+import {StreamModel} from 'src/utils/models/stream_model';
+import {EditorImageResponseModel} from 'src/utils/entities';
+import {List} from 'linqts';
 import HlsPlayer from 'components/HlsPlayer.vue';
 import FlvPlayer from 'components/FlvPlayer.vue';
 import FFmpegReaderPlayer from 'components/FFmpegReaderPlayer.vue';
 import StreamCommandBar from 'components/StreamCommandBar.vue';
 import 'gridstack/dist/gridstack.min.css';
-import { GridStack } from 'gridstack';
+import {GridStack} from 'gridstack';
 // THEN to get HTML5 drag&drop
 import 'gridstack/dist/h5/gridstack-dd-native';
 import 'gridstack/dist/gridstack-h5.js';
 // // OR to get legacy jquery-ui drag&drop (support Mobile touch devices, h5 does not yet)
 import 'gridstack/dist/jq/gridstack-dd-jqueryui';
-import { PublishService, SubscribeService } from 'src/utils/services/websocket_services';
-import { WsConnection } from 'src/utils/ws/connection';
-import { checkIpIsLoopBack, isNullOrUndefined, startStream } from 'src/utils/utils';
-import { LocalService, GsLocation } from 'src/utils/services/local_service';
-import { NodeService } from 'src/utils/services/node_service';
-import { Config } from 'src/utils/models/config';
-import { StoreService } from 'src/utils/services/store_service';
+import {PublishService, SubscribeService} from 'src/utils/services/websocket_services';
+import {WsConnection} from 'src/utils/ws/connection';
+import {checkIpIsLoopBack, isNullOrUndefined, startStream} from 'src/utils/utils';
+import {LocalService, GsLocation} from 'src/utils/services/local_service';
+import {NodeService} from 'src/utils/services/node_service';
+import {Config} from 'src/utils/models/config';
+import {StoreService} from 'src/utils/services/store_service';
 // https://v3.vuejs.org/guide/migration/array-refs.html
 export default {
   name: 'LiveStreamGallery',
   components: {
-    HlsPlayer,
-    FlvPlayer,
-    FFmpegReaderPlayer,
-    StreamCommandBar
+    HlsPlayer, FlvPlayer, FFmpegReaderPlayer, StreamCommandBar
   },
   setup() {
     const open = ref<boolean>(false);
@@ -217,10 +214,10 @@ export default {
         const result = parseInt((len / dividing).toString());
         y = result * yMultiplier;
       }
-      let ret: GsLocation = { w, h, x: x, y: y };
+      let ret: GsLocation = {w, h, x: x, y: y};
       const loc = localService.getGsLocation(sourceId);
       if (loc) {
-        ret = { ...loc };
+        ret = {...loc};
       }
       return ret;
     }
@@ -240,12 +237,12 @@ export default {
       }
     }
 
-    function fixVideoJsFullScreenButton(){
+    function fixVideoJsFullScreenButton() {
       setTimeout(() => {
         const fsButtons = document.getElementsByClassName('vjs-fullscreen-control');
-        if (fsButtons && fsButtons.length){
+        if (fsButtons && fsButtons.length) {
           const len = fsButtons.length;
-          for(let j = 0; j < len; ++j){
+          for (let j = 0; j < len; ++j) {
             //@ts-ignore
             fsButtons[j].style.marginRight = '20px';
           }
@@ -364,10 +361,10 @@ export default {
       removeSource(stream);
     }
 
-    function onUserActivity(obj: any){
+    function onUserActivity(obj: any) {
       const sourceId: string = obj.sourceId;
       const stream = new List<StreamExtModel>(streamList).FirstOrDefault(x => x?.id == sourceId);
-      if (stream){
+      if (stream) {
         stream.hide = !obj.userActive;
       }
     }
@@ -376,7 +373,8 @@ export default {
 
     return {
       open, streamList, showLoading, config, minWidth,
-      setStreamPlayers, onFullScreen, onStreamStop, onConnect, onTakeScreenshot, onRefresh, onSourceDeleted, onRestart, onStreamClose, onUserActivity
+      setStreamPlayers, onFullScreen, onStreamStop, onConnect, onTakeScreenshot,
+      onRefresh, onSourceDeleted, onRestart, onStreamClose, onUserActivity
     };
   }
 };
@@ -388,7 +386,7 @@ interface StreamExtModel extends StreamModel {
   size?: string | null;
   loc: GsLocation;
   takeScreenshotLoading: boolean;
-  hide:boolean;
+  hide: boolean;
 }
 </script>
 <style scoped>

@@ -134,6 +134,7 @@ import FrImageGallery from 'components/FrImageGallery.vue';
 import AlprImageGallery from 'components/AlprImageGallery.vue';
 import AiDataSource from 'components/AiDataSource.vue';
 import { StoreService } from 'src/utils/services/store_service';
+import {useRouter} from 'vue-router';
 
 export default {
   name: 'AiSettings',
@@ -146,9 +147,11 @@ export default {
     AiDataSource
   },
   setup() {
+    const router = useRouter();
     const localService = new LocalService();
     const nodeService = new NodeService();
     const storeService = new StoreService();
+    const tab = ref<string>('cocoList');
     const od = ref<OdModel>(localService.createEmptyOd());
     const enabled = ref<boolean>(true);
     const config = ref<Config>();
@@ -163,7 +166,12 @@ export default {
     const inactiveSave = ref<boolean>(false);
     const inactiveRefresh = ref<boolean>(false);
     const separator = 'º';
-    const sourceId = storeService.getAiSettingsSourceId();
+
+    const sourceId = storeService.aiSettingsSourceId;
+    watch(sourceId, () => {
+      tab.value = 'cocoList';
+      void onRefresh();
+    });
 
 
     watch(selectAll, (newValue: boolean) => {
@@ -173,6 +181,11 @@ export default {
     });
 
     onMounted(async () => {
+      if (!sourceId.value){
+        await router.push('node_conf');
+        return;
+      }
+
       inactiveRefresh.value = true;
       config.value = await nodeService.getConfig();
       cocoList.value = convertToCoco(config.value?.device.device_type === 0 ? localService.getCoco80Names() : localService.getCoco91Names());
@@ -206,8 +219,8 @@ export default {
         for (const item of cocoList.value) {
           item.selected = false;
         }
-        if (!isNullOrEmpty(sourceId)) {
-          const odModel = await nodeService.getOd(sourceId);
+        if (!isNullOrEmpty(sourceId.value)) {
+          const odModel = await nodeService.getOd(sourceId.value);
           if (odModel === null) {
             enabled.value = false;
             return;
@@ -242,13 +255,12 @@ export default {
     }
 
     return {
-      od, cocoList, columns, cocoFilter, selectAll, inactiveSave, inactiveRefresh, enabled, separator,
+      tab, od, cocoList, columns, cocoFilter, selectAll, inactiveSave, inactiveRefresh, enabled, separator,
       onSave, onRefresh, handleZonesCoordinatesChanged, handleMasksCoordinatesChanged, onGoBack,
       initialPagination: {
         page: 0,
         rowsPerPage: 10
-      },
-      tab: ref('cocoList')
+      }
     };
   }
 };

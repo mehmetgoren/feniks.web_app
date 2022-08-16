@@ -21,7 +21,7 @@
     "nanoid": "^4.0.0",
     "quasar": "^2.7.7",
     "v-viewer": "^3.0.10",
-    "video.js": "^7.17.0",
+    "video.js": "^7.20.2",
     "videojs-flvjs-es6": "^1.0.1",
     "vue-chart-3": "^3.0.4",
     "vuex": "^4.0.2"

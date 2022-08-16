@@ -27,9 +27,7 @@ export interface ISettingsState {
   menu: MenuObject;
   activeLeftMenu: MenuLink | null;
   sourceLoading: LoadingInfo;
-  addSourceClicked: boolean;
   sourceStreamStatusChanged: boolean;
-  aiSettingsClicked: boolean;
   aiSettingsSourceId: string;
   currentUser: User | null;
 }
@@ -42,19 +40,19 @@ export interface LoadingInfo {
 function state(): ISettingsState {
   const links: MenuItem = {
     config: [
-      { route: 'node?x=config', icon: 'settings', text: 'Configuration', name:'config' },
+      { route: 'node_conf', icon: 'settings', text: 'Configuration', name:'config' },
     ],
     stream_gallery: [
-      { route: 'node?x=stream_gallery', icon: 'apps', text: 'Stream Gallery', name:'stream_gallery' }
+      { route: 'stream_gallery', icon: 'apps', text: 'Stream Gallery', name:'stream_gallery' }
     ],
     add_source:[
-      { route: 'node?x=add_source', icon: 'add_box', text: 'Add Source', name:'add_source' }
+      { route: 'add_source', icon: 'add_box', text: 'Add Source', name:'add_source' }
     ],
-    fr_train:[
-      { route: 'node?x=fr_train', icon: 'face', text: 'Face Training', name:'fr_train' }
+    fr_training:[
+      { route: 'fr_training', icon: 'face', text: 'Face Training', name:'fr_training' }
     ],
     ai_data:[
-      { route: 'node?x=ai_data', icon: 'lens_blur', text: 'AI Data', name:'ai_data' }
+      { route: 'ai_data', icon: 'lens_blur', text: 'AI Data', name:'ai_data' }
     ],
     cameras:[]
   };
@@ -65,9 +63,7 @@ function state(): ISettingsState {
     },
     activeLeftMenu: null,
     sourceLoading: { id: '', loading: false },
-    addSourceClicked: false,
     sourceStreamStatusChanged: false,
-    aiSettingsClicked: false,
     aiSettingsSourceId: '',
     currentUser: null
   };

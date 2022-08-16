@@ -56,14 +56,8 @@ const mutation: MutationTree<ISettingsState> = {
     const cameras = [...state.menu['node']['cameras']];
     state.menu['node']['cameras'] = cameras.filter(x => x.id != sourceId);
   },
-  addSourceClicked(state: ISettingsState){
-    state.addSourceClicked = !state.addSourceClicked;
-  },
   notifySourceStreamStatusChanged(state: ISettingsState){
     state.sourceStreamStatusChanged = !state.sourceStreamStatusChanged;
-  },
-  aiSettingsClicked(state: ISettingsState){
-    state.aiSettingsClicked = !state.aiSettingsClicked;
   },
   aiSettingsSourceId(state: ISettingsState, sourceId: string){
     state.aiSettingsSourceId = sourceId;

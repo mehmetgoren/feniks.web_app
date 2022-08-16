@@ -7,14 +7,6 @@ import {ProbeResult} from 'src/utils/models/various';
 import { date } from 'quasar'
 
 
-export function parseQs(qs = window.location.search): any {
-  const urlSearchParams = new URLSearchParams(qs);
-  const ret: any = {};
-  const arr = urlSearchParams.entries().next().value;
-  ret[arr[0].replace('node?', '')] = arr[1];
-  return ret;
-}
-
 export function myDateToJsDate(dateString: string): Date {
   if (dateString) {
     const splits = dateString.split('_');

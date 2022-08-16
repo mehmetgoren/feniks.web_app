@@ -137,7 +137,7 @@ export default {
         const token = user?.token;
         if (token && token.length && token.length === 8) {
           storeService.setCurrentUser(user);
-          await router.push('node?x=config');
+          await router.push('node_conf');
         } else {
           $q.notify({message: 'Username and/or Password are incorrect', color: 'red'});
         }

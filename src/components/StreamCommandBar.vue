@@ -11,7 +11,7 @@
       <q-btn :dense='dense' color='cyan' rounded glossy icon-right='settings' @click='onSettingsClick'>
         <q-tooltip class='bg-cyan'>Settings</q-tooltip>
       </q-btn>
-      <q-btn :dense='dense' color='secondary' rounded glossy icon='sync' @click='onRefresh'>
+      <q-btn v-if="stream.stream_type!==0" :dense='dense' color='secondary' rounded glossy icon='sync' @click='onRefresh'>
         <q-tooltip class='bg-secondary'>Refresh</q-tooltip>
       </q-btn>
       <q-btn :dense='dense' color='secondary' rounded glossy icon='power' @click='onConnectClick'>
@@ -135,10 +135,8 @@ export default {
     };
 
     const onAiClick = () => {
-      storeService.setAiSettingsClicked();
       storeService.setAiSettingsSourceId(props.stream.id);
-      const route = 'node?x=ai';
-      void router.push(route);
+      void router.push('ai_settings');
     };
     const showOnvif = ref<boolean>(false);
 

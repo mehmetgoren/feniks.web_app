@@ -147,12 +147,11 @@
   <q-dialog v-model='showOnvif' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
     <OnvifSettings :address='selectedSourceAddress' :color='"brown-5"'/>
   </q-dialog>
-
 </template>
 
 <script lang='ts'>
 import {onBeforeUnmount, onMounted, reactive, ref, watch} from 'vue';
-import {useRouter} from 'vue-router';
+import {useRouter, useRoute} from 'vue-router';
 import {NodeService} from 'src/utils/services/node_service';
 import {MenuLink, LoadingInfo} from 'src/store/module-settings/state';
 import {PublishService, SubscribeService} from 'src/utils/services/websocket_services';
@@ -175,6 +174,7 @@ export default {
   },
   setup() {
     const router = useRouter();
+    const route=useRoute();
     const leftDrawerOpen = ref(false);
     const nodeService = new NodeService();
     const localService = nodeService.LocalService;
@@ -221,6 +221,10 @@ export default {
     });
 
     onMounted(async () => {
+      const currentPath = route.path;
+      if (currentPath){
+        activeLeftMenu.value = currentPath.replace('/', '');
+      }
       const nodeIp = await nodeService.LocalService.getNodeIP();
       const subscribeService = new SubscribeService(nodeIp);
       editorConnection = subscribeService.subscribeEditor('ml', (event: MessageEvent) => {
@@ -274,10 +278,8 @@ export default {
     }
 
     const onAiClick = (sourceId: string) => {
-      storeService.setAiSettingsClicked();
       storeService.setAiSettingsSourceId(sourceId);
-      const route = 'node?x=ai';
-      void router.push(route);
+      void router.push('ai_settings');
     };
 
     const onLogoutUser = async () => {
@@ -341,15 +343,16 @@ export default {
       //@ts-ignore
       this.activeLeftMenu = link.name;
       const me: any = this;
-      // if (link.route === 'node') {
-      //   me.$router.push('node-' +  link.route);
-      // }
+      console.log('MenuLayout says: active menu is ' + link.route);
       if (link.route) {
-        console.log('MenuLayout says: active menu is ' + link.route);
-        me.$store.commit('settings/setActiveLeftMenu', link);
-        me.$router.push(link.route);
-        if (link.text === 'Add Source') {
-          me.$store.commit('settings/addSourceClicked');
+        if (link.route === 'add_source'){
+          //@ts-ignore
+          this.selectedSourceId = '';
+          //@ts-ignore
+          this.showSettings = true;
+        }else{
+          me.$store.commit('settings/setActiveLeftMenu', link);
+          me.$router.push(link.route);
         }
       } else if (link.href) {
         window.open(link.href, '_blank');

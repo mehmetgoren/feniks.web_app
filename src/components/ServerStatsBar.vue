@@ -39,7 +39,7 @@
 
   <div class='q-pa-md q-gutter-sm' v-if='showNetwork'>
     <div v-if='network' class='row'>
-      <table>
+      <table class="network-text">
         <tr>
           <td>TOTAL DOWNLOAD</td>
           <td>:</td>
@@ -184,4 +184,7 @@ function fixSingleDigitWidth(human: string): string {
 </script>
 
 <style scoped>
+.network-text{
+  font-size: 13px;
+}
 </style>

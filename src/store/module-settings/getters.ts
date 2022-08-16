@@ -20,14 +20,8 @@ const getters: GetterTree<ISettingsState, IState> = {
   sourceLoading(state : ISettingsState): LoadingInfo {
     return state.sourceLoading;
   },
-  addSourceClicked(state: ISettingsState): boolean{
-    return state.addSourceClicked;
-  },
   sourceStreamStatusChanged(state: ISettingsState): boolean{
     return state.sourceStreamStatusChanged;
-  },
-  aiSettingsClicked(state: ISettingsState): boolean{
-    return state.aiSettingsClicked;
   },
   aiSettingsSourceId(state: ISettingsState): string{
     return state.aiSettingsSourceId;
