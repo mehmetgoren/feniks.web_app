@@ -40,13 +40,18 @@ export default {
     galleryIndex: {
       type: Number,
       default: 0
+    },
+    boosterInterval: {
+      type: Number,
+      default: .3
     }
   },
   data() {
     return {
       player: null,
       prevEvents: {},
-      setIntervalInstance: null
+      setIntervalInstance: null,
+      myBoosterInterval: .3
     };
   },
   mounted() {
@@ -101,6 +106,13 @@ export default {
         }
         return;
       }
+      if (this.boosterInterval !== undefined && this.boosterInterval !== null
+        && this.boosterInterval > 0) {
+        this.myBoosterInterval = this.boosterInterval;
+      }
+      if (this.enableLog){
+        console.log(`FlvPlayer(${this.sourceId}): booster interval is ${this.myBoosterInterval}`);
+      }
       setTimeout(() => {
         const interval = self.seekToLiveEdgeInternal * 1000;
         self.setIntervalInstance = setInterval(() => {
@@ -142,7 +154,7 @@ export default {
         return;
       }
       liveTracker.nextSeekedFromUser_ = false;
-      liveTracker.player_.currentTime(liveTracker.liveCurrentTime() - .3);
+      liveTracker.player_.currentTime(liveTracker.liveCurrentTime() - this.myBoosterInterval);
       if (this.enableLog) {
         console.log(`FlvPlayer(${this.sourceId}): seekToLiveEdge at ${new Date().toLocaleString()} by ${by}`);
       }

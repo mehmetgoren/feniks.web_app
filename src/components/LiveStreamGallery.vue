@@ -8,7 +8,7 @@
         <FlvPlayer v-if='stream&&stream.show&&stream.stream_type===0' :src='stream.src' :source-id='stream.id'
                    :enable-log='false' :ref='setStreamPlayers'
                    :enable-booster='stream.booster_enabled' :seek-to-live-edge-internal='config.ui.seek_to_live_edge_internal' :gallery-index='index'
-                   @user-activity='onUserActivity' />
+                   @user-activity='onUserActivity' :booster-interval="config.ui.booster_interval" />
         <HlsPlayer v-if='stream&&stream.show&&stream.stream_type===1' :src='stream.src' :source-id='stream.id'
                    :ref='setStreamPlayers' :enable-log='false'
                    :enable-booster='stream.booster_enabled' :seek-to-live-edge-internal='config.ui.seek_to_live_edge_internal' :gallery-index='index'

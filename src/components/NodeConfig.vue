@@ -1,8 +1,7 @@
 <template>
   <div class='q-pa-md q-gutter-sm' style='margin-bottom: -35px;'>
     <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='width: 99.5%'>
-      <q-icon name='important_devices' size='28px'/>
-      <label style='text-transform: uppercase;font-size: medium;'> {{ currentNode.name }}</label>
+      <label style='text-transform: uppercase;font-size: medium; font-weight: bold;margin-right: 15px;'> {{ currentNode.name }}</label>
       <q-tabs v-model='tab' narrow-indicator inline-label align='left'>
         <q-tab name='config' icon='settings_applications' label='Config'/>
         <q-tab name='cloud' icon='cloud' label='Cloud'/>

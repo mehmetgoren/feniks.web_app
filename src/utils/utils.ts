@@ -66,9 +66,21 @@ export function getCurrentHour(): string {
   return hourStr;
 }
 
-export function getPrevHourDatetime(separator = '_') {
+export function getAddedHour(addHour: number): string {
+  const today = new Date();
+  const currentHour = today.getHours();
+  today.setHours(currentHour + addHour);
+  const hour = today.getHours();
+  let hourStr = hour.toString();
+  if (hour < 10) {
+    hourStr = '0' + hourStr;
+  }
+  return hourStr;
+}
+
+export function getPrevHourDatetime(prevHour: number, separator = '_') {
   const now = new Date();
-  const prevHourDate = date.addToDate(now, { hours: -1 })
+  const prevHourDate = date.addToDate(now, { hours: -1 * prevHour })
 
   const month = prevHourDate.getMonth() + 1;
   let monthStr = month.toString();
@@ -81,9 +93,9 @@ export function getPrevHourDatetime(separator = '_') {
     dayStr = '0' + dayStr;
   }
 
-  const prevHour = prevHourDate.getHours();
-  let hourStr = prevHour.toString();
-  if (prevHour < 10) {
+  const pvHour = prevHourDate.getHours();
+  let hourStr = pvHour.toString();
+  if (pvHour < 10) {
     hourStr = '0' + hourStr;
   }
   return `${prevHourDate.getFullYear()}${separator}${monthStr}${separator}${dayStr}${separator}${hourStr}`;

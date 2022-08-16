@@ -22,7 +22,8 @@
       </div>
       <div class="col-3">
         <DateTimeSelector :width-date="200" :width-time="125" label-date="End Date" label-time="End Time" :color='color' :dense="false"
-                          :show-hour='true' :allow-minute-selection="true" @date-time-changed='onEndDateTimeChanged'/>
+                          :show-hour='true' :allow-minute-selection="true" @date-time-changed='onEndDateTimeChanged'
+                          :date-string="parseDate(params.end_date_time_str)" :time-string="parseTime(params.end_date_time_str)"/>
       </div>
       <div class="col-3">
         <q-select emit-value map-options filled style="width: 300px" @update:model-value="onSourceIdChanged"
@@ -142,7 +143,7 @@ import VideoPlayer from 'src/components/VideoPlayer.vue';
 import DateTimeSelector from 'components/DateTimeSelector.vue';
 import {SourceModel} from 'src/utils/models/source_model';
 import {NodeService} from 'src/utils/services/node_service';
-import {deepCopy, downloadFile, getCurrentHour, getPrevHourDatetime, getTodayString, myDateToJsDate} from 'src/utils/utils';
+import {deepCopy, downloadFile, getAddedHour, getPrevHourDatetime, getTodayString, myDateToJsDate} from 'src/utils/utils';
 import {setUpDatesAndPaths} from 'src/utils/path_utils';
 import {useQuasar, exportFile} from 'quasar';
 
@@ -158,8 +159,8 @@ export default {
     const params = ref<QueryAiDataAdvancedParams>({
       ai_type: 0,
       source_id: '',
-      start_date_time_str: getPrevHourDatetime(),
-      end_date_time_str: `${getTodayString()}_${getCurrentHour()}`,
+      start_date_time_str: getPrevHourDatetime(1),
+      end_date_time_str: `${getTodayString()}_${getAddedHour(1)}`,
       pred_class_name: '',
       no_preparing_video_file: true,
       sort: {
