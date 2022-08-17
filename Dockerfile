@@ -2,11 +2,11 @@
 FROM node:latest as develop-stage
 WORKDIR /app
 COPY package*.json ./
-RUN yarn global add @quasar/cli
+RUN npm i -g @quasar/cli
 COPY . .
 # build stage
 FROM develop-stage as build-stage
-RUN yarn
+RUN npm install
 RUN quasar build
 # production stage
 FROM nginx:latest as production-stage
