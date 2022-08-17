@@ -10,6 +10,7 @@ RUN npm install
 RUN quasar build
 # production stage
 FROM nginx:latest as production-stage
+RUN apt-get install -y tzdata
 COPY --from=build-stage /app/dist/spa /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

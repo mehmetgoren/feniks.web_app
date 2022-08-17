@@ -261,14 +261,14 @@
       <div v-if='otherTabs==="gpu"' class='q-pa-md q-gutter-sm' style='margin-left: -22px;'>
         <GpuInfo/>
       </div>
-      <div v-if='otherTabs==="failedstreams"' class='q-pa-md q-gutter-sm' style='margin-left: -22px;'>
+      <div v-if='otherTabs==="failedstreams"' class='q-pa-md q-gutter-sm' style='margin-left: -22px;width: 100%;'>
         <q-table :pagination='initialPagination' :rows='failedStreams' row-key='id' :columns='failedStreamsColumns' color='lime-6'/>
       </div>
-      <div v-if='otherTabs==="ods"' class='q-pa-md q-gutter-sm' style='margin-left: -22px;'>
-        <q-table :pagination='initialPagination' :rows='ods' row-key='id' :columns='odColumns' color='lime-6'/>
-      </div>
-      <div v-if='otherTabs==="recstucks"' class='q-pa-md q-gutter-sm' style='margin-left: -22px;'>
+      <div v-if='otherTabs==="recstucks"' class='q-pa-md q-gutter-sm' style='margin-left: -22px;width: 100%;'>
         <q-table :pagination='initialPagination' :rows='recStucks' row-key='id' :columns='recStucksColumns' color='lime-6'/>
+      </div>
+      <div v-if='otherTabs==="ods"' class='q-pa-md q-gutter-sm' style='margin-left: -22px;width: 100%;'>
+        <q-table :pagination='initialPagination' :rows='ods' row-key='id' :columns='odColumns' color='lime-6'/>
       </div>
       <div v-if='otherTabs==="various"' class='q-pa-md q-gutter-sm' style='margin-left: -22px;'>
         <table style='width: 500px;' class="bg-teal-1">
