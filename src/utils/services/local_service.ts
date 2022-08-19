@@ -373,6 +373,9 @@ export class LocalService {
       name: '',
       description: '',
 
+      mac_address: '',
+      ip_address: '',
+
       enabled: true,
       rtmp_server_type: 1, //SRS Realtime
 

@@ -46,7 +46,7 @@ export interface SourceModel {
   record_audio_volume?: number | null;
 
   record_enabled?: boolean | null;
-  ai_clip_enabled?:boolean | null;
+  ai_clip_enabled?: boolean | null;
 
   log_level?: number | null;
   // FFmpegModel section ends
@@ -55,6 +55,9 @@ export interface SourceModel {
   brand?: string | null;
   name?: string | null;
   description?: string | null;
+
+  mac_address?: string | null;
+  ip_address?: string | null;
 
   enabled?: boolean | null;
   rtmp_server_type?: number | null;

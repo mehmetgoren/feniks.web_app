@@ -65,6 +65,17 @@
           <q-space style='height: 10px;'/>
           <q-input v-model.number='ui.seek_to_live_edge_internal' filled dense label='Seek to Live Edge Internal'/>
         </q-form>
+
+        <q-space style='height: 10px;'/>
+        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
+          <label style='text-transform: uppercase;font-size: medium'>Recurrent Jobs Config</label>
+        </q-toolbar>
+        <q-space style='margin: 2px;'/>
+        <q-form class='q-pa-xs' style='margin:0 5px 0 5px;'>
+          <q-toggle v-model='jobs.mac_ip_matching_enabled' filled dense label='Mac IP Matching Enabled'/>
+          <q-space style='height: 10px;'/>
+          <q-input v-model.number='jobs.mac_ip_matching_interval' filled dense label='Mac IP Matching Interval'/>
+        </q-form>
       </div>
 
       <div class='col-4'>
@@ -315,7 +326,7 @@ import {NodeService} from 'src/utils/services/node_service';
 import {onBeforeUnmount, onMounted, ref} from 'vue';
 import {
   Config, JetsonConfig, DeviceConfig, TorchConfig, OnceDetectorConfig, SourceReaderConfig,
-  FFmpegConfig, TensorflowConfig, AiConfig, GeneralConfig, UiConfig, DbConfig
+  FFmpegConfig, TensorflowConfig, AiConfig, GeneralConfig, UiConfig, DbConfig, JobsConfig
 } from 'src/utils/models/config';
 import {PublishService, SubscribeService} from 'src/utils/services/websocket_services';
 import {NetworkDiscoveryModel, OnvifAction, OnvifEvent} from 'src/utils/models/onvif_models';
@@ -354,6 +365,7 @@ export default {
     const ffmpeg = ref<FFmpegConfig>();
     const ai = ref<AiConfig>();
     const ui = ref<UiConfig>();
+    const jobs = ref<JobsConfig>();
 
     //jetson
     const jetson = ref<JetsonConfig>();
@@ -393,6 +405,7 @@ export default {
       jetson.value = c.jetson;
       ai.value = c.ai;
       ui.value = c.ui;
+      jobs.value = c.jobs;
     };
 
     const dataBind = async () => {
@@ -479,7 +492,7 @@ export default {
 
     return {
       config, device, optDeviceTypes, onceDetector, sourceReader,
-      jetson, jetsonFilter, ffmpeg, tf, ai, general, ui, db, dbTypes,
+      jetson, jetsonFilter, ffmpeg, tf, ai, general, ui, jobs, db, dbTypes,
       torch, torchFilter, tfFilter, showScanLoading, users, restartLoading,
       currentNode, tab: ref<string>('config'),
       imageExtensions: ['jpg', 'jpeg', 'png', 'bmp', 'gif'],

@@ -66,6 +66,11 @@ export interface UiConfig{
   seek_to_live_edge_internal:number;
 }
 
+export interface JobsConfig{
+  mac_ip_matching_enabled:boolean;
+  mac_ip_matching_interval: number;
+}
+
 export interface Config {
   device: DeviceConfig;
   jetson: JetsonConfig;
@@ -78,4 +83,5 @@ export interface Config {
   ffmpeg: FFmpegConfig;
   ai: AiConfig;
   ui: UiConfig;
+  jobs: JobsConfig;
 }
