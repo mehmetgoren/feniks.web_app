@@ -161,9 +161,9 @@ export default {
       player.currentTime(liveTracker.liveCurrentTime() - this.myBoosterInterval);
       player.controlBar.progressControl.disable();
       setTimeout(() => {
-        const parent = $('#' + this.videojsId).parent();
-        parent.find('.vjs-loading-spinner').remove();
-        parent.find('.vjs-progress-control').css('visibility', 'hidden')
+        const vj = $('#' + this.videojsId);
+        vj.find('.vjs-loading-spinner').remove();
+        vj.find('.vjs-progress-control').css('visibility', 'hidden')
       }, 500)
 
       if (this.enableLog) {
