@@ -156,7 +156,6 @@ export default {
     };
 
     function onSubscribeStartStream(event: MessageEvent) {
-      console.log('onSubscribeStartStream(event) called');
       const streamModel: StreamModel = JSON.parse(event.data);
       addPlayer(streamModel, true);
     }
@@ -274,7 +273,6 @@ export default {
       connStopStream = subscribeService.subscribeStopStream(openStopStreamMessage);
 
       connTakeScreenshot = subscribeService.subscribeEditor('lsg', (event: MessageEvent) => {
-        console.log('subscribeEditor(event) called');
         const responseModel: EditorImageResponseModel = JSON.parse(event.data);
         if (responseModel.event_type != 1) {
           return;

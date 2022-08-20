@@ -1,5 +1,5 @@
 <template>
-  <video ref='videoPlayer' class='video-js' controls preload='auto'>
+  <video :id="videojsId" ref='videoPlayer' class='video-js' controls preload='auto'>
     <source :src='src' type='video/x-flv'>
   </video>
 </template>
@@ -8,9 +8,11 @@
 import 'video.js/dist/video-js.css';
 import videojs from 'video.js';
 import 'videojs-flvjs-es6';
+import { v4 as uuidv4 } from 'uuid';
 
 export default {
   name: 'FlvPlayer',
+  emits: ['user-activity'],
   props: {
     src: {
       type: String,
@@ -51,7 +53,8 @@ export default {
       player: null,
       prevEvents: {},
       setIntervalInstance: null,
-      myBoosterInterval: .3
+      myBoosterInterval: .3,
+      videojsId: uuidv4()
     };
   },
   mounted() {
@@ -156,13 +159,13 @@ export default {
       liveTracker.nextSeekedFromUser_ = false;
       const player = liveTracker.player_;
       player.currentTime(liveTracker.liveCurrentTime() - this.myBoosterInterval);
-      // const dim = player.controlBar.progressControl.currentDimensions();
       player.controlBar.progressControl.disable();
-      // player.controlBar.progressControl.hide();
-      // player.controlBar.progressControl.dimensions(dim);
-      // player.controlBar.progressControl.show();
-      $('.vjs-progress-control').css('visibility', 'hidden');
-      $('.vjs-loading-spinner').remove();
+      setTimeout(() => {
+        const parent = $('#' + this.videojsId).parent();
+        parent.find('.vjs-loading-spinner').remove();
+        parent.find('.vjs-progress-control').css('visibility', 'hidden')
+      }, 500)
+
       if (this.enableLog) {
         console.log(`FlvPlayer(${this.sourceId}): seekToLiveEdge at ${new Date().toLocaleString()} by ${by}`);
       }
@@ -234,8 +237,4 @@ export default {
   height: 100%;
   margin-bottom: -85px;
 }
-
-/*.vjs-loading-spinner {*/
-/*  display: none !important;*/
-/*}*/
 </style>
