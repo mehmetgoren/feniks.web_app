@@ -11,7 +11,7 @@
       <q-btn :dense='dense' color='cyan' rounded glossy icon-right='settings' @click='onSettingsClick'>
         <q-tooltip class='bg-cyan'>Settings</q-tooltip>
       </q-btn>
-      <q-btn v-if="stream.stream_type!==0" :dense='dense' color='secondary' rounded glossy icon='sync' @click='onRefresh'>
+      <q-btn :dense='dense' color='secondary' rounded glossy icon='sync' @click='onRefresh'>
         <q-tooltip class='bg-secondary'>Refresh</q-tooltip>
       </q-btn>
       <q-btn :dense='dense' color='secondary' rounded glossy icon='power' @click='onConnectClick'>
@@ -28,8 +28,7 @@
       </q-btn>
       <q-btn :dense='dense' color='purple' rounded glossy icon='photo_camera' @click='onTakeScreenshot'>
         <q-tooltip class='bg-accent'>Take a screenshot</q-tooltip>
-        <q-inner-loading :showing='takeScreenshotLoading'>
-        </q-inner-loading>
+        <q-inner-loading :showing='takeScreenshotLoading' :size="dense?'32px':'42px'" />
       </q-btn>
       <q-btn :dense='dense' color='orange' rounded glossy icon='psychology' @click='onAiClick'>
         <q-tooltip class='bg-orange'>AI</q-tooltip>

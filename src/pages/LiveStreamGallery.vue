@@ -5,24 +5,24 @@
          :key='stream.id' :gs-w='stream.loc.w' :gs-h='stream.loc.h'
          :gs-x='stream.loc.x' :gs-y='stream.loc.y' :gs-id='stream.id' :gs-min-w='minWidth'>
       <div class='grid-stack-item-content' style='overflow: hidden !important;'>
-        <FlvPlayer v-if='stream&&stream.show&&stream.stream_type===0' :src='stream.src' :source-id='stream.id'
+        <FlvPlayer v-if='stream.show&&stream.stream_type===0' :src='stream.src' :source-id='stream.id'
                    :enable-log='false' :ref='setStreamPlayers'
                    :enable-booster='stream.booster_enabled' :seek-to-live-edge-internal='config.ui.seek_to_live_edge_internal' :gallery-index='index'
-                   @user-activity='onUserActivity' :booster-interval="config.ui.booster_interval"/>
-        <HlsPlayer v-if='stream&&stream.show&&stream.stream_type===1' :src='stream.src' :source-id='stream.id'
-                   :ref='setStreamPlayers' :enable-log='false'
+                   @user-activity='onUserActivity' :booster-interval="config.ui.booster_interval" />
+        <HlsPlayer v-if='stream.show&&stream.stream_type===1' :src='stream.src' :source-id='stream.id'
+                   :enable-log='false' :ref='setStreamPlayers'
                    :enable-booster='stream.booster_enabled' :seek-to-live-edge-internal='config.ui.seek_to_live_edge_internal' :gallery-index='index'
-                   @user-activity='onUserActivity'/>
-        <FFmpegReaderPlayer v-if='stream&&stream.show&&stream.stream_type>1' :source-id='stream.id'
-                            :ref='setStreamPlayers'/>
+                   @user-activity='onUserActivity' />
+        <FFmpegReaderPlayer v-if='stream.show&&stream.stream_type===2' :source-id='stream.id'
+                            :ref='setStreamPlayers' />
 
         <StreamCommandBar v-if='stream.show' :stream='stream' :hide='stream.hide' @full-screen='onFullScreen' @stream-stop='onStreamStop'
                           @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh'
                           @deleted='onSourceDeleted' @restart='onRestart' @close='onStreamClose'
                           :take-screenshot-loading='stream.takeScreenshotLoading'
-                          :enable-booster='stream.booster_enabled' :transparent='stream.stream_type<2'/>
+                          :enable-booster='stream.booster_enabled' :transparent='stream.stream_type<2' />
 
-        <q-inner-loading v-if='!stream.show' :showing='true' label='Please wait...' label-class='text-cyan'/>
+        <q-inner-loading :showing='!stream.show' label='Please wait...' label-class='text-cyan' />
       </div>
     </div>
   </div>
@@ -69,7 +69,6 @@ export default {
     const publishService = new PublishService();
     const storeService = new StoreService();
     let connStartStream: WsConnection | null = null;
-    let connStopStream: WsConnection | null = null;
     let connTakeScreenshot: WsConnection | null = null;
     const localService = new LocalService();
     const nodeService = new NodeService();
@@ -100,6 +99,10 @@ export default {
     const onStreamStop = (stream: StreamExtModel) => {
       void publishService.publishStopStream(<any>stream);
       storeService.setNotifySourceStreamStatusChanged();
+      stream.show = false;
+      setTimeout(() => {
+        removeSource(stream);
+      }, 3000);
     };
     const streamList = reactive<Array<StreamExtModel>>([]);
     //
@@ -118,7 +121,7 @@ export default {
     };
 
     const addPlayer = (streamModel: StreamModel, isStartStream: boolean) => {
-      if (new List<any>(streamList).FirstOrDefault(x => x.id == streamModel.id) == null) {
+      const getUrlFn = (): string => {
         let url = '';
         switch (streamModel.stream_type) {
           case 0: //FLV
@@ -128,14 +131,17 @@ export default {
           case 1: //HLS
             url = localService.getHlsAddress(serverIp, streamModel.id);
             break;
-          case 2: //Direct Reader
-          case 3: //FFmpeg Reader
+          case 2: //Websockets
             break;
           default:
             throw new Error(`Stream type is not supported: ${streamModel.stream_type}`);
         }
+        return url
+      };
+      const stream = findById(streamModel.id);
+      if (stream == null) {
         const stream: StreamExtModel = <any>streamModel;
-        stream.src = url;
+        stream.src = getUrlFn();
         stream.show = true;
         stream.loc = getGsLayout(stream.id);
         stream.takeScreenshotLoading = false;
@@ -146,6 +152,13 @@ export default {
           loadInitGrid(() => storeService.setSourceLoading(stream.id, false));
         }
       } else {
+        setTimeout(() => {
+          stream.src = getUrlFn();
+          stream.takeScreenshotLoading = false;
+          stream.hide = false;
+          stream.show = true;
+          setTimeout(() => onRefresh(stream), 3000);
+        }, 3000);
         if (isStartStream) {
           storeService.setSourceLoading(streamModel.id, false);
         }
@@ -261,17 +274,6 @@ export default {
       config.value = cf;
       connStartStream = subscribeService.subscribeStartStream(onSubscribeStartStream);
 
-      function openStopStreamMessage(event: MessageEvent) {
-        const responseEvent = JSON.parse(event.data);
-        const player = new List(streamPlayers).FirstOrDefault(x => x.sourceId === responseEvent.id);
-        if (player) {
-          player.pause();
-          removeSource(responseEvent);
-        }
-      }
-
-      connStopStream = subscribeService.subscribeStopStream(openStopStreamMessage);
-
       connTakeScreenshot = subscribeService.subscribeEditor('lsg', (event: MessageEvent) => {
         const responseModel: EditorImageResponseModel = JSON.parse(event.data);
         if (responseModel.event_type != 1) {
@@ -293,9 +295,6 @@ export default {
       if (connStartStream) {
         connStartStream.close();
       }
-      if (connStopStream) {
-        connStopStream.close();
-      }
       if (connTakeScreenshot) {
         connTakeScreenshot.close();
       }
@@ -309,7 +308,7 @@ export default {
       }, waitInterval);
     }
 
-    function removeSource(stream: StreamExtModel): boolean {
+    function removeSource(stream: StreamExtModel) {
       let index = -1;
       for (let j = 0; j < streamList.length; ++j) {
         if (streamList[j].id == stream.id) {
@@ -318,18 +317,17 @@ export default {
         }
       }
       if (index > -1) {
+        stream.show = false;
         streamList.splice(index, 1);
         localService.deleteGsLocation(stream.id);
-        return true;
       }
-      return false;
     }
 
     async function onConnect(stream: StreamExtModel) {
       if (isNullOrUndefined(stream)) {
         return;
       }
-      removeSource(stream);
+
       const sourceModel = await nodeService.getSource(stream.id);
       startStream(storeService, publishService, sourceModel);
     }
@@ -345,14 +343,13 @@ export default {
       });
     }
 
+    // Handled by MainLayout stream command bar publish connection
     function onRestart(stream: StreamExtModel) {
-      removeSource(stream);
+      stream.show = false;
     }
 
     function onSourceDeleted(stream: StreamExtModel) {
-      if (removeSource(stream)) {
-        onRefresh(stream);
-      }
+      removeSource(stream);
     }
 
     function onStreamClose(stream: StreamExtModel) {
@@ -368,6 +365,10 @@ export default {
     }
 
     //events ends
+
+    const findById = (sourceId: string) => {
+      return new List<any>(streamList).FirstOrDefault(x => x.id == sourceId);
+    }
 
     return {
       open, streamList, showLoading, config, minWidth,

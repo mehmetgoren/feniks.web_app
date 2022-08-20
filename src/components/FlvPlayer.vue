@@ -1,14 +1,16 @@
 <template>
-  <video :id="videojsId" ref='videoPlayer' class='video-js' controls preload='auto'>
-    <source :src='src' type='video/x-flv'>
-  </video>
+  <div class='video-player' style='width: 100%;height: 100%;margin-bottom: -85px;'>
+    <video :id="videojsId" ref='videoPlayer' class='video-js' controls preload='auto'>
+      <source :src='src' type='video/x-flv'>
+    </video>
+  </div>
 </template>
 
 <script>
 import 'video.js/dist/video-js.css';
 import videojs from 'video.js';
 import 'videojs-flvjs-es6';
-import { v4 as uuidv4 } from 'uuid';
+import {v4 as uuidv4} from 'uuid';
 
 export default {
   name: 'FlvPlayer',
@@ -113,7 +115,7 @@ export default {
         && this.boosterInterval > 0) {
         this.myBoosterInterval = this.boosterInterval;
       }
-      if (this.enableLog){
+      if (this.enableLog) {
         console.log(`FlvPlayer(${this.sourceId}): booster interval is ${this.myBoosterInterval}`);
       }
       setTimeout(() => {
