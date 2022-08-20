@@ -223,13 +223,34 @@
     </q-toolbar>
     <q-form class='q-pa-xs' style='margin:0 5px 0 5px;'>
       <q-table :pagination='initialPagination' :rows='services' row-key='name' :columns='servicesColumns' color='yellow-14'>
+
         <template v-slot:body-cell-restart='props'>
           <q-td :props='props' v-if="props.row.instance_type===1">
-              <q-btn color='primary' icon='restart_alt'  label="Restart" @click='onRestartService(props.row)'>
+              <q-btn color='primary' icon='restart_alt' @click='onRestartService(props.row)'>
+                <q-tooltip>Restart the Service</q-tooltip>
                 <q-inner-loading :showing='restartLoading[props.row.name]' />
               </q-btn>
           </q-td>
         </template>
+
+        <template v-slot:body-cell-start='props'>
+          <q-td :props='props' v-if="props.row.instance_type===1">
+            <q-btn color='secondary' icon='play_circle' @click='onStartService(props.row)'>
+              <q-tooltip>Start the Service</q-tooltip>
+              <q-inner-loading :showing='startLoading[props.row.name]' />
+            </q-btn>
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-stop='props'>
+          <q-td :props='props' v-if="props.row.instance_type===1">
+            <q-btn color='red' icon='stop_circle' @click='onStopService(props.row)'>
+              <q-tooltip>Stop the Service</q-tooltip>
+              <q-inner-loading :showing='stopLoading[props.row.name]' />
+            </q-btn>
+          </q-td>
+        </template>
+
       </q-table>
     </q-form>
 
@@ -385,6 +406,8 @@ export default {
 
     const services = ref<ServiceModel[]>([]);
     const restartLoading = ref<any>({});
+    const startLoading = ref<any>({});
+    const stopLoading = ref<any>({});
     const users = ref<User[]>([]);
     const rtmpTemplates = ref<RtspTemplateModel[]>([]);
 
@@ -490,10 +513,28 @@ export default {
       }
     };
 
+    const onStartService = async (service: ServiceModel) => {
+      startLoading.value[service.name] = true;
+      try{
+        await nodeService.startService(service);
+      }finally {
+        startLoading.value[service.name] = false;
+      }
+    };
+
+    const onStopService = async (service: ServiceModel) => {
+      stopLoading.value[service.name] = true;
+      try{
+        await nodeService.stopService(service);
+      }finally {
+        stopLoading.value[service.name] = false;
+      }
+    };
+
     return {
       config, device, optDeviceTypes, onceDetector, sourceReader,
       jetson, jetsonFilter, ffmpeg, tf, ai, general, ui, jobs, db, dbTypes,
-      torch, torchFilter, tfFilter, showScanLoading, users, restartLoading,
+      torch, torchFilter, tfFilter, showScanLoading, users, restartLoading, startLoading, stopLoading,
       currentNode, tab: ref<string>('config'),
       imageExtensions: ['jpg', 'jpeg', 'png', 'bmp', 'gif'],
       onSave, onRestore, onScanNetwork: function () {
@@ -523,7 +564,7 @@ export default {
       recStucks, recStucksColumns: createRecStucksColumns(),
       variousInfos,
       ods, odColumns: createOdColumns(),
-      onRestartService
+      onRestartService, onStartService, onStopService
     };
   }
 };
@@ -550,10 +591,17 @@ function createNetworkColumns() {
 
 function createServiceColumns() {
   return [
+    {name: 'restart', align: 'center', label: '', field: 'restart'},
+    {name: 'start', align: 'center', label: '', field: 'start'},
+    {name: 'stop', align: 'center', label: '', field: 'stop'},
     {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
     {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
     {name: 'platform', align: 'left', label: 'Platform', field: 'platform', sortable: true},
+    {name: 'created_at', align: 'left', label: 'Created At', field: 'created_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true},
+    {name: 'heartbeat', align: 'left', label: 'Heartbeat', field: 'heartbeat', format: (val: any) => `${val.toLocaleString()}`, sortable: true},
     {name: 'platform_version', align: 'left', label: 'Platform Version', field: 'platform_version', sortable: true},
+    {name: 'instance_type', align: 'left', label: 'Instance Type', field: 'instance_type',
+      format: (val: number) => val === 1 ? 'Docker Container' : 'Systemd', sortable: true},
     {name: 'hostname', align: 'left', label: 'Hostname', field: 'hostname', sortable: true},
     {name: 'ip_address', align: 'left', label: 'Ip Address', field: 'ip_address', sortable: true},
     {name: 'mac_address', align: 'left', label: 'Mac Address', field: 'mac_address', sortable: true},
@@ -561,12 +609,7 @@ function createServiceColumns() {
     {name: 'cpu_count', align: 'left', label: 'Cpu Count', field: 'cpu_count', sortable: true},
     {name: 'ram', align: 'left', label: 'Memory', field: 'ram', sortable: true},
     {name: 'pid', align: 'left', label: 'PID', field: 'pid', sortable: true},
-    {name: 'instance_type', align: 'left', label: 'Instance Type', field: 'instance_type',
-      format: (val: number) => val === 1 ? 'Docker Container' : 'Systemd', sortable: true},
-    {name: 'instance_name', align: 'left', label: 'Instance Name', field: 'instance_name', sortable: true},
-    {name: 'created_at', align: 'left', label: 'Created At', field: 'created_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true},
-    {name: 'heartbeat', align: 'left', label: 'Heartbeat', field: 'heartbeat', format: (val: any) => `${val.toLocaleString()}`, sortable: true},
-    {name: 'restart', align: 'center', label: '', field: 'restart'}
+    {name: 'instance_name', align: 'left', label: 'Instance Name', field: 'instance_name', sortable: true}
   ];
 }
 

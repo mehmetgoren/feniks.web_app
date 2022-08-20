@@ -215,6 +215,16 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
+  public async stopService(service: ServiceModel): Promise<boolean> {
+    const resp = await api.post(await this.LocalService.getNodeAddress('stopservice'), service);
+    return resp.data;
+  }
+
+  public async startService(service: ServiceModel): Promise<boolean> {
+    const resp = await api.post(await this.LocalService.getNodeAddress('startservice'), service);
+    return resp.data;
+  }
+
   public async restartService(service: ServiceModel): Promise<boolean> {
     const resp = await api.post(await this.LocalService.getNodeAddress('restartservice'), service);
     return resp.data;
