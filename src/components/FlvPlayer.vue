@@ -161,6 +161,8 @@ export default {
       // player.controlBar.progressControl.hide();
       // player.controlBar.progressControl.dimensions(dim);
       // player.controlBar.progressControl.show();
+      $('.vjs-progress-control').css('visibility', 'hidden');
+      $('.vjs-loading-spinner').remove();
       if (this.enableLog) {
         console.log(`FlvPlayer(${this.sourceId}): seekToLiveEdge at ${new Date().toLocaleString()} by ${by}`);
       }
@@ -232,4 +234,8 @@ export default {
   height: 100%;
   margin-bottom: -85px;
 }
+
+/*.vjs-loading-spinner {*/
+/*  display: none !important;*/
+/*}*/
 </style>
