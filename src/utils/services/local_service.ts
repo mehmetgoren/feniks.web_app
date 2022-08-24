@@ -659,6 +659,24 @@ export class LocalService {
       active: false
     };
   }
+
+  public createDeepStackPerformanceModes(): SelectOption[] {
+    return [
+      {value: 0, label: 'Low'},
+      {value: 1, label: 'Medium'},
+      {value: 2, label: 'High'}
+    ];
+  }
+
+  public createDeepStackDockerTypes(): SelectOption[] {
+    return [
+      {value: 0, label: 'CPU'},
+      {value: 1, label: 'GPU'},
+      {value: 2, label: 'NVIDIA JETSON'},
+      {value: 3, label: 'ARM64'},
+      {value: 4, label: 'ARM64_SERVER'}
+    ];
+  }
 }
 
 

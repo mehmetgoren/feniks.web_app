@@ -194,6 +194,33 @@
           <q-input v-model.trim='jetson.model_name' filled dense label='Model Name'/>
         </q-form>
 
+        <q-space style='height: 10px;'/>
+        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin: 0 10px 0 10px;width: auto;'>
+          <label style='text-transform: uppercase;font-size: medium'>DeepStack Config</label>
+        </q-toolbar>
+        <q-space style='margin: 2px;'/>
+        <q-form id='frm4' class='q-pa-xs' style='margin: 0 10px 0 10px'>
+          <q-input v-model.trim='deepstack.server_url' filled dense label='Server URL'/>
+          <q-space style='height: 10px;'/>
+          <q-input v-model.number='deepstack.server_port' filled dense label='Server Port'/>
+          <q-space style='height: 10px;'/>
+          <q-select emit-value map-options filled dense v-model='deepstack.performance_mode' :options='deepStackPerOpts'
+                    label='Performance Mode'/>
+          <q-space style='height: 10px;'/>
+          <q-input type="password" v-model.trim='deepstack.api_key' filled dense label='Api Key'/>
+          <q-space style='height: 10px;'/>
+          <q-toggle v-model='deepstack.od_enabled' filled dense label='Object Detection Enabled'/>
+          <q-space style='height: 10px;'/>
+          <q-input v-model.number='deepstack.od_threshold' filled dense label='Object Detection Threshold'/>
+          <q-space style='height: 10px;'/>
+          <q-toggle v-model='deepstack.fr_enabled' filled dense label='Face Recognition Enabled'/>
+          <q-space style='height: 10px;'/>
+          <q-input v-model.number='deepstack.fr_threshold' filled dense label='Face Recognition Threshold'/>
+          <q-space style='height: 10px;'/>
+          <q-select emit-value map-options filled dense v-model='deepstack.docker_type' :options='deepStackDockerTypes'
+                    label='Performance Mode'/>
+        </q-form>
+
       </div>
 
     </div>
@@ -347,7 +374,8 @@ import {NodeService} from 'src/utils/services/node_service';
 import {onBeforeUnmount, onMounted, ref} from 'vue';
 import {
   Config, JetsonConfig, DeviceConfig, TorchConfig, OnceDetectorConfig, SourceReaderConfig,
-  FFmpegConfig, TensorflowConfig, AiConfig, GeneralConfig, UiConfig, DbConfig, JobsConfig
+  FFmpegConfig, TensorflowConfig, AiConfig, GeneralConfig, UiConfig, DbConfig, JobsConfig,
+  DeepStackConfig
 } from 'src/utils/models/config';
 import {PublishService, SubscribeService} from 'src/utils/services/websocket_services';
 import {NetworkDiscoveryModel, OnvifAction, OnvifEvent} from 'src/utils/models/onvif_models';
@@ -365,6 +393,7 @@ import GpuInfo from 'components/GpuInfo.vue';
 import {FailedStreamModel, RecStuckModel, RtspTemplateModel, VariousInfos} from 'src/utils/models/others_models';
 import {OdModel} from 'src/utils/models/od_model';
 import Cloud from 'components/Cloud.vue';
+import {SelectOption} from 'src/utils/services/local_service';
 
 export default {
   name: 'NodeConfig',
@@ -387,6 +416,9 @@ export default {
     const ai = ref<AiConfig>();
     const ui = ref<UiConfig>();
     const jobs = ref<JobsConfig>();
+    const deepstack = ref<DeepStackConfig>();
+    const deepStackPerOpts = ref<SelectOption[]>(nodeService.LocalService.createDeepStackPerformanceModes());
+    const deepStackDockerTypes = ref<SelectOption[]>(nodeService.LocalService.createDeepStackDockerTypes());
 
     //jetson
     const jetson = ref<JetsonConfig>();
@@ -429,6 +461,7 @@ export default {
       ai.value = c.ai;
       ui.value = c.ui;
       jobs.value = c.jobs;
+      deepstack.value = c.deep_stack;
     };
 
     const dataBind = async () => {
@@ -533,8 +566,9 @@ export default {
 
     return {
       config, device, optDeviceTypes, onceDetector, sourceReader,
-      jetson, jetsonFilter, ffmpeg, tf, ai, general, ui, jobs, db, dbTypes,
+      jetson, jetsonFilter, ffmpeg, tf, ai, general, ui, jobs, db, dbTypes, deepstack,
       torch, torchFilter, tfFilter, showScanLoading, users, restartLoading, startLoading, stopLoading,
+      deepStackPerOpts, deepStackDockerTypes,
       currentNode, tab: ref<string>('config'),
       imageExtensions: ['jpg', 'jpeg', 'png', 'bmp', 'gif'],
       onSave, onRestore, onScanNetwork: function () {

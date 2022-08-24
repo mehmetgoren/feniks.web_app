@@ -71,6 +71,18 @@ export interface JobsConfig{
   mac_ip_matching_interval: number;
 }
 
+export interface DeepStackConfig{
+  server_url:string;
+  server_port:number;
+  performance_mode:number;
+  api_key:string;
+  od_enabled: boolean;
+  od_threshold: number;
+  fr_enabled: boolean;
+  fr_threshold: number;
+  docker_type: number;
+}
+
 export interface Config {
   device: DeviceConfig;
   jetson: JetsonConfig;
@@ -84,4 +96,5 @@ export interface Config {
   ai: AiConfig;
   ui: UiConfig;
   jobs: JobsConfig;
+  deep_stack: DeepStackConfig;
 }
