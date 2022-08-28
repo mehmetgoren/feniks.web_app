@@ -279,7 +279,6 @@ export default {
         if (responseModel.event_type != 1) {
           return;
         }
-        window.location.href = 'data:application/octet-stream;base64,' + responseModel.image_base64;
         const stream = new List<StreamExtModel>(streamList).FirstOrDefault(x => x?.id == responseModel.id);
         if (stream) {
           stream.takeScreenshotLoading = false;

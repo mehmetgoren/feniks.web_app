@@ -199,7 +199,7 @@
           <label style='text-transform: uppercase;font-size: medium'>DeepStack Config</label>
         </q-toolbar>
         <q-space style='margin: 2px;'/>
-        <q-form id='frm4' class='q-pa-xs' style='margin: 0 10px 0 10px'>
+        <q-form id='frm14' class='q-pa-xs' style='margin: 0 10px 0 10px'>
           <q-input v-model.trim='deepstack.server_url' filled dense label='Server URL'/>
           <q-space style='height: 10px;'/>
           <q-input v-model.number='deepstack.server_port' filled dense label='Server Port'/>

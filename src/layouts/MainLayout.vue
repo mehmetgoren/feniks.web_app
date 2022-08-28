@@ -229,11 +229,16 @@ export default {
       const subscribeService = new SubscribeService(nodeIp);
       editorConnection = subscribeService.subscribeEditor('ml', (event: MessageEvent) => {
         const responseModel: EditorImageResponseModel = JSON.parse(event.data);
-        if (responseModel.event_type == 2) {
-          storeService.setSourceThumbnail(responseModel);
+        switch (responseModel.event_type){
+          case 1:
+            window.location.href = 'data:application/octet-stream;base64,' + responseModel.image_base64;
+            break
+          case 2:
+            storeService.setSourceThumbnail(responseModel);
+            localService.saveThumbnail(responseModel.id??'', responseModel.image_base64);
+            break
         }
         storeService.setSourceLoading(<string>responseModel.id, false);
-        localService.saveThumbnail(responseModel.id??'', responseModel.image_base64);
       });
 
       await loadSources();
