@@ -13,8 +13,7 @@ export class PublishService extends BaseService {
   }
 
   private async getPublishEndpointRoot(): Promise<string> {
-    const nodeIp = await this.LocalService.getNodeIP();
-    return `${this.LocalService.nodeHttpProtocol}://${nodeIp}:${this.LocalService.nodePort}`;
+    return await this.LocalService.getNodeAddress('')
   }
 
   public async publishStartStream(source: SourceModel): Promise<void> {
@@ -63,10 +62,12 @@ export class PublishService extends BaseService {
 
 export class SubscribeService extends BaseService {
   private readonly nodeIp: string;
+  private readonly nodePort: number;
 
-  constructor(nodeIp: string) {
+  constructor(nodeIp: string, nodePort: number) {
     super();
     this.nodeIp = nodeIp;
+    this.nodePort = nodePort;
   }
 
   private setAuth(route: string, extendedQs: string | null) {
@@ -80,42 +81,42 @@ export class SubscribeService extends BaseService {
   }
 
   public subscribeStartStream(onMessage: ((this: WebSocket, ev: MessageEvent) => any)): WsConnection {
-    return new WsConnection(this.nodeIp, this.setAuth('wsstartstream', null), onMessage);
+    return new WsConnection(this.nodeIp, this.nodePort, this.setAuth('wsstartstream', null), onMessage);
   }
 
   public subscribeStopStream(onMessage: ((this: WebSocket, ev: MessageEvent) => any)): WsConnection {
-    return new WsConnection(this.nodeIp, this.setAuth('wsstopstream', null), onMessage);
+    return new WsConnection(this.nodeIp, this.nodePort, this.setAuth('wsstopstream', null), onMessage);
   }
 
   public subscribeEditor(requester: string, onMessage: ((this: WebSocket, ev: MessageEvent) => any)): WsConnection {
-    return new WsConnection(this.nodeIp, this.setAuth('wseditor', `requester=${requester}`), onMessage);
+    return new WsConnection(this.nodeIp, this.nodePort, this.setAuth('wseditor', `requester=${requester}`), onMessage);
   }
 
   public subscribeFFmpegRead(sourceId: string, onMessage: ((this: WebSocket, ev: MessageEvent) => any)): WsConnection {
-    return new WsConnection(this.nodeIp, this.setAuth('wsffmpegreader', `id=${sourceId}`), onMessage);
+    return new WsConnection(this.nodeIp, this.nodePort, this.setAuth('wsffmpegreader', `id=${sourceId}`), onMessage);
   }
 
   public subscribeOnvif(onMessage: ((this: WebSocket, ev: MessageEvent) => any)): WsConnection {
-    return new WsConnection(this.nodeIp, this.setAuth('wsonvif', null), onMessage);
+    return new WsConnection(this.nodeIp, this.nodePort, this.setAuth('wsonvif', null), onMessage);
   }
 
   public subscribeVideomerge(onMessage: ((this: WebSocket, ev: MessageEvent) => any)): WsConnection {
-    return new WsConnection(this.nodeIp, this.setAuth('wsvideomerge', null), onMessage);
+    return new WsConnection(this.nodeIp, this.nodePort, this.setAuth('wsvideomerge', null), onMessage);
   }
 
   public subscribeFrTrain(onMessage: ((this: WebSocket, ev: MessageEvent) => any)): WsConnection {
-    return new WsConnection(this.nodeIp, this.setAuth('wsfrtrain', null), onMessage);
+    return new WsConnection(this.nodeIp, this.nodePort, this.setAuth('wsfrtrain', null), onMessage);
   }
 
   public subscribeProbe(onMessage: ((this: WebSocket, ev: MessageEvent) => any)): WsConnection {
-    return new WsConnection(this.nodeIp, this.setAuth('wsprobe', null), onMessage);
+    return new WsConnection(this.nodeIp, this.nodePort, this.setAuth('wsprobe', null), onMessage);
   }
 
   public subscribeNotifier(onMessage: ((this: WebSocket, ev: MessageEvent) => any)): WsConnection {
-    return new WsConnection(this.nodeIp, this.setAuth('wsnotifier', null), onMessage);
+    return new WsConnection(this.nodeIp, this.nodePort, this.setAuth('wsnotifier', null), onMessage);
   }
 
   public subscribeUserLogout(onMessage: ((this: WebSocket, ev: MessageEvent) => any)): WsConnection {
-    return new WsConnection(this.nodeIp, this.setAuth('wsuserlogout', null), onMessage);
+    return new WsConnection(this.nodeIp, this.nodePort, this.setAuth('wsuserlogout', null), onMessage);
   }
 }

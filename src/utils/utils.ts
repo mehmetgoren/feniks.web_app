@@ -201,7 +201,7 @@ export function formatJson(json: string): string{
   return JSON.stringify(JSON.parse(json), null, '\t');
 }
 
-export async function userLogout(localService: LocalService, storeService: StoreService, router: any) {
+export async function doUserLogout(localService: LocalService, storeService: StoreService, router: any) {
   localService.setCurrentUser(null);
   storeService.setCurrentUser(null);
   await router.push('/');

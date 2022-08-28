@@ -199,7 +199,7 @@
           <label style='text-transform: uppercase;font-size: medium'>DeepStack Config</label>
         </q-toolbar>
         <q-space style='margin: 2px;'/>
-        <q-form id='frm14' class='q-pa-xs' style='margin: 0 10px 0 10px'>
+        <q-form id='frm15' class='q-pa-xs' style='margin: 0 10px 0 10px'>
           <q-input v-model.trim='deepstack.server_url' filled dense label='Server URL'/>
           <q-space style='height: 10px;'/>
           <q-input v-model.number='deepstack.server_port' filled dense label='Server Port'/>
@@ -478,7 +478,8 @@ export default {
 
     onMounted(async () => {
       const nodeIp = await nodeService.LocalService.getNodeIP();
-      const subscribeService = new SubscribeService(nodeIp);
+      const nodePort = await nodeService.LocalService.getNodePort();
+      const subscribeService = new SubscribeService(nodeIp, nodePort);
 
       const an = await new NodeRepository().getActiveNode();
       if (an) {
@@ -693,8 +694,8 @@ function createFailedStreamsColumns() {
 function createRecStucksColumns() {
   const align = 'left';
   return [
-    {name: 'brand', align, label: 'Brand', field: 'brand', sortable: true},
     {name: 'name', align, label: 'Name', field: 'name', sortable: true},
+    {name: 'brand', align, label: 'Brand', field: 'brand', sortable: true},
     {name: 'address', align, label: 'Address', field: 'address', sortable: true},
 
     {name: 'record_segment_interval', align, label: 'Record Segment Interval', field: 'record_segment_interval', sortable: true},

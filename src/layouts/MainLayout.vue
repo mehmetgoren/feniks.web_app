@@ -161,7 +161,7 @@ import SourceRecords from 'components/SourceRecords.vue';
 import OnvifSettings from 'components/OnvifSettings.vue';
 import ServerStatsBar from 'components/ServerStatsBar.vue';
 import {SourceModel} from 'src/utils/models/source_model';
-import {createEmptyBase64Image, startStream, userLogout} from 'src/utils/utils';
+import {createEmptyBase64Image, startStream, doUserLogout} from 'src/utils/utils';
 import {StoreService} from 'src/utils/services/store_service';
 import {WsConnection} from 'src/utils/ws/connection';
 import Notifier from 'components/Notifier.vue';
@@ -226,7 +226,8 @@ export default {
         activeLeftMenu.value = currentPath.replace('/', '');
       }
       const nodeIp = await nodeService.LocalService.getNodeIP();
-      const subscribeService = new SubscribeService(nodeIp);
+      const nodePort = await nodeService.LocalService.getNodePort();
+      const subscribeService = new SubscribeService(nodeIp, nodePort);
       editorConnection = subscribeService.subscribeEditor('ml', (event: MessageEvent) => {
         const responseModel: EditorImageResponseModel = JSON.parse(event.data);
         switch (responseModel.event_type){
@@ -289,7 +290,7 @@ export default {
 
     const onLogoutUser = async () => {
       await nodeService.logoutUser(currentUser.value);
-      await userLogout(nodeService.LocalService, storeService, router);
+      await doUserLogout(nodeService.LocalService, storeService, router);
     };
 
     return {

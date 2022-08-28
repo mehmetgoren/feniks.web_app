@@ -183,7 +183,8 @@ export default {
 
     onMounted(async () => {
       const nodeIp = await nodeService.LocalService.getNodeIP();
-      const subscribeService = new SubscribeService(nodeIp);
+      const nodePort = await nodeService.LocalService.getNodePort();
+      const subscribeService = new SubscribeService(nodeIp, nodePort);
 
       nodeAddress.value = await nodeService.LocalService.getNodeAddress('');
       stream.value = await nodeService.getStream(props.sourceId);

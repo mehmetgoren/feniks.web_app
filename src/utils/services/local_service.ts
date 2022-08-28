@@ -10,8 +10,8 @@ export class LocalService {
 
   private readonly rep: NodeRepository = new NodeRepository();
 
-  public getHlsAddress(nodeIp: string, sourceId: string) {
-    return `${this.nodeHttpProtocol}://${nodeIp}:${this.nodePort}/livestream/${sourceId}/stream.m3u8`;
+  public getHlsAddress(nodeIp: string, nodePort: number, sourceId: string) {
+    return `${this.nodeHttpProtocol}://${nodeIp}:${nodePort}/livestream/${sourceId}/stream.m3u8`;
   }
 
   get hubHttpProtocol(): string {
@@ -43,15 +43,20 @@ export class LocalService {
     return '';
   }
 
-  get nodePort(): string {
-    return '2072';
+  async getNodePort(): Promise<number> {
+    const node = await this.rep.getActiveNode();
+    if (node) {
+      return node.node_port;
+    }
+    return 8072;
   }
 
   public async getNodeAddress(route: string): Promise<string> {
     const nodeIp = await this.getNodeIP();
+    const nodePort = await this.getNodePort();
     if (isNullOrEmpty(route))
-      return `${this.nodeHttpProtocol}://${nodeIp}:${this.nodePort}`;
-    return `${this.nodeHttpProtocol}://${nodeIp}:${this.nodePort}/${route}`;
+      return `${this.nodeHttpProtocol}://${nodeIp}:${nodePort}`;
+    return `${this.nodeHttpProtocol}://${nodeIp}:${nodePort}/${route}`;
   }
 
   public setCurrentUser(user: User | null) {
@@ -654,6 +659,7 @@ export class LocalService {
   public createEmptyNode(): Node {
     return {
       name: '',
+      node_port:8072,
       node_address: '',
       description: '',
       active: false

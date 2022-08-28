@@ -2,12 +2,13 @@
   <q-layout view='lHh lpr lFf' container style='height: 600px' class='shadow-2 rounded-borders'>
     <q-header elevated class='bg-cyan'>
       <q-toolbar>
-        <q-btn flat round dense icon='settings' />
+        <q-btn flat round dense icon='settings'/>
         <q-toolbar-title>
           <label style='text-transform: uppercase;font-size: medium'> {{ source.name }}</label>
         </q-toolbar-title>
-        <q-space />
-        <CommandBar :show-restore='false' @on-save='onSave' :inactive-save='inactives.save' @on-delete='onDelete' :inactive-delete='inactives.delete' />
+        <q-space/>
+        <CommandBar :show-restore='false' @on-save='onSave' :inactive-save='inactives.save' @on-delete='onDelete'
+                    :inactive-delete='inactives.delete'/>
         <q-btn dense flat icon='close' v-close-popup>
           <q-tooltip class='bg-white text-primary'>Close</q-tooltip>
         </q-btn>
@@ -19,29 +20,29 @@
 
         <div class='q-pa-md'>
           <q-btn-group push>
-            <q-btn push label='Basics' color='cyan' icon='videocam' @click='step=1' />
-            <q-btn push label='Connection' color='cyan' icon='power' @click='step=2' />
-            <q-btn push label='Input' color='cyan' icon='input' @click='step=3' />
-            <q-btn push label='Stream' color='cyan' icon='live_tv' @click='step=4' />
-            <q-btn push label='Snapshot for AI' color='cyan' icon='psychology' @click='step=5' />
-            <q-btn v-if='source.record_enabled' push label='Recording' color='cyan' icon='radio_button_checked' @click='step=6' />
-            <q-btn push label='Logging' color='cyan' icon='announcement' @click='step=7' />
+            <q-btn push label='Basics' color='cyan' icon='videocam' @click='step=1'/>
+            <q-btn push label='Connection' color='cyan' icon='power' @click='step=2'/>
+            <q-btn push label='Input' color='cyan' icon='input' @click='step=3'/>
+            <q-btn push label='Stream' color='cyan' icon='live_tv' @click='step=4'/>
+            <q-btn push label='Snapshot for AI' color='cyan' icon='psychology' @click='step=5'/>
+            <q-btn v-if='source.record_enabled' push label='Recording' color='cyan' icon='radio_button_checked' @click='step=6'/>
+            <q-btn push label='Logging' color='cyan' icon='announcement' @click='step=7'/>
           </q-btn-group>
-          <q-space style='margin-bottom: 5px;' />
+          <q-space style='margin-bottom: 5px;'/>
 
           <q-stepper v-model='step' vertical color='cyan' animated>
             <q-step id='step1' :name='1' color='cyan' title='Source Basic Settings' icon='settings' :done='step > 1'>
               <q-form class='q-gutter-md'>
-                <q-checkbox dense v-model='source.enabled' color='cyan' label='Enable' />
+                <q-checkbox dense v-model='source.enabled' color='cyan' label='Enable'/>
                 <q-input dense filled v-model.trim='source.name' label='Name' color='cyan'
-                         lazy-rules :rules="[ val => val && val.length > 0 || 'Please type something']" />
-                <q-input dense filled v-model.trim='source.brand' label='Brand' color='cyan' />
-                <q-input dense filled v-model.trim='source.description' label='Description' color='cyan' />
+                         lazy-rules :rules="[ val => val && val.length > 0 || 'Please type something']"/>
+                <q-input dense filled v-model.trim='source.brand' label='Brand' color='cyan'/>
+                <q-input dense filled v-model.trim='source.description' label='Description' color='cyan'/>
                 <q-toggle dense v-model='source.record_enabled' color='red' @update:model-value='onRecordChange'
-                          :label='"Record " + (source.record_enabled ? "On" : "Off")' />
+                          :label='"Record " + (source.record_enabled ? "On" : "Off")'/>
               </q-form>
               <q-stepper-navigation>
-                <q-btn @click='onStep1Click' color='cyan' label='Continue' />
+                <q-btn @click='onStep1Click' color='cyan' label='Continue'/>
               </q-stepper-navigation>
             </q-step>
 
@@ -49,12 +50,12 @@
               <q-form class='q-gutter-md'>
                 <q-input dense filled v-model.trim='source.address' color='cyan' label='Address'
                          lazy-rules :rules="[ val => val && val.length > 0 || 'Please type something']">
-                  <template v-slot:prepend  v-if="recommendedRtspAddresses.length">
-                    <q-icon name="list" >
+                  <template v-slot:prepend v-if="recommendedRtspAddresses.length">
+                    <q-icon name="list">
                       <q-popup-proxy>
                         <q-list bordered separator>
                           <q-item clickable v-ripple v-for="ra in recommendedRtspAddresses" :key="ra" @click="() => source.address = ra">
-                            <q-item-section>{{ra}}</q-item-section>
+                            <q-item-section>{{ ra }}</q-item-section>
                           </q-item>
                         </q-list>
                       </q-popup-proxy>
@@ -65,48 +66,48 @@
                       <q-tooltip transition-show="rotate" transition-hide="rotate">
                         Find Optimal Settings for Camera
                       </q-tooltip>
-                      <q-inner-loading :showing='showFindOptimalSettings' />
+                      <q-inner-loading :showing='showFindOptimalSettings'/>
                     </q-btn>
-                    <q-btn dense color='brown-5' flat icon='settings_ethernet' label='Hack By ONVIF©' @click='showOnvif = true' />
+                    <q-btn dense color='brown-5' flat icon='settings_ethernet' label='Hack By ONVIF©' @click='showOnvif = true'/>
                   </template>
                 </q-input>
                 <q-select dense emit-value map-options filled v-model='source.rtsp_transport'
                           :options='rtspTransports' label='RTSP Transport' transition-show='flip-up'
-                          transition-hide='flip-down' color='cyan' />
+                          transition-hide='flip-down' color='cyan'/>
               </q-form>
               <q-stepper-navigation>
-                <q-btn @click='step = 3' color='cyan' label='Continue' />
-                <q-btn flat @click='step = 1' color='cyan' label='Back' class='q-ml-sm' />
+                <q-btn @click='step = 3' color='cyan' label='Continue'/>
+                <q-btn flat @click='step = 1' color='cyan' label='Back' class='q-ml-sm'/>
               </q-stepper-navigation>
             </q-step>
 
             <q-step id='step3' :name='3' title='Input' icon='input' color='cyan'>
               <q-form class='q-gutter-md'>
                 <q-input dense filled v-model.number='source.analyzation_duration' type='number'
-                         label='Analyzation Duration' color='cyan' />
+                         label='Analyzation Duration' color='cyan'/>
                 <q-input dense filled v-model.number='source.probe_size' type='number' label='Probe Size'
-                         color='cyan' />
+                         color='cyan'/>
                 <q-input dense filled v-model.number='source.input_frame_rate' type='number' label='FPS'
-                         hint='Frame Rate' color='cyan' />
+                         hint='Frame Rate' color='cyan'/>
                 <q-toggle dense v-model='source.use_camera_timestamp' checked-icon='check'
-                          label='Use Camera Timestamps' color='cyan' />
-                <q-space />
+                          label='Use Camera Timestamps' color='cyan'/>
+                <q-space/>
                 <q-toggle dense v-model='source.use_hwaccel' checked-icon='check'
-                          label='Use Hardware Accelerator' color='cyan' />
+                          label='Use Hardware Accelerator' color='cyan'/>
                 <q-select v-if='source.use_hwaccel' dense emit-value map-options filled
                           v-model='source.hwaccel_engine' color='cyan'
                           :options='accelerationEngines' label='Acceleration Engine' transition-show='scale'
-                          transition-hide='scale' />
+                          transition-hide='scale'/>
                 <q-select v-if='source.use_hwaccel' dense emit-value map-options filled
                           v-model='source.video_decoder' color='cyan'
                           :options='videoDecoders' label='Video Decoders' transition-show=''
-                          transition-hide='scale' />
+                          transition-hide='scale'/>
                 <q-input v-if='source.use_hwaccel' dense filled v-model.trim='source.hwaccel_device'
-                         label='HWAccel Device' color='cyan' />
+                         label='HWAccel Device' color='cyan'/>
               </q-form>
               <q-stepper-navigation>
-                <q-btn @click='step = 4' color='cyan' label='Continue' />
-                <q-btn flat @click='step = 2' color='cyan' label='Back' class='q-ml-sm' />
+                <q-btn @click='step = 4' color='cyan' label='Continue'/>
+                <q-btn flat @click='step = 2' color='cyan' label='Back' class='q-ml-sm'/>
               </q-stepper-navigation>
             </q-step>
 
@@ -115,103 +116,104 @@
                 <q-select dense emit-value map-options filled
                           v-model='source.rtmp_server_type' color='cyan'
                           :options='rtmpServerTypes' label='RTMP Server' transition-show='flip-up'
-                          transition-hide='flip-down' />
+                          transition-hide='flip-down'/>
                 <q-select dense emit-value map-options filled
                           v-model='source.stream_type' color='cyan' @update:model-value='onStreamTypeChanged'
                           :options='streamTypes' label='Stream Type' transition-show='flip-up'
-                          transition-hide='flip-down' />
+                          transition-hide='flip-down'/>
                 <q-toggle v-if='source.stream_type < 2' dense v-model='source.booster_enabled' checked-icon='check' color='cyan'
-                          :label='"Booster " + (source.booster_enabled ? "Enabled" : "Disabled")' />
+                          :label='"Booster " + (source.booster_enabled ? "Enabled" : "Disabled")'/>
                 <q-select dense emit-value map-options filled v-model='source.stream_video_codec' color='cyan'
-                          :options='streamVideoCodecs' label='Video Codec' transition-show='scale' transition-hide='scale' />
+                          :options='streamVideoCodecs' label='Video Codec' transition-show='scale' transition-hide='scale'/>
                 <q-select v-if='source.stream_video_codec !== 3' dense emit-value
                           map-options filled color='cyan' v-model='source.preset'
-                          :options='presets' label='Preset' transition-show='scale' transition-hide='scale' />
+                          :options='presets' label='Preset' transition-show='scale' transition-hide='scale'/>
                 <q-input v-if='source.stream_video_codec !== 3' dense filled
                          v-model.number='source.stream_quality' color='cyan'
                          type='number' min='2' max='31'
-                         label='Quality' />
+                         label='Quality'/>
                 <q-input v-if='source.stream_video_codec !== 3' dense filled
                          v-model.number='source.stream_frame_rate' color='cyan'
-                         type='number' label='Frame Rate' />
+                         type='number' label='Frame Rate'/>
                 <q-input v-if='source.stream_video_codec !== 3' dense filled
                          v-model.number='source.stream_width' color='cyan'
-                         type='number' label='Width' />
+                         type='number' label='Width'/>
                 <q-input v-if='source.stream_video_codec !== 3' dense filled
                          v-model.number='source.stream_height' color='cyan'
-                         type='number' label='Height' />
+                         type='number' label='Height'/>
                 <q-select v-if='source.stream_video_codec !== 3' dense emit-value
                           map-options filled v-model='source.stream_rotate' color='cyan'
-                          :options='streamRotations' label='Rotate' transition-show='scale' transition-hide='scale' />
+                          :options='streamRotations' label='Rotate' transition-show='scale' transition-hide='scale'/>
                 <q-select dense emit-value map-options filled
                           v-model='source.stream_audio_codec' color='cyan' :disable='source.stream_type>1&&!source.record_enabled'
                           :options='audioCodecs' label='Audio Codec' transition-show='scale'
-                          transition-hide='scale' />
+                          transition-hide='scale'/>
                 <q-select v-if='source.stream_audio_codec !== 0 && source.stream_audio_codec !== 8' dense emit-value
                           map-options filled
                           v-model='source.stream_audio_channel' color='cyan'
                           :options='audioChannels' label='Audio Channel' transition-show='flip-up'
-                          transition-hide='flip-down' />
+                          transition-hide='flip-down'/>
                 <q-select v-if='source.stream_audio_codec !== 0 && source.stream_audio_codec !== 8' dense emit-value
                           map-options filled
                           v-model='source.stream_audio_quality' color='cyan'
                           :options='audioQualities' label='Audio Quality' transition-show='scale'
-                          transition-hide='scale' />
+                          transition-hide='scale'/>
                 <q-select v-if='source.stream_audio_codec !== 0 && source.stream_audio_codec !== 8' dense emit-value
                           map-options filled
                           v-model='source.stream_audio_sample_rate' color='cyan'
                           :options='audioSampleRates' label='Audio SampleRate' transition-show='scale'
-                          transition-hide='scale' />
+                          transition-hide='scale'/>
                 <q-input v-if='source.stream_audio_codec !== 0 && source.stream_audio_codec !== 8' dense filled
                          v-model.number='source.stream_audio_volume'
-                         label='Audio Volume' color='cyan' />
+                         label='Audio Volume' color='cyan'/>
 
                 <q-input v-if='source.stream_type>1' dense filled
                          v-model.number='source.ffmpeg_reader_frame_rate'
-                         type='number' label='Reader Frame Rate' color='cyan' />
+                         type='number' label='Reader Frame Rate' color='cyan'/>
                 <q-input v-if='source.stream_type>1' dense filled
                          v-model.number='source.ffmpeg_reader_width' color='cyan'
-                         type='number' label='Reader Width' />
+                         type='number' label='Reader Width'/>
                 <q-input v-if='source.stream_type>1' dense filled
                          v-model.number='source.ffmpeg_reader_height' color='cyan'
-                         type='number' label='Reader Height' />
+                         type='number' label='Reader Height'/>
 
                 <q-input v-if='source.stream_video_codec === 2 && source.stream_type===1' dense filled
                          v-model.number='source.hls_time' type='number' color='cyan'
-                         label='HLS Segment Length' />
+                         label='HLS Segment Length'/>
                 <q-input v-if='source.stream_video_codec === 2 && source.stream_type===1' dense filled
                          v-model.number='source.hls_list_size' color='cyan'
                          type='number'
-                         label='HLS List Size' />
+                         label='HLS List Size'/>
               </q-form>
 
               <q-stepper-navigation>
-                <q-btn @click='step = 5' color='cyan' label='Continue' />
-                <q-btn flat @click='step = 3' color='cyan' label='Back' class='q-ml-sm' />
+                <q-btn @click='step = 5' color='cyan' label='Continue'/>
+                <q-btn flat @click='step = 3' color='cyan' label='Back' class='q-ml-sm'/>
               </q-stepper-navigation>
             </q-step>
 
             <q-step id='step5' :name='5' title='Snapshot for AI' icon='psychology' color='cyan' :done='step > 5'>
               <q-form class='q-gutter-md'>
                 <q-toggle dense v-model='source.snapshot_enabled' checked-icon='check' color='cyan'
-                          :label='"AI Snapshot " + (source.snapshot_enabled ? "Enabled" : "Disabled")' />
+                          :label='"AI Snapshot " + (source.snapshot_enabled ? "Enabled" : "Disabled")'/>
                 <q-select v-if='source.snapshot_enabled' dense emit-value
                           map-options filled v-model='source.snapshot_type' color='cyan'
-                          :options='snapshotTypes' label='Snapshot Type' transition-show='scale' transition-hide='scale' >
-                  <q-tooltip><strong>Be Careful about OpenCV Persistent type since it demands hardware much more and requires a different service running.</strong></q-tooltip>
+                          :options='snapshotTypes' label='Snapshot Type' transition-show='scale' transition-hide='scale'>
+                  <q-tooltip><strong>Be Careful about OpenCV Persistent type since it demands hardware much more and requires a different service
+                    running.</strong></q-tooltip>
                 </q-select>
                 <q-input v-if='source.snapshot_enabled' dense filled v-model.number='source.snapshot_frame_rate'
-                         type='number' label='Frame Rate' color='cyan' />
+                         type='number' label='Frame Rate' color='cyan'/>
                 <q-input v-if='source.snapshot_enabled' dense filled v-model.number='source.snapshot_width'
-                         type='number' label='Width' />
+                         type='number' label='Width'/>
                 <q-input v-if='source.snapshot_enabled' dense filled v-model.number='source.snapshot_height'
-                         type='number' label='Height' color='cyan' />
+                         type='number' label='Height' color='cyan'/>
                 <q-toggle dense v-if='source.snapshot_enabled&&source.record_enabled' v-model='source.ai_clip_enabled'
-                          checked-icon='check' color='cyan' :label='"AI Clip Enabled " + (source.ai_clip_enabled ? "Enabled" : "Disabled")' />
+                          checked-icon='check' color='cyan' :label='"AI Clip Enabled " + (source.ai_clip_enabled ? "Enabled" : "Disabled")'/>
               </q-form>
               <q-stepper-navigation>
-                <q-btn @click='step = source.record_enabled ? 6 : 7' color='cyan' label='Continue' />
-                <q-btn flat @click='step = 4' color='cyan' label='Back' class='q-ml-sm' />
+                <q-btn @click='step = source.record_enabled ? 6 : 7' color='cyan' label='Continue'/>
+                <q-btn flat @click='step = 4' color='cyan' label='Back' class='q-ml-sm'/>
               </q-stepper-navigation>
             </q-step>
 
@@ -221,60 +223,60 @@
                 <q-select dense emit-value map-options filled
                           v-model='source.record_file_type' color='cyan'
                           :options='recordFileTypes' label='Record File Type'
-                          transition-show='scale' transition-hide='scale' />
+                          transition-show='scale' transition-hide='scale'/>
                 <q-select dense emit-value map-options filled v-model='source.record_video_codec'
                           :options='recordVideoCodecs' label='Record Video Codec' color='cyan'
-                          transition-show='scale' transition-hide='scale' />
+                          transition-show='scale' transition-hide='scale'/>
                 <q-input v-if='showRecordDetail' dense filled v-model.number='source.record_quality'
-                         type='number' label='Record Quality' color='cyan' />
+                         type='number' label='Record Quality' color='cyan'/>
                 <q-select v-if='showRecordDetail' dense emit-value map-options filled
                           v-model='source.record_preset' color='cyan'
                           :options='recordPresets' label='Record Preset'
-                          transition-show='scale' transition-hide='scale' />
+                          transition-show='scale' transition-hide='scale'/>
                 <q-input v-if='showRecordDetail' dense filled v-model.number='source.record_frame_rate'
-                         type='number' label='Video Record Frame Rate' color='cyan' />
+                         type='number' label='Video Record Frame Rate' color='cyan'/>
                 <q-input v-if='showRecordDetail' dense filled v-model.number='source.record_width'
                          type='number'
-                         label='Record Width' color='cyan' />
+                         label='Record Width' color='cyan'/>
                 <q-input v-if='showRecordDetail' dense filled v-model.number='source.record_height'
                          type='number'
-                         label='Record Height' color='cyan' />
+                         label='Record Height' color='cyan'/>
                 <q-input dense filled v-model.number='source.record_segment_interval'
-                         type='number' label='Record Segment Interval' color='cyan' />
+                         type='number' label='Record Segment Interval' color='cyan'/>
                 <q-select v-if='showRecordDetail' dense emit-value map-options filled
                           v-model='source.record_rotate' color='cyan'
                           :options='recordRotations' label='Record Rotate' transition-show='scale'
-                          transition-hide='scale' />
+                          transition-hide='scale'/>
                 <q-select emit-value map-options dense filled v-model='source.record_audio_codec'
                           :options='audioCodecs' label='Record Audio Codec' color='cyan'
-                          transition-show='scale' transition-hide='scale' />
+                          transition-show='scale' transition-hide='scale'/>
                 <q-select v-if='source.record_audio_codec !== 0 && source.record_audio_codec !== 8' dense emit-value map-options filled
                           v-model='source.record_audio_channel' color='cyan'
                           :options='audioChannels' label='Audio Channel' transition-show='flip-up'
-                          transition-hide='flip-down' />
+                          transition-hide='flip-down'/>
                 <q-select v-if='source.record_audio_codec !== 0 && source.record_audio_codec !== 8' dense emit-value map-options filled
                           v-model='source.record_audio_quality' color='cyan'
                           :options='audioQualities' label='Audio Quality' transition-show='scale'
-                          transition-hide='scale' />
+                          transition-hide='scale'/>
                 <q-select v-if='source.record_audio_codec !== 0 && source.record_audio_codec !== 8' dense emit-value map-options filled
                           v-model='source.record_audio_sample_rate' color='cyan'
                           :options='audioSampleRates' label='Audio SampleRate' transition-show='scale'
-                          transition-hide='scale' />
+                          transition-hide='scale'/>
                 <q-input v-if='source.record_audio_codec !== 0 && source.record_audio_codec !== 8' dense filled
                          v-model.number='source.record_audio_volume'
-                         label='Audio Volume' color='cyan' />
+                         label='Audio Volume' color='cyan'/>
               </q-form>
               <q-stepper-navigation>
-                <q-btn @click='step = 7' color='cyan' label='Continue' />
-                <q-btn flat @click='step = 5' color='cyan' label='Back' class='q-ml-sm' />
+                <q-btn @click='step = 7' color='cyan' label='Continue'/>
+                <q-btn flat @click='step = 5' color='cyan' label='Back' class='q-ml-sm'/>
               </q-stepper-navigation>
             </q-step>
 
             <q-step id='step7' :name='7' title='Logging' icon='announcement' color='cyan'>
               <q-select dense emit-value map-options filled v-model='source.log_level' :options='logLevels'
-                        label='Log Level' transition-show='scale' transition-hide='scale' color='cyan' />
+                        label='Log Level' transition-show='scale' transition-hide='scale' color='cyan'/>
               <q-stepper-navigation>
-                <q-btn flat @click='step = source.record_enabled ? 6 : 5' color='cyan' label='Back' class='q-ml-sm' />
+                <q-btn flat @click='step = source.record_enabled ? 6 : 5' color='cyan' label='Back' class='q-ml-sm'/>
               </q-stepper-navigation>
             </q-step>
 
@@ -285,29 +287,29 @@
   </q-layout>
 
   <q-dialog v-model='showOnvif' full-width full-height>
-    <OnvifSettings :color='"brown-5"' :address='source.address' />
+    <OnvifSettings :color='"brown-5"' :address='source.address'/>
   </q-dialog>
 
 </template>
 
 <script lang='ts'>
 import {ref, computed, onMounted, nextTick, onBeforeUnmount} from 'vue';
-import { SourceModel } from 'src/utils/models/source_model';
+import {SourceModel} from 'src/utils/models/source_model';
 import CommandBar from 'src/components/CommandBar.vue';
 import OnvifSettings from 'components/OnvifSettings.vue';
-import { NodeService } from 'src/utils/services/node_service';
-import { useQuasar } from 'quasar';
+import {NodeService} from 'src/utils/services/node_service';
+import {useQuasar} from 'quasar';
 import {PublishService, SubscribeService} from 'src/utils/services/websocket_services';
 import {findBestSettings, isNullOrEmpty, isNullOrUndefined} from 'src/utils/utils';
-import { LocalService } from 'src/utils/services/local_service';
-import { StoreService } from 'src/utils/services/store_service';
+import {LocalService} from 'src/utils/services/local_service';
+import {StoreService} from 'src/utils/services/store_service';
 import {WsConnection} from 'src/utils/ws/connection';
 import {ProbeResponseEvent, ProbeResult} from 'src/utils/models/various';
 
 declare var $: any;
 export default {
   name: 'SourceSettings',
-  components: { CommandBar, OnvifSettings },
+  components: {CommandBar, OnvifSettings},
   emits: ['on-save', 'on-delete'],
   props: {
     sourceId: {
@@ -317,7 +319,7 @@ export default {
     }
   },
   //@ts-ignore
-  setup(props: any, { emit }) {
+  setup(props: any, {emit}) {
     const localService = new LocalService();
     const source = ref<SourceModel>(localService.createEmptySource());
     const showRecordDetail = computed(() => {
@@ -345,40 +347,41 @@ export default {
     const recordPresets = ref(localService.createPresets());
     const recordRotations = ref(localService.createRotations());
     const snapshotTypes = ref(localService.createSnapshotTypes());
-    const inactives = ref({ save: false, delete: false });
+    const inactives = ref({save: false, delete: false});
     const showOnvif = ref<boolean>(false);
     const recommendedRtspAddresses = ref<string[]>([]);
     const showFindOptimalSettings = ref<boolean>(false);
 
     const publishService = new PublishService();
     const $q = useQuasar();
-    let to : NodeJS.Timer | null = null;
+    let to: NodeJS.Timer | null = null;
     let conn: WsConnection | null = null;
 
     onMounted(async () => {
       if (!isNullOrEmpty(props.sourceId)) {
         source.value = await nodeService.getSource(props.sourceId);
-      }else{
+      } else {
         const onfn = await nodeService.getOnvifNetwork();
-        if (onfn&&onfn.results){
-          for (const r of onfn.results){
-            if (r.address){
+        if (onfn && onfn.results) {
+          for (const r of onfn.results) {
+            if (r.address) {
               recommendedRtspAddresses.value.push(`rtsp://user:password@${r.address}/route`);
             }
           }
         }
       }
 
-      const subscribeService = new SubscribeService(await new LocalService().getNodeIP());
+      const subscribeService = new SubscribeService(await nodeService.LocalService.getNodeIP(),
+        await nodeService.LocalService.getNodePort());
       conn = subscribeService.subscribeProbe((event: MessageEvent) => {
-        try{
+        try {
           const responseModel: ProbeResponseEvent = JSON.parse(event.data);
-          if (!responseModel?.result_b64){
+          if (!responseModel?.result_b64) {
             return;
           }
           const probeResult: ProbeResult = JSON.parse(atob(responseModel.result_b64));
           findBestSettings(source.value, probeResult);
-        }finally {
+        } finally {
           showFindOptimalSettings.value = false;
         }
       });
@@ -391,10 +394,10 @@ export default {
     });
 
     onBeforeUnmount(() => {
-      if (conn){
+      if (conn) {
         conn.close();
       }
-      if (to){
+      if (to) {
         clearTimeout(to);
       }
     });
@@ -402,7 +405,7 @@ export default {
     const jqueryWorks = (divIdIndex: number) => {
       const div = $(`#step${divIdIndex}`).find('div');
       div.css('cursor', 'pointer');
-      div.click(function() {
+      div.click(function () {
         step.value = divIdIndex;
       });
     };
@@ -516,14 +519,14 @@ export default {
       }
       if (source.value.stream_type > 1) {
         source.value.booster_enabled = false;
-        if (!source.value.record_enabled){
+        if (!source.value.record_enabled) {
           source.value.stream_audio_codec = 0; // No Audio
         }
       }
     };
 
     const onFindOptimalSettings = () => {
-      if (!source.value.address){
+      if (!source.value.address) {
         $q.notify({
           message: 'Please enter "Address" fields',
           caption: 'Invalid',
@@ -536,9 +539,9 @@ export default {
         showFindOptimalSettings.value = true;
         void publishService.publishProbe(address);
       };
-      if (!source.value.id){ //new
+      if (!source.value.id) { //new
         fn(source.value.address);
-      }else{ //edit
+      } else { //edit
         $q.dialog({
           title: 'Confirm',
           message: 'Are you sure you want to load optimal settings?',

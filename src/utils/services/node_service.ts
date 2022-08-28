@@ -256,8 +256,17 @@ export class NodeService extends BaseService {
   }
 
   public async getServerStats(): Promise<ServerStats> {
-    const resp = await api.get(await this.LocalService.getNodeAddress('serverstats'));
-    return resp.data;
+    try {
+      const resp = await api.get(await this.LocalService.getNodeAddress('serverstats'));
+      return resp.data;
+    }catch (e: any){
+      if (e.code && e.code === 'ERR_NETWORK'){
+        this.LocalService.setCurrentUser(null);
+        window.location.href = '/';
+        window.location.reload();
+      }
+      return <any>undefined;
+    }
   }
 
   public async getRtspTemplates(): Promise<RtspTemplateModel[]> {

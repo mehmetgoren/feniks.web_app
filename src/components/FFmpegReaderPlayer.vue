@@ -31,7 +31,8 @@ export default {
     }
 
     onMounted(async () => {
-      const subscribeService = new SubscribeService(await new LocalService().getNodeIP());
+      const ls = new LocalService();
+      const subscribeService = new SubscribeService(await ls.getNodeIP(), await ls.getNodePort());
       if (props.sourceId.length > 0) {
         const stream = await nodeService.getStream(props.sourceId);
         if (stream) {

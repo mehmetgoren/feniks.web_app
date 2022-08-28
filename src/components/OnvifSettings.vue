@@ -188,7 +188,8 @@ export default {
 
     onMounted(async () => {
       const nodeIp = await nodeService.LocalService.getNodeIP();
-      const subscribeService = new SubscribeService(nodeIp);
+      const nodePort = await nodeService.LocalService.getNodePort();
+      const subscribeService = new SubscribeService(nodeIp, nodePort);
 
       if (addr.length > 0) {
         const serverOnvif = await nodeService.getOnvif(addr);

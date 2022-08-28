@@ -6,7 +6,7 @@
 import {defineComponent, ref, watch} from 'vue';
 import Login from 'pages/Login.vue';
 import {User} from 'src/utils/models/user_model';
-import {isNullOrEmpty, userLogout} from 'src/utils/utils';
+import {isNullOrEmpty, doUserLogout} from 'src/utils/utils';
 import {StoreService} from 'src/utils/services/store_service';
 import {SubscribeService} from 'src/utils/services/websocket_services';
 import {LocalService} from 'src/utils/services/local_service';
@@ -32,11 +32,11 @@ export default defineComponent({
 
     const registerUserLogout = async () => {
       const localService = new LocalService();
-      const subscribeService = new SubscribeService(await localService.getNodeIP());
+      const subscribeService = new SubscribeService(await localService.getNodeIP(), await localService.getNodePort());
       subscribeService.subscribeUserLogout((event: MessageEvent) => {
         const userToken = JSON.parse(event.data);
         if (userToken == currentUser.value.token){
-          void userLogout(localService, storeService, router);
+          void doUserLogout(localService, storeService, router);
         }
       });
     }

@@ -76,6 +76,7 @@ export default {
     let grid: GridStack | null = null;
     const waitInterval = 500;
     let serverIp = '';
+    let serverPort = 8072;
     let isRemoteServer = false;
     const config = ref<Config>();
     const minWidth = ref<number>(4);
@@ -129,7 +130,7 @@ export default {
             url = flvAddress;
             break;
           case 1: //HLS
-            url = localService.getHlsAddress(serverIp, streamModel.id);
+            url = localService.getHlsAddress(serverIp, serverPort, streamModel.id);
             break;
           case 2: //Websockets
             break;
@@ -180,6 +181,9 @@ export default {
         grid = GridStack.init({
           float: true
         });
+        if (!grid){
+          return;
+        }
         GridStack.setupDragIn(
           '.newWidget'
         );
@@ -264,9 +268,10 @@ export default {
 
     onMounted(async () => {
       serverIp = await localService.getNodeIP();
+      serverPort = await localService.getNodePort();
       isRemoteServer = !checkIpIsLoopBack(serverIp);
 
-      const subscribeService = new SubscribeService(serverIp);
+      const subscribeService = new SubscribeService(serverIp, serverPort);
       const cf = await nodeService.getConfig();
       if (cf && cf.ui && cf.ui.gs_width) {
         minWidth.value = cf.ui.gs_width;

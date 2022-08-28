@@ -59,7 +59,8 @@ export default {
 
     onMounted(async () => {
       const nodeIp = await nodeService.LocalService.getNodeIP();
-      const subscribeService = new SubscribeService(nodeIp);
+      const nodePort = await nodeService.LocalService.getNodePort();
+      const subscribeService = new SubscribeService(nodeIp, nodePort);
       notifierConnection = subscribeService.subscribeNotifier(async (event: MessageEvent) =>{
         const responseModel: NotifierResponseEvent = JSON.parse(event.data);
         if (responseModel?.base_64_object){

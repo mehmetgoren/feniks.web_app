@@ -7,22 +7,22 @@ export class WsConnection {
   private readonly _onMessage: ((this: WebSocket, ev: MessageEvent) => any) | null;
   private _closedByMe: boolean;
   private readonly _localService: LocalService;
-  private readonly _adddress: string;
+  private readonly _address: string;
   private _timeout: NodeJS.Timeout | null;
 
-  constructor(nodeIp: string, endPoint: string, onMessage: ((this: WebSocket, ev: MessageEvent) => any) | null) {
+  constructor(nodeIp: string, nodePort: number, endPoint: string, onMessage: ((this: WebSocket, ev: MessageEvent) => any) | null) {
     this._ws = null;
     this._endPoint = endPoint;
     this._onMessage = onMessage;
     this._closedByMe = false;
     this._localService = new LocalService();
-    this._adddress = `ws://${nodeIp}:${this._localService.nodePort}/${this._endPoint}`;
+    this._address = `ws://${nodeIp}:${nodePort}/${this._endPoint}`;
     this._timeout = null;
     this._init();
   }
 
   private _init() {
-    this._ws = new WebSocket(this._adddress);
+    this._ws = new WebSocket(this._address);
     const me = this;
     this._ws.onopen = () => {
       // @ts-ignore

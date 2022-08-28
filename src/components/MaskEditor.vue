@@ -135,7 +135,8 @@ export default {
 
     onMounted(async () => {
       const nodeIp = await localService.getNodeIP();
-      const subscribeService = new SubscribeService(nodeIp);
+      const nodePort = await localService.getNodePort();
+      const subscribeService = new SubscribeService(nodeIp, nodePort);
       const sourceId = props.odModel?.id;
       if (isNullOrEmpty(sourceId)) {
         return;

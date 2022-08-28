@@ -180,7 +180,8 @@ export default {
 
     onMounted(async () => {
       const nodeIp = await nodeService.LocalService.getNodeIP();
-      const subscribeService = new SubscribeService(nodeIp);
+      const nodePort = await nodeService.LocalService.getNodePort();
+      const subscribeService = new SubscribeService(nodeIp, nodePort);
       sourceList.value = await nodeService.getSourceList();
       await dataBindImages();
       connFrTrain = subscribeService.subscribeFrTrain(onSubscribeFrTrain);

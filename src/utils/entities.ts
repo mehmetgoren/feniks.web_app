@@ -1,5 +1,6 @@
 export interface Node {
   node_address: string;
+  node_port: number;
   name: string;
   description?: string;
   active: boolean;
