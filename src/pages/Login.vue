@@ -7,7 +7,7 @@
             <q-card square class='shadow-24' style='width:310px;height:auto;'>
               <q-card-section class='bg-deep-purple-7'>
                 <q-toolbar class='text-primary'>
-                  <q-img src='/pheoenix/phoenix(4).png' width='64px' />
+                  <q-img src='/pheoenix/phoenix.png' width='64px' no-spinner no-transition />
                   <q-toolbar-title>
                     <h4 class='text-h5 text-white q-my-md' style='margin-left: 15px'>FENIKS® iVMS</h4>
                   </q-toolbar-title>
@@ -47,7 +47,7 @@
             <q-card square class='shadow-24' style='width:400px;'>
               <q-card-section class='bg-deep-purple-7'>
                 <q-toolbar class='text-primary'>
-                  <q-img src='/pheoenix/phoenix(4).png' width='64px' />
+                  <q-img src='/pheoenix/phoenix.png' width='64px' no-spinner no-transition />
                   <q-toolbar-title>
                     <h4 class='text-h5 text-white q-my-md' style='margin-left: 15px'>FENIKS® Registration</h4>
                   </q-toolbar-title>

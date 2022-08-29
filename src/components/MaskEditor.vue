@@ -1,25 +1,24 @@
 <template>
   <q-space style='margin-top: 10px;'></q-space>
   <div v-if='odModel?.id' class='absolute' :style="{width: width + 'px', height: height + 'px'}" @click='handleClick'>
-    <div :class="{'alerts-border': (selected?.id?.length??0)>0}" :style="{width: (width + 10) + 'px', height: (height + 10)+ 'px'}">
-      <q-img id='img-mask-editor' alt='no image' :width='width + "px"' :height='height + "px"' :src="'data:image/png;base64, ' + base64Image"/>
-      <div class='absolute inset-0 right-0 bottom-0' style='inset: -20px;'>
-        <div v-for='(dot, index) in selected.dots' :key='index' :id="'dotDiv' + index" class='bg-gray-900 rounded-full absolute z-20' draggable='true'
-             @contextmenu='handleRightClick(dot, $event)'
-             :style='dot' @dragstart='handleDragStart(dot, $event)' @dragend='handleDragEnd(dot, $event)' @drag='handleDragging(dot, $event)'/>
-        <div class='absolute inset-0 right-0 bottom-0'></div>
-        <svg width='100%' height='100%' class='absolute pointer-events-none' style='inset: 20px;'>
-          <g>
-            <polyline :points='selected.coordinates' fill='rgba(244,0,0,0.5)'></polyline>
-          </g>
-        </svg>
-      </div>
-      <q-inner-loading v-if='loadingObject' :showing='true'>
-        <q-spinner size='25%' color='amber'/>
-      </q-inner-loading>
+
+    <q-img id='img-mask-editor' alt='no image' :width='width + "px"' :height='height + "px"' :src="'data:image/png;base64, ' + base64Image"/>
+    <div class='absolute inset-0 right-0 bottom-0' style='inset: -20px;'>
+      <div v-for='(dot, index) in selected.dots' :key='index' :id="'dotDiv' + index" class='bg-gray-900 rounded-full absolute z-20' draggable='true'
+           @contextmenu='handleRightClick(dot, $event)'
+           :style='dot' @dragstart='handleDragStart(dot, $event)' @dragend='handleDragEnd(dot, $event)' @drag='handleDragging(dot, $event)'/>
+      <div class='absolute inset-0 right-0 bottom-0'></div>
+      <svg width='100%' height='100%' class='absolute pointer-events-none' style='inset: 20px;'>
+        <g>
+          <polyline :points='selected.coordinates' fill='rgba(244,0,0,0.5)'></polyline>
+        </g>
+      </svg>
     </div>
-        <q-space style='margin: 5px;'></q-space>
-    <div>
+    <q-inner-loading v-if='loadingObject' :showing='true'>
+      <q-spinner size='25%' color='amber'/>
+    </q-inner-loading>
+
+    <div style='margin: 5px;' :class="{'alerts-border': (selected?.id?.length??0)>0}">
       <q-tabs v-model='tab' narrow-indicator dense align='justify' class='bg-grey-1' @update:model-value='onTabsChanged'>
         <q-tab class='text-orange' name='zones' icon='format_shapes' label='Zones'/>
         <q-tab class='text-accent' name='masks' icon='block' label='Masks'/>
@@ -72,12 +71,13 @@
           </template>
         </q-table>
       </div>
+      <q-input color='grey-3' label-color='orange' v-model='selected.coordinates' label='Zone Coordinates' readonly>
+        <template v-slot:prepend>
+          <q-icon name='format_shapes' color='amber'/>
+        </template>
+      </q-input>
     </div>
-    <q-input color='grey-3' label-color='orange' v-model='selected.coordinates' label='Zone Coordinates' readonly>
-      <template v-slot:prepend>
-        <q-icon name='format_shapes' color='amber'/>
-      </template>
-    </q-input>
+
   </div>
   <div v-else>
     <label class='blink_me'>AI Snapshot is not available. Please enabled it first by editing from source settings.</label>
@@ -94,6 +94,9 @@ import {WsConnection} from 'src/utils/ws/connection';
 import {createEmptyBase64Image, deepCopy, isNullOrEmpty} from 'src/utils/utils';
 import {nanoid} from 'nanoid';
 import {List} from 'linqts';
+
+const Width = 1280;
+const Height = 720;
 
 export default {
   name: 'MaskEditor',
@@ -114,22 +117,20 @@ export default {
     const publishService = new PublishService();
     const localService = nodeService.LocalService;
     const source = ref<SourceModel>(localService.createEmptySource());
-    const width = ref<number>(1280);
-    const height = ref<number>(720);
-    let snapshotWidth = 0;
-    let snapshotHeight = 0;
+    const width = ref<number>(Width);
+    const height = ref<number>(Height);
 
     const emptyViewModel: ViewModel = {id: '', dots: [], coordinates: ''};
     const selected = ref<ViewModel>({...emptyViewModel});
 
     const zonesService = ref<WrapperService>(new WrapperService('zones-coordinates-changed', emit, props.separator,
-      width.value, height.value, (v) => selected.value = v));
+      (v) => selected.value = v));
     zonesService.value.setSelected(selected.value);
 
     const masksService = ref<WrapperService>(new WrapperService('masks-coordinates-changed', emit, props.separator,
-      width.value, height.value, (v) => selected.value = v));
+      (v) => selected.value = v));
 
-    const drawService = new DrawService(width.value, height.value);
+    const drawService = new DrawService();
     let connTakeScreenshot: WsConnection | null = null;
     const base64Image = ref<string>(createEmptyBase64Image());
     const loadingObject = ref<boolean>(false);
@@ -160,8 +161,10 @@ export default {
 
       source.value = await nodeService.getSource(sourceId);
 
-      snapshotWidth = <number>source.value.snapshot_width;
-      snapshotHeight = <number>source.value.snapshot_height;
+      const snapshotWidth = <number>source.value.snapshot_width;
+      const snapshotHeight = <number>source.value.snapshot_height;
+      zonesService.value.setSnapshotSize(snapshotWidth, snapshotHeight);
+      masksService.value.setSnapshotSize(snapshotWidth, snapshotHeight);
 
       zonesService.value.unmarshalPoints(props.odModel.zones_list);
       masksService.value.unmarshalPoints(props.odModel.masks_list);
@@ -348,9 +351,9 @@ class DrawService {
   private readonly width: number;
   private readonly height: number;
 
-  constructor(width: number, height: number) {
-    this.width = width;
-    this.height = height;
+  constructor() {
+    this.width = Width;
+    this.height = Height;
   }
 
   public dotsToString(newDots: Dot[]): string {
@@ -422,16 +425,20 @@ class WrapperService {
   public tableSelected: ViewModel[];
   private readonly setter: (arg: ViewModel) => void;
   private readonly arraySeparator: string;
+  private snapshotWidth: number;
+  private snapshotHeight: number;
 
-  constructor(eventName: string, emit: any, separator: string, width: number, height: number, setter: (arg: ViewModel) => void) {
+  constructor(eventName: string, emit: any, separator: string, setter: (arg: ViewModel) => void) {
     this.eventName = eventName;
     this.emit = emit;
     this.separator = separator;
-    this.drawService = new DrawService(width, height);
+    this.drawService = new DrawService();
     this.points = [];
     this.tableSelected = [];
     this.setter = setter;
     this.arraySeparator = '+';
+    this.snapshotWidth = -1;
+    this.snapshotHeight = -1;
   }
 
   private selected: ViewModel | null = null;
@@ -448,8 +455,14 @@ class WrapperService {
         const zones = zoneList.split(this.separator);
         const dots: Dot[] = [];
         for (let j = 0; j < zones.length; j += 2) {
-          const left = zones[j] + 'px';
-          const top = zones[j + 1] + 'px';
+          let scaledValueWidth: number = parseInt(zones[j]);
+          scaledValueWidth *= (Width / this.snapshotWidth)
+
+          let scaledValueHeight: number = parseInt(zones[j + 1]);
+          scaledValueHeight *= (Height / this.snapshotHeight)
+
+          const left = (scaledValueWidth + DrawService.bias) + 'px';
+          const top = (scaledValueHeight + DrawService.bias) + 'px';
           dots.push({id: nanoid().toString(), top, left, width: '20px', height: '20px', cursor: 'pointer', opacity: 1.});
         }
         const pts = this.drawService.dotsToString(dots);
@@ -477,7 +490,13 @@ class WrapperService {
       const coordinates = x.coordinates.split(',');
       let j = 0;
       for (const c of [...coordinates]) {
-        coordinates[j++] = (parseInt(c) + DrawService.bias).toString();
+        let scaledValue = parseInt(c);
+        if (j % 2) {
+          scaledValue *= (this.snapshotWidth / Width);
+        } else {
+          scaledValue *= (this.snapshotHeight / Height);
+        }
+        coordinates[j++] = scaledValue.toString();
       }
       return coordinates.join(sep);
     }).ToArray();
@@ -533,6 +552,11 @@ class WrapperService {
       this.emitEvent();
     }
   }
+
+  public setSnapshotSize(width: number, height: number) {
+    this.snapshotWidth = width;
+    this.snapshotHeight = height;
+  }
 }
 
 </script>
@@ -568,7 +592,7 @@ class WrapperService {
 }
 
 .alerts-border {
-  border: 5px #ff0000 solid;
+  border: 3px #ff0000 solid;
   animation: blink 1s;
   animation-iteration-count: 4000000000;
 }
