@@ -30,7 +30,8 @@
                 </q-form>
               </q-card-section>
               <q-card-actions class='q-px-lg'>
-                <q-btn unelevated size='lg' color='purple-4' class='full-width text-white' icon='login' label='Login' @click='onLogin' >
+                <q-btn unelevated size='lg' color='purple-4' class='full-width text-white' icon='login' label='Login' @click='onLogin'
+                :disable="showLoginLoading">
                   <q-inner-loading :showing='showLoginLoading' />
                 </q-btn>
               </q-card-actions>

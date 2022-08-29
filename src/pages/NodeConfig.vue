@@ -230,21 +230,6 @@
   </div>
   <div class='q-pa-md q-gutter-sm' v-if='config&&tab==="general"' style='margin-top: -45px;'>
     <q-space style='height: 10px;'/>
-    <q-toolbar class='bg-brown-5 text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
-      <label style='text-transform: uppercase;font-size: medium'>Scan Network for IP Cameras</label>
-    </q-toolbar>
-    <q-form class='q-pa-xs' style='margin:0 5px 0 5px;'>
-      <q-input v-model='networkScanResults.created_at' filled readonly dense label='Last Scan At'/>
-      <q-space style='height: 10px;'/>
-      <q-btn icon='radar' label='Scan Network for IP Cameras' color='brown-5' @click='onScanNetwork' :disable='showScanLoading'>
-        <q-inner-loading :showing='showScanLoading'/>
-      </q-btn>
-      <q-space style='height: 10px;'/>
-      <q-table title='Network Scan Results' :rows='networkScanResults.results' :columns='networkColumns'
-               row-key='address' :pagination='initialPagination' color='brown-5'/>
-    </q-form>
-
-    <q-space style='height: 10px;'/>
     <q-toolbar class='bg-yellow-14 text-black shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
       <label style='text-transform: uppercase;font-size: medium'>Running Services</label>
     </q-toolbar>
@@ -253,7 +238,7 @@
 
         <template v-slot:body-cell-restart='props'>
           <q-td :props='props' v-if="props.row.instance_type===1">
-              <q-btn color='primary' icon='restart_alt' @click='onRestartService(props.row)'>
+              <q-btn color='primary' icon='restart_alt' @click='onRestartService(props.row)' :disable="!props.row.restart_button_enabled">
                 <q-tooltip>Restart the Service</q-tooltip>
                 <q-inner-loading :showing='restartLoading[props.row.name]' />
               </q-btn>
@@ -262,7 +247,7 @@
 
         <template v-slot:body-cell-start='props'>
           <q-td :props='props' v-if="props.row.instance_type===1">
-            <q-btn color='secondary' icon='play_circle' @click='onStartService(props.row)'>
+            <q-btn color='secondary' icon='play_circle' @click='onStartService(props.row)' :disable="!props.row.start_button_enabled">
               <q-tooltip>Start the Service</q-tooltip>
               <q-inner-loading :showing='startLoading[props.row.name]' />
             </q-btn>
@@ -271,7 +256,7 @@
 
         <template v-slot:body-cell-stop='props'>
           <q-td :props='props' v-if="props.row.instance_type===1">
-            <q-btn color='red' icon='stop_circle' @click='onStopService(props.row)'>
+            <q-btn color='red' icon='stop_circle' @click='onStopService(props.row)' :disable="!props.row.stop_button_enabled">
               <q-tooltip>Stop the Service</q-tooltip>
               <q-inner-loading :showing='stopLoading[props.row.name]' />
             </q-btn>
@@ -295,6 +280,21 @@
           </q-td>
         </template>
       </q-table>
+    </q-form>
+
+    <q-space style='height: 10px;'/>
+    <q-toolbar class='bg-brown-5 text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
+      <label style='text-transform: uppercase;font-size: medium'>Scan Network for IP Cameras</label>
+    </q-toolbar>
+    <q-form class='q-pa-xs' style='margin:0 5px 0 5px;'>
+      <q-input v-model='networkScanResults.created_at' filled readonly dense label='Last Scan At'/>
+      <q-space style='height: 10px;'/>
+      <q-btn icon='radar' label='Scan Network for IP Cameras' color='brown-5' @click='onScanNetwork' :disable='showScanLoading'>
+        <q-inner-loading :showing='showScanLoading'/>
+      </q-btn>
+      <q-space style='height: 10px;'/>
+      <q-table title='Network Scan Results' :rows='networkScanResults.results' :columns='networkColumns'
+               row-key='address' :pagination='initialPagination' color='brown-5'/>
     </q-form>
 
     <q-space style='height: 10px;'/>
@@ -464,13 +464,16 @@ export default {
       deepstack.value = c.deep_stack;
     };
 
-    const dataBind = async () => {
+    const serviceDataBind = async () => {
       const svcs = await nodeService.getServices();
       for (const svc of svcs){
         restartLoading.value[svc.name] = false;
       }
       fixArrayDates(svcs, 'created_at', 'heartbeat');
       services.value = svcs;
+    };
+
+    const userDataBind = async () => {
       const usrs = await nodeService.getUsers();
       fixArrayDates(usrs, 'last_login_at');
       users.value = usrs;
@@ -493,7 +496,8 @@ export default {
         networkScanResults.value.created_at = myDateToJsDate(<string>networkScanResults.value.created_at).toLocaleString();
       }
 
-      await dataBind();
+      await serviceDataBind();
+      await userDataBind();
 
       rtmpTemplates.value = await nodeService.getRtspTemplates();
 
@@ -532,9 +536,9 @@ export default {
       setConfigValue(config.value);
     };
 
-    const onDelete = async (user: User) => {
+    const onDoDeleteUser = async (user: User) => {
       await nodeService.deleteUser(user.id);
-      await dataBind();
+      await userDataBind();
     };
 
 
@@ -545,6 +549,7 @@ export default {
       }finally {
         restartLoading.value[service.name] = false;
       }
+      await serviceDataBind();
     };
 
     const onStartService = async (service: ServiceModel) => {
@@ -554,6 +559,7 @@ export default {
       }finally {
         startLoading.value[service.name] = false;
       }
+      await serviceDataBind();
     };
 
     const onStopService = async (service: ServiceModel) => {
@@ -563,6 +569,7 @@ export default {
       }finally {
         stopLoading.value[service.name] = false;
       }
+      await serviceDataBind();
     };
 
     return {
@@ -590,7 +597,7 @@ export default {
           cancel: true,
           persistent: false
         }).onOk(() => {
-          void onDelete(user);
+          void onDoDeleteUser(user);
         });
       },
       rtmpTemplates, rtmpTemplatesColumns: createRtmpTemplatesColumns(),
@@ -629,7 +636,6 @@ function createServiceColumns() {
     {name: 'restart', align: 'center', label: '', field: 'restart'},
     {name: 'start', align: 'center', label: '', field: 'start'},
     {name: 'stop', align: 'center', label: '', field: 'stop'},
-    {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
     {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
     {name: 'platform', align: 'left', label: 'Platform', field: 'platform', sortable: true},
     {name: 'created_at', align: 'left', label: 'Created At', field: 'created_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true},
@@ -644,6 +650,7 @@ function createServiceColumns() {
     {name: 'cpu_count', align: 'left', label: 'Cpu Count', field: 'cpu_count', sortable: true},
     {name: 'ram', align: 'left', label: 'Memory', field: 'ram', sortable: true},
     {name: 'pid', align: 'left', label: 'PID', field: 'pid', sortable: true},
+    {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
     {name: 'instance_name', align: 'left', label: 'Instance Name', field: 'instance_name', sortable: true}
   ];
 }

@@ -13,7 +13,7 @@ import {OdVideoClipsViewModel} from 'src/utils/models/ai_clip_json_object';
 import {NetworkDiscoveryModel, OnvifModel} from 'src/utils/models/onvif_models';
 import {FrTrainRename, FrTrainName, FrTrainScreenshotViewModel, FrTrainViewModel} from 'src/utils/models/fr_models';
 import {LoginUserViewModel, RegisterUserViewModel, User} from 'src/utils/models/user_model';
-import {ServiceModel} from 'src/utils/models/service_model';
+import {ServiceModel, ServiceViewModel} from 'src/utils/models/service_model';
 import {ServerStats} from 'src/utils/models/server_stats';
 import {FailedStreamModel, RecStuckModel, RtspTemplateModel, VariousInfos} from 'src/utils/models/others_models';
 import {NvidiaGpuModel} from 'src/utils/models/gpu';
@@ -205,7 +205,7 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
-  public async getServices(): Promise<ServiceModel[]> {
+  public async getServices(): Promise<ServiceViewModel[]> {
     const resp = await api.get(await this.LocalService.getNodeAddress('services'));
     return resp.data;
   }

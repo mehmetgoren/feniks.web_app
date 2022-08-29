@@ -15,3 +15,9 @@ export interface ServiceModel {
   created_at: string;
   heartbeat: string;
 }
+
+export interface ServiceViewModel extends ServiceModel{
+  restart_button_enabled:boolean;
+  start_button_enabled:boolean;
+  stop_button_enabled: boolean
+}
