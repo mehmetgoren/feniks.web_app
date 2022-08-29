@@ -3,13 +3,13 @@
     <q-header elevated class='bg-white text-grey-8'>
       <q-toolbar class='GNL__toolbar'>
         <q-toolbar-title shrink class='row items-center no-wrap'>
-          <q-img src='../../public/icons/logo.png' style="cursor: pointer; width: 60px;" @click='toggleLeftDrawer' />
+          <q-img src='../../public/icons/logo.png' style="cursor: pointer; width: 60px;" @click='toggleLeftDrawer'/>
         </q-toolbar-title>
         <ServerStatsBar/>
         <q-space/>
         <!--  left panel panel-->
         <div class='q-gutter-sm row items-center no-wrap'>
-          <Notifier  style="margin-right: -15px"/>
+          <Notifier style="margin-right: -15px"/>
           <q-btn-dropdown icon='account_circle' round flat :label='currentUser?.username'>
             <q-list>
               <q-item clickable v-close-popup @click='onLogoutUser'>
@@ -174,7 +174,7 @@ export default {
   },
   setup() {
     const router = useRouter();
-    const route=useRoute();
+    const route = useRoute();
     const leftDrawerOpen = ref(false);
     const nodeService = new NodeService();
     const localService = nodeService.LocalService;
@@ -222,7 +222,7 @@ export default {
 
     onMounted(async () => {
       const currentPath = route.path;
-      if (currentPath){
+      if (currentPath) {
         activeLeftMenu.value = currentPath.replace('/', '');
       }
       const nodeIp = await nodeService.LocalService.getNodeIP();
@@ -230,13 +230,13 @@ export default {
       const subscribeService = new SubscribeService(nodeIp, nodePort);
       editorConnection = subscribeService.subscribeEditor('ml', (event: MessageEvent) => {
         const responseModel: EditorImageResponseModel = JSON.parse(event.data);
-        switch (responseModel.event_type){
+        switch (responseModel.event_type) {
           case 1:
             window.location.href = 'data:application/octet-stream;base64,' + responseModel.image_base64;
             break
           case 2:
             storeService.setSourceThumbnail(responseModel);
-            localService.saveThumbnail(responseModel.id??'', responseModel.image_base64);
+            localService.saveThumbnail(responseModel.id ?? '', responseModel.image_base64);
             break
         }
         storeService.setSourceLoading(<string>responseModel.id, false);
@@ -246,7 +246,7 @@ export default {
       await sourceStreamDatabind();
     });
 
-    onBeforeUnmount(() =>{
+    onBeforeUnmount(() => {
       editorConnection?.close();
     });
 
@@ -256,8 +256,8 @@ export default {
       leftDrawerOpen.value = !leftDrawerOpen.value;
     }
 
-    function _getThumbnail(source: SourceModel){
-      const thumbnail = localService.getThumbnail(source.id??'');
+    function _getThumbnail(source: SourceModel) {
+      const thumbnail = localService.getThumbnail(source.id ?? '');
       if (thumbnail) {
         storeService.setSourceThumbnail({
           id: source.id,
@@ -280,7 +280,11 @@ export default {
         address: source.address,
         event_type: 2
       }).then().catch(console.error);
-      storeService.setSourceLoading(<string>source.id, true);
+      const sourceId = <string>source.id;
+      storeService.setSourceLoading(sourceId, true);
+      setTimeout(() => {
+        storeService.setSourceLoading(sourceId, false);
+      }, 30000);
     }
 
     const onAiClick = (sourceId: string) => {
@@ -351,12 +355,12 @@ export default {
       const me: any = this;
       console.log('MenuLayout says: active menu is ' + link.route);
       if (link.route) {
-        if (link.route === 'add_source'){
+        if (link.route === 'add_source') {
           //@ts-ignore
           this.selectedSourceId = '';
           //@ts-ignore
           this.showSettings = true;
-        }else{
+        } else {
           me.$store.commit('settings/setActiveLeftMenu', link);
           me.$router.push(link.route);
         }
