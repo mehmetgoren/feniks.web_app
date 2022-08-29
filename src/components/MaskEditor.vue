@@ -1,27 +1,28 @@
 <template>
   <q-space style='margin-top: 10px;'></q-space>
-<!--  v-if='source.snapshot_enabled'-->
   <div v-if='odModel?.id' class='absolute' :style="{width: width + 'px', height: height + 'px'}" @click='handleClick'>
-    <img id='img-mask-editor' alt='no image' :width='width' :height='height' :src="'data:image/png;base64, ' + base64Image">
-    <div class='absolute inset-0 right-0 bottom-0' style='inset: -20px;'>
-      <div v-for='(dot, index) in selected.dots' :key='index' :id="'dotDiv' + index" class='bg-gray-900 rounded-full absolute z-20' draggable='true'
-           @contextmenu='handleRightClick(dot, $event)'
-           :style='dot' @dragstart='handleDragStart(dot, $event)' @dragend='handleDragEnd(dot, $event)' @drag='handleDragging(dot, $event)' />
-      <div class='absolute inset-0 right-0 bottom-0'></div>
-      <svg width='100%' height='100%' class='absolute pointer-events-none' style='inset: 20px;'>
-        <g>
-          <polyline :points='selected.coordinates' fill='rgba(244,0,0,0.5)'></polyline>
-        </g>
-      </svg>
+    <div :class="{'alerts-border': (selected?.id?.length??0)>0}" :style="{width: (width + 10) + 'px', height: (height + 10)+ 'px'}">
+      <q-img id='img-mask-editor' alt='no image' :width='width + "px"' :height='height + "px"' :src="'data:image/png;base64, ' + base64Image"/>
+      <div class='absolute inset-0 right-0 bottom-0' style='inset: -20px;'>
+        <div v-for='(dot, index) in selected.dots' :key='index' :id="'dotDiv' + index" class='bg-gray-900 rounded-full absolute z-20' draggable='true'
+             @contextmenu='handleRightClick(dot, $event)'
+             :style='dot' @dragstart='handleDragStart(dot, $event)' @dragend='handleDragEnd(dot, $event)' @drag='handleDragging(dot, $event)'/>
+        <div class='absolute inset-0 right-0 bottom-0'></div>
+        <svg width='100%' height='100%' class='absolute pointer-events-none' style='inset: 20px;'>
+          <g>
+            <polyline :points='selected.coordinates' fill='rgba(244,0,0,0.5)'></polyline>
+          </g>
+        </svg>
+      </div>
+      <q-inner-loading v-if='loadingObject' :showing='true'>
+        <q-spinner size='25%' color='amber'/>
+      </q-inner-loading>
     </div>
-    <q-inner-loading v-if='loadingObject' :showing='true'>
-      <q-spinner size='25%' color='amber' />
-    </q-inner-loading>
-<!--    <q-space style='margin: 5px;'></q-space>-->
-    <div >
+        <q-space style='margin: 5px;'></q-space>
+    <div>
       <q-tabs v-model='tab' narrow-indicator dense align='justify' class='bg-grey-1' @update:model-value='onTabsChanged'>
-        <q-tab class='text-orange' name='zones' icon='format_shapes' label='Zones' />
-        <q-tab class='text-accent' name='masks' icon='block' label='Masks' />
+        <q-tab class='text-orange' name='zones' icon='format_shapes' label='Zones'/>
+        <q-tab class='text-accent' name='masks' icon='block' label='Masks'/>
       </q-tabs>
       <div v-if='tab==="zones"'>
         <q-table title='Zones' :rows='zonesService.points' :columns='columns' row-key='id' selection='single'
@@ -31,10 +32,17 @@
               <q-btn label='Add Zone' icon-right='add' color='orange' @click='onAdd'></q-btn>
             </div>
           </template>
+          <template v-slot:top-right>
+            <div class='row'>
+              <q-btn label='Take a screenshot' icon-right='photo_camera' color='orange' @click='onTakeScreenshot' :disable="loadingObject">
+                <q-inner-loading :showing='loadingObject'/>
+              </q-btn>
+            </div>
+          </template>
           <template v-slot:body-cell-delete='props'>
             <q-td :props='props'>
               <div>
-                <q-btn round color='deep-orange' icon='delete' @click='onDelete(props.row)' />
+                <q-btn round color='deep-orange' icon='delete' @click='onDelete(props.row)'/>
               </div>
             </q-td>
           </template>
@@ -48,10 +56,17 @@
               <q-btn label='Add Mask' icon-right='add' color='accent' @click='onAdd'></q-btn>
             </div>
           </template>
+          <template v-slot:top-right>
+            <div class='row'>
+              <q-btn label='Take a screenshot' icon-right='photo_camera' color='accent' @click='onTakeScreenshot' :disable="loadingObject">
+                <q-inner-loading :showing='loadingObject'/>
+              </q-btn>
+            </div>
+          </template>
           <template v-slot:body-cell-delete='props'>
             <q-td :props='props'>
               <div>
-                <q-btn round color='deep-orange' icon='delete' @click='onDelete(props.row)' />
+                <q-btn round color='deep-orange' icon='delete' @click='onDelete(props.row)'/>
               </div>
             </q-td>
           </template>
@@ -60,7 +75,7 @@
     </div>
     <q-input color='grey-3' label-color='orange' v-model='selected.coordinates' label='Zone Coordinates' readonly>
       <template v-slot:prepend>
-        <q-icon name='format_shapes' color='amber' />
+        <q-icon name='format_shapes' color='amber'/>
       </template>
     </q-input>
   </div>
@@ -70,15 +85,15 @@
 </template>
 
 <script lang='ts'>
-import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
-import { SourceModel } from 'src/utils/models/source_model';
-import { NodeService } from 'src/utils/services/node_service';
-import { PublishService, SubscribeService } from 'src/utils/services/websocket_services';
-import { EditorImageResponseModel } from 'src/utils/entities';
-import { WsConnection } from 'src/utils/ws/connection';
-import { createEmptyBase64Image, deepCopy, isNullOrEmpty } from 'src/utils/utils';
-import { nanoid } from 'nanoid';
-import { List } from 'linqts';
+import {nextTick, onBeforeUnmount, onMounted, ref} from 'vue';
+import {SourceModel} from 'src/utils/models/source_model';
+import {NodeService} from 'src/utils/services/node_service';
+import {PublishService, SubscribeService} from 'src/utils/services/websocket_services';
+import {EditorImageResponseModel} from 'src/utils/entities';
+import {WsConnection} from 'src/utils/ws/connection';
+import {createEmptyBase64Image, deepCopy, isNullOrEmpty} from 'src/utils/utils';
+import {nanoid} from 'nanoid';
+import {List} from 'linqts';
 
 export default {
   name: 'MaskEditor',
@@ -94,16 +109,18 @@ export default {
   },
   emits: ['zones-coordinates-changed', 'masks-coordinates-changed'],
   //@ts-ignore
-  setup(props: any, { emit }) {
+  setup(props: any, {emit}) {
     const nodeService = new NodeService();
     const publishService = new PublishService();
     const localService = nodeService.LocalService;
     const source = ref<SourceModel>(localService.createEmptySource());
     const width = ref<number>(1280);
     const height = ref<number>(720);
+    let snapshotWidth = 0;
+    let snapshotHeight = 0;
 
-    const emptyViewModel: ViewModel = { id: '', dots: [], coordinates: '' };
-    const selected = ref<ViewModel>({ ...emptyViewModel });
+    const emptyViewModel: ViewModel = {id: '', dots: [], coordinates: ''};
+    const selected = ref<ViewModel>({...emptyViewModel});
 
     const zonesService = ref<WrapperService>(new WrapperService('zones-coordinates-changed', emit, props.separator,
       width.value, height.value, (v) => selected.value = v));
@@ -112,13 +129,12 @@ export default {
     const masksService = ref<WrapperService>(new WrapperService('masks-coordinates-changed', emit, props.separator,
       width.value, height.value, (v) => selected.value = v));
 
-
     const drawService = new DrawService(width.value, height.value);
     let connTakeScreenshot: WsConnection | null = null;
     const base64Image = ref<string>(createEmptyBase64Image());
     const loadingObject = ref<boolean>(false);
     const maskScreenshotType = 3;
-    const containerRect: React = { x1: 0, y1: 0, x2: 0, y2: 0, bias: 0 };
+    const containerRect: React = {x1: 0, y1: 0, x2: 0, y2: 0, bias: 0};
     const tab = ref<string>('zones');
 
     const takeScreenshot = async () => {
@@ -134,24 +150,23 @@ export default {
     };
 
     onMounted(async () => {
-      const nodeIp = await localService.getNodeIP();
-      const nodePort = await localService.getNodePort();
-      const subscribeService = new SubscribeService(nodeIp, nodePort);
       const sourceId = props.odModel?.id;
       if (isNullOrEmpty(sourceId)) {
         return;
       }
+      const nodeIp = await localService.getNodeIP();
+      const nodePort = await localService.getNodePort();
+      const subscribeService = new SubscribeService(nodeIp, nodePort);
+
       source.value = await nodeService.getSource(sourceId);
-      // if (!source.value.snapshot_enabled) {
-      //   return;
-      // }
-      width.value = <number>source.value.snapshot_width;
-      height.value = <number>source.value.snapshot_height;
+
+      snapshotWidth = <number>source.value.snapshot_width;
+      snapshotHeight = <number>source.value.snapshot_height;
 
       zonesService.value.unmarshalPoints(props.odModel.zones_list);
       masksService.value.unmarshalPoints(props.odModel.masks_list);
 
-      connTakeScreenshot = subscribeService.subscribeEditor('me',(event: MessageEvent) => {
+      connTakeScreenshot = subscribeService.subscribeEditor('me', (event: MessageEvent) => {
         try {
           const responseModel: EditorImageResponseModel = JSON.parse(event.data);
           if (responseModel.id !== sourceId || responseModel.event_type != maskScreenshotType) {
@@ -217,7 +232,7 @@ export default {
     }
 
     function handleDragEnd(dot: Dot, e: any) {
-      const { x, y } = fixCoor(e.x, e.y);
+      const {x, y} = fixCoor(e.x, e.y);
       dot.opacity = 1.;
       drawService.editDot(dot, x - containerRect.x1, y - containerRect.y1);
       onUpdateList();
@@ -227,7 +242,7 @@ export default {
       if (selected.value.id.length === 0) {
         return;
       }
-      const { x, y } = fixCoor(e.x, e.y);
+      const {x, y} = fixCoor(e.x, e.y);
       drawService.editDot(dot, x - containerRect.x1, y - containerRect.y1);
       selected.value.coordinates = drawService.dotsToString(selected.value.dots);
     }
@@ -244,7 +259,7 @@ export default {
       } else if (y > r.y2) {
         y = r.y2;
       }
-      return { x, y };
+      return {x, y};
     }
 
     function isInArea(x: number, y: number): boolean {
@@ -298,7 +313,7 @@ export default {
           zonesService.value.tableSelected = [{...selected.value}]
           zonesService.value.onTableSelected({...selected.value});
         } else {
-          selected.value = { ...emptyViewModel };
+          selected.value = {...emptyViewModel};
         }
         masksService.value.setSelected(null);
         zonesService.value.setSelected(selected.value);
@@ -308,7 +323,7 @@ export default {
           masksService.value.tableSelected = [{...selected.value}];
           masksService.value.onTableSelected({...selected.value});
         } else {
-          selected.value = { ...emptyViewModel };
+          selected.value = {...emptyViewModel};
         }
         zonesService.value.setSelected(null);
         masksService.value.setSelected(selected.value);
@@ -319,9 +334,10 @@ export default {
     return {
       source, width, height, base64Image, zonesService, selected, loadingObject, tab, masksService,
       handleClick, handleRightClick, handleDragStart, handleDragEnd, handleDragging, onAdd, onTableSelected, onDelete, onTabsChanged,
+      onTakeScreenshot: takeScreenshot,
       columns: [
-        { name: 'coordinates', align: 'left', label: 'Zone Coordinates', field: 'coordinates', sortable: true },
-        { name: 'delete', align: 'center', label: '', field: 'delete' }
+        {name: 'coordinates', align: 'left', label: 'Zone Coordinates', field: 'coordinates', sortable: true},
+        {name: 'delete', align: 'center', label: '', field: 'delete'}
       ]
     };
   }
@@ -434,10 +450,10 @@ class WrapperService {
         for (let j = 0; j < zones.length; j += 2) {
           const left = zones[j] + 'px';
           const top = zones[j + 1] + 'px';
-          dots.push({ id: nanoid().toString(), top, left, width: '20px', height: '20px', cursor: 'pointer', opacity: 1. });
+          dots.push({id: nanoid().toString(), top, left, width: '20px', height: '20px', cursor: 'pointer', opacity: 1.});
         }
         const pts = this.drawService.dotsToString(dots);
-        this.points.push({ id: nanoid().toString(), dots: dots, coordinates: pts });
+        this.points.push({id: nanoid().toString(), dots: dots, coordinates: pts});
       }
     }
     if (this.points.length > 0) {
@@ -449,7 +465,7 @@ class WrapperService {
     if (this.selected === null) {
       return;
     }
-    const newOne: ViewModel = { id: nanoid().toString(), dots: [], coordinates: '' };
+    const newOne: ViewModel = {id: nanoid().toString(), dots: [], coordinates: ''};
     this.points.push(newOne);
     this.setValues(newOne);
   }
@@ -511,7 +527,7 @@ class WrapperService {
       if (this.points.length) {
         this.selected = this.points[0];
       } else {
-        this.selected = { id: '', dots: [], coordinates: '' };
+        this.selected = {id: '', dots: [], coordinates: ''};
       }
       this.setter(this.selected);
       this.emitEvent();
@@ -548,6 +564,18 @@ class WrapperService {
 @keyframes blinker {
   50% {
     opacity: 0;
+  }
+}
+
+.alerts-border {
+  border: 5px #ff0000 solid;
+  animation: blink 1s;
+  animation-iteration-count: 4000000000;
+}
+
+@keyframes blink {
+  50% {
+    border-color: #fff;
   }
 }
 </style>
