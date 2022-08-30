@@ -100,7 +100,7 @@
           <OdImageGallery :od-model='od' />
         </div>
         <div v-if='tab==="videoClipList"'>
-          <OdSourceVideoClips :source-id='od.id' />
+          <OdVideoClips :source-id='od.id' />
         </div>
         <div v-if='tab==="frList"'>
           <FrImageGallery :source-id='od.id' />
@@ -129,7 +129,7 @@ import { NodeService } from 'src/utils/services/node_service';
 import { Config } from 'src/utils/models/config';
 import MaskEditor from 'components/MaskEditor.vue';
 import OdImageGallery from 'components/OdImageGallery.vue';
-import OdSourceVideoClips from 'components/OdSourceVideoClips.vue';
+import OdVideoClips from 'components/OdVideoClips.vue';
 import FrImageGallery from 'components/FrImageGallery.vue';
 import AlprImageGallery from 'components/AlprImageGallery.vue';
 import AiDataSource from 'components/AiDataSource.vue';
@@ -141,7 +141,7 @@ export default {
   components: {
     MaskEditor,
     OdImageGallery,
-    OdSourceVideoClips,
+    OdVideoClips,
     FrImageGallery,
     AlprImageGallery,
     AiDataSource

@@ -18,11 +18,11 @@
                   </q-td>
                   <q-td key='created_at' :props='props'>{{ props.row.video_created_at.toLocaleString() }}</q-td>
                 </q-tr>
-                <q-tr v-show='props.expand' :props='props'>
+                <q-tr v-if='props.expand' :props='props'>
                   <q-td colspan='100%'>
                     <div class='q-pa-md q-gutter-sm' style='margin: 5px;'>
                       <q-btn color='primary' icon='theaters' label='Download Clip'
-                             @click='handleDownloadClip(webMngrAddress+ props.row.video_file_name, props.row.video_base_file_name)' />
+                             @click='handleDownloadClip(webMngrAddress+ props.row.video_file_name)' />
                       <q-btn color='red' icon='delete' label='Delete Event' @click='handleDeleteClip(props.row)' />
                       <q-btn color='grey' icon='clear' label='Close' @click='props.expand = !props.expand' />
                     </div>
@@ -82,14 +82,14 @@
 import VideoPlayer from 'src/components/VideoPlayer.vue';
 import DateTimeSelector from 'src/components/DateTimeSelector.vue';
 import { StreamModel } from 'src/utils/models/stream_model';
-import { onMounted, ref } from 'vue';
+import {nextTick, onMounted, ref} from 'vue';
 import { OdVideoClipsViewModel } from 'src/utils/models/ai_clip_json_object';
 import { NodeService } from 'src/utils/services/node_service';
-import { downloadFile, fixArrayDates, getCurrentHour, getTodayString } from 'src/utils/utils';
+import {downloadFile2, fixArrayDates, getCurrentHour, getTodayString} from 'src/utils/utils';
 import {useQuasar} from 'quasar';
 
 export default {
-  name: 'OdSourceVideoClips',
+  name: 'OdVideoClips',
   props: {
     sourceId: {
       type: String,
@@ -136,8 +136,8 @@ export default {
       await refreshFn();
     });
 
-    function handleDownloadClip(url: string, fileName: string) {
-      downloadFile(url, fileName, 'video/mp4');
+    function handleDownloadClip(url: string) {
+      downloadFile2(url);
     }
 
     function handleDeleteClip(item: OdVideoClipsViewModel) {
@@ -155,8 +155,12 @@ export default {
 
     function onRowClick(props: any){
       restorePrev();
-      props.expand = !props.expand;
-      prevProps = props;
+      nextTick().then(()=>{
+        setTimeout(() => {
+          props.expand = !props.expand;
+          prevProps = props;
+        }, 100);
+      }).catch(console.error);
     }
 
     return {

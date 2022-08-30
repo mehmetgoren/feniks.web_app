@@ -156,6 +156,20 @@ export function downloadFile(url: string, fileName: string, fileType: string) {
   }).catch(console.error);
 }
 
+export function downloadFile2(url: string){
+  const a: any = document.createElement('a');
+  try{
+    a.target='_blank'
+    a.href = url;
+    a.download = url.substr(url.lastIndexOf('/') + 1);
+    document.body.appendChild(a);
+    a.click();
+  }
+  finally {
+    document.body.removeChild(a);
+  }
+}
+
 export function parseIP(address: string): string | null {
   const r = /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/; //http://www.regular-expressions.info/examples.html
   const results = address.match(r);
