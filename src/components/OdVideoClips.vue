@@ -11,7 +11,7 @@
               <template v-slot:body='props'>
                 <q-tr :props='props' @click='onRowClick(props)' :style='{"backgroundColor": props.expand ? "orange":"white", "cursor":"pointer"}'>
                   <q-td key='base64_image'>
-                    <q-img :src='webMngrAddress + props.row.preview.image_file_name' />
+                    <q-img :src='webMngrAddress + props.row.preview.image_file_name'/>
                   </q-td>
                   <q-td key='objects'>
                     <label>{{ props.row.preview.object_names }}<br></label>
@@ -22,17 +22,17 @@
                   <q-td colspan='100%'>
                     <div class='q-pa-md q-gutter-sm' style='margin: 5px;'>
                       <q-btn color='primary' icon='theaters' label='Download Clip'
-                             @click='handleDownloadClip(webMngrAddress+ props.row.video_file_name)' />
-                      <q-btn color='red' icon='delete' label='Delete Event' @click='handleDeleteClip(props.row)' />
-                      <q-btn color='grey' icon='clear' label='Close' @click='props.expand = !props.expand' />
+                             @click='handleDownloadClip(webMngrAddress+ props.row.video_file_name)'/>
+                      <q-btn color='red' icon='delete' label='Delete Event' @click='handleDeleteClip(props.row)'/>
+                      <q-btn color='grey' icon='clear' label='Close' @click='props.expand = !props.expand'/>
                     </div>
                     <br>
                     <div style='width: 480px;float: left;margin-right: 5px;'>
-                      <VideoPlayer :src='webMngrAddress+ props.row.video_file_name' :auto-play='false' />
+                      <VideoPlayer :src='webMngrAddress+ props.row.video_file_name' :auto-play='false'/>
                     </div>
                     <div class='q-pa-md' style='width: 350px;float:left;margin: 0 5px 0 5px'>
                       <q-table dense :rows='props.row.detected_objects' :columns='detectedObjectColumns' row-key='pred_cls_idx'
-                               :pagination='{rowsPerPage: 5}' />
+                               :pagination='{rowsPerPage: 5}'/>
                     </div>
                     <div class='q-pa-md' style='width: 350px;float: left; margin: 0 5px 0 5px'>
                       <q-list bordered separator>
@@ -67,10 +67,10 @@
               </template>
 
               <template v-slot:top-right>
-                <DateTimeSelector :dense="true" color='orange' :show-hour='true' @date-changed='onDateChanged' @hour-changed='onHourChanged' />
+                <DateTimeSelector :dense="true" color='orange' :show-hour='true' @date-changed='onDateChanged' @hour-changed='onHourChanged'/>
               </template>
             </q-table>
-            <q-inner-loading :showing='refreshLoading' color='orange' size='64px' />
+            <q-inner-loading :showing='refreshLoading' color='orange' size='64px'/>
           </div>
         </div>
       </q-page>
@@ -81,11 +81,11 @@
 <script lang='ts'>
 import VideoPlayer from 'src/components/VideoPlayer.vue';
 import DateTimeSelector from 'src/components/DateTimeSelector.vue';
-import { StreamModel } from 'src/utils/models/stream_model';
+import {StreamModel} from 'src/utils/models/stream_model';
 import {nextTick, onMounted, ref} from 'vue';
-import { OdVideoClipsViewModel } from 'src/utils/models/ai_clip_json_object';
-import { NodeService } from 'src/utils/services/node_service';
-import {downloadFile2, fixArrayDates, getCurrentHour, getTodayString} from 'src/utils/utils';
+import {OdVideoClipsViewModel} from 'src/utils/models/ai_clip_json_object';
+import {NodeService} from 'src/utils/services/node_service';
+import {downloadFile2, getCurrentHour, getTodayString, isNullOrEmpty, myDateToJsDate} from 'src/utils/utils';
 import {useQuasar} from 'quasar';
 
 export default {
@@ -111,19 +111,25 @@ export default {
     let selectedHour = getCurrentHour();
     let prevProps: any = null;
 
-    function restorePrev(){
+    function restorePrev() {
       if (prevProps != null) {
         prevProps.expand = false;
         prevProps = null;
       }
     }
 
-    const refreshFn = async () => {
+    const refresh = async () => {
       refreshLoading.value = true;
       try {
         restorePrev();
         const dataList = await nodeService.getOdVideoClips(props.sourceId, `${selectedDate}_${selectedHour}`);
-        fixArrayDates(dataList, 'video_created_at', 'video_last_modified');
+        for (const item of dataList) {
+          item.video_created_at = <any>myDateToJsDate(item.video_created_at);
+          item.video_last_modified_at = <any>myDateToJsDate(item.video_last_modified_at);
+          if (!isNullOrEmpty(item.video_file_name)){
+            item.video_file_name = item.video_file_name.replace('record', 'playback');
+          }
+        }
         rows.value = dataList;
       } finally {
         refreshLoading.value = false;
@@ -133,7 +139,7 @@ export default {
     onMounted(async () => {
       webMngrAddress.value = await nodeService.LocalService.getNodeAddress('') + '/';
       stream.value = await nodeService.getStream(props.sourceId);
-      await refreshFn();
+      await refresh();
     });
 
     function handleDownloadClip(url: string) {
@@ -148,14 +154,14 @@ export default {
         persistent: false
       }).onOk(() => {
         nodeService.deleteOdVideoClip(item).then(() => {
-          void refreshFn();
+          void refresh();
         }).catch(console.error)
       });
     }
 
-    function onRowClick(props: any){
+    function onRowClick(props: any) {
       restorePrev();
-      nextTick().then(()=>{
+      nextTick().then(() => {
         setTimeout(() => {
           props.expand = !props.expand;
           prevProps = props;
@@ -172,23 +178,23 @@ export default {
       handleDownloadClip, handleDeleteClip, onRowClick,
       onDateChanged(dateStr: string) {
         selectedDate = dateStr;
-        void refreshFn();
+        void refresh();
       },
       onHourChanged(hour: string) {
         selectedHour = hour;
-        void refreshFn();
+        void refresh();
       }
     };
   }
 };
 const columns = [
-  { name: 'base64_image', align: 'left', label: '', field: 'base64_image', sortable: false },
-  { name: 'objects', align: 'left', label: 'Objects', field: 'objects', sortable: true },
-  { name: 'created_at', align: 'left', label: 'Date', field: 'created_at', sortable: true }
+  {name: 'base64_image', align: 'left', label: '', field: 'base64_image', sortable: false},
+  {name: 'objects', align: 'left', label: 'Objects', field: 'objects', sortable: true},
+  {name: 'created_at', align: 'left', label: 'Date', field: 'created_at', sortable: true}
 ];
 const detectedObjectColumns = [
-  { name: 'pred_cls_name', align: 'left', label: 'Object', field: 'pred_cls_name', sortable: false },
-  { name: 'pred_score', align: 'left', label: 'Score', field: 'pred_score', sortable: false }
+  {name: 'pred_cls_name', align: 'left', label: 'Object', field: 'pred_cls_name', sortable: false},
+  {name: 'pred_score', align: 'left', label: 'Score', field: 'pred_score', sortable: false}
 ];
 
 </script>
