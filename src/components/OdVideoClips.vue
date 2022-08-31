@@ -67,10 +67,12 @@
               </template>
 
               <template v-slot:top-right>
+                <q-btn icon='refresh' label='Refresh' glossy color='orange' style='margin-right: 15px;' @click='onRefresh' />
                 <DateTimeSelector :dense="true" color='orange' :show-hour='true' @date-changed='onDateChanged' @hour-changed='onHourChanged'/>
               </template>
+
             </q-table>
-            <q-inner-loading :showing='refreshLoading' color='orange' size='64px'/>
+            <q-inner-loading :showing='refreshLoading' color='orange' size='128px'/>
           </div>
         </div>
       </q-page>
@@ -175,7 +177,7 @@ export default {
         rowsPerPage: 0
       },
       filter, refreshLoading, detectedObjectColumns,
-      handleDownloadClip, handleDeleteClip, onRowClick,
+      handleDownloadClip, handleDeleteClip, onRowClick, onRefresh: refresh,
       onDateChanged(dateStr: string) {
         selectedDate = dateStr;
         void refresh();
