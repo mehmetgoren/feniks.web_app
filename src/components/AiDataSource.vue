@@ -1,7 +1,7 @@
 <template>
   <div>
-    <q-toolbar class="bg-primary glossy text-white">
-      <q-btn flat round dense icon="grid_4x4" class="q-mr-sm"/>
+    <q-toolbar :class="'bg-' + color + ' text-white'">
+      <q-btn flat dense icon="lens_blur" class="q-mr-sm"/>
       <q-toolbar-title>AI EVENT DATA HISTORY</q-toolbar-title>
       <q-tabs v-model="tab" shrink :active-bg-color="color">
         <q-tab name="od" icon="collections" label="Object Detection"/>
@@ -12,13 +12,13 @@
     </q-toolbar>
     <div class='q-pa-md q-gutter-sm' style='margin-top: -15px;'>
       <div class="row">
-        <div class="col-4">
+        <div class="col-3">
           <DateTimeSelector width-date="187" :dense="true" :color='color' :show-hour='true' @date-changed='onDateChanged' @hour-changed='onHourChanged'/>
           <q-toggle dense v-model='params.no_preparing_video_file' :color='color' @update:model-value='onNoPreparingVideoFileChanged'
                     :label='(params.no_preparing_video_file ? "Do Not" : "") + " Include Preparing Video File"' />
           <q-input dense filled v-model.trim='params.pred_class_name' label='Label' :color='color' @update:model-value="onLabelChanged" style="width: 300px" />
         </div>
-        <div class="col-8">
+        <div class="col-9">
           <q-toolbar :class="'bg-' + color + ' text-white'">
             <q-icon :name="selectedFeature.icon" size="24px" />
             <q-toolbar-title style="width: 100%">{{selectedFeature.name}}</q-toolbar-title>
@@ -26,7 +26,7 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-4">
+        <div class="col-3">
           <div style="max-width: 90%; width: 300px; height: 750px;">
             <q-scroll-area class='fit'>
               <q-intersection v-for="leftItem in leftItems" :key="leftItem.id" transition="flip-right" class="example-item"
@@ -61,9 +61,9 @@
             </q-scroll-area>
           </div>
         </div>
-        <div class="col-8" style="margin-top: -65px;">
-          <VideoPlayer :auto-play="true" @on-player-ready="onVideoPlayerReady"/>
-          <q-img v-if="selectedItem" :src="selectedItem.image_file_name">
+        <div class="col-9" style="margin-top: -65px;">
+          <VideoPlayer :auto-play="true" @on-player-ready="onVideoPlayerReady" style="float: left;width: 50%"/>
+          <q-img v-if="selectedItem" :src="selectedItem.image_file_name" style="float: left;width: 50%">
             <div class="absolute-bottom text-center">
               {{selectedItem.pred_cls_name}} ({{selectedItem.pred_score}}) at {{selectedItem.created_at?.toLocaleTimeString()}} / {{selectedItem.video_file.object_appears_at}} sec.
             </div>
