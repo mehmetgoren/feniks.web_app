@@ -9,7 +9,7 @@ import {StreamModel} from 'src/utils/models/stream_model';
 import {SourceStatusModel} from 'src/utils/models/source_status_model';
 import {OdModel} from 'src/utils/models/od_model';
 import {ImagesParams, FolderTreeItem, ImageItem} from 'src/utils/models/detected';
-import {OdVideoClipsViewModel} from 'src/utils/models/ai_clip_json_object';
+import {AiClipViewModel, AiClipQueryViewModel} from 'src/utils/models/ai_clip_view_models';
 import {NetworkDiscoveryModel, OnvifModel} from 'src/utils/models/onvif_models';
 import {FrTrainRename, FrTrainName, FrTrainScreenshotViewModel, FrTrainViewModel} from 'src/utils/models/fr_models';
 import {LoginUserViewModel, RegisterUserViewModel, User} from 'src/utils/models/user_model';
@@ -119,13 +119,13 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
-  public async getOdVideoClips(sourceId: string, date: string): Promise<OdVideoClipsViewModel[]> {
-    const resp = await api.get(await this.LocalService.getNodeAddress(`odvideoclips/${sourceId}/${date}`));
+  public async getAiClips(params: AiClipQueryViewModel): Promise<AiClipViewModel[]> {
+    const resp = await api.post(await this.LocalService.getNodeAddress('aiclips'), params);
     return resp.data;
   }
 
-  public async deleteOdVideoClip(item: OdVideoClipsViewModel): Promise<boolean> {
-    const resp = await api.delete(await this.LocalService.getNodeAddress('odvideoclips'), {data: item});
+  public async deleteAiClip(vm: AiClipViewModel): Promise<boolean> {
+    const resp = await api.delete(await this.LocalService.getNodeAddress('aiclips'), {data: vm});
     return resp.data;
   }
 
