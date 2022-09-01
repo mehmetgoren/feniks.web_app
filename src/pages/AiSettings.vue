@@ -1,5 +1,4 @@
 <template>
-
   <div class='q-pa-md q-gutter-sm'>
     <q-toolbar class='bg-orange text-white shadow-2 rounded-borders' style='width: 99.5%'>
       <q-icon name='psychology' size='28px' />
@@ -9,10 +8,8 @@
       <q-tabs v-model='tab' narrow-indicator inline-label align='left'>
         <q-tab :disable='!enabled' name='cocoList' icon='fact_check' label='Coco List' />
         <q-tab :disable='!enabled' name='zoneList' icon='format_shapes' label='Zones' />
-        <q-tab :disable='!enabled' name='detectedList' icon='collections' label='Detected Images' />
+        <q-tab :disable='!enabled' name='detectedList' icon='collections' label='AI Images' />
         <q-tab :disable='!enabled' name='videoClipList' icon='featured_video' label='AI Clips' />
-        <q-tab :disable='!enabled' name='frList' icon='face' label='Face Recognition' />
-        <q-tab :disable='!enabled' name='alprList' icon='drive_eta' label='License Plate Recognition' />
         <q-tab :disable='!enabled' name='aidata' icon='lens_blur' label='Ai Data' />
       </q-tabs>
       <q-space />
@@ -97,16 +94,10 @@
                       @zones-coordinates-changed='handleZonesCoordinatesChanged' @masks-coordinates-changed='handleMasksCoordinatesChanged' />
         </div>
         <div v-if='tab==="detectedList"' class='div_margin'>
-          <OdImageGallery :od-model='od' />
+          <AiImageGallery :od-model='od' />
         </div>
         <div v-if='tab==="videoClipList"'>
           <AiClips :source-id='od.id' />
-        </div>
-        <div v-if='tab==="frList"'>
-          <FrImageGallery :source-id='od.id' />
-        </div>
-        <div v-if='tab==="alprList"'>
-          <AlprImageGallery :source-id='od.id' />
         </div>
         <div v-if='tab==="aidata"'>
           <AiDataSource :source-id='od.id' />
@@ -128,10 +119,8 @@ import { isNullOrEmpty, isNullOrUndefined } from 'src/utils/utils';
 import { NodeService } from 'src/utils/services/node_service';
 import { Config } from 'src/utils/models/config';
 import MaskEditor from 'components/MaskEditor.vue';
-import OdImageGallery from 'components/OdImageGallery.vue';
+import AiImageGallery from 'components/AiImageGallery.vue';
 import AiClips from 'components/AiClips.vue';
-import FrImageGallery from 'components/FrImageGallery.vue';
-import AlprImageGallery from 'components/AlprImageGallery.vue';
 import AiDataSource from 'components/AiDataSource.vue';
 import { StoreService } from 'src/utils/services/store_service';
 import {useRouter} from 'vue-router';
@@ -140,10 +129,8 @@ export default {
   name: 'AiSettings',
   components: {
     MaskEditor,
-    OdImageGallery,
+    AiImageGallery,
     AiClips,
-    FrImageGallery,
-    AlprImageGallery,
     AiDataSource
   },
   setup() {

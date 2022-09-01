@@ -1,7 +1,7 @@
 <template>
   <q-layout view='lHh lpr lFf' container style='height: 1000px' class='shadow-2 rounded-borders'>
     <q-toolbar :class="'bg-' + color + ' text-white'">
-      <q-btn flat round dense icon="featured_video" class="q-mr-sm"/>
+      <q-btn flat round dense :icon="selectedFeature.icon" class="q-mr-sm"/>
       <q-toolbar-title>AI VIDEO CLIPS</q-toolbar-title>
       <q-tabs v-model="tab" shrink :active-bg-color="color">
         <q-tab name="od" icon="collections" label="Object Detection"/>
@@ -209,7 +209,7 @@ export default {
     }
 
     return {
-      tab, color, rows, webMngrAddress, selectedDate, stream, columns,
+      tab, color, rows, webMngrAddress, selectedDate, stream, columns, selectedFeature,
       pagination: {
         rowsPerPage: 0
       },

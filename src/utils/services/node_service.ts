@@ -109,13 +109,13 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
-  public async getOdImagesFolders(sourceId: string, date: string): Promise<FolderTreeItem[]> {
-    const resp = await api.get(await this.LocalService.getNodeAddress(`odimagesfolders/${sourceId}/${date}`));
+  public async getAiImagesFolders(sourceId: string, date: string, aiType: number): Promise<FolderTreeItem[]> {
+    const resp = await api.get(await this.LocalService.getNodeAddress(`aiimagesfolders/${sourceId}/${date}/${aiType}`));
     return [resp.data];
   }
 
   public async getOdImages(model: ImagesParams): Promise<ImageItem[]> {
-    const resp = await api.post(await this.LocalService.getNodeAddress('odimages'), model);
+    const resp = await api.post(await this.LocalService.getNodeAddress('aiimages'), model);
     return resp.data;
   }
 
@@ -126,16 +126,6 @@ export class NodeService extends BaseService {
 
   public async deleteAiClip(vm: AiClipViewModel): Promise<boolean> {
     const resp = await api.delete(await this.LocalService.getNodeAddress('aiclips'), {data: vm});
-    return resp.data;
-  }
-
-  public async getFrImagesFolders(sourceId: string, date: string): Promise<FolderTreeItem[]> {
-    const resp = await api.get(await this.LocalService.getNodeAddress(`frimagesfolders/${sourceId}/${date}`));
-    return [resp.data];
-  }
-
-  public async getFrImages(model: ImagesParams): Promise<ImageItem[]> {
-    const resp = await api.post(await this.LocalService.getNodeAddress('frimages'), model);
     return resp.data;
   }
 
@@ -172,16 +162,6 @@ export class NodeService extends BaseService {
 
   public async deleteFrTrainPerson(model: FrTrainName): Promise<boolean> {
     const resp = await api.delete(await this.LocalService.getNodeAddress('frtrainpersondelete'), {data: model});
-    return resp.data;
-  }
-
-  public async getAlprImagesFolders(sourceId: string, date: string): Promise<FolderTreeItem[]> {
-    const resp = await api.get(await this.LocalService.getNodeAddress(`alprimagesfolders/${sourceId}/${date}`));
-    return [resp.data];
-  }
-
-  public async getAlprImages(model: ImagesParams): Promise<ImageItem[]> {
-    const resp = await api.post(await this.LocalService.getNodeAddress('alprimages'), model);
     return resp.data;
   }
 

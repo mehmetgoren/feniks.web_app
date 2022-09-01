@@ -1,17 +1,20 @@
 <template>
-  <div class='q-pa-md'>
+  <div>
     <q-layout view='hHh Lpr lff' container style='height: 900px' class='shadow-2 rounded-borders'>
       <q-header elevated class='bg-deep-purple-14'>
-        <q-toolbar>
-          <q-btn flat @click='drawer = !drawer' round dense icon='menu' />
-          <q-toolbar-title>
-            Detected Images
-            <q-icon name='collections'></q-icon>
-          </q-toolbar-title>
+        <q-toolbar :class="'bg-' + color + ' text-white'">
+          <q-btn flat round dense :icon="selectedFeature.icon" class="q-mr-sm"/>
+          <q-toolbar-title>AI IMAGES</q-toolbar-title>
+          <q-tabs v-model="tab" shrink :active-bg-color="color">
+            <q-tab name="od" icon="collections" label="Object Detection"/>
+            <q-tab name="fr" icon="face" label="Face Recognition"/>
+            <q-tab name="alpr" icon="drive_eta" label="License Plate Recognition"/>
+          </q-tabs>
+          <q-space/>
           <div style='background-color: whitesmoke;margin-right: 5px;'>
-            <DateTimeSelector :dense="true" color='orange' :show-hour='false' @date-changed='onDateChanged'/>
+            <DateTimeSelector :dense="true" :color='color' :show-hour='false' @date-changed='onDateChanged'/>
           </div>
-          <q-btn color='orange' label='Refresh' icon='restore_page' @click='onRefresh' :disable='refreshLoading'>
+          <q-btn :color='color' label='Refresh' icon='restore_page' @click='onRefresh' :disable='refreshLoading'>
             <q-inner-loading :showing='refreshLoading' />
           </q-btn>
         </q-toolbar>
@@ -41,14 +44,16 @@
   </div>
 </template>
 <script lang='ts'>
-import { onMounted, ref } from 'vue';
+import {onMounted, ref, watch} from 'vue';
 import { NodeService } from 'src/utils/services/node_service';
 import { FolderTreeItem, ImageItem } from 'src/utils/models/detected';
 import DateTimeSelector from 'src/components/DateTimeSelector.vue';
 import { getTodayString } from 'src/utils/utils';
+import {AiClipQueryViewModel} from 'src/utils/models/ai_clip_view_models';
+import {SelectedAiFeature} from 'src/utils/models/ai_data_dtos';
 
 export default {
-  name: 'OdImageGallery',
+  name: 'AiImageGallery',
   components: { DateTimeSelector },
   props: {
     odModel: {
@@ -57,6 +62,40 @@ export default {
     }
   },
   setup(props: any) {
+    const tab = ref<string>('od')
+    const params = ref<AiClipQueryViewModel>({
+      ai_type: 0,
+      source_id: props.sourceId,
+      date:  getTodayString()
+    });
+    const selectedFeature = ref<SelectedAiFeature>({name: 'Object Detection', icon: 'collections'});
+    watch(tab, (newValue: string) => {
+      switch (newValue) {
+        case 'od':
+          color.value = 'deep-purple-14';
+          params.value.ai_type = 0;
+          selectedFeature.value.name = 'Object Detection';
+          selectedFeature.value.icon = 'collections';
+          void onRefresh();
+          break;
+        case 'fr':
+          color.value = 'deep-orange-7';
+          params.value.ai_type = 1;
+          selectedFeature.value.name = 'Face Recognition';
+          selectedFeature.value.icon = 'face';
+          void onRefresh();
+          break;
+        case 'alpr':
+          color.value = 'blue-grey-6';
+          params.value.ai_type = 2;
+          selectedFeature.value.name = 'License Plate Recognition';
+          selectedFeature.value.icon = 'drive_eta';
+          void onRefresh();
+          break;
+      }
+    })
+    const color = ref<string>('deep-purple-14')
+
     const nodeService = new NodeService();
     const treeItems = ref<FolderTreeItem[]>([]);
     const selected = ref<string>('detected');
@@ -64,7 +103,6 @@ export default {
     const images = ref<ImageItem[]>([]);
     const treeLoading = ref<boolean>(true);
     const imagesLoading = ref<boolean>(false);
-    let selectedDate = getTodayString();
     const refreshLoading = ref<boolean>(false);
     let prevSelected = '';
 
@@ -80,10 +118,10 @@ export default {
       }
     }
 
-    async function dataBind() {
+    async function databind() {
       try {
         treeLoading.value = true;
-        const directories = await nodeService.getOdImagesFolders(props.odModel.id, selectedDate);
+        const directories = await nodeService.getAiImagesFolders(props.odModel.id, params.value.date, params.value.ai_type);
         if (!directories || !directories.length || !directories[0]) {
           treeItems.value = [];
           images.value = [];
@@ -97,13 +135,13 @@ export default {
     }
 
     onMounted(async () => {
-      await dataBind();
+      await databind();
     });
 
     async function handleTreeSelected(selection: string) {
       try {
         imagesLoading.value = true;
-        const items = await nodeService.getOdImages({ rootPath: selection, sourceId: props.odModel.id });
+        const items = await nodeService.getOdImages({ rootPath: selection, sourceId: props.odModel.id, ai_type:params.value.ai_type });
         if (items && items.length > 0) {
           for (const item of items) {
             item.imagePath = await nodeService.LocalService.getNodeAddress(item.imagePath);
@@ -119,7 +157,7 @@ export default {
     async function onRefresh() {
       refreshLoading.value = true;
       try {
-        await dataBind();
+        await databind();
         if (prevSelected) {
           await handleTreeSelected(prevSelected);
         }
@@ -129,12 +167,12 @@ export default {
     }
 
     function onDateChanged(dateStr: string) {
-      selectedDate = dateStr;
-      void dataBind();
+      params.value.date = dateStr;
+      void databind();
     }
 
     return {
-      selected, images, imagesLoading, selectedKeys, selectedDate, refreshLoading,
+      tab, color, selected, images, imagesLoading, selectedKeys, refreshLoading, selectedFeature,
       drawer: ref(false),
       handleTreeSelected, treeLoading, onDateChanged, onRefresh,
       treeItems
