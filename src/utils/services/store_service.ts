@@ -1,7 +1,7 @@
 import { SourceModel } from 'src/utils/models/source_model';
 import { IState, useStore } from 'src/store';
 import { Store } from 'vuex';
-import { MenuLink } from 'src/store/module-settings/state';
+import {MenuLink, StreamCommandBarInfo} from 'src/store/module-settings/state';
 import { computed } from 'vue';
 import { EditorImageResponseModel } from 'src/utils/entities';
 import { User } from 'src/utils/models/user_model';
@@ -76,5 +76,13 @@ export class StoreService {
 
   public setNotifySourceStreamStatusChanged() {
     this.$store.commit('settings/notifySourceStreamStatusChanged');
+  }
+
+  public get clickedStreamCommandBar() {
+    return computed(() => this.$store.getters['settings/clickedStreamCommandBar']);
+  }
+
+  public setStreamCommandBar(info: StreamCommandBarInfo) {
+    this.$store.commit('settings/streamCommandbarClicked', info);
   }
 }

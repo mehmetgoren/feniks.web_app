@@ -44,26 +44,11 @@
       </q-btn>
     </q-btn-group>
     <q-separator style='margin-top: 5px;' />
-
-    <q-dialog v-model='showSettings' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
-      <SourceSettings :source-id='stream.id' @on-save='onSettingsSave' @on-delete='onSettingsDelete' />
-    </q-dialog>
-
-    <q-dialog v-model='showRecord' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
-      <SourceRecords :source-id='stream.id' />
-    </q-dialog>
-
-    <q-dialog v-model='showOnvif' full-width transition-show='flip-down' transition-hide='flip-up'>
-      <OnvifSettings :address='stream.address' :color='"brown-5"' />
-    </q-dialog>
   </div>
 </template>
 
 <script lang='ts'>
 import { ref, computed } from 'vue';
-import SourceSettings from 'components/SourceSettings.vue';
-import SourceRecords from 'components/SourceRecords.vue';
-import OnvifSettings from 'components/OnvifSettings.vue';
 import { PublishService } from 'src/utils/services/websocket_services';
 import { NodeService } from 'src/utils/services/node_service';
 import { SourceModel } from 'src/utils/models/source_model';
@@ -72,15 +57,11 @@ import { LocalService, SelectOption } from 'src/utils/services/local_service';
 import { List } from 'linqts';
 import { useRouter } from 'vue-router';
 import { StoreService } from 'src/utils/services/store_service';
+import {StreamCommandBarActions} from 'src/store/module-settings/state';
 
 export default {
   name: 'StreamCommandBar',
-  components: {
-    SourceSettings,
-    SourceRecords,
-    OnvifSettings
-  },
-  emits: ['full-screen', 'stream-stop', 'connect', 'take-screenshot', 'refresh', 'deleted', 'restart', 'close'],
+  emits: ['full-screen', 'stream-stop', 'connect', 'take-screenshot', 'refresh', 'restart', 'close'],
   props: {
     stream: {
       type: Object, // type is StreamModel
@@ -114,7 +95,6 @@ export default {
   setup(props: any, { emit }) {
     const router = useRouter();
     const dense = ref<boolean>(props.transparent);
-    const showSettings = ref<boolean>(false);
     const localService = new LocalService();
     const storeService = new StoreService();
     const rtmpType = computed(() => {
@@ -128,16 +108,14 @@ export default {
     const publishService = new PublishService();
     const nodeService = new NodeService();
 
-    const showRecord = ref<boolean>(false);
     const onRecordClick = () => {
-      showRecord.value = true;
+      storeService.setStreamCommandBar({ source: props.stream, action: StreamCommandBarActions.ShowSourceRecords});
     };
 
     const onAiClick = () => {
       storeService.setAiSettingsSourceId(props.stream.id);
       void router.push('ai_settings');
     };
-    const showOnvif = ref<boolean>(false);
 
     return {
       onFullScreenClick() {
@@ -161,28 +139,18 @@ export default {
       onRefresh() {
         emit('refresh', props.stream);
       },
-      onSettingsSave() {
-        showSettings.value = false;
-        emit('close', props.stream);
-      },
-      onSettingsDelete() {
-        emit('deleted', props.stream);
-        showSettings.value = false;
-      },
-      showSettings,
       onSettingsClick() {
-        showSettings.value = true;
+        storeService.setStreamCommandBar({ source: props.stream, action: StreamCommandBarActions.ShowSourceSettings});
       },
       onAiClick,
-      showOnvif,
       onOnvifClick() {
-        showOnvif.value = true;
+        storeService.setStreamCommandBar({ source: props.stream, action: StreamCommandBarActions.ShowOnvifSettings});
       },
       onClose() {
         emit('close', props.stream);
-        showSettings.value = false;
+        storeService.setStreamCommandBar({ source: props.stream, action: StreamCommandBarActions.CloseSourceSettings});
       },
-      showRecord, dense,
+      dense,
       onRecordClick,
       rtmpType, streamType
     };

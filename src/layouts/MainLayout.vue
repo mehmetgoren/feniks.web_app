@@ -151,9 +151,9 @@
 
 <script lang='ts'>
 import {onBeforeUnmount, onMounted, reactive, ref, watch} from 'vue';
-import {useRouter, useRoute} from 'vue-router';
+import {useRoute, useRouter} from 'vue-router';
 import {NodeService} from 'src/utils/services/node_service';
-import {MenuLink, LoadingInfo} from 'src/store/module-settings/state';
+import {LoadingInfo, MenuLink, StreamCommandBarInfo, StreamCommandBarActions} from 'src/store/module-settings/state';
 import {PublishService, SubscribeService} from 'src/utils/services/websocket_services';
 import {EditorImageResponseModel} from 'src/utils/entities';
 import SourceSettings from 'components/SourceSettings.vue';
@@ -161,7 +161,7 @@ import SourceRecords from 'components/SourceRecords.vue';
 import OnvifSettings from 'components/OnvifSettings.vue';
 import ServerStatsBar from 'components/ServerStatsBar.vue';
 import {SourceModel} from 'src/utils/models/source_model';
-import {createEmptyBase64Image, startStream, doUserLogout} from 'src/utils/utils';
+import {createEmptyBase64Image, doUserLogout, startStream} from 'src/utils/utils';
 import {StoreService} from 'src/utils/services/store_service';
 import {WsConnection} from 'src/utils/ws/connection';
 import Notifier from 'components/Notifier.vue';
@@ -218,6 +218,28 @@ export default {
     const sourceStreamStatusChanged = storeService.sourceStreamStatusChanged;
     watch(sourceStreamStatusChanged, async () => {
       await sourceStreamDatabind();
+    });
+
+    const clickedStreamCommandBar = storeService.clickedStreamCommandBar;
+    watch(clickedStreamCommandBar, (info: StreamCommandBarInfo) => {
+      switch (info.action) {
+        case  StreamCommandBarActions.ShowSourceSettings:
+          selectedSourceId.value = info.source.id;
+          showSettings.value = true;
+          break;
+        case StreamCommandBarActions.ShowSourceRecords:
+          selectedSourceId.value = info.source.id;
+          showRecords.value = true;
+          break;
+        case StreamCommandBarActions.ShowOnvifSettings:
+          selectedSourceAddress.value = info.source.address;
+          showOnvif.value = true;
+          break;
+        case StreamCommandBarActions.CloseSourceSettings:
+          selectedSourceId.value = info.source.id;
+          showSettings.value = false;
+          break;
+      }
     });
 
     onMounted(async () => {
@@ -339,12 +361,14 @@ export default {
       onSourceSettingsSave() {
         showSettings.value = false;
       },
+      onSourceDelete() {
+        showSettings.value = false;
+        storeService.setStreamCommandBar({ source: {id: selectedSourceId, address: selectedSourceAddress},
+          action: StreamCommandBarActions.DeleteSource});
+      },
       onOnvifClick(link: MenuLink) {
         selectedSourceAddress.value = <string>link.source?.address;
         showOnvif.value = true;
-      },
-      onSourceDelete() {
-        showSettings.value = false;
       }
     };
   },

@@ -18,7 +18,7 @@
 
         <StreamCommandBar v-if='stream.show' :stream='stream' :hide='stream.hide' @full-screen='onFullScreen' @stream-stop='onStreamStop'
                           @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh'
-                          @deleted='onSourceDeleted' @restart='onRestart' @close='onStreamClose'
+                          @restart='onRestart' @close='onStreamClose'
                           :take-screenshot-loading='stream.takeScreenshotLoading'
                           :enable-booster='stream.booster_enabled' :transparent='stream.stream_type<2' />
 
@@ -35,7 +35,7 @@
 <script lang='ts'>
 import {
   onMounted, reactive, ref, nextTick,
-  onBeforeUpdate, onBeforeUnmount
+  onBeforeUpdate, onBeforeUnmount, watch
 } from 'vue';
 import {StreamModel} from 'src/utils/models/stream_model';
 import {EditorImageResponseModel} from 'src/utils/entities';
@@ -58,6 +58,7 @@ import {LocalService, GsLocation} from 'src/utils/services/local_service';
 import {NodeService} from 'src/utils/services/node_service';
 import {Config} from 'src/utils/models/config';
 import {StoreService} from 'src/utils/services/store_service';
+import {StreamCommandBarActions, StreamCommandBarInfo} from 'src/store/module-settings/state';
 // https://v3.vuejs.org/guide/migration/array-refs.html
 export default {
   name: 'LiveStreamGallery',
@@ -80,6 +81,18 @@ export default {
     let isRemoteServer = false;
     const config = ref<Config>();
     const minWidth = ref<number>(4);
+
+    const clickedStreamCommandBar = storeService.clickedStreamCommandBar;
+    watch(clickedStreamCommandBar, (info: StreamCommandBarInfo) => {
+      switch (info.action) {
+        case  StreamCommandBarActions.DeleteSource:
+          const stream = new List<StreamExtModel>(streamList).FirstOrDefault(x => x?.id == info.source.id);
+          if (stream) {
+            removeSource(stream);
+          }
+          break;
+      }
+    });
 
     //
     let streamPlayers: any[] = [];
@@ -352,10 +365,6 @@ export default {
       stream.show = false;
     }
 
-    function onSourceDeleted(stream: StreamExtModel) {
-      removeSource(stream);
-    }
-
     function onStreamClose(stream: StreamExtModel) {
       removeSource(stream);
     }
@@ -377,7 +386,7 @@ export default {
     return {
       open, streamList, showLoading, config, minWidth,
       setStreamPlayers, onFullScreen, onStreamStop, onConnect, onTakeScreenshot,
-      onRefresh, onSourceDeleted, onRestart, onStreamClose, onUserActivity
+      onRefresh, onRestart, onStreamClose, onUserActivity
     };
   }
 };

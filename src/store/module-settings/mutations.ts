@@ -1,5 +1,5 @@
 import { MutationTree } from 'vuex';
-import { ISettingsState, LoadingInfo, MenuItem, MenuLink } from './state';
+import {ISettingsState, LoadingInfo, MenuItem, MenuLink, StreamCommandBarInfo} from './state';
 import { List } from 'linqts';
 import { SourceModel } from 'src/utils/models/source_model';
 import { LocalService } from 'src/utils/services/local_service';
@@ -65,6 +65,9 @@ const mutation: MutationTree<ISettingsState> = {
   currentUser(state: ISettingsState, user: User){
     state.currentUser = user;
     new LocalService().setCurrentUser(user);
+  },
+  streamCommandbarClicked(state: ISettingsState, info: StreamCommandBarInfo){
+    state.clickedStreamCommandBar = info;
   }
 };
 

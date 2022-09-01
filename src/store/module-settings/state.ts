@@ -1,6 +1,19 @@
 import { SourceModel } from 'src/utils/models/source_model';
 import { User } from 'src/utils/models/user_model';
 
+export enum StreamCommandBarActions{
+  ShowSourceSettings = 0,
+  ShowSourceRecords = 1,
+  ShowOnvifSettings = 2,
+  CloseSourceSettings = 3,
+  DeleteSource = 4
+}
+
+export interface StreamCommandBarInfo{
+  source: any; //SourceModel
+  action: StreamCommandBarActions;
+}
+
 export interface MenuLink {
   route?: string | null;
   text?: string | null;
@@ -30,6 +43,7 @@ export interface ISettingsState {
   sourceStreamStatusChanged: boolean;
   aiSettingsSourceId: string;
   currentUser: User | null;
+  clickedStreamCommandBar: StreamCommandBarInfo | null;
 }
 
 export interface LoadingInfo {
@@ -65,7 +79,8 @@ function state(): ISettingsState {
     sourceLoading: { id: '', loading: false },
     sourceStreamStatusChanged: false,
     aiSettingsSourceId: '',
-    currentUser: null
+    currentUser: null,
+    clickedStreamCommandBar: null
   };
 }
 
