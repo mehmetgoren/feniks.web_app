@@ -33,10 +33,7 @@
 </template>
 
 <script lang='ts'>
-import {
-  onMounted, reactive, ref, nextTick,
-  onBeforeUpdate, onBeforeUnmount, watch
-} from 'vue';
+import {nextTick, onBeforeUnmount, onBeforeUpdate, onMounted, reactive, ref, watch} from 'vue';
 import {StreamModel} from 'src/utils/models/stream_model';
 import {EditorImageResponseModel} from 'src/utils/entities';
 import {List} from 'linqts';
@@ -54,7 +51,7 @@ import 'gridstack/dist/jq/gridstack-dd-jqueryui';
 import {PublishService, SubscribeService} from 'src/utils/services/websocket_services';
 import {WsConnection} from 'src/utils/ws/connection';
 import {checkIpIsLoopBack, isNullOrUndefined, startStream} from 'src/utils/utils';
-import {LocalService, GsLocation} from 'src/utils/services/local_service';
+import {GsLocation, LocalService} from 'src/utils/services/local_service';
 import {NodeService} from 'src/utils/services/node_service';
 import {Config} from 'src/utils/models/config';
 import {StoreService} from 'src/utils/services/store_service';
@@ -84,12 +81,14 @@ export default {
 
     const clickedStreamCommandBar = storeService.clickedStreamCommandBar;
     watch(clickedStreamCommandBar, (info: StreamCommandBarInfo) => {
+      const stream = new List<StreamExtModel>(streamList).FirstOrDefault(x => x?.id == info.source.id);
+      if (!stream) return;
       switch (info.action) {
+        case StreamCommandBarActions.ShowOnvifSettings:
+          stream.show = false;
+          break;
         case  StreamCommandBarActions.DeleteSource:
-          const stream = new List<StreamExtModel>(streamList).FirstOrDefault(x => x?.id == info.source.id);
-          if (stream) {
-            removeSource(stream);
-          }
+          removeSource(stream);
           break;
       }
     });

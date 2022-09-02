@@ -55,6 +55,7 @@ export default {
       player: null,
       prevEvents: {},
       setIntervalInstance: null,
+      setIntervalNonBoostedInstance: null,
       myBoosterInterval: .3,
       videojsId: uuidv4()
     };
@@ -109,6 +110,11 @@ export default {
         if (this.enableLog) {
           console.log(`FlvPlayer(${this.sourceId}): booster mode will not be invoke setTimeout,  exiting now...`);
         }
+        this.setIntervalNonBoostedInstance = setInterval(() =>{
+          const vj = $('#' + this.videojsId);
+          vj.find('.vjs-loading-spinner').remove();
+          vj.find('.vjs-progress-control').css('visibility', 'hidden')
+        }, 30000);
         return;
       }
       if (this.boosterInterval !== undefined && this.boosterInterval !== null
@@ -140,6 +146,12 @@ export default {
       clearInterval(this.setIntervalInstance);
       if (this.enableLog) {
         console.log(`FlvPlayer(${this.sourceId}): the interval has been cleared at ${new Date().toLocaleString()}`);
+      }
+    }
+    if (this.setIntervalNonBoostedInstance){
+      clearInterval(this.setIntervalNonBoostedInstance);
+      if (this.enableLog) {
+        console.log(`FlvPlayer(${this.sourceId}): the non-boosted interval has been cleared at ${new Date().toLocaleString()}`);
       }
     }
   },

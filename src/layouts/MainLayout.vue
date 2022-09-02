@@ -360,6 +360,8 @@ export default {
       },
       onSourceSettingsSave() {
         showSettings.value = false;
+        storeService.setStreamCommandBar({ source: {id: selectedSourceId, address: selectedSourceAddress},
+          action: StreamCommandBarActions.SaveSource});
       },
       onSourceDelete() {
         showSettings.value = false;

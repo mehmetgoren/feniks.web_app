@@ -6,6 +6,7 @@ export enum StreamCommandBarActions{
   ShowSourceRecords = 1,
   ShowOnvifSettings = 2,
   CloseSourceSettings = 3,
+  SaveSource = 4,
   DeleteSource = 4
 }
 
