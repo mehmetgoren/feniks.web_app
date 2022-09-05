@@ -4,7 +4,11 @@
       <q-toolbar>
         <q-btn flat round dense icon='settings'/>
         <q-toolbar-title>
-          <label style='text-transform: uppercase;font-size: medium'> {{ source.name }}</label>
+          <label v-if="!insertMode" style='text-transform: uppercase;font-size: medium'> {{ source.name }}</label>
+          <q-btn v-if="insertMode" dense flat glossy icon-right='auto_awesome' label="Add a New Source Quickly"
+                 @click="showQuickWizard=true">
+            <q-tooltip>Click to add a new source quickly!</q-tooltip>
+          </q-btn>
         </q-toolbar-title>
         <q-space/>
         <CommandBar :show-restore='false' @on-save='onSave' :inactive-save='inactives.save' @on-delete='onDelete'
@@ -32,10 +36,18 @@
 
           <q-stepper v-model='step' vertical color='cyan' animated>
             <q-step id='step1' :name='1' color='cyan' title='Source Basic Settings' icon='settings' :done='step > 1'>
+              <div class="q-gutter-md row" v-if='insertMode&&copyPrevSources.length'>
+                <q-select dense emit-value map-options filled v-model='copySelectedSourceId' color='cyan' style="width: 400px;"
+                          :options='copyPrevSources' transition-show='scale' transition-hide='scale' option-value="id" option-label="name"
+                          label="Please Select a Source To Copy From" />
+                <q-btn square color="cyan" text-color="white" icon="content_copy" label="Copy Settings From" size="12px"
+                @click="onCopySettingsFromChanged"/>
+              </div>
+              <q-space v-if='insertMode&&copyPrevSources.length' style="margin-top: 15px;"/>
               <q-form class='q-gutter-md'>
                 <q-checkbox dense v-model='source.enabled' color='cyan' label='Enable'/>
                 <q-input dense filled v-model.trim='source.name' label='Name' color='cyan'
-                         lazy-rules :rules="[ val => val && val.length > 0 || 'Please type something']"/>
+                         lazy-rules :rules="[ val => val && val.length > 0 || 'Please enter a valid name']"/>
                 <q-input dense filled v-model.trim='source.brand' label='Brand' color='cyan'/>
                 <q-input dense filled v-model.trim='source.description' label='Description' color='cyan'/>
                 <q-toggle dense v-model='source.record_enabled' color='red' @update:model-value='onRecordChange'
@@ -49,7 +61,7 @@
             <q-step id='step2' :name='2' title='Connection' icon='power' color='cyan' :done='step > 2'>
               <q-form class='q-gutter-md'>
                 <q-input dense filled v-model.trim='source.address' color='cyan' label='Address'
-                         lazy-rules :rules="[ val => val && val.length > 0 || 'Please type something']">
+                         lazy-rules :rules="[ val => val && val.length > 0 || 'Please enter a valid address']">
                   <template v-slot:prepend v-if="recommendedRtspAddresses.length">
                     <q-icon name="list">
                       <q-popup-proxy>
@@ -290,6 +302,31 @@
     <OnvifSettings :color='"brown-5"' :address='source.address'/>
   </q-dialog>
 
+  <q-dialog v-model="showQuickWizard">
+    <q-card class="my-card" style="overflow: hidden;">
+      <q-card-section class="row items-center q-pb-none">
+        <div class="text-h10">Add a New Source Quickly</div>
+        <q-space/>
+        <q-btn icon="close" flat round dense v-close-popup/>
+      </q-card-section>
+      <q-card-section>
+        <div class="q-pa-md" style="width: 400px;">
+          <q-input dense filled v-model.trim='source.name' label='Name' color='cyan'
+                   lazy-rules :rules="[ val => val && val.length > 0 || 'Please enter a valid name']"/>
+          <q-input dense filled v-model.trim='source.address' color='cyan' label='Address'
+                   lazy-rules :rules="[ val => val && val.length > 0 || 'Please enter a valid address']"/>
+        </div>
+      </q-card-section>
+      <q-separator/>
+      <q-card-actions align="right">
+        <q-btn flat color="cyan" glossy label="Find the best settings!" icon-right="auto_awesome" @click="onFindOptimalSettings2"
+               :disable="quickWizardShowing">
+          <q-inner-loading :showing="quickWizardShowing"/>
+        </q-btn>
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+
 </template>
 
 <script lang='ts'>
@@ -305,6 +342,7 @@ import {LocalService} from 'src/utils/services/local_service';
 import {StoreService} from 'src/utils/services/store_service';
 import {WsConnection} from 'src/utils/ws/connection';
 import {ProbeResponseEvent, ProbeResult} from 'src/utils/models/various';
+import {List} from 'linqts';
 
 declare var $: any;
 export default {
@@ -351,6 +389,14 @@ export default {
     const showOnvif = ref<boolean>(false);
     const recommendedRtspAddresses = ref<string[]>([]);
     const showFindOptimalSettings = ref<boolean>(false);
+    const showQuickWizard = ref<boolean>(false);
+    const quickWizardShowing = ref<boolean>(false);
+    const copySelectedSourceId = ref<string>('');
+    const copyPrevSources = ref<SourceModel[]>([]);
+
+    const insertMode = computed(() => {
+      return isNullOrEmpty(source.value.id);
+    });
 
     const publishService = new PublishService();
     const $q = useQuasar();
@@ -370,6 +416,8 @@ export default {
           }
         }
       }
+
+      copyPrevSources.value = await nodeService.getSourceList();
 
       const subscribeService = new SubscribeService(await nodeService.LocalService.getNodeIP(),
         await nodeService.LocalService.getNodePort());
@@ -554,6 +602,33 @@ export default {
       }
     };
 
+    const onCopySettingsFromChanged = () => {
+      if (!copySelectedSourceId.value || !copyPrevSources.value.length) {
+        $q.notify({
+          message: 'Please Seleact a Source First',
+          color: 'red',
+          position: 'bottom-right'
+        });
+      }
+      const selectedSource = new List(copyPrevSources.value).FirstOrDefault((x: any) => x.id === copySelectedSourceId.value);
+      if (!selectedSource) {
+        return;
+      }$q.dialog({
+        title: 'Confirm',
+        message: 'Are you sure you want to copy settings from ' + selectedSource.name + '?',
+        cancel: true,
+        persistent: false
+      }).onOk(() => {
+        nodeService.getSource(copySelectedSourceId.value).then(data => {
+          data.id = '';
+          data.name += ' Copy'
+          source.value = data;
+        }).catch(console.error);
+      }).onCancel(() => {
+        copySelectedSourceId.value = '';
+      });
+    };
+
     return {
       source, showRecordDetail, step, rtspTransports, logLevels,
       accelerationEngines, videoDecoders, streamTypes,
@@ -561,7 +636,29 @@ export default {
       streamRotations, rtmpServerTypes, audioChannels, inactives, showOnvif,
       audioQualities, audioSampleRates, recordFileTypes, recordVideoCodecs,
       recordPresets, recordRotations, showFindOptimalSettings, snapshotTypes,
-      onSave, onDelete, onStep1Click, onRecordChange, onStreamTypeChanged, onFindOptimalSettings
+      onSave, onDelete, onStep1Click, onRecordChange, onStreamTypeChanged, onFindOptimalSettings,
+      insertMode, showQuickWizard, quickWizardShowing,
+      onFindOptimalSettings2() {
+        let model = source.value;
+        if (!model.name || !model.address) {
+          $q.notify({
+            message: 'Please enter both "Name" and  "Address" fields',
+            caption: 'Invalid',
+            color: 'red-14',
+            position: 'bottom-right'
+          });
+          return;
+        }
+        showQuickWizard.value = true;
+        quickWizardShowing.value = true;
+        onFindOptimalSettings();
+        setTimeout(() => {
+          quickWizardShowing.value = false;
+          showQuickWizard.value = false;
+        }, 3000);
+      },
+      copySelectedSourceId, copyPrevSources,
+      onCopySettingsFromChanged
     };
   }
 };

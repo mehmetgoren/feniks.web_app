@@ -64,7 +64,7 @@
                       </q-td>
                     </template>
                     <template v-slot:top-left>
-                      <q-btn v-if='props.row.videoFiles.length>1' icon-right='movie_creation' label='Merge' glossy color='primary'
+                      <q-btn v-if='props.row.videoFiles.length>1' icon-right='movie_creation' label='Merge' glossy color='purple'
                              style='margin-right: 15px;' @click='onMerge(props.row)' :disable='showMergeLoading'>
                         <q-inner-loading :showing='showMergeLoading' />
                       </q-btn>

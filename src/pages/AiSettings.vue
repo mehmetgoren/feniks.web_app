@@ -13,9 +13,6 @@
         <q-tab :disable='!enabled' name='aidata' icon='lens_blur' label='Ai Data' />
       </q-tabs>
       <q-space />
-      <q-btn icon-right='reply' color='orange' @click='onGoBack' dense>
-        <q-tooltip class='bg-orange'>Go back</q-tooltip>
-      </q-btn>
     </q-toolbar>
   </div>
   <div class='q-pa-md q-gutter-sm' style='margin-top: -35px;'>
@@ -237,13 +234,9 @@ export default {
       void nodeService.saveOd(od.value);
     }
 
-    function onGoBack() {
-      window.location.reload();
-    }
-
     return {
       tab, od, cocoList, columns, cocoFilter, selectAll, inactiveSave, inactiveRefresh, enabled, separator,
-      onSave, onRefresh, handleZonesCoordinatesChanged, handleMasksCoordinatesChanged, onGoBack,
+      onSave, onRefresh, handleZonesCoordinatesChanged, handleMasksCoordinatesChanged,
       initialPagination: {
         page: 0,
         rowsPerPage: 10

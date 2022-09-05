@@ -237,13 +237,12 @@ export function findBestSettings(source: SourceModel, probeResult: ProbeResult):
   }
   source.rtmp_server_type = 1; //SRS Realtime
   source.stream_type = 0; //FLV
-  //todo: test it with dahua
-  if (parseFloat(v.start_time) > 0.) {
-    source.booster_enabled = true;
-  }
-  source.input_frame_rate = fps;
+  // if (parseFloat(v.start_time) > 0.) {
+  //   source.booster_enabled = true;
+  // }
+  // source.input_frame_rate = fps;
   source.stream_video_codec = 3; // copy
-  source.preset = 1; //ultra fast
+  source.preset = 1; // ultra fast
   // source.stream_frame_rate = fps;
   // source.stream_width = v.width;
   // source.stream_height = v.height;
@@ -268,8 +267,8 @@ export function findBestSettings(source: SourceModel, probeResult: ProbeResult):
   }
 
   source.snapshot_frame_rate = 1;
-  source.snapshot_width = 640;
-  source.snapshot_height = 360;
+  source.snapshot_width = 1280;
+  source.snapshot_height = 720;
 
   source.record_file_type = 0; //MP4
   source.record_preset = 1; //ultra fast
