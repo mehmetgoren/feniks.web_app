@@ -97,6 +97,7 @@ export default {
     const dense = ref<boolean>(props.transparent);
     const localService = new LocalService();
     const storeService = new StoreService();
+    const cloneStream: StreamModel = {...props.stream};
     const rtmpType = computed(() => {
       return new List<SelectOption>(localService.createRtmpServerTypes())
         .FirstOrDefault(x => x?.value === props.stream.rtmp_server_type)?.label ?? '';
@@ -109,7 +110,7 @@ export default {
     const nodeService = new NodeService();
 
     const onRecordClick = () => {
-      storeService.setStreamCommandBar({ source: props.stream, action: StreamCommandBarActions.ShowSourceRecords});
+      storeService.setStreamCommandBar({ source: cloneStream, action: StreamCommandBarActions.ShowSourceRecords});
     };
 
     const onAiClick = () => {
@@ -119,36 +120,35 @@ export default {
 
     return {
       onFullScreenClick() {
-        emit('full-screen', props.stream);
+        emit('full-screen', cloneStream);
       },
       onStreamStopClick() {
-        emit('stream-stop', props.stream);
+        emit('stream-stop', cloneStream);
       },
       onConnectClick() {
-        emit('connect', props.stream);
+        emit('connect', cloneStream);
       },
       async onRestartClick() {
-        emit('restart', props.stream);
-        const streamModel: StreamModel = props.stream;
-        const sourceModel: SourceModel = await nodeService.getSource(streamModel.id);
+        emit('restart', cloneStream);
+        const sourceModel: SourceModel = await nodeService.getSource(props.stream.id);
         await publishService.publishRestartStream(sourceModel);
       },
       onTakeScreenshot() {
-        emit('take-screenshot', props.stream);
+        emit('take-screenshot', cloneStream);
       },
       onRefresh() {
-        emit('refresh', props.stream);
+        emit('refresh', cloneStream);
       },
       onSettingsClick() {
-        storeService.setStreamCommandBar({ source: props.stream, action: StreamCommandBarActions.ShowSourceSettings});
+        storeService.setStreamCommandBar({ source: cloneStream, action: StreamCommandBarActions.ShowSourceSettings});
       },
       onAiClick,
       onOnvifClick() {
-        storeService.setStreamCommandBar({ source: props.stream, action: StreamCommandBarActions.ShowOnvifSettings});
+        storeService.setStreamCommandBar({ source: cloneStream, action: StreamCommandBarActions.ShowOnvifSettings});
       },
       onClose() {
-        emit('close', props.stream);
-        storeService.setStreamCommandBar({ source: props.stream, action: StreamCommandBarActions.CloseSourceSettings});
+        emit('close', cloneStream);
+        storeService.setStreamCommandBar({ source: cloneStream, action: StreamCommandBarActions.CloseSourceSettings});
       },
       dense,
       onRecordClick,

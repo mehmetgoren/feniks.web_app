@@ -81,11 +81,12 @@ export default {
 
     const clickedStreamCommandBar = storeService.clickedStreamCommandBar;
     watch(clickedStreamCommandBar, (info: StreamCommandBarInfo) => {
-      const stream = new List<StreamExtModel>(streamList).FirstOrDefault(x => x?.id == info.source.id);
+      const stream = findById(info.source.id);
       if (!stream) return;
+
       switch (info.action) {
         case StreamCommandBarActions.ShowOnvifSettings:
-          stream.show = false;
+          //do nothing
           break;
         case  StreamCommandBarActions.DeleteSource:
           removeSource(stream);
@@ -109,8 +110,11 @@ export default {
         player.fullScreen();
       }
     };
-    const onStreamStop = (stream: StreamExtModel) => {
-      void publishService.publishStopStream(<any>stream);
+    const onStreamStop = (cloneStream: StreamExtModel) => {
+      const stream = findById(cloneStream.id);
+      if (!stream) return;
+
+      void publishService.publishStopStream(stream);
       storeService.setNotifySourceStreamStatusChanged();
       stream.show = false;
       setTimeout(() => {
@@ -296,7 +300,7 @@ export default {
         if (responseModel.event_type != 1) {
           return;
         }
-        const stream = new List<StreamExtModel>(streamList).FirstOrDefault(x => x?.id == responseModel.id);
+        const stream = findById(responseModel.id??'');
         if (stream) {
           stream.takeScreenshotLoading = false;
         }
@@ -317,7 +321,10 @@ export default {
     });
 
     //events starts
-    function onRefresh(stream: StreamExtModel) {
+    function onRefresh(cloneStream: StreamExtModel) {
+      const stream = findById(cloneStream.id);
+      if (!stream) return;
+
       stream.show = false;
       setTimeout(() => {
         stream.show = true;
@@ -333,22 +340,27 @@ export default {
         }
       }
       if (index > -1) {
-        stream.show = false;
+        streamList[index].show = false;
         streamList.splice(index, 1);
         localService.deleteGsLocation(stream.id);
       }
     }
 
-    async function onConnect(stream: StreamExtModel) {
-      if (isNullOrUndefined(stream)) {
+    async function onConnect(cloneStream: StreamExtModel) {
+      if (isNullOrUndefined(cloneStream)) {
         return;
       }
+      const stream = findById(cloneStream.id);
+      if (!stream) return;
 
       const sourceModel = await nodeService.getSource(stream.id);
       startStream(storeService, publishService, sourceModel);
     }
 
-    function onTakeScreenshot(stream: StreamExtModel) {
+    function onTakeScreenshot(cloneStream: StreamExtModel) {
+      const stream = findById(cloneStream.id);
+      if (!stream) return;
+
       stream.takeScreenshotLoading = true;
       void publishService.publishEditor({
         id: stream.id,
@@ -360,17 +372,20 @@ export default {
     }
 
     // Handled by MainLayout stream command bar publish connection
-    function onRestart(stream: StreamExtModel) {
+    function onRestart(cloneStream: StreamExtModel) {
+      const stream = findById(cloneStream.id);
+      if (!stream) return;
+
       stream.show = false;
     }
 
-    function onStreamClose(stream: StreamExtModel) {
-      removeSource(stream);
+    function onStreamClose(cloneStream: StreamExtModel) {
+      removeSource(cloneStream);
     }
 
     function onUserActivity(obj: any) {
       const sourceId: string = obj.sourceId;
-      const stream = new List<StreamExtModel>(streamList).FirstOrDefault(x => x?.id == sourceId);
+      const stream = findById(sourceId);
       if (stream) {
         stream.hide = !obj.userActive;
       }
@@ -378,7 +393,7 @@ export default {
 
     //events ends
 
-    const findById = (sourceId: string) => {
+    const findById = (sourceId: string): StreamExtModel | null => {
       return new List<any>(streamList).FirstOrDefault(x => x.id == sourceId);
     }
 
