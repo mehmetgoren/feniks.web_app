@@ -659,7 +659,7 @@ export class LocalService {
   public createEmptyNode(): Node {
     return {
       name: '',
-      node_port:8072,
+      node_port: 8072,
       node_address: '',
       description: '',
       active: false
@@ -681,6 +681,13 @@ export class LocalService {
       {value: 2, label: 'NVIDIA JETSON'},
       {value: 3, label: 'ARM64'},
       {value: 4, label: 'ARM64_SERVER'}
+    ];
+  }
+
+  public createArchiveActionTypes(): SelectOption[] {
+    return [
+      {value: 0, label: 'Delete'},
+      {value: 1, label: 'Move Another Location'},
     ];
   }
 }

@@ -37,7 +37,7 @@
         <q-form class='q-pa-xs' style='margin:0 5px 0 5px;'>
           <q-input v-model.trim='general.root_folder_path' filled dense label='Root Folder Path'/>
           <q-space style='height: 10px;'/>
-          <q-input v-model.number='general.heartbeat_interval' filled dense label='Heartbeat Interval'/>
+          <q-input type="number" v-model.number='general.heartbeat_interval' filled dense label='Heartbeat Interval'/>
         </q-form>
 
         <q-space style='height: 10px;'/>
@@ -53,17 +53,30 @@
 
         <q-space style='height: 10px;'/>
         <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
+          <label style='text-transform: uppercase;font-size: medium'>Archive Config</label>
+        </q-toolbar>
+        <q-space style='margin: 2px;'/>
+        <q-form class='q-pa-xs' style='margin:0 5px 0 5px;'>
+          <q-input type="number" v-model.number='archive.limit_percent' filled dense label='Limit Percent %'/>
+          <q-space style='height: 10px;'/>
+          <q-select emit-value map-options filled dense v-model='archive.action_type' :options='archiveActionTypes' label='Action Type'/>
+          <q-space style='height: 10px;'/>
+          <q-input v-model.trim='archive.move_location' filled dense label='Move Location'/>
+        </q-form>
+
+        <q-space style='height: 10px;'/>
+        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
           <label style='text-transform: uppercase;font-size: medium'>UI Config</label>
         </q-toolbar>
         <q-space style='margin: 2px;'/>
         <q-form class='q-pa-xs' style='margin:0 5px 0 5px;'>
-          <q-input v-model.number='ui.gs_width' filled dense label='Grid Stack Width'/>
+          <q-input type="number" v-model.number='ui.gs_width' filled dense label='Grid Stack Width'/>
           <q-space style='height: 10px;'/>
-          <q-input v-model.number='ui.gs_height' filled dense label='Grid Stack Height'/>
+          <q-input type="number" v-model.number='ui.gs_height' filled dense label='Grid Stack Height'/>
           <q-space style='height: 10px;'/>
-          <q-input v-model.number='ui.booster_interval' filled dense label='Booster Interval'/>
+          <q-input type="number" v-model.number='ui.booster_interval' filled dense label='Booster Interval'/>
           <q-space style='height: 10px;'/>
-          <q-input v-model.number='ui.seek_to_live_edge_internal' filled dense label='Seek to Live Edge Internal'/>
+          <q-input type="number" v-model.number='ui.seek_to_live_edge_internal' filled dense label='Seek to Live Edge Internal'/>
         </q-form>
 
         <q-space style='height: 10px;'/>
@@ -74,7 +87,7 @@
         <q-form class='q-pa-xs' style='margin:0 5px 0 5px;'>
           <q-toggle v-model='jobs.mac_ip_matching_enabled' filled dense label='Mac IP Matching Enabled'/>
           <q-space style='height: 10px;'/>
-          <q-input v-model.number='jobs.mac_ip_matching_interval' filled dense label='Mac IP Matching Interval'/>
+          <q-input type="number" v-model.number='jobs.mac_ip_matching_interval' filled dense label='Mac IP Matching Interval'/>
         </q-form>
       </div>
 
@@ -85,7 +98,7 @@
         </q-toolbar>
         <q-space style='margin: 2px;'/>
         <q-form id='frm6' class='q-pa-xs'>
-          <q-input v-model.number='onceDetector.imagehash_threshold' type='number' filled dense
+          <q-input  v-model.number='onceDetector.imagehash_threshold' type='number' filled dense
                    label='Imagehash Threshold'/>
           <q-space style='height: 10px;'/>
           <q-input v-model.number='onceDetector.psnr_threshold' type='number' filled dense
@@ -155,13 +168,13 @@
         <q-form id='frm14' class='q-pa-xs'>
           <q-toggle v-model='ai.overlay' filled dense label='Overlay Detected Object'/>
           <q-space style='height: 10px;'/>
-          <q-input v-model.number='ai.video_clip_duration' filled dense label='Video Clip Duration'/>
+          <q-input type="number" v-model.number='ai.video_clip_duration' filled dense label='Video Clip Duration'/>
           <q-space style='height: 10px;'/>
-          <q-input v-model.number='ai.face_recog_mtcnn_threshold' filled dense label='Face Recognition MTCNN Threshold'/>
+          <q-input type="number" v-model.number='ai.face_recog_mtcnn_threshold' filled dense label='Face Recognition MTCNN Threshold'/>
           <q-space style='height: 10px;'/>
-          <q-input v-model.number='ai.face_recog_prob_threshold' filled dense label='Face Recognition Probability Threshold'/>
+          <q-input type="number" v-model.number='ai.face_recog_prob_threshold' filled dense label='Face Recognition Probability Threshold'/>
           <q-space style='height: 10px;'/>
-          <q-input v-model.number='ai.plate_recog_instance_count' filled dense label='Automatic Plate Recognition Instance Count'/>
+          <q-input type="number" v-model.number='ai.plate_recog_instance_count' filled dense label='Automatic Plate Recognition Instance Count'/>
         </q-form>
 
         <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin: 0 10px 0 10px; width: auto;'>
@@ -202,7 +215,7 @@
         <q-form id='frm15' class='q-pa-xs' style='margin: 0 10px 0 10px'>
           <q-input v-model.trim='deepstack.server_url' filled dense label='Server URL'/>
           <q-space style='height: 10px;'/>
-          <q-input v-model.number='deepstack.server_port' filled dense label='Server Port'/>
+          <q-input type="number" v-model.number='deepstack.server_port' filled dense label='Server Port'/>
           <q-space style='height: 10px;'/>
           <q-select emit-value map-options filled dense v-model='deepstack.performance_mode' :options='deepStackPerOpts'
                     label='Performance Mode'/>
@@ -211,11 +224,11 @@
           <q-space style='height: 10px;'/>
           <q-toggle v-model='deepstack.od_enabled' filled dense label='Object Detection Enabled'/>
           <q-space style='height: 10px;'/>
-          <q-input v-model.number='deepstack.od_threshold' filled dense label='Object Detection Threshold'/>
+          <q-input type="number" v-model.number='deepstack.od_threshold' filled dense label='Object Detection Threshold'/>
           <q-space style='height: 10px;'/>
           <q-toggle v-model='deepstack.fr_enabled' filled dense label='Face Recognition Enabled'/>
           <q-space style='height: 10px;'/>
-          <q-input v-model.number='deepstack.fr_threshold' filled dense label='Face Recognition Threshold'/>
+          <q-input type="number" v-model.number='deepstack.fr_threshold' filled dense label='Face Recognition Threshold'/>
           <q-space style='height: 10px;'/>
           <q-select emit-value map-options filled dense v-model='deepstack.docker_type' :options='deepStackDockerTypes'
                     label='Performance Mode'/>
@@ -308,7 +321,7 @@
   </div>
   <div class='q-pa-md q-gutter-sm' v-if='config&&tab==="info"'>
     <div class='row'>
-      <q-toolbar class='bg-lime-6 text-white shadow-2 rounded-borders' style='margin-bottom: -12px;'>
+      <q-toolbar class='bg-lime-7 text-white shadow-2 rounded-borders' style='margin-bottom: -12px;'>
         <q-tabs v-model='otherTabs' narrow-indicator inline-label align='left'>
           <q-tab name="gpu" icon="memory" label="GPU"/>
           <q-tab name='failedstreams' icon='sms_failed' label='Failed Streams'/>
@@ -356,7 +369,6 @@
       </div>
     </div>
   </div>
-
   <div class='q-pa-md q-gutter-sm' v-if='config&&tab==="others"'>
     <div class='row'>
       <div class='col-6'>
@@ -375,7 +387,7 @@ import {onBeforeUnmount, onMounted, ref} from 'vue';
 import {
   Config, JetsonConfig, DeviceConfig, TorchConfig, OnceDetectorConfig, SourceReaderConfig,
   FFmpegConfig, TensorflowConfig, AiConfig, GeneralConfig, UiConfig, DbConfig, JobsConfig,
-  DeepStackConfig
+  DeepStackConfig, ArchiveConfig
 } from 'src/utils/models/config';
 import {PublishService, SubscribeService} from 'src/utils/services/websocket_services';
 import {NetworkDiscoveryModel, OnvifAction, OnvifEvent} from 'src/utils/models/onvif_models';
@@ -419,6 +431,8 @@ export default {
     const deepstack = ref<DeepStackConfig>();
     const deepStackPerOpts = ref<SelectOption[]>(nodeService.LocalService.createDeepStackPerformanceModes());
     const deepStackDockerTypes = ref<SelectOption[]>(nodeService.LocalService.createDeepStackDockerTypes());
+    const archive = ref<ArchiveConfig>();
+    const archiveActionTypes = ref<SelectOption[]>(nodeService.LocalService.createArchiveActionTypes());
 
     //jetson
     const jetson = ref<JetsonConfig>();
@@ -462,6 +476,7 @@ export default {
       ui.value = c.ui;
       jobs.value = c.jobs;
       deepstack.value = c.deep_stack;
+      archive.value = c.archive;
     };
 
     const serviceDataBind = async () => {
@@ -574,9 +589,9 @@ export default {
 
     return {
       config, device, optDeviceTypes, onceDetector, sourceReader,
-      jetson, jetsonFilter, ffmpeg, tf, ai, general, ui, jobs, db, dbTypes, deepstack,
+      jetson, jetsonFilter, ffmpeg, tf, ai, general, ui, jobs, db, dbTypes, deepstack, archive,
       torch, torchFilter, tfFilter, showScanLoading, users, restartLoading, startLoading, stopLoading,
-      deepStackPerOpts, deepStackDockerTypes,
+      deepStackPerOpts, deepStackDockerTypes, archiveActionTypes,
       currentNode, tab: ref<string>('config'),
       imageExtensions: ['jpg', 'jpeg', 'png', 'bmp', 'gif'],
       onSave, onRestore, onScanNetwork: function () {

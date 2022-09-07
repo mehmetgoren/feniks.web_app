@@ -83,6 +83,12 @@ export interface DeepStackConfig{
   docker_type: number;
 }
 
+export interface ArchiveConfig{
+  limit_percent:number;
+  action_type: number;
+  move_location: string;
+}
+
 export interface Config {
   device: DeviceConfig;
   jetson: JetsonConfig;
@@ -97,4 +103,5 @@ export interface Config {
   ui: UiConfig;
   jobs: JobsConfig;
   deep_stack: DeepStackConfig;
+  archive: ArchiveConfig;
 }
