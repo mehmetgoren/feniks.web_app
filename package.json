@@ -20,12 +20,13 @@
     "linqts": "^1.14.4",
     "nanoid": "^4.0.0",
     "quasar": "^2.7.7",
+    "uuid": "^8.3.2",
     "v-viewer": "^3.0.10",
     "video.js": "^7.20.2",
     "videojs-flvjs-es6": "^1.0.1",
     "vue-chart-3": "^3.0.4",
-    "vuex": "^4.0.2",
-    "uuid": "^8.3.2"
+    "vue-i18n": "^9.2.2",
+    "vuex": "^4.0.2"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.16.5",

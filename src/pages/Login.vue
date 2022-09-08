@@ -14,14 +14,21 @@
                 </q-toolbar>
               </q-card-section>
               <q-card-section>
-                <q-form class='q-px-sm q-pt-xl'>
-                  <q-input square clearable v-model='loginUser.username' type='email' label='Username'
+                <q-form class='q-px-sm q-pt-xl' style="margin-top: -40px;">
+                  <q-select v-model="locale" :options="localeOptions" :label="$t('language')"
+                            square  dense borderless emit-value map-options options-dense style="min-width: 150px">
+                    <template v-slot:prepend>
+                      <q-icon name='language' style="margin-right: 5px;" />
+                    </template>
+                  </q-select>
+                  <q-space style="margin-bottom: 5px" />
+                  <q-input square clearable v-model='loginUser.username' type='email' :label="$t('username')"
                            lazy-rules :rules="[ val => val && val.length > 0 || 'Please enter username']">
                     <template v-slot:prepend>
                       <q-icon name='person' />
                     </template>
                   </q-input>
-                  <q-input square clearable v-model='loginUser.password' type='password' label='Password'
+                  <q-input square clearable v-model='loginUser.password' type='password' :label="$t('password')"
                            lazy-rules :rules="[ val => val && val.length > 0 || 'Please enter password']">
                     <template v-slot:prepend>
                       <q-icon name='lock' />
@@ -30,14 +37,14 @@
                 </q-form>
               </q-card-section>
               <q-card-actions class='q-px-lg'>
-                <q-btn unelevated size='lg' color='purple-4' class='full-width text-white' icon='login' label='Login' @click='onLogin'
+                <q-btn unelevated size='lg' color='purple-4' class='full-width text-white' icon='login' :label="$t('login')" @click='onLogin'
                 :disable="showLoginLoading">
                   <q-inner-loading :showing='showLoginLoading' />
                 </q-btn>
               </q-card-actions>
               <q-card-section class='text-center q-pa-sm'>
-                <p class='text-grey-6' style='cursor: pointer;' @click='onGoRegister'>Register</p>
-                <p class='text-grey-6' style='cursor: pointer;' @click='onGoNodes'>Nodes</p>
+                <p class='text-grey-6' style='cursor: pointer;' @click='onGoRegister'>{{$t('register')}}</p>
+                <p class='text-grey-6' style='cursor: pointer;' @click='onGoNodes'>{{$t('nodes')}}</p>
               </q-card-section>
             </q-card>
           </div>
@@ -55,25 +62,25 @@
               </q-card-section>
               <q-card-section>
                 <q-form class='q-px-sm q-pt-xl q-pb-lg'>
-                  <q-input square clearable v-model='registerUser.email' type='email' label='Email'
+                  <q-input square clearable v-model='registerUser.email' type='email' :label="$t('email')"
                            lazy-rules :rules="[ val => val && val.length > 0 || 'Please enter email']">
                     <template v-slot:prepend>
                       <q-icon name='email' />
                     </template>
                   </q-input>
-                  <q-input square clearable v-model='registerUser.username' type='username' label='Username'
+                  <q-input square clearable v-model='registerUser.username' type='username' :label="$t('username')"
                            lazy-rules :rules="[ val => val && val.length > 0 || 'Please enter username']">
                     <template v-slot:prepend>
                       <q-icon name='person' />
                     </template>
                   </q-input>
-                  <q-input square clearable v-model='registerUser.password' type='password' label='Password'
+                  <q-input square clearable v-model='registerUser.password' type='password' :label="$t('password')"
                            lazy-rules :rules="[ val => val && val.length > 0 || 'Please enter password']">
                     <template v-slot:prepend>
                       <q-icon name='lock' />
                     </template>
                   </q-input>
-                  <q-input square clearable v-model='registerUser.re_password' type='password' label='Re enter password'
+                  <q-input square clearable v-model='registerUser.re_password' type='password' :label="$t('reenterpassword')"
                            lazy-rules :rules="[ val => val && val.length > 0 || 'Please re-enter password']">
                     <template v-slot:prepend>
                       <q-icon name='lock' />
@@ -82,11 +89,11 @@
                 </q-form>
               </q-card-section>
               <q-card-actions class='q-px-lg'>
-                <q-btn unelevated size='lg' color='purple-4' class='full-width text-white' icon='app_registration' label='Sign me up'
+                <q-btn unelevated size='lg' color='purple-4' class='full-width text-white' icon='app_registration' :label="$t('signmeup')"
                        @click='onRegister' />
               </q-card-actions>
               <q-card-section class='text-center q-pa-sm'>
-                <p class='text-grey-6' style='cursor: pointer;' @click='onReturnLogin'>Return to login</p>
+                <p class='text-grey-6' style='cursor: pointer;' @click='onReturnLogin'>{{$t('returntologin')}}</p>
               </q-card-section>
             </q-card>
           </div>
@@ -106,11 +113,13 @@ import Nodes from 'src/pages/Nodes.vue';
 import { NodeRepository } from 'src/utils/db';
 import { useRouter } from 'vue-router';
 import { StoreService } from 'src/utils/services/store_service';
+import {useI18n} from 'vue-i18n';
 
 export default {
   name: 'Login',
   components:{Nodes},
   setup() {
+    const { locale } = useI18n({ useScope: 'global' })
     const $q = useQuasar();
     const router = useRouter();
     const mode = ref<Mode>(Mode.Login);
@@ -161,6 +170,11 @@ export default {
       mode.value = result ? Mode.Login : Mode.Register;
     };
     return {
+      locale,
+      localeOptions: [
+        { value: 'en-US', label: 'English' },
+        { value: 'tr-TR', label: 'Türkçe' }
+      ],
       mode, loginUser, registerUser, showLoginLoading,
       onLogin, onRegister,
       onGoRegister() {
