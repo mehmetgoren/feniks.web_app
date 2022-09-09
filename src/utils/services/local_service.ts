@@ -72,6 +72,17 @@ export class LocalService {
     return null;
   }
 
+  public getLang(): string{
+    try {
+      return localStorage.getItem('feniks_language') ?? '';
+    }catch {
+      return '';
+    }
+  }
+  public setLang(lang: string){
+    localStorage.setItem('feniks_language', lang);
+  }
+
   public saveGsLocation(sourceId: string, option: GsLocation) {
     if (isNullOrEmpty(sourceId) || isNullOrUndefined(option))
       return;
@@ -90,7 +101,7 @@ export class LocalService {
     const ret: GsLocation[] = [];
     Object.keys(localStorage).forEach(function (key) {
       const strValue = localStorage.getItem(key)
-      if (strValue) {
+      if (strValue && strValue.startsWith('{')) {
         const gso = JSON.parse(strValue);
         if (gso && gso.x !== undefined && gso.y !== undefined) {
           ret.push(gso);

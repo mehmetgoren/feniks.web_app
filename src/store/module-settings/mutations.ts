@@ -68,6 +68,14 @@ const mutation: MutationTree<ISettingsState> = {
   },
   streamCommandbarClicked(state: ISettingsState, info: StreamCommandBarInfo){
     state.clickedStreamCommandBar = info;
+  },
+  set18n(state: ISettingsState, t: any){
+    const n = state.menu.node;
+    n['config'][0].text = t('config');
+    n['stream_gallery'][0].text = t('stream_gallery');
+    n['add_source'][0].text = t('add_source');
+    n['fr_training'][0].text = t('fr_training');
+    n['ai_data'][0].text = t('ai_data');
   }
 };
 

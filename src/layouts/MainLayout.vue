@@ -18,8 +18,8 @@
                     <q-avatar size='36px'>
                       <q-icon name='logout'/>
                     </q-avatar>
-                    Logout
-                    <q-tooltip>Logout</q-tooltip>
+                    {{$t('logout')}}
+                    <q-tooltip>$t('logout')</q-tooltip>
                   </q-item-label>
                 </q-item-section>
               </q-item>
@@ -165,6 +165,7 @@ import {createEmptyBase64Image, doUserLogout, startStream} from 'src/utils/utils
 import {StoreService} from 'src/utils/services/store_service';
 import {WsConnection} from 'src/utils/ws/connection';
 import Notifier from 'components/Notifier.vue';
+import {useI18n} from 'vue-i18n';
 
 export default {
   name: 'Ionix Layout',
@@ -173,13 +174,15 @@ export default {
     ServerStatsBar, Notifier
   },
   setup() {
+    const { t } = useI18n({ useScope: 'global' });
+    const storeService = new StoreService();
+    storeService.set18n(t);
     const router = useRouter();
     const route = useRoute();
     const leftDrawerOpen = ref(false);
     const nodeService = new NodeService();
     const localService = nodeService.LocalService;
     const publishService = new PublishService();
-    const storeService = new StoreService();
     const loadingObject = reactive<any>({});
     const sourceStreamStatus = reactive<any>({});
     const showSettings = ref<boolean>(false);
@@ -379,7 +382,6 @@ export default {
       //@ts-ignore
       this.activeLeftMenu = link.name;
       const me: any = this;
-      console.log('MenuLayout says: active menu is ' + link.route);
       if (link.route) {
         if (link.route === 'add_source') {
           //@ts-ignore

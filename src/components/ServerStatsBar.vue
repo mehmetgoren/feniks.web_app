@@ -3,13 +3,13 @@
     <div v-if='cpu' class='row'>
       <span class='q-ml-sm' style='font-size: large'>{{ currentNode.name }} / {{ currentNode.node_address }}</span>
     </div>
-    <q-inner-loading v-if='showLoading' :showing='true' label='Please wait...' label-class='text-cyan' label-style='font-size: 1.1em'>
+    <q-inner-loading v-if='showLoading' :showing='true' :label="$t('pleasewait')" label-class='text-cyan' label-style='font-size: 1.1em'>
       <q-spinner-hourglass size='75%' color='cyan' />
     </q-inner-loading>
   </div>
   <div class='q-pa-md q-gutter-sm' v-if='showCpu'>
     <div v-if='cpu' class='row'>
-      <label style='float: left;width: 80%;color: #455a64'> {{ cpu.cpu_count }} CPU{{ (cpu.cpu_count > 0 ? 's' : '') }}</label>
+      <label style='float: left;width: 80%;color: #455a64'> {{ cpu.cpu_count }} {{$t('cpu')}}{{ (cpu.cpu_count > 0 ? $t('plural') : '') }}</label>
       <label style='float: right;color: #455a64;'>{{ cpu.usage_percent_human }}</label>
     </div>
     <div v-if='cpu' class='row'>
@@ -19,7 +19,7 @@
 
   <div class='q-pa-md q-gutter-sm' v-if='showMemory'>
     <div v-if='memory' class='row'>
-      <label style='float:left;width: 80%;color: #455a64'> {{ memory.used_human }} / {{ memory.total_human }} RAM</label>
+      <label style='float:left;width: 80%;color: #455a64'> {{ memory.used_human }} / {{ memory.total_human }} {{ $t('ram') }}</label>
       <label style='float:right;width:auto;color: #455a64;'>{{ memory.usage_percent_human }}</label>
     </div>
     <div v-if='memory' class='row'>
@@ -29,7 +29,7 @@
 
   <div class='q-pa-md q-gutter-sm' v-if='showDisk'>
     <div v-if='disk' class='row'>
-      <label style='float: left;width: 80%;color: #455a64'> {{ disk.used_human }} / {{ disk.total_human }} DISK</label>
+      <label style='float: left;width: 80%;color: #455a64'> {{ disk.used_human }} / {{ disk.total_human }} {{$t('disk')}}</label>
       <label style='float: right;color: #455a64'>{{ disk.usage_percent_human }}</label>
     </div>
     <div v-if='disk' class='row'>
@@ -41,7 +41,7 @@
     <div v-if='network' class='row'>
       <table class="network-text">
         <tr>
-          <td>TOTAL DOWNLOAD</td>
+          <td>{{$t('totaldownload')}}</td>
           <td>:</td>
           <td style='text-align: right;'>{{ network.download_human }}</td>
           <td>
@@ -49,7 +49,7 @@
           </td>
         </tr>
         <tr>
-          <td>TOTAL UPLOAD</td>
+          <td>{{$t('totalupload')}}</td>
           <td>:</td>
           <td style='text-align: right;'>{{ network.upload_human }}</td>
           <td>
@@ -62,9 +62,9 @@
 
   <div class='q-pa-md q-gutter-sm' v-if='showCurrentTime'>
     <div v-if='currentTime' class='row'>
-      <label style='float: left;width: 100%;color: #455a64;font-size: large;text-align: center;display: block;'>{{ currentTime.toDateString() }} </label>
+      <label style='float: left;width: 100%;color: #455a64;font-size: large;text-align: center;display: block;'>{{ currentTime.toLocaleDateString(locale, localeOptions) }} </label>
       <label
-        style='float: left;width: 100%;color: #455a64;font-size: x-large;text-align: center;display: block;'>{{ currentTime.toLocaleTimeString('en-GB')
+        style='float: left;width: 100%;color: #455a64;font-size: x-large;text-align: center;display: block;'>{{ currentTime.toLocaleTimeString(locale)
         }} </label>
     </div>
   </div>
@@ -77,11 +77,14 @@ import { NodeService } from 'src/utils/services/node_service';
 import { CpuInfo, DiskInfo, MemoryInfo, NetworkInfo } from 'src/utils/models/server_stats';
 import { Node } from 'src/utils/entities';
 import { NodeRepository } from 'src/utils/db';
+import {useI18n} from 'vue-i18n';
 
 declare var $: any;
 export default {
   name: 'ServerStatsBar',
   setup() {
+    const { locale } = useI18n({ useScope: 'global' });
+    const localeOptions = ref<any>({ weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     const nodeService = new NodeService();
     const currentNode = ref<Node>(nodeService.LocalService.createEmptyNode());
     const cpu = ref<CpuInfo>();
@@ -163,7 +166,7 @@ export default {
     });
 
     return {
-      currentNode, cpu, memory, disk, network, currentTime, showLoading,
+      locale, localeOptions, currentNode, cpu, memory, disk, network, currentTime, showLoading,
       showNetwork, showCurrentTime, showDisk, showMemory, showCpu
     };
   }
@@ -185,6 +188,6 @@ function fixSingleDigitWidth(human: string): string {
 
 <style scoped>
 .network-text{
-  font-size: 13px;
+  font-size: 12px;
 }
 </style>

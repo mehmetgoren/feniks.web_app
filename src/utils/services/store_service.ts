@@ -85,4 +85,8 @@ export class StoreService {
   public setStreamCommandBar(info: StreamCommandBarInfo) {
     this.$store.commit('settings/streamCommandbarClicked', info);
   }
+
+  public set18n(t: any){
+    this.$store.commit('settings/set18n', t);
+  }
 }

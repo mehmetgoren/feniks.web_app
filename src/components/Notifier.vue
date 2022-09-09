@@ -3,10 +3,10 @@
     <q-badge v-show="noShownLength" color="red" text-color="white" floating>
       {{noShownLength}}{{noShownLength > 9 ? '+' : ''}}
     </q-badge>
-    <q-tooltip>Notifications</q-tooltip>
+    <q-tooltip>{{$t('notifications')}}</q-tooltip>
     <q-popup-proxy @show="onPopupShow" v-model="popupShow">
       <q-list bordered class="rounded-borders" style="max-width: 350px">
-        <q-item-label v-show="list.length" header>Notifications</q-item-label>
+        <q-item-label v-show="list.length" header>{{$t('notifications')}}</q-item-label>
         <q-item v-for="item in list" v-ripple :key="item.id">
           <q-item-section avatar>
 <!--            <q-avatar size="75px">-->
@@ -24,7 +24,7 @@
           </q-item-section>
 
           <q-item-section side>
-            <span class="text-weight-bold" style="font-size: xx-small">{{item.time_since}} ago</span>
+            <span class="text-weight-bold" style="font-size: xx-small">{{item.time_since}} {{$t('ago')}}</span>
           </q-item-section>
         </q-item>
       </q-list>
@@ -44,10 +44,12 @@ import {FaceRecognitionModel} from 'src/utils/models/fr_models';
 import {AlprResponse} from 'src/utils/models/alpr_models';
 import {List} from 'linqts';
 import {v4 as uuidv4} from 'uuid';
+import {useI18n} from 'vue-i18n';
 
 export default {
   name: 'Notifier',
   setup(){
+    const { t } = useI18n({ useScope: 'global' });
     const list = ref<NotificationViewModel[]>([]);
     const noShownLength = computed(() => {
       return new List(list.value).Count(x => x?.shown === false);
@@ -86,7 +88,7 @@ export default {
       timeSinceInterval = setInterval(() => {
         for(const i of list.value){
           if (i.created_at){
-            i.time_since = timeSince(i.created_at);
+            i.time_since = timeSince(i.created_at, t);
           }
         }
       }, 1000);
@@ -109,7 +111,7 @@ export default {
       item.source_name = cachedSources[model.source_id].name;
       if (model.created_at){
         item.created_at = myDateToJsDate(model.created_at);
-        item.time_since = timeSince(item.created_at);
+        item.time_since = timeSince(item.created_at, t);
       }else{
         item.time_since = '';
       }

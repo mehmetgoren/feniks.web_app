@@ -23,13 +23,13 @@
                   </q-select>
                   <q-space style="margin-bottom: 5px" />
                   <q-input square clearable v-model='loginUser.username' type='email' :label="$t('username')"
-                           lazy-rules :rules="[ val => val && val.length > 0 || 'Please enter username']">
+                           lazy-rules :rules="[ val => val && val.length > 0 || $t('venterusername')]">
                     <template v-slot:prepend>
                       <q-icon name='person' />
                     </template>
                   </q-input>
                   <q-input square clearable v-model='loginUser.password' type='password' :label="$t('password')"
-                           lazy-rules :rules="[ val => val && val.length > 0 || 'Please enter password']">
+                           lazy-rules :rules="[ val => val && val.length > 0 || $t('venterpassword')]">
                     <template v-slot:prepend>
                       <q-icon name='lock' />
                     </template>
@@ -63,25 +63,25 @@
               <q-card-section>
                 <q-form class='q-px-sm q-pt-xl q-pb-lg'>
                   <q-input square clearable v-model='registerUser.email' type='email' :label="$t('email')"
-                           lazy-rules :rules="[ val => val && val.length > 0 || 'Please enter email']">
+                           lazy-rules :rules="[ val => val && val.length > 0 || $t('venteremail')]">
                     <template v-slot:prepend>
                       <q-icon name='email' />
                     </template>
                   </q-input>
                   <q-input square clearable v-model='registerUser.username' type='username' :label="$t('username')"
-                           lazy-rules :rules="[ val => val && val.length > 0 || 'Please enter username']">
+                           lazy-rules :rules="[ val => val && val.length > 0 || $t('venterusername')]">
                     <template v-slot:prepend>
                       <q-icon name='person' />
                     </template>
                   </q-input>
                   <q-input square clearable v-model='registerUser.password' type='password' :label="$t('password')"
-                           lazy-rules :rules="[ val => val && val.length > 0 || 'Please enter password']">
+                           lazy-rules :rules="[ val => val && val.length > 0 || $t('venterpassword')]">
                     <template v-slot:prepend>
                       <q-icon name='lock' />
                     </template>
                   </q-input>
                   <q-input square clearable v-model='registerUser.re_password' type='password' :label="$t('reenterpassword')"
-                           lazy-rules :rules="[ val => val && val.length > 0 || 'Please re-enter password']">
+                           lazy-rules :rules="[ val => val && val.length > 0 || $t('vreenterpassword')]">
                     <template v-slot:prepend>
                       <q-icon name='lock' />
                     </template>
@@ -105,7 +105,7 @@
 </template>
 
 <script lang='ts'>
-import { onMounted, ref } from 'vue';
+import {onMounted, ref, watch} from 'vue';
 import { LoginUserViewModel, RegisterUserViewModel, User } from 'src/utils/models/user_model';
 import { NodeService } from 'src/utils/services/node_service';
 import { useQuasar } from 'quasar';
@@ -131,7 +131,17 @@ export default {
     const storeService = new StoreService();
     const showLoginLoading = ref<boolean>(false);
 
+    watch(locale, newValue => {
+      nodeService.LocalService.setLang(<any>newValue);
+    });
+
     onMounted(async () => {
+      let localeTemp: any = nodeService.LocalService.getLang();
+      if (!localeTemp){
+        localeTemp = $q.lang.getLocale();
+        nodeService.LocalService.setLang(localeTemp)
+      }
+      locale.value = localeTemp;
       mode.value = await nodeRepository.hasAnyNode() ? Mode.Login : Mode.Nodes;
     });
 
