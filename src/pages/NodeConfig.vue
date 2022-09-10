@@ -3,11 +3,11 @@
     <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='width: 99.5%'>
       <label style='text-transform: uppercase;font-size: medium; font-weight: bold;margin-right: 15px;'> {{ currentNode.name }}</label>
       <q-tabs v-model='tab' narrow-indicator inline-label align='left'>
-        <q-tab name='config' icon='settings_applications' label='Config'/>
-        <q-tab name='cloud' icon='cloud' label='Cloud'/>
-        <q-tab name='general' icon='developer_board' label='General'/>
-        <q-tab name='info' icon='analytics' label='Info'/>
-        <q-tab name="others" icon="dashboard" label="Others"/>
+        <q-tab name='config' icon='settings_applications' :label="$t('config')"/>
+        <q-tab name='cloud' icon='cloud' :label="$t('cloud')"/>
+        <q-tab name='general' icon='developer_board' :label="$t('general')"/>
+        <q-tab name='info' icon='analytics' :label="$t('info')"/>
+        <q-tab name="others" icon="dashboard" :label="$t('others')"/>
       </q-tabs>
       <q-toolbar-title></q-toolbar-title>
       <CommandBar v-if='tab==="config"' :show-delete='false' @on-save='onSave' @on-restore='onRestore'></CommandBar>
@@ -18,221 +18,269 @@
     <div class='row'>
 
       <div class='col-4'>
-        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='width: auto;'>
-          <label style='text-transform: uppercase;font-size: medium'>Device Config</label>
-        </q-toolbar>
-        <q-space style='margin-bottom: 2px;'/>
-        <q-form id='frm1' class='q-pa-xs'>
-          <q-input v-model.trim='device.device_name' filled dense label='Device Name' disable/>
-          <q-space style='height: 10px;'/>
-          <q-select emit-value map-options filled disable dense
-                    v-model='device.device_type' :options='optDeviceTypes' label='Device Type'/>
-        </q-form>
-
+        <q-card class="my-card" flat bordered>
+          <q-card-section class="bg-cyan text-white">
+            <div class="text-subtitle2"><label style='text-transform: uppercase;font-size: medium'>{{ $t('device') }}</label></div>
+          </q-card-section>
+          <q-separator/>
+          <q-card-section>
+            <q-input v-model.trim='device.device_name' filled dense :label="$t('device') + ' ' + $t('name')" disable/>
+            <q-space style='height: 10px;'/>
+            <q-select emit-value map-options filled disable dense
+                      v-model='device.device_type' :options='optDeviceTypes' :label="$t('device') + ' ' + $t('type')"/>
+          </q-card-section>
+        </q-card>
         <q-space style='height: 10px;'/>
-        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
-          <label style='text-transform: uppercase;font-size: medium'>General Config</label>
-        </q-toolbar>
-        <q-space style='margin: 2px;'/>
-        <q-form class='q-pa-xs' style='margin:0 5px 0 5px;'>
-          <q-input v-model.trim='general.root_folder_path' filled dense label='Root Folder Path'/>
-          <q-space style='height: 10px;'/>
-          <q-input type="number" v-model.number='general.heartbeat_interval' filled dense label='Heartbeat Interval'/>
-        </q-form>
 
+        <q-card class="my-card" flat bordered>
+          <q-card-section class="bg-cyan text-white">
+            <div class="text-subtitle2">
+              <div class="text-subtitle2"><label style='text-transform: uppercase;font-size: medium'>{{ $t('general') }}</label></div>
+            </div>
+          </q-card-section>
+          <q-separator/>
+          <q-card-section>
+            <q-input v-model.trim='general.root_folder_path' filled dense :label="$t('rootfolderpath')"/>
+            <q-space style='height: 10px;'/>
+            <q-input type="number" v-model.number='general.heartbeat_interval' filled dense :label="$t('heartbeat_interval')"/>
+          </q-card-section>
+        </q-card>
         <q-space style='height: 10px;'/>
-        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
-          <label style='text-transform: uppercase;font-size: medium'>Database Config</label>
-        </q-toolbar>
-        <q-space style='margin: 2px;'/>
-        <q-form class='q-pa-xs' style='margin:0 5px 0 5px;'>
-          <q-select emit-value map-options filled dense v-model='db.type' :options='dbTypes' label='Database'/>
-          <q-space style='height: 10px;'/>
-          <q-input v-model.trim='db.connection_string' filled dense label='Connection String'/>
-        </q-form>
 
+        <q-card class="my-card" flat bordered>
+          <q-card-section class="bg-cyan text-white">
+            <div class="text-subtitle2">
+              <label style='text-transform: uppercase;font-size: medium'>{{ $t('database') }}</label>
+            </div>
+          </q-card-section>
+          <q-separator/>
+          <q-card-section>
+            <q-select emit-value map-options filled dense v-model='db.type' :options='dbTypes' :label="$t('database')"/>
+            <q-space style='height: 10px;'/>
+            <q-input v-model.trim='db.connection_string' filled dense :label="$t('connection_string')"/>
+          </q-card-section>
+        </q-card>
         <q-space style='height: 10px;'/>
-        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
-          <label style='text-transform: uppercase;font-size: medium'>Archive Config</label>
-        </q-toolbar>
-        <q-space style='margin: 2px;'/>
-        <q-form class='q-pa-xs' style='margin:0 5px 0 5px;'>
-          <q-input type="number" v-model.number='archive.limit_percent' filled dense label='Limit Percent %'/>
-          <q-space style='height: 10px;'/>
-          <q-select emit-value map-options filled dense v-model='archive.action_type' :options='archiveActionTypes' label='Action Type'/>
-          <q-space style='height: 10px;'/>
-          <q-input v-model.trim='archive.move_location' filled dense label='Move Location'/>
-        </q-form>
 
+        <q-card class="my-card" flat bordered>
+          <q-card-section class="bg-cyan text-white">
+            <div class="text-subtitle2">
+              <label style='text-transform: uppercase;font-size: medium'>{{ $t('archive') }}</label>
+            </div>
+          </q-card-section>
+          <q-separator/>
+          <q-card-section>
+            <q-input type="number" v-model.number='archive.limit_percent' filled dense :label="$t('limit_percent')"/>
+            <q-space style='height: 10px;'/>
+            <q-select emit-value map-options filled dense v-model='archive.action_type' :options='archiveActionTypes' :label="$t('action_type')"/>
+            <q-space style='height: 10px;'/>
+            <q-input v-model.trim='archive.move_location' filled dense :label="$t('move_location')"/>
+          </q-card-section>
+        </q-card>
         <q-space style='height: 10px;'/>
-        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
-          <label style='text-transform: uppercase;font-size: medium'>UI Config</label>
-        </q-toolbar>
-        <q-space style='margin: 2px;'/>
-        <q-form class='q-pa-xs' style='margin:0 5px 0 5px;'>
-          <q-input type="number" v-model.number='ui.gs_width' filled dense label='Grid Stack Width'/>
-          <q-space style='height: 10px;'/>
-          <q-input type="number" v-model.number='ui.gs_height' filled dense label='Grid Stack Height'/>
-          <q-space style='height: 10px;'/>
-          <q-input type="number" v-model.number='ui.booster_interval' filled dense label='Booster Interval'/>
-          <q-space style='height: 10px;'/>
-          <q-input type="number" v-model.number='ui.seek_to_live_edge_internal' filled dense label='Seek to Live Edge Internal'/>
-        </q-form>
 
+        <q-card class="my-card" flat bordered>
+          <q-card-section class="bg-cyan text-white">
+            <div class="text-subtitle2">
+              <label style='text-transform: uppercase;font-size: medium'>{{ $t('ui') }}</label>
+            </div>
+          </q-card-section>
+          <q-separator/>
+          <q-card-section>
+            <q-input type="number" v-model.number='ui.gs_width' filled dense :label="$t('grid_stack_row')"/>
+            <q-space style='height: 10px;'/>
+            <q-input type="number" v-model.number='ui.gs_height' filled dense :label="$t('grid_stack_column')"/>
+            <q-space style='height: 10px;'/>
+            <q-input type="number" v-model.number='ui.booster_interval' filled dense :label="$t('booster_interval')"/>
+            <q-space style='height: 10px;'/>
+            <q-input type="number" v-model.number='ui.seek_to_live_edge_internal' filled dense :label="$t('seek_to_live_edge_internal')"/>
+          </q-card-section>
+        </q-card>
         <q-space style='height: 10px;'/>
-        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
-          <label style='text-transform: uppercase;font-size: medium'>Recurrent Jobs Config</label>
-        </q-toolbar>
-        <q-space style='margin: 2px;'/>
-        <q-form class='q-pa-xs' style='margin:0 5px 0 5px;'>
-          <q-toggle v-model='jobs.mac_ip_matching_enabled' filled dense label='Mac IP Matching Enabled'/>
-          <q-space style='height: 10px;'/>
-          <q-input type="number" v-model.number='jobs.mac_ip_matching_interval' filled dense label='Mac IP Matching Interval'/>
-        </q-form>
-      </div>
-
-      <div class='col-4'>
-        <q-space style='margin: 2px;'/>
-        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin: 0 10px 0 10px; width: auto;'>
-          <label style='text-transform: uppercase;font-size: medium'>Object Detector Config</label>
-        </q-toolbar>
-        <q-space style='margin: 2px;'/>
-        <q-form id='frm6' class='q-pa-xs'>
-          <q-input  v-model.number='onceDetector.imagehash_threshold' type='number' filled dense
-                   label='Imagehash Threshold'/>
-          <q-space style='height: 10px;'/>
-          <q-input v-model.number='onceDetector.psnr_threshold' type='number' filled dense
-                   label='Psnr Threshold'/>
-          <q-space style='height: 10px;'/>
-          <q-input v-model.number='onceDetector.ssim_threshold' type='number' filled dense
-                   label='Ssim Threshold'/>
-        </q-form>
-
-        <q-space style='height: 10px;'/>
-        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
-          <label style='text-transform: uppercase;font-size: medium'>OpenCV Reader Config</label>
-        </q-toolbar>
-        <q-space style='height: 2px;'/>
-        <q-form id='frm7' class='q-pa-xs' style='margin:0 5px 0 5px;'>
-          <q-toggle v-model='sourceReader.resize_img' filled dense label='Resize Image'>
-            <q-tooltip><strong>Be careful about it. It costs too much CPU time.</strong></q-tooltip>
-          </q-toggle>
-          <q-space style='height: 10px;'/>
-          <q-input v-model.number='sourceReader.buffer_size' type='number' filled dense label='Buffer Size'/>
-          <q-space style='height: 10px;'/>
-          <q-input v-model.number='sourceReader.max_retry' type='number' filled dense label='Max Retry'/>
-          <q-space style='height: 10px;'/>
-          <q-input v-model.number='sourceReader.max_retry_in' type='number' filled dense label='Max RetryIn'/>
-          <q-space style='height: 10px;'/>
-        </q-form>
-
-        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin: 0 10px 0 10px; width: auto;'>
-          <label style='text-transform: uppercase;font-size: medium'>FFmpeg Config</label>
-        </q-toolbar>
-        <q-space style='margin: 2px;'/>
-        <q-form id='frm9' class='q-pa-xs'>
-          <q-toggle v-model='ffmpeg.use_double_quotes_for_path' filled dense
-                    label='Use double quotes on FFmpeg Commands'/>
-          <q-space style='height: 10px;'/>
-          <q-input v-model.number='ffmpeg.max_operation_retry_count' type='number' filled dense
-                   label='Max retry count'/>
-          <q-space style='height: 10px;'/>
-          <q-input v-model.number='ffmpeg.rtmp_server_init_interval' type='number' filled dense
-                   label='RTMP Service initialization Interval'/>
-          <q-space style='height: 10px;'/>
-          <q-input v-model.number='ffmpeg.watch_dog_interval' type='number' filled dense
-                   label='Watchdog Interval'/>
-          <q-space style='height: 10px;'/>
-          <q-input v-model.number='ffmpeg.watch_dog_failed_wait_interval' type='number' filled dense
-                   label='Watchdog on Fail Wait Internal'/>
-          <q-space style='height: 10px;'/>
-          <q-input v-model.number='ffmpeg.start_task_wait_for_interval' type='number' filled dense
-                   label='Start Task Wait For Interval'/>
-          <q-space style='height: 10px;'/>
-          <q-input v-model.number='ffmpeg.record_concat_limit' type='number' filled dense
-                   label='Recording Concat Limit'/>
-          <q-space style='height: 10px;'/>
-          <q-input v-model.number='ffmpeg.record_video_file_indexer_interval' type='number' filled dense
-                   label='Recording Video File Indexer Interval'/>
-        </q-form>
 
       </div>
 
       <div class='col-4'>
 
-        <q-space style='margin: 2px;'/>
-        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin: 0 10px 0 10px; width: auto;'>
-          <label style='text-transform: uppercase;font-size: medium'>AI Config</label>
-        </q-toolbar>
-        <q-space style='margin: 2px;'/>
-        <q-form id='frm14' class='q-pa-xs'>
-          <q-toggle v-model='ai.overlay' filled dense label='Overlay Detected Object'/>
-          <q-space style='height: 10px;'/>
-          <q-input type="number" v-model.number='ai.video_clip_duration' filled dense label='Video Clip Duration'/>
-          <q-space style='height: 10px;'/>
-          <q-input type="number" v-model.number='ai.face_recog_mtcnn_threshold' filled dense label='Face Recognition MTCNN Threshold'/>
-          <q-space style='height: 10px;'/>
-          <q-input type="number" v-model.number='ai.face_recog_prob_threshold' filled dense label='Face Recognition Probability Threshold'/>
-          <q-space style='height: 10px;'/>
-          <q-input type="number" v-model.number='ai.plate_recog_instance_count' filled dense label='Automatic Plate Recognition Instance Count'/>
-        </q-form>
-
-        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin: 0 10px 0 10px; width: auto;'>
-          <label style='text-transform: uppercase;font-size: medium'>PyTorch Config</label>
-        </q-toolbar>
-        <q-space style='margin: 2px;'/>
-        <q-form id='frm5' class='q-pa-xs' style='margin: 0 10px 0 10px'>
-          <q-input v-model.trim='torch.model_name' filled dense label='Model Name'/>
-          <q-space style='height: 10px;'/>
-          <q-input v-model.trim='torch.model_name_specific' filled dense label='Model Specific Name'/>
-
-        </q-form>
-        <q-space style='margin: 2px;'/>
-        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin: 0 10px 0 10px; width: auto;'>
-          <label style='text-transform: uppercase;font-size: medium'>Tensorflow Config</label>
-        </q-toolbar>
-        <q-space style='margin: 2px;'/>
-        <q-form id='frm10' class='q-pa-xs' style='margin: 0 10px 0 10px'>
-          <q-input v-model='tf.model_name' filled dense label='Model Name'/>
-          <q-space style='height: 10px;'/>
-          <q-input v-model='tf.cache_folder' filled dense label='Cache Folder'/>
-        </q-form>
-
+        <q-card class="my-card" flat bordered style="margin: 0 5px 0 5px;">
+          <q-card-section class="bg-cyan text-white">
+            <div class="text-subtitle2">
+              <label style='text-transform: uppercase;font-size: medium'>{{ $t('motion_detection') }}</label>
+            </div>
+          </q-card-section>
+          <q-separator/>
+          <q-card-section>
+            <q-input v-model.number='onceDetector.imagehash_threshold' type='number' filled dense :label="'Imagehash ' + $t('threshold')"/>
+            <q-space style='height: 10px;'/>
+            <q-input v-model.number='onceDetector.psnr_threshold' type='number' filled dense :label="'PSNR ' + $t('threshold')"/>
+            <q-space style='height: 10px;'/>
+            <q-input v-model.number='onceDetector.ssim_threshold' type='number' filled dense :label="'SSIM ' + $t('threshold')"/>
+          </q-card-section>
+        </q-card>
         <q-space style='height: 10px;'/>
-        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin: 0 10px 0 10px;width: auto;'>
-          <label style='text-transform: uppercase;font-size: medium'>Jetson Config</label>
-        </q-toolbar>
-        <q-space style='margin: 2px;'/>
-        <q-form id='frm4' class='q-pa-xs' style='margin: 0 10px 0 10px'>
-          <q-input v-model.trim='jetson.model_name' filled dense label='Model Name'/>
-        </q-form>
 
+        <q-card class="my-card" flat bordered style="margin: 0 5px 0 5px;">
+          <q-card-section class="bg-cyan text-white">
+            <div class="text-subtitle2">
+              <label style='text-transform: uppercase;font-size: medium'>{{ $t('opencv_stream_reader') }}</label>
+            </div>
+          </q-card-section>
+          <q-separator/>
+          <q-card-section>
+            <q-toggle v-model='sourceReader.resize_img' filled dense :label="$t('resize_image')">
+              <q-tooltip><strong>{{ $t('tresize') }}</strong></q-tooltip>
+            </q-toggle>
+            <q-space style='height: 10px;'/>
+            <q-input v-model.number='sourceReader.buffer_size' type='number' filled dense :label="$t('buffer_size')"/>
+            <q-space style='height: 10px;'/>
+            <q-input v-model.number='sourceReader.max_retry' type='number' filled dense :label="$t('max_retry')"/>
+            <q-space style='height: 10px;'/>
+            <q-input v-model.number='sourceReader.max_retry_in' type='number' filled dense :label="$t('max_retry_in')"/>
+          </q-card-section>
+        </q-card>
         <q-space style='height: 10px;'/>
-        <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='margin: 0 10px 0 10px;width: auto;'>
-          <label style='text-transform: uppercase;font-size: medium'>DeepStack Config</label>
-        </q-toolbar>
-        <q-space style='margin: 2px;'/>
-        <q-form id='frm15' class='q-pa-xs' style='margin: 0 10px 0 10px'>
-          <q-input v-model.trim='deepstack.server_url' filled dense label='Server URL'/>
-          <q-space style='height: 10px;'/>
-          <q-input type="number" v-model.number='deepstack.server_port' filled dense label='Server Port'/>
-          <q-space style='height: 10px;'/>
-          <q-select emit-value map-options filled dense v-model='deepstack.performance_mode' :options='deepStackPerOpts'
-                    label='Performance Mode'/>
-          <q-space style='height: 10px;'/>
-          <q-input type="password" v-model.trim='deepstack.api_key' filled dense label='Api Key'/>
-          <q-space style='height: 10px;'/>
-          <q-toggle v-model='deepstack.od_enabled' filled dense label='Object Detection Enabled'/>
-          <q-space style='height: 10px;'/>
-          <q-input type="number" v-model.number='deepstack.od_threshold' filled dense label='Object Detection Threshold'/>
-          <q-space style='height: 10px;'/>
-          <q-toggle v-model='deepstack.fr_enabled' filled dense label='Face Recognition Enabled'/>
-          <q-space style='height: 10px;'/>
-          <q-input type="number" v-model.number='deepstack.fr_threshold' filled dense label='Face Recognition Threshold'/>
-          <q-space style='height: 10px;'/>
-          <q-select emit-value map-options filled dense v-model='deepstack.docker_type' :options='deepStackDockerTypes'
-                    label='Performance Mode'/>
-        </q-form>
+
+        <q-card class="my-card" flat bordered style="margin: 0 5px 0 5px;">
+          <q-card-section class="bg-cyan text-white">
+            <div class="text-subtitle2">
+              <label style='text-transform: uppercase;font-size: medium'>FFmpeg</label>
+            </div>
+          </q-card-section>
+          <q-separator/>
+          <q-card-section>
+            <q-toggle v-model='ffmpeg.use_double_quotes_for_path' filled dense :label="$t('use_double_quotes_for_path')"/>
+            <q-space style='height: 10px;'/>
+            <q-input v-model.number='ffmpeg.max_operation_retry_count' type='number' filled dense :label="$t('max_retry_count')"/>
+            <q-space style='height: 10px;'/>
+            <q-input v-model.number='ffmpeg.rtmp_server_init_interval' type='number' filled dense :label="$t('rtmp_server_init_interval')"/>
+            <q-space style='height: 10px;'/>
+            <q-input v-model.number='ffmpeg.watch_dog_interval' type='number' filled dense :label="$t('watch_dog_interval')"/>
+            <q-space style='height: 10px;'/>
+            <q-input v-model.number='ffmpeg.watch_dog_failed_wait_interval' type='number' filled dense :label="$t('watch_dog_failed_wait_interval')"/>
+            <q-space style='height: 10px;'/>
+            <q-input v-model.number='ffmpeg.start_task_wait_for_interval' type='number' filled dense :label="$t('start_task_wait_for_interval')"/>
+            <q-space style='height: 10px;'/>
+            <q-input v-model.number='ffmpeg.record_concat_limit' type='number' filled dense :label="$t('record_concat_limit')"/>
+            <q-space style='height: 10px;'/>
+            <q-input v-model.number='ffmpeg.record_video_file_indexer_interval' type='number' filled dense
+                     :label="$t('record_video_file_indexer_interval')"/>
+          </q-card-section>
+        </q-card>
+        <q-space style='height: 10px;'/>
+
+        <q-card class="my-card" flat bordered style="margin: 0 5px 0 5px;">
+          <q-card-section class="bg-cyan text-white">
+            <div class="text-subtitle2">
+              <label style='text-transform: uppercase;font-size: medium'>{{ $t('recurring_jobs') }}</label>
+            </div>
+          </q-card-section>
+          <q-separator/>
+          <q-card-section>
+            <q-toggle v-model='jobs.mac_ip_matching_enabled' filled dense :label="$t('mac_ip_match_enabled')"/>
+            <q-space style='height: 10px;'/>
+            <q-input type="number" v-model.number='jobs.mac_ip_matching_interval' filled dense :label="$t('mac_ip_matching_interval')"/>
+          </q-card-section>
+        </q-card>
+        <q-space style='height: 10px;'/>
+
+      </div>
+
+      <div class='col-4'>
+
+        <q-card class="my-card" flat bordered >
+          <q-card-section class="bg-cyan text-white">
+            <div class="text-subtitle2">
+              <label style='text-transform: uppercase;font-size: medium'>{{ $t('ai') }}</label>
+            </div>
+          </q-card-section>
+          <q-separator/>
+          <q-card-section>
+            <q-toggle v-model='ai.overlay' filled dense :label="$t('overlay')"/>
+            <q-space style='height: 10px;'/>
+            <q-input type="number" v-model.number='ai.video_clip_duration' filled dense :label="$t('video_clip_duration')"/>
+            <q-space style='height: 10px;'/>
+            <q-input type="number" v-model.number='ai.face_recog_mtcnn_threshold' filled dense :label="$t('face_recog_mtcnn_threshold')"/>
+            <q-space style='height: 10px;'/>
+            <q-input type="number" v-model.number='ai.face_recog_prob_threshold' filled dense :label="$t('face_recog_prob_threshold')"/>
+            <q-space style='height: 10px;'/>
+            <q-input type="number" v-model.number='ai.plate_recog_instance_count' filled dense :label="$t('plate_recog_instance_count')"/>
+          </q-card-section>
+        </q-card>
+        <q-space style='height: 10px;'/>
+
+        <q-card class="my-card" flat bordered>
+          <q-card-section class="bg-cyan text-white">
+            <div class="text-subtitle2">
+              <label style='text-transform: uppercase;font-size: medium'>PyTorch</label>
+            </div>
+          </q-card-section>
+          <q-separator/>
+          <q-card-section>
+            <q-input v-model.trim='torch.model_name' filled dense :label="$t('model_name')"/>
+            <q-space style='height: 10px;'/>
+            <q-input v-model.trim='torch.model_name_specific' filled dense :label="$t('specific_model_name')"/>
+          </q-card-section>
+        </q-card>
+        <q-space style='height: 10px;'/>
+
+        <q-card class="my-card" flat bordered>
+          <q-card-section class="bg-cyan text-white">
+            <div class="text-subtitle2">
+              <label style='text-transform: uppercase;font-size: medium'>Tensorflow</label>
+            </div>
+          </q-card-section>
+          <q-separator/>
+          <q-card-section>
+            <q-input v-model='tf.model_name' filled dense :label="$t('model_name')"/>
+            <q-space style='height: 10px;'/>
+            <q-input v-model='tf.cache_folder' filled dense :label="$t('cache_folder')"/>
+          </q-card-section>
+        </q-card>
+        <q-space style='height: 10px;'/>
+
+        <q-card class="my-card" flat bordered>
+          <q-card-section class="bg-cyan text-white">
+            <div class="text-subtitle2">
+              <label style='text-transform: uppercase;font-size: medium'>NVIDIA JETSON</label>
+            </div>
+          </q-card-section>
+          <q-separator/>
+          <q-card-section>
+            <q-input v-model.trim='jetson.model_name' filled dense :label="$t('model_name')"/>
+          </q-card-section>
+        </q-card>
+        <q-space style='height: 10px;'/>
+
+        <q-card class="my-card" flat bordered>
+          <q-card-section class="bg-cyan text-white">
+            <div class="text-subtitle2">
+              <label style='text-transform: uppercase;font-size: medium'>DeepStack Config</label>
+            </div>
+          </q-card-section>
+          <q-separator/>
+          <q-card-section>
+            <q-input v-model.trim='deepstack.server_url' filled dense :label="$t('server_url')"/>
+            <q-space style='height: 10px;'/>
+            <q-input type="number" v-model.number='deepstack.server_port' filled dense :label="$t('server_port')"/>
+            <q-space style='height: 10px;'/>
+            <q-select emit-value map-options filled dense v-model='deepstack.performance_mode' :options='deepStackPerOpts'
+                      :label="$t('performance_mode')"/>
+            <q-space style='height: 10px;'/>
+            <q-input type="password" v-model.trim='deepstack.api_key' filled dense :label="$t('api_key')"/>
+            <q-space style='height: 10px;'/>
+            <q-toggle v-model='deepstack.od_enabled' filled dense :label="$t('od_enabled')"/>
+            <q-space style='height: 10px;'/>
+            <q-input type="number" v-model.number='deepstack.od_threshold' filled dense :label="$t('od_threshold')"/>
+            <q-space style='height: 10px;'/>
+            <q-toggle v-model='deepstack.fr_enabled' filled dense :label="$t('fr_enabled')"/>
+            <q-space style='height: 10px;'/>
+            <q-input type="number" v-model.number='deepstack.fr_threshold' filled dense :label="$t('fr_threshold')"/>
+            <q-space style='height: 10px;'/>
+            <q-select emit-value map-options filled dense v-model='deepstack.docker_type' :options='deepStackDockerTypes'
+                      :label="$t('docker_type')"/>
+          </q-card-section>
+        </q-card>
+        <q-space style='height: 10px;'/>
 
       </div>
 
@@ -251,10 +299,10 @@
 
         <template v-slot:body-cell-restart='props'>
           <q-td :props='props' v-if="props.row.instance_type===1">
-              <q-btn color='primary' icon='restart_alt' @click='onRestartService(props.row)' :disable="!props.row.restart_button_enabled">
-                <q-tooltip>Restart the Service</q-tooltip>
-                <q-inner-loading :showing='restartLoading[props.row.name]' />
-              </q-btn>
+            <q-btn color='primary' icon='restart_alt' @click='onRestartService(props.row)' :disable="!props.row.restart_button_enabled">
+              <q-tooltip>Restart the Service</q-tooltip>
+              <q-inner-loading :showing='restartLoading[props.row.name]'/>
+            </q-btn>
           </q-td>
         </template>
 
@@ -262,7 +310,7 @@
           <q-td :props='props' v-if="props.row.instance_type===1">
             <q-btn color='secondary' icon='play_circle' @click='onStartService(props.row)' :disable="!props.row.start_button_enabled">
               <q-tooltip>Start the Service</q-tooltip>
-              <q-inner-loading :showing='startLoading[props.row.name]' />
+              <q-inner-loading :showing='startLoading[props.row.name]'/>
             </q-btn>
           </q-td>
         </template>
@@ -271,7 +319,7 @@
           <q-td :props='props' v-if="props.row.instance_type===1">
             <q-btn color='red' icon='stop_circle' @click='onStopService(props.row)' :disable="!props.row.stop_button_enabled">
               <q-tooltip>Stop the Service</q-tooltip>
-              <q-inner-loading :showing='stopLoading[props.row.name]' />
+              <q-inner-loading :showing='stopLoading[props.row.name]'/>
             </q-btn>
           </q-td>
         </template>
@@ -481,7 +529,7 @@ export default {
 
     const serviceDataBind = async () => {
       const svcs = await nodeService.getServices();
-      for (const svc of svcs){
+      for (const svc of svcs) {
         restartLoading.value[svc.name] = false;
       }
       fixArrayDates(svcs, 'created_at', 'heartbeat');
@@ -559,9 +607,9 @@ export default {
 
     const onRestartService = async (service: ServiceModel) => {
       restartLoading.value[service.name] = true;
-      try{
+      try {
         await nodeService.restartService(service);
-      }finally {
+      } finally {
         restartLoading.value[service.name] = false;
       }
       await serviceDataBind();
@@ -569,9 +617,9 @@ export default {
 
     const onStartService = async (service: ServiceModel) => {
       startLoading.value[service.name] = true;
-      try{
+      try {
         await nodeService.startService(service);
-      }finally {
+      } finally {
         startLoading.value[service.name] = false;
       }
       await serviceDataBind();
@@ -579,9 +627,9 @@ export default {
 
     const onStopService = async (service: ServiceModel) => {
       stopLoading.value[service.name] = true;
-      try{
+      try {
         await nodeService.stopService(service);
-      }finally {
+      } finally {
         stopLoading.value[service.name] = false;
       }
       await serviceDataBind();
@@ -656,8 +704,10 @@ function createServiceColumns() {
     {name: 'created_at', align: 'left', label: 'Created At', field: 'created_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true},
     {name: 'heartbeat', align: 'left', label: 'Heartbeat', field: 'heartbeat', format: (val: any) => `${val.toLocaleString()}`, sortable: true},
     {name: 'platform_version', align: 'left', label: 'Platform Version', field: 'platform_version', sortable: true},
-    {name: 'instance_type', align: 'left', label: 'Instance Type', field: 'instance_type',
-      format: (val: number) => val === 1 ? 'Docker Container' : 'Systemd', sortable: true},
+    {
+      name: 'instance_type', align: 'left', label: 'Instance Type', field: 'instance_type',
+      format: (val: number) => val === 1 ? 'Docker Container' : 'Systemd', sortable: true
+    },
     {name: 'hostname', align: 'left', label: 'Hostname', field: 'hostname', sortable: true},
     {name: 'ip_address', align: 'left', label: 'Ip Address', field: 'ip_address', sortable: true},
     {name: 'mac_address', align: 'left', label: 'Mac Address', field: 'mac_address', sortable: true},

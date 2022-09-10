@@ -205,28 +205,28 @@ export default {
       const item: NotificationViewModel = setUpTimes(notifyFailed);
       switch (notifyFailed.failure_reason){
         case 'check_rtmp_container':
-          reason = 'RTMP Server Failed';
+          reason = `RTMP ${t('server')} ${t('failed')}`;
           break;
         case 'check_rtmp_feeder_process':
-          reason = 'Feeder Process Failed';
+          reason = `Feeder ${t('process')} ${t('failed')}`;
           break;
         case 'check_hls_process':
-          reason = 'HLS Process Failed';
+          reason = `HLS ${t('process')} ${t('failed')}`;
           break;
         case 'check_mp_ffmpeg_reader_process':
-          reason = 'AI Reader Process Failed';
+          reason = `AI Reader ${t('process')} ${t('failed')}`;
           break;
         case 'check_record_process':
-          reason = 'Recording Process Failed';
+          reason = `Recording ${t('process')} ${t('failed')}`;
           break;
         case 'check_snapshot_process':
-          reason = 'Snapshot Process Failed';
+          reason = `Snapshot ${t('process')} ${t('failed')}`;
           break;
         case 'check_record_stuck_process':
-          reason = 'Recording Process Stuck';
+          reason = `Recording ${t('process')} ${t('stuck')}`;
           break;
       }
-      item.detects = notifyFailed.name + ' has been failed! Reason is ' + reason;
+      item.detects = notifyFailed.name + t('hasbeenfailed') + reason;
 
       //@ts-ignore
       notifyFailed.base64_image = notifyFailedBase64Img;

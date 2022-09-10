@@ -12,19 +12,40 @@
           <Notifier style="margin-right: -15px"/>
           <q-btn-dropdown icon='account_circle' round flat :label='currentUser?.username'>
             <q-list>
-              <q-item clickable v-close-popup @click='onLogoutUser'>
+              <q-item clickable v-close-popup @click="onChangeLocale('en-US')">
                 <q-item-section>
                   <q-item-label>
                     <q-avatar size='36px'>
-                      <q-icon name='logout'/>
+                      <q-img src="../assets/gb.svg" width="30px" />
                     </q-avatar>
-                    {{$t('logout')}}
-                    <q-tooltip>$t('logout')</q-tooltip>
+                    English
+                    <q-tooltip>Makes English Default Language</q-tooltip>
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click="onChangeLocale('tr-TR')">
+                <q-item-section>
+                  <q-item-label>
+                    <q-avatar size='36px'>
+                      <q-img src="../assets/tr.svg" width="30px" />
+                    </q-avatar>
+                    Türkçe
+                    <q-tooltip>Uygulama Dilini Türkçe Yap</q-tooltip>
                   </q-item-label>
                 </q-item-section>
               </q-item>
             </q-list>
-
+            <q-item clickable v-close-popup @click='onLogoutUser'>
+              <q-item-section>
+                <q-item-label>
+                  <q-avatar size='36px'>
+                    <q-icon name='logout'/>
+                  </q-avatar>
+                  {{$t('logout')}}
+                  <q-tooltip>{{$t('dlogout')}}</q-tooltip>
+                </q-item-label>
+              </q-item-section>
+            </q-item>
           </q-btn-dropdown>
         </div>
 
@@ -161,11 +182,12 @@ import SourceRecords from 'components/SourceRecords.vue';
 import OnvifSettings from 'components/OnvifSettings.vue';
 import ServerStatsBar from 'components/ServerStatsBar.vue';
 import {SourceModel} from 'src/utils/models/source_model';
-import {createEmptyBase64Image, doUserLogout, startStream} from 'src/utils/utils';
+import {createEmptyBase64Image, doUserLogout, setupLocale, startStream} from 'src/utils/utils';
 import {StoreService} from 'src/utils/services/store_service';
 import {WsConnection} from 'src/utils/ws/connection';
 import Notifier from 'components/Notifier.vue';
 import {useI18n} from 'vue-i18n';
+import {useQuasar} from 'quasar';
 
 export default {
   name: 'Ionix Layout',
@@ -174,14 +196,16 @@ export default {
     ServerStatsBar, Notifier
   },
   setup() {
-    const { t } = useI18n({ useScope: 'global' });
+    const { locale, t } = useI18n({ useScope: 'global' });
     const storeService = new StoreService();
+    const nodeService = new NodeService();
+    const localService = nodeService.LocalService;
+    const $q = useQuasar();
+    setupLocale(localService, locale, $q);
     storeService.set18n(t);
     const router = useRouter();
     const route = useRoute();
     const leftDrawerOpen = ref(false);
-    const nodeService = new NodeService();
-    const localService = nodeService.LocalService;
     const publishService = new PublishService();
     const loadingObject = reactive<any>({});
     const sourceStreamStatus = reactive<any>({});
@@ -374,6 +398,11 @@ export default {
       onOnvifClick(link: MenuLink) {
         selectedSourceAddress.value = <string>link.source?.address;
         showOnvif.value = true;
+      },
+      onChangeLocale(lang: string){
+        locale.value = lang;
+        localService.setLang(lang);
+        storeService.set18n(t);
       }
     };
   },

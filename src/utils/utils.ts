@@ -215,6 +215,15 @@ export function formatJson(json: string): string{
   return JSON.stringify(JSON.parse(json), null, '\t');
 }
 
+export function setupLocale(localService: LocalService, locale: any, $q: any){
+  let localeTemp: any = localService.getLang();
+  if (!localeTemp){
+    localeTemp = $q.lang.getLocale();
+    localService.setLang(localeTemp)
+  }
+  locale.value = localeTemp;
+}
+
 export async function doUserLogout(localService: LocalService, storeService: StoreService, router: any) {
   localService.setCurrentUser(null);
   storeService.setCurrentUser(null);
