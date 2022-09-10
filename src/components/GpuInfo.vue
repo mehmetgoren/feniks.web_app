@@ -4,82 +4,82 @@
       <tr>
         <td style="width: 270px;">
           <q-input label-color="white" color="white" dark
-                   :model-value="nvidiaSmi.product_mame + ' (' +nvidiaSmi.product_architecture + ')'" label="Product" readonly/>
+                   :model-value="nvidiaSmi.product_mame + ' (' +nvidiaSmi.product_architecture + ')'" :label="$t('product')" readonly/>
         </td>
         <td>
-          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.driver_version" label="Driver Version" readonly/>
+          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.driver_version" :label="$t('driver_version')" readonly/>
         </td>
         <td>
-          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.cuda_version" label="CUDA Version" readonly/>
+          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.cuda_version" :label="$t('cuda_version')" readonly/>
         </td>
         <td>
-          <q-toggle v-model="refresh" label="Refresh every second" color="yellow"/>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.fan_speed" label="Fan Speed" readonly/>
-        </td>
-        <td>
-          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.gpu_temp" label="Gpu Temperature" readonly/>
-        </td>
-        <td>
-          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.power_draw" label="Power Draw" readonly/>
-        </td>
-        <td>
-          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.power_limit" label="Power Limit" readonly/>
+          <q-toggle v-model="refresh" :label="$t('refresh_every_second')" color="yellow"/>
         </td>
       </tr>
       <tr>
         <td>
-          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.clock_graphics" label="Graphics Clock" readonly/>
+          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.fan_speed" :label="$t('fan_speed')" readonly/>
         </td>
         <td>
-          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.clock_sm" label="SM Clock" readonly/>
+          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.gpu_temp" :label="$t('gpu_temp')" readonly/>
         </td>
         <td>
-          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.clock_mem" label="Memory Clock" readonly/>
+          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.power_draw" :label="$t('power_draw')" readonly/>
         </td>
         <td>
-          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.clock_video" label="Video Clock" readonly/>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.memory_total" label="Memory Total" readonly/>
-        </td>
-        <td>
-          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.memory_reserved" label="Memory Reserved" readonly/>
-        </td>
-        <td>
-          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.memory_used" label="Memory Used" readonly/>
-        </td>
-        <td>
-          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.memory_free" label="Memory Free" readonly/>
+          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.power_limit" :label="$t('power_limit')" readonly/>
         </td>
       </tr>
       <tr>
         <td>
-          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.gpu_util" label="GPU Util" readonly/>
+          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.clock_graphics" :label="$t('graphics_clock')" readonly/>
         </td>
         <td>
-          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.memory_util" label="Memory Util" readonly/>
+          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.clock_sm" :label="$t('sm_clock')" readonly/>
         </td>
         <td>
-          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.encoder_util" label="Encoder Util" readonly/>
+          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.clock_mem" :label="$t('mem_clock')" readonly/>
         </td>
         <td>
-          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.decoder_util" label="Decoder Util" readonly/>
+          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.clock_video" :label="$t('video_clock')" readonly/>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.memory_total" :label="$t('memory_total')" readonly/>
+        </td>
+        <td>
+          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.memory_reserved" :label="$t('memory_reserved')" readonly/>
+        </td>
+        <td>
+          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.memory_used" :label="$t('memory_used')" readonly/>
+        </td>
+        <td>
+          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.memory_free" :label="$t('memory_free')" readonly/>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.gpu_util" :label="$t('gpu_util')" readonly/>
+        </td>
+        <td>
+          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.memory_util" :label="$t('memory_util')" readonly/>
+        </td>
+        <td>
+          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.encoder_util" :label="$t('encoder_util')" readonly/>
+        </td>
+        <td>
+          <q-input label-color="white" color="white" dark v-model="nvidiaSmi.decoder_util" :label="$t('decoder_util')" readonly/>
         </td>
       </tr>
     </q-markup-table>
-    <q-table title="GPU Process Memory Usage" :pagination='initialPagination' style="margin-top: 3px;"
-             card-class="bg-indigo-8 text-white"
+    <q-table :title="$t('gpu_process_memory_usage')" :pagination='initialPagination' style="margin-top: 3px;"
+             card-class="bg-indigo-8 text-white" :rows-per-page-label="$t('rows_per_page')"
              :rows='nvidiaSmi.processes' row-key='id' :columns='processColumns' color='lime-6'>
     </q-table>
   </div>
   <div v-else-if="!hasNvidiaGpu">
-    <label class='blink_me'>No Nvidia GPU was detected.</label>
+    <label class='blink_me'>{{$t('no_nvidia_gpu_detected')}}</label>
   </div>
 
 </template>
@@ -89,10 +89,12 @@
 import {NodeService} from 'src/utils/services/node_service';
 import {NvidiaGpuModel} from 'src/utils/models/gpu';
 import {onBeforeUnmount, onMounted, ref} from 'vue';
+import {useI18n} from 'vue-i18n';
 
 export default {
   name: 'GpuInfo',
   setup() {
+    const {t} = useI18n({useScope: 'global'});
     const nodeService = new NodeService();
     const nvidiaSmi = ref<NvidiaGpuModel | null>(null);
     const refresh = ref<boolean>(false);
@@ -124,16 +126,16 @@ export default {
       initialPagination: {
         rowsPerPage: 10
       },
-      processColumns: createProcessColumns()
+      processColumns: createProcessColumns(t)
     }
   }
 }
 
-function createProcessColumns() {
+function createProcessColumns(t: any) {
   const align = 'left';
   return [
-    {name: 'process_name', align, label: 'Process Name', field: 'process_name', sortable: true},
-    {name: 'used_memory', align, label: 'Used Memory', field: 'used_memory', sortable: true}
+    {name: 'process_name', align, label: t('process_name'), field: 'process_name', sortable: true},
+    {name: 'used_memory', align, label: t('used_memory'), field: 'used_memory', sortable: true}
   ];
 }
 </script>

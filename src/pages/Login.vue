@@ -121,7 +121,7 @@ export default {
   name: 'Login',
   components:{Nodes},
   setup() {
-    const { locale } = useI18n({ useScope: 'global' })
+    const { locale } = useI18n({ useScope: 'global' });
     const $q = useQuasar();
     const router = useRouter();
     const mode = ref<Mode>(Mode.Login);

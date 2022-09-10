@@ -219,7 +219,7 @@ export function setupLocale(localService: LocalService, locale: any, $q: any){
   let localeTemp: any = localService.getLang();
   if (!localeTemp){
     localeTemp = $q.lang.getLocale();
-    localService.setLang(localeTemp)
+    localService.setLang(localeTemp);
   }
   locale.value = localeTemp;
 }

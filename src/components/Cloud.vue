@@ -9,21 +9,21 @@
         </q-card-section>
         <q-card-actions align='left'>
           <q-form @submit='onGdriveSubmit' @reset='onGdriveReset' class='q-pa-xs' style='width: 100%;'>
-            <q-toggle v-model='gdriveModel.enabled' label='Active' color="blue-grey-6" />
-            <q-input v-model="gdriveModel.credentials_json" filled type="textarea" label="Credentials" rows="13" />
+            <q-toggle v-model='gdriveModel.enabled' :label="$t('active')" color="blue-grey-6" />
+            <q-input v-model="gdriveModel.credentials_json" filled type="textarea" :label="$t('credentials')" rows="13" />
             <q-space style='margin-bottom: 15px;' />
-            <q-input v-model='gdriveModel.auth_code' label='Auth Code' dense filled color="blue-grey-6" />
+            <q-input v-model='gdriveModel.auth_code' :label="$t('auth_code')" dense filled color="blue-grey-6" />
             <q-space style='margin-bottom: 15px;' />
-            <q-input v-model="gdriveModel.token_json" filled type="textarea" label="Credentials" rows="8" disable />
+            <q-input v-model="gdriveModel.token_json" filled type="textarea" :label="$t('token_json')" rows="8" disable />
             <q-space style='margin-bottom: 15px;' />
-            <q-input v-model='gdriveModel.url' label='URL' dense filled color="blue-grey-6" disable />
+            <q-input v-model='gdriveModel.url' :label="$t('url')" dense filled color="blue-grey-6" disable />
 
             <div class='q-pa-md q-gutter-sm'>
-              <q-btn label='Save' type='submit' color='blue-grey-6' dense icon='save' :disable="gdriveSubmitLoading">
+              <q-btn :label="$t('save')" type='submit' color='blue-grey-6' dense icon='save' :disable="gdriveSubmitLoading">
                 <q-inner-loading :showing='gdriveSubmitLoading' />
               </q-btn>
-              <q-btn label='Refresh' type='reset' color='blue-grey-6' flat class='q-ml-sm' dense icon='restart_alt' />
-              <q-btn label='Reset Credentials' color='red' dense icon='report' :disable="gdriveResetLoading" @click="onResetGdriveTokenAndUrl">
+              <q-btn :label="$t('refresh')" type='reset' color='blue-grey-6' flat class='q-ml-sm' dense icon='restart_alt' />
+              <q-btn :label="$t('refresh_credentials')" color='red' dense icon='report' :disable="gdriveResetLoading" @click="onResetGdriveTokenAndUrl">
                 <q-inner-loading :showing='gdriveResetLoading' />
               </q-btn>
             </div>
@@ -40,28 +40,30 @@
         </q-card-section>
         <q-card-actions align='left'>
           <q-form @submit='onTelegramSubmit' @reset='onTelegramReset' class='q-pa-xs' style='width: 100%;'>
-            <q-toggle v-model='telegramModel.enabled' label='Active' color="blue-grey-6"/>
+            <q-toggle v-model='telegramModel.enabled' :label="$t('active')" color="blue-grey-6"/>
 
-            <q-input v-if="telegramModel?.bot" dense filled v-model='telegramModel.bot.token' label='Token *' lazy-rules
-                     :rules="[ val => val && val.length > 0 || 'Please enter token']" color="blue-grey-6"/>
+            <q-input v-if="telegramModel?.bot" dense filled v-model='telegramModel.bot.token' :label="$t('token')" lazy-rules
+                     :rules="[ val => val && val.length > 0 || $t('v_enter_token')]" color="blue-grey-6"/>
 
-            <q-input v-if="telegramModel?.bot" v-model='telegramModel.bot.url' filled dense label='URL *' lazy-rules
-                     :rules="[ val => val && val.length > 0 || 'Please enter URL address']" color="blue-grey-6"/>
+            <q-input v-if="telegramModel?.bot" v-model='telegramModel.bot.url' filled dense :label="$t('url')" lazy-rules
+                     :rules="[ val => val && val.length > 0 ||  $t('v_enter_url')]" color="blue-grey-6"/>
 
             <div class='q-pa-md q-gutter-sm'>
-              <q-btn label='Save' type='submit' color='blue-grey-6' dense icon='save' :disable="telegramSubmitLoading">
+              <q-btn :label="$t('save')"  type='submit' color='blue-grey-6' dense icon='save' :disable="telegramSubmitLoading">
                 <q-inner-loading :showing='telegramSubmitLoading' />
               </q-btn>
-              <q-btn label='Refresh' type='reset' color='blue-grey-6' flat class='q-ml-sm' dense icon='restart_alt' />
+              <q-btn :label="$t('refresh')" type='reset' color='blue-grey-6' flat class='q-ml-sm' dense icon='restart_alt' />
             </div>
           </q-form>
         </q-card-actions>
       </q-card>
       <q-space style='height: 10px;'/>
-      <q-table v-if="telegramModel?.users" title='Telegram Users' :rows='telegramModel.users'
-               :columns='telegramColumns' row-key='node_address' :filter='filter'>
+      <q-table v-if="telegramModel?.users" :title="'Telegram ' + $t('users')" :rows='telegramModel.users'
+               :columns='telegramColumns' row-key='node_address' :filter='filter'
+               :loading-label="$t('loading')" :no-data-label="$t('no_data')" :no-results-label="$t('no_results')"
+               :selected-rows-label="$t('selected_rows')" :rows-per-page-label="$t('rows_per_page')">
         <template v-slot:top-right>
-          <q-input borderless dense debounce='300' v-model='filter' placeholder='Search'>
+          <q-input borderless dense debounce='300' v-model='filter' :placeholder="$t('search')">
             <template v-slot:append>
               <q-icon name='search'/>
             </template>
@@ -85,11 +87,13 @@ import {GdriveViewModel, TelegramUser, TelegramViewModel} from 'src/utils/models
 import {onMounted, ref} from 'vue';
 import {useQuasar} from 'quasar';
 import {formatJson} from 'src/utils/utils';
+import {useI18n} from 'vue-i18n';
 
 export default {
   name: 'Cloud',
   setup() {
-    const $q = useQuasar()
+    const { t } = useI18n({ useScope: 'global' });
+    const $q = useQuasar();
     const nodeService = new NodeService();
     const telegramModel = ref<TelegramViewModel>();
     const gdriveModel = ref<GdriveViewModel>();
@@ -194,20 +198,20 @@ export default {
           void onDelete(telegramUser.id);
         });
       },
-      telegramColumns: createTelegramColumns()
+      telegramColumns: createTelegramColumns(t)
     }
   }
 }
 
-function createTelegramColumns() {
+function createTelegramColumns(t: any) {
   const align = 'left';
   return [
-    {name: 'username', align, label: 'User name', field: 'username', sortable: true},
-    {name: 'first_name', align, label: 'First Name', field: 'first_name', sortable: true},
-    {name: 'last_name', align, label: 'Last Name', field: 'last_name', sortable: true},
-    {name: 'is_bot', align, label: 'Is Bot ?', field: 'is_bot', format: (val: any) => val === '1' ? 'Yes' : 'No', sortable: true},
-    {name: 'language_code', align, label: 'Language Code', field: 'language_code', sortable: true},
-    {name: 'delete', align: 'center', label: 'Delete', field: 'delete'}
+    {name: 'username', align, label: t('username'), field: 'username', sortable: true},
+    {name: 'first_name', align, label: t('first_name'), field: 'first_name', sortable: true},
+    {name: 'last_name', align, label: t('last_name'), field: 'last_name', sortable: true},
+    {name: 'is_bot', align, label: t('is_bot'), field: 'is_bot', format: (val: any) => val === '1' ? 'Yes' : 'No', sortable: true},
+    {name: 'language_code', align, label: t('lang_code'), field: 'language_code', sortable: true},
+    {name: 'delete', align: 'center', label: t('delete'), field: 'delete'}
   ];
 }
 </script>

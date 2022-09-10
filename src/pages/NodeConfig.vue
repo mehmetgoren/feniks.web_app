@@ -7,7 +7,6 @@
         <q-tab name='cloud' icon='cloud' :label="$t('cloud')"/>
         <q-tab name='general' icon='developer_board' :label="$t('general')"/>
         <q-tab name='info' icon='analytics' :label="$t('info')"/>
-        <q-tab name="others" icon="dashboard" :label="$t('others')"/>
       </q-tabs>
       <q-toolbar-title></q-toolbar-title>
       <CommandBar v-if='tab==="config"' :show-delete='false' @on-save='onSave' @on-restore='onRestore'></CommandBar>
@@ -187,7 +186,7 @@
 
       <div class='col-4'>
 
-        <q-card class="my-card" flat bordered >
+        <q-card class="my-card" flat bordered>
           <q-card-section class="bg-cyan text-white">
             <div class="text-subtitle2">
               <label style='text-transform: uppercase;font-size: medium'>{{ $t('ai') }}</label>
@@ -254,7 +253,7 @@
         <q-card class="my-card" flat bordered>
           <q-card-section class="bg-cyan text-white">
             <div class="text-subtitle2">
-              <label style='text-transform: uppercase;font-size: medium'>DeepStack Config</label>
+              <label style='text-transform: uppercase;font-size: medium'>DeepStack</label>
             </div>
           </q-card-section>
           <q-separator/>
@@ -290,17 +289,21 @@
     <Cloud/>
   </div>
   <div class='q-pa-md q-gutter-sm' v-if='config&&tab==="general"' style='margin-top: -45px;'>
-    <q-space style='height: 10px;'/>
-    <q-toolbar class='bg-yellow-14 text-black shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
-      <label style='text-transform: uppercase;font-size: medium'>Running Services</label>
-    </q-toolbar>
-    <q-form class='q-pa-xs' style='margin:0 5px 0 5px;'>
-      <q-table :pagination='initialPagination' :rows='services' row-key='name' :columns='servicesColumns' color='yellow-14'>
+    <q-space style='height: 1px;'/>
+    <q-card class="my-card" flat bordered>
+      <q-card-section class="bg-yellow-14 text-white">
+        <div class="text-subtitle2">
+          <label style='text-transform: uppercase;font-size: medium'>{{ $t('running_services') }}</label>
+        </div>
+      </q-card-section>
+      <q-separator/>
+      <q-table :pagination='initialPagination' :rows='services' row-key='name' :columns='servicesColumns' color='yellow-14'
+               :rows-per-page-label="$t('rows_per_page')">
 
         <template v-slot:body-cell-restart='props'>
           <q-td :props='props' v-if="props.row.instance_type===1">
             <q-btn color='primary' icon='restart_alt' @click='onRestartService(props.row)' :disable="!props.row.restart_button_enabled">
-              <q-tooltip>Restart the Service</q-tooltip>
+              <q-tooltip>{{ $t('restart_service') }}</q-tooltip>
               <q-inner-loading :showing='restartLoading[props.row.name]'/>
             </q-btn>
           </q-td>
@@ -309,7 +312,7 @@
         <template v-slot:body-cell-start='props'>
           <q-td :props='props' v-if="props.row.instance_type===1">
             <q-btn color='secondary' icon='play_circle' @click='onStartService(props.row)' :disable="!props.row.start_button_enabled">
-              <q-tooltip>Start the Service</q-tooltip>
+              <q-tooltip>{{ $t('start_service') }}</q-tooltip>
               <q-inner-loading :showing='startLoading[props.row.name]'/>
             </q-btn>
           </q-td>
@@ -318,93 +321,113 @@
         <template v-slot:body-cell-stop='props'>
           <q-td :props='props' v-if="props.row.instance_type===1">
             <q-btn color='red' icon='stop_circle' @click='onStopService(props.row)' :disable="!props.row.stop_button_enabled">
-              <q-tooltip>Stop the Service</q-tooltip>
+              <q-tooltip>{{ $t('stop_service') }}</q-tooltip>
               <q-inner-loading :showing='stopLoading[props.row.name]'/>
             </q-btn>
           </q-td>
         </template>
 
       </q-table>
-    </q-form>
-
+    </q-card>
     <q-space style='height: 10px;'/>
-    <q-toolbar class='bg-teal text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
-      <label style='text-transform: uppercase;font-size: medium'>Users</label>
-    </q-toolbar>
-    <q-form class='q-pa-xs' style='margin:0 5px 0 5px;'>
-      <q-table :pagination='initialPagination' :rows='users' row-key='id' :columns='userColumns' color='teal'>
+
+    <q-card class="my-card" flat bordered>
+      <q-card-section class="bg-teal text-white">
+        <div class="text-subtitle2">
+          <label style='text-transform: uppercase;font-size: medium'>{{ $t('users2') }}</label>
+        </div>
+      </q-card-section>
+      <q-separator/>
+      <q-table :pagination='initialPagination' :rows='users' row-key='id' :columns='userColumns' color='teal'
+               :rows-per-page-label="$t('rows_per_page')">
         <template v-slot:body-cell-delete='props'>
           <q-td :props='props'>
             <div>
-              <q-btn round color='deep-orange' icon='delete' @click='onDeleteUser(props.row)'/>
+              <q-btn round color='deep-orange' icon='delete' @click='onDeleteUser(props.row)'>
+                <q-tooltip>{{ $t('delete') }}</q-tooltip>
+              </q-btn>
             </div>
           </q-td>
         </template>
       </q-table>
-    </q-form>
-
+    </q-card>
     <q-space style='height: 10px;'/>
-    <q-toolbar class='bg-brown-5 text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
-      <label style='text-transform: uppercase;font-size: medium'>Scan Network for IP Cameras</label>
-    </q-toolbar>
-    <q-form class='q-pa-xs' style='margin:0 5px 0 5px;'>
-      <q-input v-model='networkScanResults.created_at' filled readonly dense label='Last Scan At'/>
-      <q-space style='height: 10px;'/>
-      <q-btn icon='radar' label='Scan Network for IP Cameras' color='brown-5' @click='onScanNetwork' :disable='showScanLoading'>
-        <q-inner-loading :showing='showScanLoading'/>
-      </q-btn>
-      <q-space style='height: 10px;'/>
-      <q-table title='Network Scan Results' :rows='networkScanResults.results' :columns='networkColumns'
-               row-key='address' :pagination='initialPagination' color='brown-5'/>
-    </q-form>
 
+    <q-card class="my-card" flat bordered>
+      <q-card-section class="bg-brown-5 text-white">
+        <div class="text-subtitle2">
+          <label style='text-transform: uppercase;font-size: medium'>{{ $t('scan_network_for_cameras') }}</label>
+        </div>
+      </q-card-section>
+      <q-separator/>
+      <q-card-section>
+        <q-input v-model='networkScanResults.created_at' filled readonly dense :label="$t('last_scan_at')"/>
+        <q-space style='height: 10px;'/>
+        <q-btn icon='radar' :label="$t('scan_network_for_cameras')" color='brown-5' @click='onScanNetwork' :disable='showScanLoading'>
+          <q-inner-loading :showing='showScanLoading'/>
+        </q-btn>
+        <q-space style='height: 10px;'/>
+        <q-table :title="$t('scan_network_results')" :rows='networkScanResults.results' :columns='networkColumns'
+                 row-key='address' :pagination='initialPagination' color='brown-5' :rows-per-page-label="$t('rows_per_page')"/>
+      </q-card-section>
+    </q-card>
     <q-space style='height: 10px;'/>
-    <q-toolbar class='bg-light-blue-6 text-white shadow-2 rounded-borders' style='margin:0 5px 0 5px;width: auto;'>
-      <label style='text-transform: uppercase;font-size: medium'>RTSP Templates</label>
-    </q-toolbar>
-    <q-form class='q-pa-xs' style='margin:0 5px 0 5px;'>
-      <q-table :pagination='initialPagination' :rows='rtmpTemplates' row-key='id' :columns='rtmpTemplatesColumns' color='light-blue-6'/>
-    </q-form>
+
+    <q-card class="my-card" flat bordered>
+      <q-card-section class="bg-blue-6 text-white">
+        <div class="text-subtitle2">
+          <label style='text-transform: uppercase;font-size: medium'>RTSP {{ $t('templates') }}</label>
+        </div>
+      </q-card-section>
+      <q-separator/>
+      <q-table :pagination='initialPagination' :rows='rtmpTemplates' row-key='id' :columns='rtmpTemplatesColumns' color='light-blue-6'
+               :rows-per-page-label="$t('rows_per_page')"/>
+    </q-card>
+    <q-space style='height: 10px;'/>
 
   </div>
   <div class='q-pa-md q-gutter-sm' v-if='config&&tab==="info"'>
     <div class='row'>
       <q-toolbar class='bg-lime-7 text-white shadow-2 rounded-borders' style='margin-bottom: -12px;'>
         <q-tabs v-model='otherTabs' narrow-indicator inline-label align='left'>
-          <q-tab name="gpu" icon="memory" label="GPU"/>
-          <q-tab name='failedstreams' icon='sms_failed' label='Failed Streams'/>
-          <q-tab name='recstucks' icon='radio_button_checked' label='Stuck Records'/>
-          <q-tab name='ods' icon='collections' label='Object Detection Models'/>
-          <q-tab name='various' icon='notes' label='Various Infos'/>
+          <q-tab name="gpu" icon="memory" :label="$t('gpu')"/>
+          <q-tab name='failedstreams' icon='sms_failed' :label="$t('failed_streams')"/>
+          <q-tab name='recstucks' icon='radio_button_checked' :label="$t('stuck_records')"/>
+          <q-tab name='ods' icon='collections' :label="$t('od_models')"/>
+          <q-tab name='various' icon='notes' :label="$t('various_infos')"/>
         </q-tabs>
       </q-toolbar>
       <div v-if='otherTabs==="gpu"' class='q-pa-md q-gutter-sm' style='margin-left: -22px;'>
         <GpuInfo/>
       </div>
       <div v-if='otherTabs==="failedstreams"' class='q-pa-md q-gutter-sm' style='margin-left: -22px;width: 100%;'>
-        <q-table :pagination='initialPagination' :rows='failedStreams' row-key='id' :columns='failedStreamsColumns' color='lime-6'/>
+        <q-table :pagination='initialPagination' :rows='failedStreams' row-key='id' :columns='failedStreamsColumns'
+                 :rows-per-page-label="$t('rows_per_page')" color='lime-6'/>
       </div>
       <div v-if='otherTabs==="recstucks"' class='q-pa-md q-gutter-sm' style='margin-left: -22px;width: 100%;'>
-        <q-table :pagination='initialPagination' :rows='recStucks' row-key='id' :columns='recStucksColumns' color='lime-6'/>
+        <q-table :pagination='initialPagination' :rows='recStucks' row-key='id' :columns='recStucksColumns' color='lime-6'
+                 :rows-per-page-label="$t('rows_per_page')"/>
       </div>
       <div v-if='otherTabs==="ods"' class='q-pa-md q-gutter-sm' style='margin-left: -22px;width: 100%;'>
-        <q-table :pagination='initialPagination' :rows='ods' row-key='id' :columns='odColumns' color='lime-6'/>
+        <q-table :pagination='initialPagination' :rows='ods' row-key='id' :columns='odColumns' color='lime-6'
+                 :rows-per-page-label="$t('rows_per_page')"/>
       </div>
       <div v-if='otherTabs==="various"' class='q-pa-md q-gutter-sm' style='margin-left: -22px;'>
         <table style='width: 500px;' class="bg-teal-1">
           <tr>
             <td>
-              <q-input v-model='variousInfos.rtmp_port_counter' type='number' label='RTMP Counter' readonly/>
+              <q-input v-model='variousInfos.rtmp_port_counter' type='number' :label="$t('rtmp_counter')" readonly/>
             </td>
           </tr>
           <tr>
             <td>
-              <q-input v-model='variousInfos.ffmpeg_process_zombies.length' type='number' label='Total detected Zombie FFmpeg Processes' readonly/>
+              <q-input v-model='variousInfos.ffmpeg_process_zombies.length' type='number' :label="$t('total_detected_zombie_ffmpeg_processes')"
+                       readonly/>
             </td>
           </tr>
         </table>
         <q-list bordered class='rounded-borders bg-teal-1'>
-          <q-item-label header>Zombie RTMP Containers</q-item-label>
+          <q-item-label header>{{ $t('zombie_rtmp_containers') }}</q-item-label>
           <q-item clickable v-ripple v-for='zr in variousInfos.rtmp_container_zombies' :key='zr'>
             <q-item-section>
               <q-item-label caption lines='2'>
@@ -417,16 +440,16 @@
       </div>
     </div>
   </div>
-  <div class='q-pa-md q-gutter-sm' v-if='config&&tab==="others"'>
-    <div class='row'>
-      <div class='col-6'>
-        <Dashboard/>
-      </div>
-      <div class='col-6'>
-        <Hub/>
-      </div>
-    </div>
-  </div>
+  <!--  <div class='q-pa-md q-gutter-sm' v-if='config&&tab==="others"'>-->
+  <!--    <div class='row'>-->
+  <!--      <div class='col-6'>-->
+  <!--        <Dashboard/>-->
+  <!--      </div>-->
+  <!--      <div class='col-6'>-->
+  <!--        <Hub/>-->
+  <!--      </div>-->
+  <!--    </div>-->
+  <!--  </div>-->
 </template>
 
 <script lang='ts'>
@@ -447,18 +470,18 @@ import {useQuasar} from 'quasar';
 import {NodeRepository} from 'src/utils/db';
 import {Node} from 'src/utils/entities';
 import CommandBar from 'src/components/CommandBar.vue';
-import Dashboard from 'components/Dashboard.vue';
-import Hub from 'components/Hub.vue';
 import GpuInfo from 'components/GpuInfo.vue';
 import {FailedStreamModel, RecStuckModel, RtspTemplateModel, VariousInfos} from 'src/utils/models/others_models';
 import {OdModel} from 'src/utils/models/od_model';
 import Cloud from 'components/Cloud.vue';
 import {SelectOption} from 'src/utils/services/local_service';
+import {useI18n} from 'vue-i18n';
 
 export default {
   name: 'NodeConfig',
-  components: {Cloud, CommandBar, Dashboard, Hub, GpuInfo},
+  components: {Cloud, CommandBar, GpuInfo},
   setup() {
+    const {t} = useI18n({useScope: 'global'});
     const $q = useQuasar();
     const nodeService = new NodeService();
     const publishService = new PublishService();
@@ -647,12 +670,12 @@ export default {
         showScanLoading.value = true;
       },
       networkScanResults, services,
-      networkColumns: createNetworkColumns(),
+      networkColumns: createNetworkColumns(t),
       initialPagination: {
-        rowsPerPage: 10
+        rowsPerPage: 15
       },
-      servicesColumns: createServiceColumns(),
-      userColumns: createUserColumns(),
+      servicesColumns: createServiceColumns(t),
+      userColumns: createUserColumns(t),
       onDeleteUser(user: User) {
         $q.dialog({
           title: 'Confirm',
@@ -663,12 +686,12 @@ export default {
           void onDoDeleteUser(user);
         });
       },
-      rtmpTemplates, rtmpTemplatesColumns: createRtmpTemplatesColumns(),
+      rtmpTemplates, rtmpTemplatesColumns: createRtmpTemplatesColumns(t),
       otherTabs: ref<string>('gpu'),
-      failedStreams, failedStreamsColumns: createFailedStreamsColumns(),
-      recStucks, recStucksColumns: createRecStucksColumns(),
+      failedStreams, failedStreamsColumns: createFailedStreamsColumns(t),
+      recStucks, recStucksColumns: createRecStucksColumns(t),
       variousInfos,
-      ods, odColumns: createOdColumns(),
+      ods, odColumns: createOdColumns(t),
       onRestartService, onStartService, onStopService
     };
   }
@@ -678,125 +701,132 @@ function getDeviceTypes() {
   return [{value: 0, label: 'PC'}, {value: 1, label: 'IoT'}];
 }
 
-function createNetworkColumns() {
+function createNetworkColumns(t: any) {
   const align = 'left';
   return [
-    {name: 'address', align, label: 'Address', field: 'address', sortable: true},
-    {name: 'route', align, label: 'Route', field: 'route', format: (val: any) => `${val.join(' ')}`, sortable: true},
-    {name: 'port', align, label: 'port', field: 'port', sortable: true},
-    {name: 'device', align, label: 'Device', field: 'device', sortable: true},
-    {name: 'username', align, label: 'User Name', field: 'username', sortable: true},
-    {name: 'password', align, label: 'Password', field: 'password', sortable: true},
-    {name: 'credentials_found', align, label: 'Credentials Found', field: 'credentials_found', sortable: true},
-    {name: 'route_found', align, label: 'Route Found', field: 'route_found', sortable: true},
-    {name: 'available', align, label: 'Available', field: 'available', sortable: true},
-    {name: 'authentication_type', align, label: 'Authentication Type', field: 'authentication_type', sortable: true}
+    {name: 'address', align, label: t('address'), field: 'address', sortable: true},
+    {name: 'route', align, label: t('route'), field: 'route', format: (val: any) => `${val.join(' ')}`, sortable: true},
+    {name: 'port', align, label: t('port'), field: 'port', sortable: true},
+    {name: 'device', align, label: t('device'), field: 'device', sortable: true},
+    {name: 'username', align, label: t('username'), field: 'username', sortable: true},
+    {name: 'password', align, label: t('password'), field: 'password', sortable: true},
+    {name: 'credentials_found', align, label: t('credentials_found'), field: 'credentials_found', sortable: true},
+    {name: 'route_found', align, label: t('route_found'), field: 'route_found', sortable: true},
+    {name: 'available', align, label: t('available'), field: 'available', sortable: true},
+    {name: 'authentication_type', align, label: t('authentication_type'), field: 'authentication_type', sortable: true}
   ];
 }
 
-function createServiceColumns() {
+function createServiceColumns(t: any) {
   return [
     {name: 'restart', align: 'center', label: '', field: 'restart'},
     {name: 'start', align: 'center', label: '', field: 'start'},
     {name: 'stop', align: 'center', label: '', field: 'stop'},
-    {name: 'description', align: 'left', label: 'Description', field: 'description', sortable: true},
-    {name: 'platform', align: 'left', label: 'Platform', field: 'platform', sortable: true},
-    {name: 'created_at', align: 'left', label: 'Created At', field: 'created_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true},
-    {name: 'heartbeat', align: 'left', label: 'Heartbeat', field: 'heartbeat', format: (val: any) => `${val.toLocaleString()}`, sortable: true},
-    {name: 'platform_version', align: 'left', label: 'Platform Version', field: 'platform_version', sortable: true},
+    {name: 'description', align: 'left', label: t('description'), field: 'description', sortable: true},
+    {name: 'platform', align: 'left', label: t('platform'), field: 'platform', sortable: true},
+    {name: 'created_at', align: 'left', label: t('created_at'), field: 'created_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true},
+    {name: 'heartbeat', align: 'left', label: t('heartbeat'), field: 'heartbeat', format: (val: any) => `${val.toLocaleString()}`, sortable: true},
+    {name: 'platform_version', align: 'left', label: t('platform_version'), field: 'platform_version', sortable: true},
     {
-      name: 'instance_type', align: 'left', label: 'Instance Type', field: 'instance_type',
+      name: 'instance_type', align: 'left', label: t('instance_type'), field: 'instance_type',
       format: (val: number) => val === 1 ? 'Docker Container' : 'Systemd', sortable: true
     },
-    {name: 'hostname', align: 'left', label: 'Hostname', field: 'hostname', sortable: true},
-    {name: 'ip_address', align: 'left', label: 'Ip Address', field: 'ip_address', sortable: true},
-    {name: 'mac_address', align: 'left', label: 'Mac Address', field: 'mac_address', sortable: true},
-    {name: 'processor', align: 'left', label: 'Processor', field: 'processor', sortable: true},
-    {name: 'cpu_count', align: 'left', label: 'Cpu Count', field: 'cpu_count', sortable: true},
-    {name: 'ram', align: 'left', label: 'Memory', field: 'ram', sortable: true},
-    {name: 'pid', align: 'left', label: 'PID', field: 'pid', sortable: true},
-    {name: 'name', align: 'left', label: 'Name', field: 'name', sortable: true},
-    {name: 'instance_name', align: 'left', label: 'Instance Name', field: 'instance_name', sortable: true}
+    {name: 'hostname', align: 'left', label: t('hostname'), field: 'hostname', sortable: true},
+    {name: 'ip_address', align: 'left', label: t('ip_address'), field: 'ip_address', sortable: true},
+    {name: 'mac_address', align: 'left', label: t('mac_address'), field: 'mac_address', sortable: true},
+    {name: 'processor', align: 'left', label: t('processor'), field: 'processor', sortable: true},
+    {name: 'cpu_count', align: 'left', label: t('cpu_count'), field: 'cpu_count', sortable: true},
+    {name: 'ram', align: 'left', label: t('ram'), field: 'ram', sortable: true},
+    {name: 'pid', align: 'left', label: t('pid'), field: 'pid', sortable: true},
+    {name: 'name', align: 'left', label: t('name'), field: 'name', sortable: true},
+    {name: 'instance_name', align: 'left', label: t('instance_name'), field: 'instance_name', sortable: true}
   ];
 }
 
-function createUserColumns() {
+function createUserColumns(t: any) {
   const align = 'left';
   return [
-    {name: 'username', align, label: 'User Name', field: 'username', sortable: true},
-    {name: 'email', align, label: 'Email', field: 'email', sortable: true},
-    {name: 'last_login_at', align, label: 'Last Login At', field: 'last_login_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true},
-    {name: 'delete', align: 'center', label: 'Delete', field: 'delete'}
+    {name: 'username', align, label: t('username'), field: 'username', sortable: true},
+    {name: 'email', align, label: t('email'), field: 'email', sortable: true},
+    {
+      name: 'last_login_at',
+      align,
+      label: t('last_login_at'),
+      field: 'last_login_at',
+      format: (val: any) => `${val.toLocaleString()}`,
+      sortable: true
+    },
+    {name: 'delete', align: 'center', label: '', field: 'delete'}
   ];
 }
 
-function createRtmpTemplatesColumns() {
+function createRtmpTemplatesColumns(t: any) {
   const align = 'left';
   return [
-    {name: 'name', align, label: 'Name', field: 'name', sortable: true},
-    {name: 'description', align, label: 'Description', field: 'description', sortable: true},
-    {name: 'brand', align, label: 'Brand', field: 'brand', sortable: true},
-    {name: 'default_user', align, label: 'Default User', field: 'default_user', sortable: true},
-    {name: 'default_password', align, label: 'DefaultPassword', field: 'default_password', sortable: true},
-    {name: 'default_port', align, label: 'Default Port', field: 'default_port', sortable: true},
-    {name: 'address', align, label: 'Address', field: 'address', sortable: true},
-    {name: 'route', align, label: 'Route', field: 'route', sortable: true},
-    {name: 'templates', align, label: 'Templates', field: 'templates', sortable: true}
+    {name: 'name', align, label: t('name'), field: 'name', sortable: true},
+    {name: 'description', align, label: t('description'), field: 'description', sortable: true},
+    {name: 'brand', align, label: t('brand'), field: 'brand', sortable: true},
+    {name: 'default_user', align, label: t('default_user'), field: 'default_user', sortable: true},
+    {name: 'default_password', align, label: t('default_password'), field: 'default_password', sortable: true},
+    {name: 'default_port', align, label: t('default_port'), field: 'default_port', sortable: true},
+    {name: 'address', align, label: t('address'), field: 'address', sortable: true},
+    {name: 'route', align, label: t('route'), field: 'route', sortable: true},
+    {name: 'templates', align, label: t('templates2'), field: 'templates', sortable: true}
   ];
 }
 
-function createFailedStreamsColumns() {
+function createFailedStreamsColumns(t: any) {
   const align = 'left';
   return [
-    {name: 'brand', align, label: 'Brand', field: 'brand', sortable: true},
-    {name: 'name', align, label: 'Name', field: 'name', sortable: true},
-    {name: 'address', align, label: 'Address', field: 'address', sortable: true},
+    {name: 'brand', align, label: t('brand'), field: 'brand', sortable: true},
+    {name: 'name', align, label: t('name'), field: 'name', sortable: true},
+    {name: 'address', align, label: t('address'), field: 'address', sortable: true},
 
-    {name: 'rtmp_container_failed_count', align, label: 'RTMP Container Failed Count', field: 'rtmp_container_failed_count', sortable: true},
-    {name: 'rtmp_feeder_failed_count', align, label: 'RTMP Feeder Failed Count', field: 'rtmp_feeder_failed_count', sortable: true},
-    {name: 'hls_failed_count', align, label: 'HLS Failed Count', field: 'hls_failed_count', sortable: true},
-    {name: 'ffmpeg_reader_failed_count', align, label: 'FFmpeg Reader Failed Count', field: 'ffmpeg_reader_failed_count', sortable: true},
-    {name: 'record_failed_count', align, label: 'Record Failed Count', field: 'record_failed_count', sortable: true},
-    {name: 'snapshot_failed_count', align, label: 'Snapshot Failed Count', field: 'snapshot_failed_count', sortable: true},
-    {name: 'record_stuck_process_count', align, label: 'Record Stuck Process Count', field: 'record_stuck_process_count', sortable: true},
-    {name: 'last_check_at', align, label: 'Last Check At', field: 'last_check_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true}
+    {name: 'rtmp_container_failed_count', align, label: t('rtmp_container_failed_count'), field: 'rtmp_container_failed_count', sortable: true},
+    {name: 'rtmp_feeder_failed_count', align, label: t('rtmp_feeder_failed_count'), field: 'rtmp_feeder_failed_count', sortable: true},
+    {name: 'hls_failed_count', align, label: t('hls_failed_count'), field: 'hls_failed_count', sortable: true},
+    {name: 'ffmpeg_reader_failed_count', align, label: t('ffmpeg_reader_failed_count'), field: 'ffmpeg_reader_failed_count', sortable: true},
+    {name: 'record_failed_count', align, label: t('record_failed_count'), field: 'record_failed_count', sortable: true},
+    {name: 'snapshot_failed_count', align, label: t('snapshot_failed_count'), field: 'snapshot_failed_count', sortable: true},
+    {name: 'record_stuck_process_count', align, label: t('record_stuck_process_count'), field: 'record_stuck_process_count', sortable: true},
+    {name: 'last_check_at', align, label: t('last_check_at'), field: 'last_check_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true}
   ];
 }
 
-function createRecStucksColumns() {
+function createRecStucksColumns(t: any) {
   const align = 'left';
   return [
-    {name: 'name', align, label: 'Name', field: 'name', sortable: true},
-    {name: 'brand', align, label: 'Brand', field: 'brand', sortable: true},
-    {name: 'address', align, label: 'Address', field: 'address', sortable: true},
+    {name: 'brand', align, label: t('brand'), field: 'brand', sortable: true},
+    {name: 'name', align, label: t('name'), field: 'name', sortable: true},
+    {name: 'address', align, label: t('address'), field: 'address', sortable: true},
 
-    {name: 'record_segment_interval', align, label: 'Record Segment Interval', field: 'record_segment_interval', sortable: true},
-    {name: 'record_output_dir', align, label: 'Record Output Dir', field: 'record_output_dir', sortable: true},
-    {name: 'file_ext', align, label: 'File Extension', field: 'file_ext', sortable: true},
-    {name: 'last_modified_file', align, label: 'Last Modified File', field: 'last_modified_file', sortable: true},
-    {name: 'last_modified_size', align, label: 'Last Modified Size', field: 'last_modified_size', sortable: true},
-    {name: 'failed_count', align, label: 'Failed Count', field: 'failed_count', sortable: true},
-    {name: 'failed_modified_file', align, label: 'Failed Modified File', field: 'failed_modified_file', sortable: true},
-    {name: 'last_check_at', align, label: 'Last Check At', field: 'last_check_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true}
+    {name: 'record_segment_interval', align, label: t('record_segment_interval'), field: 'record_segment_interval', sortable: true},
+    {name: 'record_output_dir', align, label: t('record_output_dir'), field: 'record_output_dir', sortable: true},
+    {name: 'file_ext', align, label: t('file_ext'), field: 'file_ext', sortable: true},
+    {name: 'last_modified_file', align, label: t('last_modified_file'), field: 'last_modified_file', sortable: true},
+    {name: 'last_modified_size', align, label: t('last_modified_size'), field: 'last_modified_size', sortable: true},
+    {name: 'failed_count', align, label: t('failed_count'), field: 'failed_count', sortable: true},
+    {name: 'failed_modified_file', align, label: t('failed_modified_file'), field: 'failed_modified_file', sortable: true},
+    {name: 'last_check_at', align, label: t('last_check_at'), field: 'last_check_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true}
   ];
 }
 
-function createOdColumns() {
+function createOdColumns(t: any) {
   const align = 'left';
   const style = 'max-width:200px;white-space: nowrap;overflow: hidden !important;text-overflow: ellipsis;';
   return [
-    {name: 'brand', align, label: 'Brand', field: 'brand', sortable: true},
-    {name: 'name', align, label: 'Name', field: 'name', sortable: true},
-    {name: 'address', align, label: 'Address', field: 'address', sortable: true},
+    {name: 'brand', align, label: t('brand'), field: 'brand', sortable: true},
+    {name: 'name', align, label: t('name'), field: 'name', sortable: true},
+    {name: 'address', align, label: t('address'), field: 'address', sortable: true},
 
-    {name: 'created_at', align, label: 'Created At', field: 'created_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true},
+    {name: 'created_at', align, label: t('created_at'), field: 'created_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true},
 
-    {name: 'threshold_list', align, label: 'Threshold List', field: 'threshold_list', sortable: true, style},
-    {name: 'selected_list', align, label: 'Selected List', field: 'selected_list', sortable: true, style},
-    {name: 'zones_list', align, label: 'Zones List', field: 'zones_list', sortable: true},
-    {name: 'masks_list', align, label: 'Masks List', field: 'masks_list', sortable: true},
-    {name: 'start_time', align, label: 'Start Time', field: 'start_time', sortable: true},
-    {name: 'end_time', align, label: 'End Time', field: 'end_time', sortable: true}
+    {name: 'threshold_list', align, label: t('threshold_list'), field: 'threshold_list', sortable: true, style},
+    {name: 'selected_list', align, label: t('selected_list'), field: 'selected_list', sortable: true, style},
+    {name: 'zones_list', align, label: t('zones_list'), field: 'zones_list', sortable: true},
+    {name: 'masks_list', align, label: t('masks_list'), field: 'masks_list', sortable: true},
+    {name: 'start_time', align, label: t('start_time'), field: 'start_time', sortable: true},
+    {name: 'end_time', align, label: t('end_time'), field: 'end_time', sortable: true}
   ];
 }
 

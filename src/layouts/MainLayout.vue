@@ -403,6 +403,9 @@ export default {
         locale.value = lang;
         localService.setLang(lang);
         storeService.set18n(t);
+        // setTimeout(() => {
+        //   window.location.reload();
+        // }, 100);
       }
     };
   },
