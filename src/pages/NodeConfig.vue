@@ -72,8 +72,8 @@
             <q-input type="number" v-model.number='archive.limit_percent' filled dense :label="$t('limit_percent')"/>
             <q-space style='height: 10px;'/>
             <q-select emit-value map-options filled dense v-model='archive.action_type' :options='archiveActionTypes' :label="$t('action_type')"/>
-            <q-space style='height: 10px;'/>
-            <q-input v-model.trim='archive.move_location' filled dense :label="$t('move_location')"/>
+            <q-space v-show="archive.action_type===1" style='height: 10px;'/>
+            <q-input v-show="archive.action_type===1" v-model.trim='archive.move_location' filled dense :label="$t('move_location')"/>
           </q-card-section>
         </q-card>
         <q-space style='height: 10px;'/>
@@ -503,7 +503,7 @@ export default {
     const deepStackPerOpts = ref<SelectOption[]>(nodeService.LocalService.createDeepStackPerformanceModes());
     const deepStackDockerTypes = ref<SelectOption[]>(nodeService.LocalService.createDeepStackDockerTypes());
     const archive = ref<ArchiveConfig>();
-    const archiveActionTypes = ref<SelectOption[]>(nodeService.LocalService.createArchiveActionTypes());
+    const archiveActionTypes = ref<SelectOption[]>(nodeService.LocalService.createArchiveActionTypes(t));
 
     //jetson
     const jetson = ref<JetsonConfig>();

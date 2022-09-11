@@ -7,12 +7,13 @@
     <q-popup-proxy @show="onPopupShow" v-model="popupShow">
       <q-list bordered class="rounded-borders" style="max-width: 350px">
         <q-item-label v-show="list.length" header>{{$t('notifications')}}</q-item-label>
-        <q-item v-for="item in list" v-ripple :key="item.id">
+        <q-item v-for="item in list" v-ripple :key="item.id" >
           <q-item-section avatar>
 <!--            <q-avatar size="75px">-->
 <!--              <q-img :src="'data:image/png;base64, ' + item.base64_image" spinner-color='white'/>-->
 <!--            </q-avatar>-->
-            <q-img :src="'data:image/png;base64, ' + item.base64_image" spinner-color='white' width="80px"/>
+            <q-img :src="'data:image/jpg;base64, ' + item.base64_image" spinner-color='white' width="80px" style="cursor: pointer;"
+                   @click="onOpenImageNewWindow(item.base64_image)"/>
           </q-item-section>
 
 
@@ -243,7 +244,14 @@ export default {
 
     return{
       list, noShownLength, popupShow,
-      onPopupShow
+      onPopupShow,
+      onOpenImageNewWindow(base64Img: string){
+        const image = new Image();
+        image.src = 'data:image/jpg;base64,' + base64Img;
+
+        const w: any = window.open('');
+        w.document.write(image.outerHTML);
+      }
     }
   }
 }

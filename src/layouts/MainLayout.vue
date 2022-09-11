@@ -12,17 +12,6 @@
           <Notifier style="margin-right: -15px"/>
           <q-btn-dropdown icon='account_circle' round flat :label='currentUser?.username'>
             <q-list>
-              <q-item clickable v-close-popup @click="onChangeLocale('en-US')">
-                <q-item-section>
-                  <q-item-label>
-                    <q-avatar size='36px'>
-                      <q-img src="../assets/gb.svg" width="30px" />
-                    </q-avatar>
-                    English
-                    <q-tooltip>Makes English Default Language</q-tooltip>
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
               <q-item clickable v-close-popup @click="onChangeLocale('tr-TR')">
                 <q-item-section>
                   <q-item-label>
@@ -34,18 +23,29 @@
                   </q-item-label>
                 </q-item-section>
               </q-item>
+              <q-item clickable v-close-popup @click="onChangeLocale('en-US')">
+                <q-item-section>
+                  <q-item-label>
+                    <q-avatar size='36px'>
+                      <q-img src="../assets/gb.svg" width="30px" />
+                    </q-avatar>
+                    English
+                    <q-tooltip>Makes English Default Language</q-tooltip>
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click='onLogoutUser'>
+                <q-item-section>
+                  <q-item-label>
+                    <q-avatar size='36px'>
+                      <q-icon name='logout'/>
+                    </q-avatar>
+                    {{$t('logout')}}
+                    <q-tooltip>{{$t('dlogout')}}</q-tooltip>
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
             </q-list>
-            <q-item clickable v-close-popup @click='onLogoutUser'>
-              <q-item-section>
-                <q-item-label>
-                  <q-avatar size='36px'>
-                    <q-icon name='logout'/>
-                  </q-avatar>
-                  {{$t('logout')}}
-                  <q-tooltip>{{$t('dlogout')}}</q-tooltip>
-                </q-item-label>
-              </q-item-section>
-            </q-item>
           </q-btn-dropdown>
         </div>
 
@@ -89,7 +89,7 @@
                       <q-icon name='live_tv' color='cyan'/>
                     </q-item-section>
                     <q-item-section>
-                      <q-item-label>Start Streaming</q-item-label>
+                      <q-item-label>{{$t('start_streaming')}}</q-item-label>
                     </q-item-section>
                   </q-item>
                   <q-item clickable v-close-popup @click='onSaveSettingsClicked(link.id)' v-ripple>
@@ -97,7 +97,7 @@
                       <q-icon name='settings' color='cyan'/>
                     </q-item-section>
                     <q-item-section>
-                      <q-item-label>Settings</q-item-label>
+                      <q-item-label>{{$t('settings')}}</q-item-label>
                     </q-item-section>
                   </q-item>
                   <q-item clickable v-close-popup @click='onShowRecordClicked(link.id)'>
@@ -105,7 +105,7 @@
                       <q-icon name='dvr' color='purple'/>
                     </q-item-section>
                     <q-item-section>
-                      <q-item-label>Playback</q-item-label>
+                      <q-item-label>{{$t('playback')}}</q-item-label>
                     </q-item-section>
                   </q-item>
                   <q-item clickable v-close-popup @click='onAiClick(link.id)'>
@@ -113,7 +113,7 @@
                       <q-icon name='psychology' color='orange'/>
                     </q-item-section>
                     <q-item-section>
-                      <q-item-label>AI</q-item-label>
+                      <q-item-label>{{$t('ai')}}</q-item-label>
                     </q-item-section>
                   </q-item>
                   <q-item clickable v-close-popup @click='onOnvifClick(link)'>
@@ -121,7 +121,7 @@
                       <q-icon name='settings_ethernet' color='brown-5'/>
                     </q-item-section>
                     <q-item-section>
-                      <q-item-label>ONVIF</q-item-label>
+                      <q-item-label>{{$t('onvif')}}</q-item-label>
                     </q-item-section>
                   </q-item>
                   <q-item clickable v-close-popup @click='onTakeScreenshotClicked(link)'>
@@ -129,7 +129,7 @@
                       <q-icon name='photo_camera' color='purple'/>
                     </q-item-section>
                     <q-item-section>
-                      <q-item-label>Take a screenshot</q-item-label>
+                      <q-item-label>{{$t('take_screenshot')}}</q-item-label>
                     </q-item-section>
                   </q-item>
                 </q-list>
@@ -138,7 +138,7 @@
                     <q-icon name='center_focus_strong' color='purple'/>
                   </q-item-section>
                   <q-item-section>
-                    <q-item-label>Test</q-item-label>
+                    <q-item-label>{{$t('test')}}</q-item-label>
                   </q-item-section>
                 </q-item>
                 <!--                <q-inner-loading v-if='loadingObject[link.id]' :showing='true'>-->

@@ -124,18 +124,18 @@ export class LocalService {
     ];
   }
 
-  public createLogLevels(): SelectOption[] {
+  public createLogLevels(t: any): SelectOption[] {
     return [
-      {value: 0, label: 'None'},
-      {value: 1, label: 'Quiet'},
-      {value: 2, label: 'Panic'},
-      {value: 3, label: 'Fatal'},
-      {value: 4, label: 'Error'},
-      {value: 5, label: 'Warning'},
-      {value: 6, label: 'Info'},
-      {value: 7, label: 'Verbose'},
-      {value: 8, label: 'Debug'},
-      {value: 9, label: 'Trace'}
+      {value: 0, label: t('none')},
+      {value: 1, label: t('quiet')},
+      {value: 2, label: t('panic')},
+      {value: 3, label: t('fatal')},
+      {value: 4, label: t('error')},
+      {value: 5, label: t('warning')},
+      {value: 6, label: t('info')},
+      {value: 7, label: t('verbose')},
+      {value: 8, label: t('debug')},
+      {value: 9, label: t('trace')}
     ];
   }
 
@@ -195,30 +195,30 @@ export class LocalService {
     ];
   }
 
-  public createPresets(): SelectOption[] {
+  public createPresets(t: any): SelectOption[] {
     return [
-      {value: 0, label: 'Auto'},
-      {value: 1, label: 'Ultra Fast'},
-      {value: 2, label: 'Super Fast'},
-      {value: 3, label: 'Very Fast'},
-      {value: 4, label: 'Faster'},
-      {value: 5, label: 'Fast'},
-      {value: 6, label: 'Medium'},
-      {value: 7, label: 'Slow'},
-      {value: 8, label: 'Slower'},
-      {value: 9, label: 'Very Slow'},
-      {value: 10, label: 'Placebo'}
+      {value: 0, label: t('auto')},
+      {value: 1, label: t('ultra_fast')},
+      {value: 2, label: t('super_fast')},
+      {value: 3, label: t('very_fast')},
+      {value: 4, label: t('faster')},
+      {value: 5, label: t('fast')},
+      {value: 6, label: t('medium')},
+      {value: 7, label: t('slow')},
+      {value: 8, label: t('slower')},
+      {value: 9, label: t('very_slow')},
+      {value: 10, label: t('placebo')}
     ];
   }
 
-  public createRotations(): SelectOption[] {
+  public createRotations(t: any): SelectOption[] {
     return [
-      {value: 0, label: 'No Rotation'},
-      {value: 1, label: '180 Degrees'},
-      {value: 2, label: '90 Counter Clockwise and Vertical Flip (default)'},
-      {value: 3, label: '90 Clockwise'},
-      {value: 4, label: '90 Clockwise and Vertical Flip'},
-      {value: 5, label: '90 Counter'}
+      {value: 0, label: t('no_rotation')},
+      {value: 1, label: '180 ' + t('degrees')},
+      {value: 2, label: '90 ' + t('vertical_flip')},
+      {value: 3, label: '90 ' + t('clockwise')},
+      {value: 4, label: '90 ' + t('clockwise_and_vertical_flip')},
+      {value: 5, label: '90 ' + t('counter')}
     ];
   }
 
@@ -401,7 +401,7 @@ export class LocalService {
       snapshot_width: 640,
       snapshot_height: 360,
 
-      ffmpeg_reader_frame_rate: 1,
+      ffmpeg_reader_frame_rate: 5,
       ffmpeg_reader_width: 640,
       ffmpeg_reader_height: 360,
 
@@ -695,10 +695,10 @@ export class LocalService {
     ];
   }
 
-  public createArchiveActionTypes(): SelectOption[] {
+  public createArchiveActionTypes(t: any): SelectOption[] {
     return [
-      {value: 0, label: 'Delete'},
-      {value: 1, label: 'Move Another Location'},
+      {value: 0, label: t('delete')},
+      {value: 1, label: t('move_another_location')}
     ];
   }
 }

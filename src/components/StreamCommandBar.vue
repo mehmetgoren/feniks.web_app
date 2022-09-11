@@ -9,38 +9,38 @@
     <q-separator style='margin-bottom: 5px;' />
     <q-btn-group>
       <q-btn :dense='dense' color='cyan' rounded glossy icon-right='settings' @click='onSettingsClick'>
-        <q-tooltip class='bg-cyan'>Settings</q-tooltip>
+        <q-tooltip class='bg-cyan'>{{$t('settings')}}</q-tooltip>
       </q-btn>
       <q-btn :dense='dense' color='secondary' rounded glossy icon='sync' @click='onRefresh'>
-        <q-tooltip class='bg-secondary'>Refresh</q-tooltip>
+        <q-tooltip class='bg-secondary'>{{$t('refresh')}}</q-tooltip>
       </q-btn>
       <q-btn :dense='dense' color='secondary' rounded glossy icon='power' @click='onConnectClick'>
-        <q-tooltip class='bg-secondary'>Connect</q-tooltip>
+        <q-tooltip class='bg-secondary'>{{$t('connect')}}</q-tooltip>
       </q-btn>
       <q-btn :dense='dense' color='secondary' rounded glossy icon='restart_alt' @click='onRestartClick'>
-        <q-tooltip class='bg-secondary'>Restart</q-tooltip>
+        <q-tooltip class='bg-secondary'>{{$t('restart')}}</q-tooltip>
       </q-btn>
       <q-btn :dense='dense' color='deep-orange' rounded glossy icon='power_off' @click='onStreamStopClick'>
-        <q-tooltip class='bg-deep-orange'>Stop</q-tooltip>
+        <q-tooltip class='bg-deep-orange'>{{$t('stop')}}</q-tooltip>
       </q-btn>
       <q-btn :dense='dense' color='purple' rounded glossy icon='dvr' @click='onRecordClick'>
-        <q-tooltip class='bg-accent'>Playback</q-tooltip>
+        <q-tooltip class='bg-accent'>{{$t('playback')}}</q-tooltip>
       </q-btn>
       <q-btn :dense='dense' color='purple' rounded glossy icon='photo_camera' @click='onTakeScreenshot'>
-        <q-tooltip class='bg-accent'>Take a screenshot</q-tooltip>
+        <q-tooltip class='bg-accent'>{{$t('take_screenshot')}}</q-tooltip>
         <q-inner-loading :showing='takeScreenshotLoading' :size="dense?'32px':'42px'" />
       </q-btn>
       <q-btn :dense='dense' color='orange' rounded glossy icon='psychology' @click='onAiClick'>
-        <q-tooltip class='bg-orange'>AI</q-tooltip>
+        <q-tooltip class='bg-orange'>{{$t('ai')}}</q-tooltip>
       </q-btn>
       <q-btn :dense='dense' color='brown-5' rounded glossy icon='settings_ethernet' @click='onOnvifClick'>
-        <q-tooltip class='bg-brown-5'>ONVIF</q-tooltip>
+        <q-tooltip class='bg-brown-5'>{{$t('onvif')}}</q-tooltip>
       </q-btn>
       <q-btn :dense='dense' v-if='showFullScreenButton' color='primary' rounded glossy icon='fullscreen' @click='onFullScreenClick'>
-        <q-tooltip class='bg-primary'>Fullscreen</q-tooltip>
+        <q-tooltip class='bg-primary'>{{$t('fullscreen')}}</q-tooltip>
       </q-btn>
       <q-btn :dense='dense' color='deep-orange' rounded glossy icon='close' @click='onClose'>
-        <q-tooltip class='bg-deep-orange'>Close</q-tooltip>
+        <q-tooltip class='bg-deep-orange'>{{$t('close')}}</q-tooltip>
       </q-btn>
     </q-btn-group>
     <q-separator style='margin-top: 5px;' />

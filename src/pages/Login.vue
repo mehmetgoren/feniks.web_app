@@ -179,8 +179,8 @@ export default {
     return {
       locale,
       localeOptions: [
-        { value: 'en-US', label: 'English' },
-        { value: 'tr-TR', label: 'Türkçe' }
+        { value: 'tr-TR', label: 'Türkçe' },
+        { value: 'en-US', label: 'English' }
       ],
       mode, loginUser, registerUser, showLoginLoading,
       onLogin, onRegister,
