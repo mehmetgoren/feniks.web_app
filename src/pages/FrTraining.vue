@@ -6,10 +6,10 @@
           <q-btn flat round dense icon='menu' @click='drawer = !drawer' />
           <q-icon name='face' size='28px' />
           <q-toolbar-title>
-            <strong>Face Training</strong>
+            <strong>{{$t('face_training')}}</strong>
           </q-toolbar-title>
-          <q-btn label='Add New' icon-right='add' dense color='primary' style='margin-right: 15px' @click='onNew' />
-          <q-btn label='Start Train' icon-right='engineering' @click='onTraining' :disable='showTrainLoading' color='orange'>
+          <q-btn :label="$t('add_new')" icon-right='add' dense color='primary' style='margin-right: 15px' @click='onNew' />
+          <q-btn :label="$t('start_training')" icon-right='engineering' @click='onTraining' :disable='showTrainLoading' color='orange'>
             <q-inner-loading :showing='showTrainLoading' />
           </q-btn>
         </q-toolbar>
@@ -23,7 +23,7 @@
               <q-item-section>{{ person.name }}</q-item-section>
               <q-item-section v-if='person.image_paths&&person.image_paths.length' avatar>
                 <q-avatar>
-                  <img :src='person.image_paths[0]' alt='no image' />
+                  <img :src='person.image_paths[0]' :alt="$t('no_image')" />
                 </q-avatar>
               </q-item-section>
             </q-item>
@@ -40,29 +40,29 @@
           <div class='row wrap justify-start content-stretch'>
             <div class='col-3'>
               <q-form class='q-gutter-md'>
-                <q-input filled v-model='selectedPerson.name' label='Person name *' hint='Name and surname'
-                         lazy-rules :rules="[ val => val && val.length > 0 || 'Please type something']" />
-                <q-btn v-if='mode===0' label='Rename' color='deep-purple-9' @click='onRename'
+                <q-input filled v-model='selectedPerson.name' :label="$t('person_name')" :hint="$t('name_and_surname')"
+                         lazy-rules :rules="[ val => val && val.length > 0 || $t('v_type_something')]" />
+                <q-btn v-if='mode===0' :label="$t('rename')" color='deep-purple-9' @click='onRename'
                        :disable='showRenameLoading||!selectedPerson.name'>
                   <q-inner-loading :showing='showRenameLoading' />
                 </q-btn>
-                <q-btn v-if='mode===1' label='Create' color='primary' @click='onAdNewSubmit'
+                <q-btn v-if='mode===1' :label="$t('create')" color='primary' @click='onAdNewSubmit'
                        :disable='showAdNewSubmitLoading||!selectedPerson.name'>
                   <q-inner-loading :showing='showAdNewSubmitLoading' />
                 </q-btn>
-                <q-btn v-if='mode===0' label='Delete' color='red' @click='onDelete'
+                <q-btn v-if='mode===0' :label="$t('delete')" color='red' @click='onDelete'
                        :disable='showDeleteLoading||!selectedPerson.name'>
                   <q-inner-loading :showing='showDeleteLoading' />
                 </q-btn>
                 <q-separator size='2px' />
                 <q-select filled option-value='id' option-label='name' v-model='selectedSource' :options='sourceList'
-                          color='deep-purple-9' label='Select a Source to Take a Screenshot' dense :disable='mode===1' />
-                <q-btn label='Screenshot' icon-right='photo_camera' @click='onTakeScreenshot' :disable='showTakeScreenshot||mode===1'
+                          color='deep-purple-9' :label="$t('select_source_to_take_screenshot')" dense :disable='mode===1' />
+                <q-btn :label="$t('screenshot')" icon-right='photo_camera' @click='onTakeScreenshot' :disable='showTakeScreenshot||mode===1'
                        color='deep-purple-9'>
                   <q-inner-loading :showing='showTakeScreenshot' />
                 </q-btn>
                 <q-separator size='2px' />
-                <q-uploader :factory='factoryFn' label='Upload JPEG Image' multiple
+                <q-uploader :factory='factoryFn' :label="$t('upload_jpeg_image')" multiple
                             accept='.jpg, image/*' max-files='1' :disable='mode===1' />
               </q-form>
             </div>
@@ -89,11 +89,13 @@ import { List } from 'linqts';
 import { SourceModel } from 'src/utils/models/source_model';
 import { EditorImageResponseModel } from 'src/utils/entities';
 import { isFrDirNameValid } from 'src/utils/utils';
+import {useI18n} from 'vue-i18n';
 
 export default {
   name: 'FrTraining',
   components: { ViewerComponent },
   setup() {
+    const { t } = useI18n({ useScope: 'global' });
     const $q = useQuasar();
     const people = ref<FrTrainViewModel[]>([]);
     const selectedPerson = ref<FrTrainViewModel>({ name: '', image_paths: [] });
@@ -154,7 +156,7 @@ export default {
       showTrainLoading.value = false;
       const responseEvent: FaceTrainResponseEvent = JSON.parse(event.data);
       $q.notify({
-        message: responseEvent.result ? 'Training Complete' : 'Training has been failed',
+        message: responseEvent.result ? t('training_complete') : t('training_failed'),
         caption: '',
         color: responseEvent.result ? 'green' : 'red'
       });
@@ -168,12 +170,12 @@ export default {
       }
       showTakeScreenshot.value = false;
       if (!responseModel.image_base64) {
-        $q.notify({ message: 'Taking screenshot has been failed', color: 'red' });
+        $q.notify({ message: t('taking_screenshot_failed'), color: 'red' });
         return;
       }
       nodeService.saveFrTrainPersonImage({ name: sp.name, base64_image: responseModel.image_base64 })
         .then(() => {
-          $q.notify({ message: 'The screenshot has been saved', color: 'green' });
+          $q.notify({ message: t('screenshot_saved'), color: 'green' });
           void dataBindImages();
         }).catch(console.error);
     }
@@ -221,7 +223,7 @@ export default {
     function onTakeScreenshot() {
       if (!selectedSource.value.id) {
         $q.notify({
-          message: 'Please Select a Source First',
+          message: t('v_select_source_first'),
           caption: 'Warning',
           color: 'red'
         });
@@ -286,7 +288,7 @@ export default {
       async onRename() {
         const name = selectedPerson.value.name;
         if (!prevSelectedPersonName || !name || !isFrDirNameValid(name)) {
-          $q.notify({ message: 'Please enter valid name', color: 'red' });
+          $q.notify({ message: t('v_enter_valid_name'), color: 'red' });
           return;
         }
         showRenameLoading.value = true;
@@ -316,8 +318,8 @@ export default {
       },
       onDelete() {
         $q.dialog({
-          title: 'Confirm',
-          message: 'Are you sure you want to delete this person?',
+          title: t('confirm'),
+          message: t('are_you_sure_delete_person'),
           cancel: true,
           persistent: false
         }).onOk(() => {

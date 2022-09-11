@@ -6,9 +6,9 @@
           <q-btn flat round dense :icon="selectedFeature.icon" class="q-mr-sm"/>
           <q-toolbar-title autocapitalize="characters">{{ selectedFeature.name.toLocaleUpperCase() }}</q-toolbar-title>
           <q-tabs v-model="tab" shrink :active-bg-color="color">
-            <q-tab name="od" icon="collections" label="Object Detection"/>
-            <q-tab name="fr" icon="face" label="Face Recognition"/>
-            <q-tab name="alpr" icon="drive_eta" label="License Plate Recognition"/>
+            <q-tab name="od" icon="collections" :label="$t('object_detection')"/>
+            <q-tab name="fr" icon="face" :label="$t('face_recognition')"/>
+            <q-tab name="alpr" icon="drive_eta" :label="$t('license_plate_recognition')"/>
           </q-tabs>
           <q-space/>
         </q-toolbar>
@@ -16,22 +16,22 @@
     </div>
     <div class="row" style="margin-top: 15px;">
       <div class="col-3">
-        <DateTimeSelector :width-date="200" :width-time="125" label-date="Start Date" label-time="Start Time" :color='color' :dense="false"
-                          :show-hour='true' :allow-minute-selection="true" @date-time-changed='onStartDateTimeChanged'
+        <DateTimeSelector :width-date="200" :width-time="125" :label-date="$t('start_date')" :label-time="$t('start_time')"
+                          :color='color' :dense="false" :show-hour='true' :allow-minute-selection="true" @date-time-changed='onStartDateTimeChanged'
                           :date-string="parseDate(params.start_date_time_str)" :time-string="parseTime(params.start_date_time_str)"/>
       </div>
       <div class="col-3">
-        <DateTimeSelector :width-date="200" :width-time="125" label-date="End Date" label-time="End Time" :color='color' :dense="false"
-                          :show-hour='true' :allow-minute-selection="true" @date-time-changed='onEndDateTimeChanged'
+        <DateTimeSelector :width-date="200" :width-time="125" :label-date="$t('end_date')" :label-time="$t('end_time')"
+                          :color='color' :dense="false" :show-hour='true' :allow-minute-selection="true" @date-time-changed='onEndDateTimeChanged'
                           :date-string="parseDate(params.end_date_time_str)" :time-string="parseTime(params.end_date_time_str)"/>
       </div>
       <div class="col-3">
         <q-select emit-value map-options filled style="width: 300px" @update:model-value="onSourceIdChanged"
                   v-model='params.source_id' :color='color' option-value="id" option-label="name"
-                  :options='sources' label='Camera' clearable/>
+                  :options='sources' :label="$t('camera')" clearable/>
       </div>
       <div class="col-3">
-        <q-input filled v-model.trim='params.pred_class_name' label='Label' :color='color' @update:model-value="onLabelChanged" style="width: 300px">
+        <q-input filled v-model.trim='params.pred_class_name' :label="$t('label')" :color='color' @update:model-value="onLabelChanged" style="width: 300px">
           <template v-if="params.pred_class_name" v-slot:append>
             <q-icon name="cancel" @click="onLabelClear" class="cursor-pointer"/>
           </template>
@@ -41,8 +41,8 @@
     <q-space style="margin-bottom: 5px;"/>
     <div class="row">
       <div class="col-12">
-        <q-table title="AI Data" :color="color" :rows="rows" :columns="columns" row-key="id" v-model:pagination="pagination" :loading="loading"
-                 @request="onRequest" binary-state-sort>
+        <q-table :title="$t('ai_data')" :color="color" :rows="rows" :columns="columns" row-key="id" v-model:pagination="pagination"
+                 :loading="loading" @request="onRequest" binary-state-sort>
           <template v-slot:body='props'>
             <q-tr :props='props' @click='onRowClick(props.row)' :style='{"backgroundColor": props.expand ? color:"white", "cursor":"pointer"}'>
               <q-td key='base64_image'>
@@ -55,11 +55,11 @@
             </q-tr>
           </template>
           <template v-slot:top-right>
-            <q-btn :color="color" icon="archive" label="Export to CSV" no-caps @click="onExportData">
+            <q-btn :color="color" icon="archive" :label="$t('export_to_csv')" no-caps @click="onExportData">
               <q-inner-loading :color="color" :showing="loadingExport"/>
             </q-btn>
             <q-space style="margin-left: 5px;" />
-            <q-btn icon='refresh' label='Refresh' :color='color' @click='dataBind'/>
+            <q-btn icon='refresh' :label="$t('refresh')" :color='color' @click='dataBind'/>
           </template>
         </q-table>
       </div>
@@ -71,11 +71,11 @@
         <q-toolbar>
           <q-btn flat round dense :icon='selectedFeature.icon'/>
           <q-toolbar-title>
-            {{ selectedFeature.name }} by {{ sourceDic[selectedItem.source_id].name }}
+            {{ sourceDic[selectedItem.source_id].name }} {{ selectedFeature.name }}
           </q-toolbar-title>
           <q-space/>
           <q-btn dense flat icon='close' v-close-popup>
-            <q-tooltip :class="'bg-' + color  +  ' text-primary'">Close</q-tooltip>
+            <q-tooltip :class="'bg-' + color  +  ' text-primary'">{{$t('close')}}</q-tooltip>
           </q-btn>
         </q-toolbar>
       </q-header>
@@ -94,16 +94,16 @@
                 <div style="float: left;width: 100%;margin-top: 5px;">
                   <q-table :rows="detailRows" :color="color" :columns="detailColumns" :hide-pagination="true" :hide-header="true">
                     <template v-slot:top-left>
-                      <q-btn :color='color' dense icon-right='theaters' label='Download Video'
+                      <q-btn :color='color' dense icon-right='theaters' :label="$t('download_video')"
                              @click='handleDownloadVideo(selectedItem.video_file.name, "clip")'>
                         <q-inner-loading :loading="downloadVideoLoading"/>
                       </q-btn>
-                      <q-btn :color='color' dense icon-right='photo_camera' label='Open Snapshot'
+                      <q-btn :color='color' dense icon-right='photo_camera' :label="$t('open_snapshot')"
                              @click='handleOpenSnapshot(selectedItem.image_file_name)'
                              style="margin-left: 5px;"/>
                     </template>
                     <template v-slot:top-right>
-                      <q-btn color='red' dense icon-right='delete' label='Delete Event' @click='handleDelete()'/>
+                      <q-btn color='red' dense icon-right='delete' :label="$t('delete_event')" @click='handleDelete()'/>
                     </template>
                   </q-table>
                 </div>
@@ -118,18 +118,18 @@
   <q-dialog v-model="showDelete" transition-show="rotate" transition-hide="rotate">
     <q-card>
       <q-card-section>
-        <div class="text-h6">Deletion of an AI Data</div>
+        <div class="text-h6">{{$t('deletion_an_ai_data')}}</div>
       </q-card-section>
 
       <q-card-section class="q-pt-none">
-        <q-checkbox v-model="deleteRecordTemp" label="Delete the Record permanently" disable/>
-        <q-checkbox v-model="dlt.delete_image" label="Delete the image and all related other records permanently"/>
-        <q-checkbox v-model="dlt.delete_video" label="Delete the video and all related other images and records permanently"/>
+        <q-checkbox v-model="deleteRecordTemp" :label="$t('delete_record_permanently')" disable/>
+        <q-checkbox v-model="dlt.delete_image" :label="$t('delete_record_permanently2')"/>
+        <q-checkbox v-model="dlt.delete_video" :label="$t('delete_record_permanently3')"/>
       </q-card-section>
 
       <q-card-actions align="right">
-        <q-btn flat label="Cancel" color="primary" v-close-popup/>
-        <q-btn flat label="Delete" color="red" @click="onDoDelete"/>
+        <q-btn flat :label="$t('cancel')" color="primary" v-close-popup/>
+        <q-btn flat :label="$t('delete')" color="red" @click="onDoDelete"/>
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -146,11 +146,13 @@ import {NodeService} from 'src/utils/services/node_service';
 import {deepCopy, downloadFile, getAddedHour, getPrevHourDatetime, getTodayString, myDateToJsDate} from 'src/utils/utils';
 import {setUpDatesAndPaths} from 'src/utils/path_utils';
 import {useQuasar, exportFile} from 'quasar';
+import {useI18n} from 'vue-i18n';
 
 export default {
   name: 'AiDataGeneral',
   components: {DateTimeSelector, VideoPlayer},
   setup() {
+    const { t } = useI18n({ useScope: 'global' });
     const $q = useQuasar();
     const color = ref<string>('deep-purple-14');
     const tab = ref<string>('od');
@@ -175,27 +177,27 @@ export default {
       }
     });
     const nodeService = new NodeService();
-    const selectedFeature = ref<SelectedAiFeature>({name: 'Object Detection', icon: 'collections'});
+    const selectedFeature = ref<SelectedAiFeature>({name: t('object_detection'), icon: 'collections'});
     watch(tab, (newValue: string) => {
       switch (newValue) {
         case 'od':
           color.value = 'deep-purple-14';
           params.value.ai_type = 0;
-          selectedFeature.value.name = 'Object Detection';
+          selectedFeature.value.name = t('object_detection');
           selectedFeature.value.icon = 'collections';
           void dataBind();
           break;
         case 'fr':
           color.value = 'deep-orange-7';
           params.value.ai_type = 1;
-          selectedFeature.value.name = 'Face Recognition';
+          selectedFeature.value.name = t('face_recognition');
           selectedFeature.value.icon = 'face';
           void dataBind();
           break;
         case 'alpr':
           color.value = 'blue-grey-6';
           params.value.ai_type = 2;
-          selectedFeature.value.name = 'License Plate Recognition';
+          selectedFeature.value.name = t('license_plate_recognition');
           selectedFeature.value.icon = 'drive_eta';
           void dataBind();
           break;
@@ -284,11 +286,11 @@ export default {
       }
 
       detailRows.value.length = 0;
-      detailRows.value.push({key: 'Label', value: row.pred_cls_name});
-      detailRows.value.push({key: 'Score', value: row.pred_score?.toString() ?? '0'});
+      detailRows.value.push({key: t('label'), value: row.pred_cls_name});
+      detailRows.value.push({key: t('score'), value: row.pred_score?.toString() ?? '0'});
       //@ts-ignore
-      detailRows.value.push({key: 'Created At', value: `${row.created_at.toLocaleDateString()} ${row.created_at.toLocaleTimeString()}`});
-      detailRows.value.push({key: 'Appears at', value: (row.video_file?.object_appears_at?.toString() ?? '0') + ' sec.'});
+      detailRows.value.push({key: t('created_at'), value: `${row.created_at.toLocaleDateString()} ${row.created_at.toLocaleTimeString()}`});
+      detailRows.value.push({key: t('appears_at'), value: (row.video_file?.object_appears_at?.toString() ?? '0') + ' sec.'});
 
       showDialog.value = true;
     }
@@ -324,7 +326,7 @@ export default {
 
     async function onDoDelete() {
       if (selectedItem.value === null) {
-        $q.notify({message: 'Not enough argument to delete this record', color: 'red'});
+        $q.notify({message: t('not_enough_arg_delete_record'), color: 'red'});
         return;
       }
       showDelete.value = false;
@@ -334,7 +336,7 @@ export default {
         dlt.value.id = selectedItem.value.id;
         await nodeService.deleteAiData(dlt.value);
         await dataBind();
-        $q.notify({message: 'The record has been deleted', color: 'green'});
+        $q.notify({message: t('record_deleted'), color: 'green'});
       } finally {
         loading.value = false;
         showDialog.value = false;
@@ -387,7 +389,7 @@ export default {
 
         if (status !== true) {
           $q.notify({
-            message: 'Browser denied file download...',
+            message: t('browser_no_allow_download'),
             color: 'negative',
             icon: 'warning'
           })
@@ -420,6 +422,20 @@ export default {
       }
     }
 
+    function createColumns(includeImageColumn: boolean): any[] {
+      const align = 'center';
+      const ret = [];
+      if (includeImageColumn) {
+        ret.push({name: 'image_file_name', align: 'left', label: '', field: 'image_file_name', sortable: false});
+      }
+      ret.push({name: 'source_id', align, label: t('camera'), field: 'source_id', sortable: true});
+      ret.push({name: 'pred_cls_name', align, label: t('label'), field: 'pred_cls_name', sortable: true});
+      ret.push({name: 'pred_score', align, label: t('score'), field: 'pred_score', sortable: true});
+      ret.push({name: 'created_at', align, label: t('created_at'), field: 'created_at', sortable: true});
+
+      return ret;
+    }
+
     return {
       tab, color, params, sources, selectedFeature, sourceDic, rows, pagination, loading, showDialog, selectedItem, detailRows, downloadVideoLoading,
       showDelete, dlt, loadingExport,
@@ -429,20 +445,6 @@ export default {
       deleteRecordTemp: ref<boolean>(true)
     }
   }
-}
-
-function createColumns(includeImageColumn: boolean): any[] {
-  const align = 'center';
-  const ret = [];
-  if (includeImageColumn) {
-    ret.push({name: 'image_file_name', align: 'left', label: '', field: 'image_file_name', sortable: false});
-  }
-  ret.push({name: 'source_id', align, label: 'Camera', field: 'source_id', sortable: true});
-  ret.push({name: 'pred_cls_name', align, label: 'Label', field: 'pred_cls_name', sortable: true});
-  ret.push({name: 'pred_score', align, label: 'Score', field: 'pred_score', sortable: true});
-  ret.push({name: 'created_at', align, label: 'Created At', field: 'created_at', sortable: true});
-
-  return ret;
 }
 
 function createDetailColumns(): any[] {
