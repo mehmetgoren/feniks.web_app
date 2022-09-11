@@ -2,21 +2,22 @@
   <div>
     <q-toolbar :class="'bg-' + color + ' text-white'">
       <q-btn flat dense icon="lens_blur" class="q-mr-sm"/>
-      <q-toolbar-title>AI EVENT DATA HISTORY</q-toolbar-title>
+      <q-toolbar-title>{{$t('ai_event_data_history')}}</q-toolbar-title>
       <q-tabs v-model="tab" shrink :active-bg-color="color">
-        <q-tab name="od" icon="collections" label="Object Detection"/>
-        <q-tab name="fr" icon="face" label="Face Recognition"/>
-        <q-tab name="alpr" icon="drive_eta" label="License Plate Recognition"/>
+        <q-tab name="od" icon="collections" :label="$t('object_detection')"/>
+        <q-tab name="fr" icon="face" :label="$t('face_recognition')"/>
+        <q-tab name="alpr" icon="drive_eta" :label="$t('license_plate_recognition')"/>
       </q-tabs>
       <q-space/>
     </q-toolbar>
     <div class='q-pa-md q-gutter-sm' style='margin-top: -15px;'>
       <div class="row">
         <div class="col-3">
-          <DateTimeSelector width-date="187" :dense="true" :color='color' :show-hour='true' @date-changed='onDateChanged' @hour-changed='onHourChanged'/>
+          <DateTimeSelector width-date="187" :dense="true" :color='color' :show-hour='true' :label-date="$t('date')" :label-time="$t('time')"
+                            @date-changed='onDateChanged' @hour-changed='onHourChanged'/>
           <q-toggle dense v-model='params.no_preparing_video_file' :color='color' @update:model-value='onNoPreparingVideoFileChanged'
-                    :label='(params.no_preparing_video_file ? "Do Not" : "") + " Include Preparing Video File"' />
-          <q-input dense filled v-model.trim='params.pred_class_name' label='Label' :color='color' @update:model-value="onLabelChanged" style="width: 300px" />
+                    :label="params.no_preparing_video_file ? $t('include_preparing_video_file') : $t('do_not_include_preparing_video_file') " />
+          <q-input dense filled v-model.trim='params.pred_class_name' :label="$t('label')" :color='color' @update:model-value="onLabelChanged" style="width: 300px" />
         </div>
         <div class="col-9">
           <q-toolbar :class="'bg-' + color + ' text-white'">
@@ -50,7 +51,7 @@
                     {{ leftItem.pred_score }}
                   </q-item-section>
 
-                  <q-inner-loading :showing="!isVfAvailable(leftItem)" label="Preparing..." label-class="text-teal"
+                  <q-inner-loading :showing="!isVfAvailable(leftItem)" :label="$t('preparing') + '...'" label-class="text-teal"
                                    label-style="font-size: 1.1em" :color="color" size="16px"/>
 
                 </q-item>
@@ -82,6 +83,7 @@ import {NodeService} from 'src/utils/services/node_service';
 import {AiDataDto, QueryAiDataParams, SelectedAiFeature} from 'src/utils/models/ai_data_dtos';
 import VideoPlayer from 'components/VideoPlayer.vue';
 import {setUpDatesAndPaths} from 'src/utils/path_utils';
+import {useI18n} from 'vue-i18n';
 
 export default {
   name: 'AiDataSource',
@@ -96,6 +98,7 @@ export default {
     DateTimeSelector
   },
   setup(props: any) {
+    const { t } = useI18n({ useScope: 'global' });
     const tab = ref<string>('od')
     const params = ref<QueryAiDataParams>({
       ai_type: 0,
@@ -109,21 +112,21 @@ export default {
         case 'od':
           color.value = 'deep-purple-14';
           params.value.ai_type = 0;
-          selectedFeature.value.name = 'Object Detection';
+          selectedFeature.value.name = t('object_detection');
           selectedFeature.value.icon = 'collections';
           void databind();
           break;
         case 'fr':
           color.value = 'deep-orange-7';
           params.value.ai_type = 1;
-          selectedFeature.value.name = 'Face Recognition';
+          selectedFeature.value.name = t('face_recognition');
           selectedFeature.value.icon = 'face';
           void databind();
           break;
         case 'alpr':
           color.value = 'blue-grey-6';
           params.value.ai_type = 2;
-          selectedFeature.value.name = 'License Plate Recognition';
+          selectedFeature.value.name = t('license_plate_recognition');
           selectedFeature.value.icon = 'drive_eta';
           void databind();
           break;
@@ -136,7 +139,7 @@ export default {
     const leftItems = ref<AiDataDto[]>([]);
     const selectedItem = ref<AiDataDto | null>(null);
     const leftPanelLoading = ref<boolean>(false);
-    const selectedFeature = ref<SelectedAiFeature>({name:'Object Detection', icon:'collections'});
+    const selectedFeature = ref<SelectedAiFeature>({name:t('object_detection'), icon:'collections'});
     let videoPlayer: any = null;
 
     const databind = async () => {

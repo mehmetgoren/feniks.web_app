@@ -20,20 +20,21 @@
 
     <div style='margin: 5px;' :class="{'alerts-border': (selected?.id?.length??0)>0}">
       <q-tabs v-model='tab' narrow-indicator dense align='justify' class='bg-grey-1' @update:model-value='onTabsChanged'>
-        <q-tab class='text-orange' name='zones' icon='format_shapes' label='Zones'/>
-        <q-tab class='text-accent' name='masks' icon='block' label='Masks'/>
+        <q-tab class='text-orange' name='zones' icon='format_shapes' :label="$t('zones')"/>
+        <q-tab class='text-accent' name='masks' icon='block' :label="$t('masks')"/>
       </q-tabs>
       <div v-if='tab==="zones"'>
-        <q-table title='Zones' :rows='zonesService.points' :columns='columns' row-key='id' selection='single'
-                 v-model:selected='zonesService.tableSelected' @selection='onTableSelected' icon-first-page='format_shapes'>
+        <q-table :title="$t('zones')" :rows='zonesService.points' :columns='columns' row-key='id' selection='single'
+                 v-model:selected='zonesService.tableSelected' @selection='onTableSelected' icon-first-page='format_shapes'
+                 :no-data-label="$t('no_data')">
           <template v-slot:top-left>
             <div class='row'>
-              <q-btn label='Add Zone' icon-right='add' color='orange' @click='onAdd'></q-btn>
+              <q-btn :label="$t('add_zone')" icon-right='add' color='orange' @click='onAdd'></q-btn>
             </div>
           </template>
           <template v-slot:top-right>
             <div class='row'>
-              <q-btn label='Take a screenshot' icon-right='photo_camera' color='orange' @click='onTakeScreenshot' :disable="loadingObject">
+              <q-btn :label="$t('take_screenshot')" icon-right='photo_camera' color='orange' @click='onTakeScreenshot' :disable="loadingObject">
                 <q-inner-loading :showing='loadingObject'/>
               </q-btn>
             </div>
@@ -48,16 +49,16 @@
         </q-table>
       </div>
       <div v-if='tab==="masks"'>
-        <q-table title='Masks' :rows='masksService.points' :columns='columns' row-key='id' selection='single'
+        <q-table :title="$t('masks')" :rows='masksService.points' :columns='columns' row-key='id' selection='single' :no-data-label="$t('no_data')"
                  v-model:selected='masksService.tableSelected' @selection='onTableSelected' icon-first-page='format_shapes'>
           <template v-slot:top-left>
             <div class='row'>
-              <q-btn label='Add Mask' icon-right='add' color='accent' @click='onAdd'></q-btn>
+              <q-btn :label="$t('add_mask')" icon-right='add' color='accent' @click='onAdd'></q-btn>
             </div>
           </template>
           <template v-slot:top-right>
             <div class='row'>
-              <q-btn label='Take a screenshot' icon-right='photo_camera' color='accent' @click='onTakeScreenshot' :disable="loadingObject">
+              <q-btn :label="$t('take_screenshot')" icon-right='photo_camera' color='accent' @click='onTakeScreenshot' :disable="loadingObject">
                 <q-inner-loading :showing='loadingObject'/>
               </q-btn>
             </div>
@@ -71,7 +72,7 @@
           </template>
         </q-table>
       </div>
-      <q-input color='grey-3' label-color='orange' v-model='selected.coordinates' label='Zone Coordinates' readonly>
+      <q-input color='grey-3' label-color='orange' v-model='selected.coordinates' :label="$t('zone_coordinates')" readonly>
         <template v-slot:prepend>
           <q-icon name='format_shapes' color='amber'/>
         </template>
@@ -80,7 +81,7 @@
 
   </div>
   <div v-else>
-    <label class='blink_me'>AI Snapshot is not available. Please enabled it first by editing from source settings.</label>
+    <label class='blink_me'>{{$t('no_ai_snapshot')}}</label>
   </div>
 </template>
 
@@ -94,6 +95,7 @@ import {WsConnection} from 'src/utils/ws/connection';
 import {createEmptyBase64Image, deepCopy, isNullOrEmpty} from 'src/utils/utils';
 import {nanoid} from 'nanoid';
 import {List} from 'linqts';
+import {useI18n} from 'vue-i18n';
 
 const Width = 1280;
 const Height = 720;
@@ -113,6 +115,7 @@ export default {
   emits: ['zones-coordinates-changed', 'masks-coordinates-changed'],
   //@ts-ignore
   setup(props: any, {emit}) {
+    const { t } = useI18n({ useScope: 'global' });
     const nodeService = new NodeService();
     const publishService = new PublishService();
     const localService = nodeService.LocalService;
@@ -339,7 +342,7 @@ export default {
       handleClick, handleRightClick, handleDragStart, handleDragEnd, handleDragging, onAdd, onTableSelected, onDelete, onTabsChanged,
       onTakeScreenshot: takeScreenshot,
       columns: [
-        {name: 'coordinates', align: 'left', label: 'Zone Coordinates', field: 'coordinates', sortable: true},
+        {name: 'coordinates', align: 'left', label: t('zone_coordinates'), field: 'coordinates', sortable: true},
         {name: 'delete', align: 'center', label: '', field: 'delete'}
       ]
     };

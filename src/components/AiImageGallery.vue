@@ -4,17 +4,17 @@
       <q-header elevated class='bg-deep-purple-14'>
         <q-toolbar :class="'bg-' + color + ' text-white'">
           <q-btn flat round dense :icon="selectedFeature.icon" class="q-mr-sm"/>
-          <q-toolbar-title>AI IMAGES</q-toolbar-title>
+          <q-toolbar-title>{{$t('ai_images')}}</q-toolbar-title>
           <q-tabs v-model="tab" shrink :active-bg-color="color">
-            <q-tab name="od" icon="collections" label="Object Detection"/>
-            <q-tab name="fr" icon="face" label="Face Recognition"/>
-            <q-tab name="alpr" icon="drive_eta" label="License Plate Recognition"/>
+            <q-tab name="od" icon="collections" :label="$t('object_detection')"/>
+            <q-tab name="fr" icon="face" :label="$t('face_recognition')"/>
+            <q-tab name="alpr" icon="drive_eta" :label="$t('license_plate_recognition')"/>
           </q-tabs>
           <q-space/>
           <div style='background-color: whitesmoke;margin-right: 5px;'>
-            <DateTimeSelector :dense="true" :color='color' :show-hour='false' @date-changed='onDateChanged'/>
+            <DateTimeSelector :dense="true" :color='color' :show-hour='false' :label-date="$t('date')" @date-changed='onDateChanged'/>
           </div>
-          <q-btn :color='color' label='Refresh' icon='restore_page' @click='onRefresh' :disable='refreshLoading'>
+          <q-btn :color='color' :label="$t('refresh')" icon='restore_page' @click='onRefresh' :disable='refreshLoading'>
             <q-inner-loading :showing='refreshLoading' />
           </q-btn>
         </q-toolbar>
@@ -22,7 +22,7 @@
 
       <q-drawer v-model='drawer' show-if-above :width='300' :breakpoint='500' bordered class='bg-grey-3'>
         <q-scroll-area class='fit'>
-          <q-tree :nodes='treeItems' node-key='fullPath' v-model:expanded='selectedKeys' no-nodes-label='No folder here'
+          <q-tree :nodes='treeItems' node-key='fullPath' v-model:expanded='selectedKeys' :no-nodes-label="$t('no_dir_here')"
                   v-model:selected='selected' @update:selected='handleTreeSelected' />
           <q-inner-loading :showing='treeLoading' />
         </q-scroll-area>
@@ -32,7 +32,7 @@
         <q-page padding>
           <div style='width: 1290px;height: 730px;'>
             <viewer :images='images'>
-              <img v-for='image in images' :key='image.id' :src='image.imagePath' alt='no image'>
+              <img v-for='image in images' :key='image.id' :src='image.imagePath' :alt="$t('no_image')">
             </viewer>
             <q-inner-loading :showing='imagesLoading'>
               <q-spinner-gears size='150px' color='amber' />
@@ -51,6 +51,7 @@ import DateTimeSelector from 'src/components/DateTimeSelector.vue';
 import { getTodayString } from 'src/utils/utils';
 import {AiClipQueryViewModel} from 'src/utils/models/ai_clip_view_models';
 import {SelectedAiFeature} from 'src/utils/models/ai_data_dtos';
+import {useI18n} from 'vue-i18n';
 
 export default {
   name: 'AiImageGallery',
@@ -62,33 +63,34 @@ export default {
     }
   },
   setup(props: any) {
+    const { t } = useI18n({ useScope: 'global' });
     const tab = ref<string>('od')
     const params = ref<AiClipQueryViewModel>({
       ai_type: 0,
       source_id: props.sourceId,
       date:  getTodayString()
     });
-    const selectedFeature = ref<SelectedAiFeature>({name: 'Object Detection', icon: 'collections'});
+    const selectedFeature = ref<SelectedAiFeature>({name: t('object_detection'), icon: 'collections'});
     watch(tab, (newValue: string) => {
       switch (newValue) {
         case 'od':
           color.value = 'deep-purple-14';
           params.value.ai_type = 0;
-          selectedFeature.value.name = 'Object Detection';
+          selectedFeature.value.name = t('object_detection');
           selectedFeature.value.icon = 'collections';
           void onRefresh();
           break;
         case 'fr':
           color.value = 'deep-orange-7';
           params.value.ai_type = 1;
-          selectedFeature.value.name = 'Face Recognition';
+          selectedFeature.value.name = t('face_recognition');
           selectedFeature.value.icon = 'face';
           void onRefresh();
           break;
         case 'alpr':
           color.value = 'blue-grey-6';
           params.value.ai_type = 2;
-          selectedFeature.value.name = 'License Plate Recognition';
+          selectedFeature.value.name = t('license_plate_recognition');
           selectedFeature.value.icon = 'drive_eta';
           void onRefresh();
           break;

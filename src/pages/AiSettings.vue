@@ -6,11 +6,11 @@
         <label style='text-transform: uppercase;font-size: medium;'> {{ od.name }}</label>
       </q-toolbar-title>
       <q-tabs v-model='tab' narrow-indicator inline-label align='left'>
-        <q-tab :disable='!enabled' name='cocoList' icon='fact_check' label='Coco List' />
-        <q-tab :disable='!enabled' name='zoneList' icon='format_shapes' label='Zones' />
-        <q-tab :disable='!enabled' name='detectedList' icon='collections' label='AI Images' />
-        <q-tab :disable='!enabled' name='videoClipList' icon='featured_video' label='AI Clips' />
-        <q-tab :disable='!enabled' name='aidata' icon='lens_blur' label='Ai Data' />
+        <q-tab :disable='!enabled' name='cocoList' icon='fact_check' :label="'Coco ' + $t('list') " />
+        <q-tab :disable='!enabled' name='zoneList' icon='format_shapes' :label="$t('zones')" />
+        <q-tab :disable='!enabled' name='detectedList' icon='collections' :label="$t('ai_images')" />
+        <q-tab :disable='!enabled' name='videoClipList' icon='featured_video' :label="$t('ai_clips')" />
+        <q-tab :disable='!enabled' name='aidata' icon='lens_blur' :label="$t('ai_data')" />
       </q-tabs>
       <q-space />
     </q-toolbar>
@@ -19,7 +19,7 @@
     <q-page style='background-color: whitesmoke;'>
       <div v-if='enabled'>
         <div v-if='tab==="cocoList"' class='div_margin'>
-          <q-table dense title='Coco Objects' :rows='cocoList' :columns='columns'
+          <q-table dense :title="'Coco ' + $t('objects')" :rows='cocoList' :columns='columns' :rows-per-page-label="$t('rows_per_page')"
                    :pagination='initialPagination' :filter='cocoFilter'>
             <template v-slot:body='props'>
               <q-tr :props='props' :style="{ backgroundColor: props.row.selected ? 'whitesmoke': 'white'}">
@@ -38,7 +38,7 @@
               <div class='row'>
                 <q-checkbox v-model='selectAll' dense color='amber' />
                 <q-space style='margin-right: 15px;' />
-                <q-input borderless dense debounce='300' v-model.trim='cocoFilter' placeholder='Search'>
+                <q-input borderless dense debounce='300' v-model.trim='cocoFilter' :placeholder="$t('search')">
                   <template v-slot:append>
                     <q-icon name='search' />
                   </template>
@@ -47,7 +47,7 @@
             </template>
             <template v-slot:top-right>
 
-              <q-input filled v-model='od.start_time' mask='time' label='Start Time' dense clearable color='orange'>
+              <q-input filled v-model='od.start_time' mask='time' :label="$t('start_time')" dense clearable color='orange'>
                 <template v-slot:append>
                   <q-icon name='access_time' class='cursor-pointer'>
                     <q-popup-proxy cover transition-show='scale' transition-hide='scale'>
@@ -61,7 +61,7 @@
                 </template>
               </q-input>
               <q-space style='margin-left: 5px;' />
-              <q-input filled v-model='od.end_time' mask='time' label='End Time' dense clearable color='orange'>
+              <q-input filled v-model='od.end_time' mask='time' :label="$t('end_time')" dense clearable color='orange'>
                 <template v-slot:append>
                   <q-icon name='access_time' class='cursor-pointer'>
                     <q-popup-proxy cover transition-show='scale' transition-hide='scale'>
@@ -76,11 +76,11 @@
               </q-input>
 
               <q-space style='margin-left: 5px;' />
-              <q-btn color='orange' label='Save' icon='save' @click='onSave' :disable='inactiveSave' dense>
+              <q-btn color='orange' :label="$t('save')" icon='save' @click='onSave' :disable='inactiveSave' dense>
                 <q-inner-loading :showing='inactiveSave' />
               </q-btn>
               <q-space style='margin-left: 5px;' />
-              <q-btn color='orange' label='Refresh' icon='restore_page' @click='onRefresh' :disable='inactiveRefresh' dense>
+              <q-btn color='orange' :label="$t('refresh')" icon='restore_page' @click='onRefresh' :disable='inactiveRefresh' dense>
                 <q-inner-loading :showing='inactiveRefresh' />
               </q-btn>
             </template>
@@ -121,6 +121,7 @@ import AiClips from 'components/AiClips.vue';
 import AiDataSource from 'components/AiDataSource.vue';
 import { StoreService } from 'src/utils/services/store_service';
 import {useRouter} from 'vue-router';
+import {useI18n} from 'vue-i18n';
 
 export default {
   name: 'AiSettings',
@@ -131,6 +132,7 @@ export default {
     AiDataSource
   },
   setup() {
+    const { t } = useI18n({ useScope: 'global' });
     const router = useRouter();
     const localService = new LocalService();
     const nodeService = new NodeService();
@@ -141,9 +143,9 @@ export default {
     const config = ref<Config>();
     const cocoList = ref<any[]>([]);
     const columns = [
-      { name: 'selected', align: 'left', label: 'Selection', field: 'selected' },
-      { name: 'label', align: 'left', label: 'Name', field: 'label' },
-      { name: 'threshold', align: 'left', label: 'Threshold', field: 'threshold' }
+      { name: 'selected', align: 'left', label: t('selection'), field: 'selected' },
+      { name: 'label', align: 'left', label: t('name'), field: 'label' },
+      { name: 'threshold', align: 'left', label: t('threshold2'), field: 'threshold' }
     ];
     const cocoFilter = ref<string>('');
     const selectAll = ref<boolean>(false);
@@ -239,7 +241,7 @@ export default {
       onSave, onRefresh, handleZonesCoordinatesChanged, handleMasksCoordinatesChanged,
       initialPagination: {
         page: 0,
-        rowsPerPage: 10
+        rowsPerPage: 20
       }
     };
   }
