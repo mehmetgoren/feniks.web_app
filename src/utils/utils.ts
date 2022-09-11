@@ -224,6 +224,15 @@ export function setupLocale(localService: LocalService, locale: any, $q: any){
   locale.value = localeTemp;
 }
 
+export function createTrDateLocale(): any{
+  return {
+    days:['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'],
+    daysShort: ['Pzr', 'Pts', 'Sal', 'Çar', 'Per', 'Cum', 'Cts'],
+    months: ['Ocak', 'Şubat', 'Mart','Nisan', 'Mayıs', 'Haziran', 'Temmuz','Ağustos','Eylül','Ekim','Kasım', 'Aralık'],
+    monthsShort: ['Ock', 'Şbt','Mrt','Nsn','Mys','Hzn', 'Tmz', 'Ağs', 'Eyl', 'Ekm', 'Ksm', 'Arl']
+  };
+}
+
 export async function doUserLogout(localService: LocalService, storeService: StoreService, router: any) {
   localService.setCurrentUser(null);
   storeService.setCurrentUser(null);

@@ -306,15 +306,15 @@
       </q-card-section>
       <q-card-section>
         <div class="q-pa-md" style="width: 400px;">
-          <q-input dense filled v-model.trim='source.name' label='Name' color='cyan'
-                   lazy-rules :rules="[ val => val && val.length > 0 || 'Please enter a valid name']"/>
-          <q-input dense filled v-model.trim='source.address' color='cyan' label='Address'
-                   lazy-rules :rules="[ val => val && val.length > 0 || 'Please enter a valid address']"/>
+          <q-input dense filled v-model.trim='source.name' :label="$t('name')" color='cyan'
+                   lazy-rules :rules="[ val => val && val.length > 0 || $t('v_enter_valid_name')]"/>
+          <q-input dense filled v-model.trim='source.address' color='cyan' :label="$t('address')"
+                   lazy-rules :rules="[ val => val && val.length > 0 || $t('v_enter_valid_address')]"/>
         </div>
       </q-card-section>
       <q-separator/>
       <q-card-actions align="right">
-        <q-btn flat color="cyan" glossy label="Find the best settings!" icon-right="auto_awesome" @click="onFindOptimalSettings2"
+        <q-btn flat color="cyan" glossy :label="$t('find_best_settings')" icon-right="auto_awesome" @click="onFindOptimalSettings2"
                :disable="quickWizardShowing">
           <q-inner-loading :showing="quickWizardShowing"/>
         </q-btn>
@@ -481,8 +481,8 @@ export default {
       let model = source.value;
       if (!model.name || !model.address) {
         $q.notify({
-          message: 'Please enter both "Name" and  "Address" fields',
-          caption: 'Invalid',
+          message: t('v_enter_both_name_and_address'),
+          caption: t('invalid'),
           color: 'red-14',
           position: 'bottom-right'
         });
@@ -509,7 +509,7 @@ export default {
         storeService.updateSourceToLeftMenu(source.value);
       }
       $q.notify({
-        message: model.name + (' has been ' + (isAdded ? 'added' : 'saved')),
+        message: model.name + t(isAdded ? 'has_been_added' : 'has_been_saved'),
         color: 'green',
         position: 'bottom-right'
       });
@@ -524,8 +524,8 @@ export default {
       }
 
       $q.dialog({
-        title: 'Confirm',
-        message: 'Are you sure you want to delete this source?',
+        title: t('confirm'),
+        message: t('delete_are_you_sure'),
         cancel: true,
         persistent: false
       }).onOk(() => {
@@ -542,7 +542,7 @@ export default {
         }
         if (!result) {
           $q.notify({
-            message: 'No source has been deleted',
+            message: t('no_source_has_been_deleted'),
             color: 'green',
             position: 'bottom-right'
           });
@@ -551,7 +551,7 @@ export default {
         emit('on-delete', e);
         storeService.removeSourceFromLeftMenu(<string>model.id);
         $q.notify({
-          message: model.name + ' has been removed permanently',
+          message: model.name + t('has_been_removed_permanently'),
           color: 'green',
           position: 'bottom-right'
         });
@@ -573,8 +573,8 @@ export default {
     const onFindOptimalSettings = () => {
       if (!source.value.address) {
         $q.notify({
-          message: 'Please enter "Address" fields',
-          caption: 'Invalid',
+          message: t('v_enter_address_field'),
+          caption: t('invalid'),
           color: 'red-14',
           position: 'bottom-right'
         });
@@ -588,8 +588,8 @@ export default {
         fn(source.value.address);
       } else { //edit
         $q.dialog({
-          title: 'Confirm',
-          message: 'Are you sure you want to load optimal settings?',
+          title: t('confirm'),
+          message: t('are_you_sure_load_optimal_settings'),
           cancel: true,
           persistent: false
         }).onOk(() => {
@@ -602,7 +602,7 @@ export default {
     const onCopySettingsFromChanged = () => {
       if (!copySelectedSourceId.value || !copyPrevSources.value.length) {
         $q.notify({
-          message: 'Please Seleact a Source First',
+          message: t('please_select_source_first'),
           color: 'red',
           position: 'bottom-right'
         });
@@ -612,8 +612,8 @@ export default {
         return;
       }
       $q.dialog({
-        title: 'Confirm',
-        message: 'Are you sure you want to copy settings from ' + selectedSource.name + '?',
+        title: t('confirm'),
+        message: t('are_you_sure_copy_settings_from') + selectedSource.name + '?',
         cancel: true,
         persistent: false
       }).onOk(() => {
@@ -640,7 +640,7 @@ export default {
         let model = source.value;
         if (!model.name || !model.address) {
           $q.notify({
-            message: 'Please enter both "Name" and  "Address" fields',
+            message: t('v_enter_both_name_and_address'),
             caption: 'Invalid',
             color: 'red-14',
             position: 'bottom-right'

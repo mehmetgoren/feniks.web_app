@@ -2,13 +2,13 @@
   <q-layout view='lHh lpr lFf' container style='height: 600px' class='shadow-2 rounded-borders'>
     <q-header elevated class='bg-purple'>
       <q-toolbar>
-        <q-btn flat round dense icon='dvr' />
+        <q-btn flat round dense icon='dvr'/>
         <q-toolbar-title>
-          Record List ({{ stream.name }})
+          {{ stream.name }} {{ $t('record_list') }}
         </q-toolbar-title>
-        <q-space />
+        <q-space/>
         <q-btn dense flat icon='close' v-close-popup>
-          <q-tooltip class='bg-white text-primary'>Close</q-tooltip>
+          <q-tooltip class='bg-white text-primary'>{{ $t('close') }}</q-tooltip>
         </q-btn>
       </q-toolbar>
     </q-header>
@@ -17,21 +17,21 @@
         <div class='row'>
           <div class='col-3'>
             <q-toggle v-model='recordEnabled' disable checked-icon='check' color='purple'
-                      :label='"Record " + (recordEnabled ? "On" : "Off")' />
-            <q-space />
-            <q-date v-model='selectedDate' color='purple' mask='YYYY_MM_DD' />
+                      :label="$t('record') + ' ' + (recordEnabled ? $t('on') : $t('off'))"/>
+            <q-space/>
+            <q-date v-model='selectedDate' color='purple' mask='YYYY_MM_DD' :locale="locale"/>
           </div>
           <div class='col-9'>
-            <q-table title='Records' :columns='columns'
+            <q-table :title="$t('records')" :columns='columns'
                      :rows='hours' row-key='hour'
                      virtual-scroll :virtual-scroll-item-size='24' :pagination='pagination'
-                     :rows-per-page-options='[0]'
+                     :rows-per-page-options='[0]' :rows-per-page-label="$t('rows_per_page')"
                      :filter='filter'>
 
               <template v-slot:body='props'>
                 <q-tr :props='props' @click='onRootClick(props)' style='cursor: pointer;'>
                   <q-td key='hour' auto-width>
-                    <q-toggle v-model='props.expand' size='lg' color='accent' style='float: left;' disable />
+                    <q-toggle v-model='props.expand' size='lg' color='accent' style='float: left;' disable/>
                     <div style='font-size: large;text-align: center;margin: 15px 0 0 0;'>
                       <label>{{ props.row.hour + ' : 00' }}</label>
                     </div>
@@ -40,39 +40,39 @@
                 <q-tr v-show='props.expand' :props='props'>
                   <q-table
                     :rows='props.row.videoFiles' :columns='innerColumns'
-                    :pagination='innerPagination' row-key='name'
+                    :pagination='innerPagination' row-key='name' :rows-per-page-label="$t('rows_per_page')"
                     :selected='selected' :filter='innerFilter'>
                     <template v-slot:body-cell-play='props'>
                       <q-td :props='props'>
                         <div>
-                          <q-btn round color='purple' icon='play_arrow' @click='onPlay(props.row)' />
+                          <q-btn round color='purple' icon='play_arrow' @click='onPlay(props.row)'/>
                         </div>
                       </q-td>
                     </template>
                     <template v-slot:body-cell-download='props'>
                       <q-td :props='props'>
                         <div>
-                          <q-btn round color='teal' icon='download' @click='onDownload(props.row)' />
+                          <q-btn round color='teal' icon='download' @click='onDownload(props.row)'/>
                         </div>
                       </q-td>
                     </template>
                     <template v-slot:body-cell-delete='props'>
                       <q-td :props='props'>
                         <div>
-                          <q-btn round color='deep-orange' icon='delete' @click='onDelete(props.row)' />
+                          <q-btn round color='deep-orange' icon='delete' @click='onDelete(props.row)'/>
                         </div>
                       </q-td>
                     </template>
                     <template v-slot:top-left>
-                      <q-btn v-if='props.row.videoFiles.length>1' icon-right='movie_creation' label='Merge' glossy color='purple'
+                      <q-btn v-if='props.row.videoFiles.length>1' icon-right='movie_creation' :label="$t('merge')" glossy color='purple'
                              style='margin-right: 15px;' @click='onMerge(props.row)' :disable='showMergeLoading'>
-                        <q-inner-loading :showing='showMergeLoading' />
+                        <q-inner-loading :showing='showMergeLoading'/>
                       </q-btn>
                     </template>
                     <template v-slot:top-right>
-                      <q-input v-if='props.row.videoFiles.length>1' borderless dense debounce='300' v-model='innerFilter' placeholder='Search'>
+                      <q-input v-if='props.row.videoFiles.length>1' borderless dense debounce='300' v-model='innerFilter' :placeholder="$t('search')">
                         <template v-slot:append>
-                          <q-icon name='search' />
+                          <q-icon name='search'/>
                         </template>
                       </q-input>
                     </template>
@@ -81,10 +81,10 @@
               </template>
 
               <template v-slot:top-right>
-                <q-btn icon='refresh' label='Refresh' glossy color='purple' style='margin-right: 15px;' @click='onRefresh' />
-                <q-input borderless dense debounce='300' v-model='filter' placeholder='Search'>
+                <q-btn icon='refresh' :label="$t('refresh')" glossy color='purple' style='margin-right: 15px;' @click='onRefresh'/>
+                <q-input borderless dense debounce='300' v-model='filter' :placeholder="$t('search')">
                   <template v-slot:append>
-                    <q-icon name='search' />
+                    <q-icon name='search'/>
                   </template>
                 </q-input>
               </template>
@@ -101,38 +101,25 @@
         <div class='text-h6'>{{ selectedVideo.name }}</div>
       </q-card-section>
       <q-card-section class='q-pt-none'>
-        <VideoPlayer :src='nodeAddress + selectedVideo.path' :auto-play='true' />
+        <VideoPlayer :src='nodeAddress + selectedVideo.path' :auto-play='true'/>
       </q-card-section>
     </q-card>
   </q-dialog>
 </template>
 
 <script lang='ts'>
-import { useQuasar } from 'quasar';
-import { onMounted, ref, onBeforeUnmount, watch } from 'vue';
-import { VideoFile } from 'src/utils/entities';
-import { NodeService } from 'src/utils/services/node_service';
-import { WsConnection } from 'src/utils/ws/connection';
+import {useQuasar} from 'quasar';
+import {onMounted, ref, onBeforeUnmount, watch} from 'vue';
+import {VideoFile} from 'src/utils/entities';
+import {NodeService} from 'src/utils/services/node_service';
+import {WsConnection} from 'src/utils/ws/connection';
 import VideoPlayer from 'src/components/VideoPlayer.vue';
-import {fixArrayDates, getTodayString, isNullOrEmpty} from 'src/utils/utils';
+import {createTrDateLocale, fixArrayDates, getTodayString, isNullOrEmpty} from 'src/utils/utils';
 import axios from 'axios';
-import { StreamModel } from 'src/utils/models/stream_model';
-import { PublishService, SubscribeService } from 'src/utils/services/websocket_services';
-import { VideMergeResponseEvent } from 'src/utils/models/video_merge';
-
-const columns = [
-  { name: 'hour', align: 'left', label: 'Hour', field: 'hour', sortable: false }
-];
-
-const innerColumns = [
-  { name: 'created_at', align: 'center', label: 'Created', field: 'created_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true },
-  { name: 'modified_at', align: 'center', label: 'Ended', field: 'modified_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true },
-  { name: 'name', align: 'center', label: 'File Name', field: 'name', sortable: true },
-  { name: 'size', align: 'center', label: 'Size (MB)', field: 'size', sortable: true },
-  { name: 'play', align: 'center', label: 'Play', field: 'play' },
-  { name: 'download', align: 'center', label: 'Download', field: 'download' },
-  { name: 'delete', align: 'center', label: 'Delete', field: 'delete' }
-];
+import {StreamModel} from 'src/utils/models/stream_model';
+import {PublishService, SubscribeService} from 'src/utils/services/websocket_services';
+import {VideMergeResponseEvent} from 'src/utils/models/video_merge';
+import {useI18n} from 'vue-i18n';
 
 export default {
   name: 'SourceRecords',
@@ -146,9 +133,11 @@ export default {
     }
   },
   setup(props: any) {
+    const {t} = useI18n({useScope: 'global'});
     const $q = useQuasar();
     const recordEnabled = ref<boolean>(false);
     const nodeService = new NodeService();
+    const locale = ref(nodeService.LocalService.getLang() === 'tr-TR' ? createTrDateLocale() : null);
     const publishService = new PublishService();
     let connVideoMerge: WsConnection | null = null;
     const hours = ref<Hour[]>([]);
@@ -169,14 +158,14 @@ export default {
 
     const dataBind = async () => {
       let dateStr = selectedDate.value;
-      if (!dateStr){
+      if (!dateStr) {
         dateStr = getTodayString();
         selectedDate.value = dateStr;
       }
       const hourStrings = await nodeService.getRecordHours(props.sourceId, dateStr);
       const _hours: Hour[] = [];
       for (const hs of hourStrings) {
-        _hours.push({ sourceId: props.sourceId, hour: hs, videoFiles: [] });
+        _hours.push({sourceId: props.sourceId, hour: hs, videoFiles: []});
       }
       hours.value = _hours;
     };
@@ -193,20 +182,20 @@ export default {
       await dataBind();
 
       connVideoMerge = subscribeService.subscribeVideomerge((event: MessageEvent) => {
-        try{
+        try {
           const resp: VideMergeResponseEvent = JSON.parse(event.data)
-          if (!isNullOrEmpty(resp.output_file_name)){
+          if (!isNullOrEmpty(resp.output_file_name)) {
             const p = prevProps;
             restoreList();
             dataBind().then(() => {
               setTimeout(() => {
-                if (p != null){
+                if (p != null) {
                   void onRootClick(p);
                 }
               }, 250);
             }).catch(console.error);
           }
-        }finally {
+        } finally {
           showMergeLoading.value = false;
         }
       });
@@ -262,7 +251,7 @@ export default {
       return hours.value.filter((row: Hour) => row.hour === hourStr)[0];
     };
 
-    function restoreList(){
+    function restoreList() {
       if (prevProps != null) {
         prevProps.expand = false;
         prevProps = null;
@@ -292,7 +281,7 @@ export default {
       }
     };
 
-    const onMerge = (row: Hour)=>{
+    const onMerge = (row: Hour) => {
       $q.dialog({
         title: 'Confirm',
         message: `Are you sure you want to merge whole video files for ${row.hour}:00?`,
@@ -301,25 +290,48 @@ export default {
       }).onOk(() => {
         const splits = selectedDate.value.split('_')
         const values: string[] = [];
-        for (const split of splits){
+        for (const split of splits) {
           values.push(parseInt(split).toString());
         }
         values.push(row.hour);
         const fixedSelectedDate = values.join('_');
-        void publishService.publishVideoMerge({source_id:props.sourceId, date_str: fixedSelectedDate});
+        void publishService.publishVideoMerge({source_id: props.sourceId, date_str: fixedSelectedDate});
         showMergeLoading.value = true;
       });
     };
 
     return {
-      hours, nodeAddress, selected, lastIndex, tableRef, filter, innerFilter, selectedDate, onMerge,showMergeLoading,
-
-      columns,
+      hours, nodeAddress, selected, lastIndex, tableRef, filter, innerFilter, selectedDate, onMerge, showMergeLoading, locale,
+      columns: [
+        {name: 'hour', align: 'left', label: t('hour'), field: 'hour', sortable: false}
+      ],
       pagination: {
         rowsPerPage: 0
       },
 
-      innerColumns,
+      innerColumns: [
+        {
+          name: 'created_at',
+          align: 'center',
+          label: t('created_at'),
+          field: 'created_at',
+          format: (val: any) => `${val.toLocaleString()}`,
+          sortable: true
+        },
+        {
+          name: 'modified_at',
+          align: 'center',
+          label: t('modified_at'),
+          field: 'modified_at',
+          format: (val: any) => `${val.toLocaleString()}`,
+          sortable: true
+        },
+        {name: 'name', align: 'center', label: t('file_name'), field: 'name', sortable: true},
+        {name: 'size', align: 'center', label: t('size_mb'), field: 'size', sortable: true},
+        {name: 'play', align: 'center', label: t('play'), field: 'play'},
+        {name: 'download', align: 'center', label: t('download'), field: 'download'},
+        {name: 'delete', align: 'center', label: t('delete'), field: 'delete'}
+      ],
       innerPagination: {
         sortBy: 'desc',
         descending: false,
