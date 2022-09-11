@@ -8,7 +8,7 @@
         </q-toolbar-title>
         <q-space/>
         <q-btn dense flat icon='close' v-close-popup>
-          <q-tooltip class='bg-white text-primary'>Close</q-tooltip>
+          <q-tooltip class='bg-white text-primary'>{{ $t('close') }}</q-tooltip>
         </q-btn>
       </q-toolbar>
     </q-header>
@@ -18,47 +18,49 @@
         <div class='row'>
           <div class='col-4'>
             <q-toolbar :class='"bg-" + color + " text-white shadow-2 rounded-borders"' style='width: auto;'>
-              <label style='text-transform: uppercase;font-size: medium'>Onvif Parameters</label>
+              <label style='text-transform: uppercase;font-size: medium'>{{ $t('onvif_parameters') }}</label>
             </q-toolbar>
             <q-space style='height: 5px;'/>
             <q-form class='q-pa-xs'>
-              <q-input filled v-model.trim='model.onvif_params.address' label='Address' dense :color='color'/>
+              <q-input filled v-model.trim='model.onvif_params.address' :label="$t('address')" dense :color='color'/>
               <q-space style='height: 10px;'/>
-              <q-input filled v-model.number='model.onvif_params.port' type='number' label='Port' dense :color='color'/>
+              <q-input filled v-model.number='model.onvif_params.port' type='number' :label="$t('port')" dense :color='color'/>
               <q-space style='height: 10px;'/>
-              <q-input filled v-model.trim='model.onvif_params.username' label='User Name' dense :color='color'/>
+              <q-input filled v-model.trim='model.onvif_params.username' :label="$t('username')" dense :color='color'/>
               <q-space style='height: 10px;'/>
-              <q-input filled v-model.trim='model.onvif_params.password' label='Password' dense :color='color'/>
+              <q-input filled v-model.trim='model.onvif_params.password' :label="$t('password')" dense :color='color'/>
 
               <q-space style='height: 10px;'/>
-              <q-btn label='Onvif Scan' dense icon='settings_ethernet' :color='color' @click='onOnvifScan' :disable='showOnvifLoading'>
-                <q-inner-loading :showing='showOnvifLoading'/>
-              </q-btn>
-
-              <q-btn label='Reboot' dense icon='restart_alt' :color='color' style='margin-left: 5px;' @click='onOnvifReboot'>
-                <q-inner-loading :showing='showOnvifReboot'/>
-              </q-btn>
-              <q-btn label='Factory Reset' dense icon='factory' :color='color' style='margin-left: 5px;'/>
-              <q-btn label='Firmware Upgrade' dense icon='upgrade' :color='color' style='margin-left: 5px;'/>
+              <q-btn-group>
+                <q-btn :label="$t('onvif_scan')" dense icon='settings_ethernet' :color='color' @click='onOnvifScan' :disable='showOnvifLoading'>
+                  <q-inner-loading :showing='showOnvifLoading'/>
+                </q-btn>
+                <q-btn :label="$t('reboot')" dense icon='restart_alt' :color='color' style='margin-left: 5px;' @click='onOnvifReboot'>
+                  <q-inner-loading :showing='showOnvifReboot'/>
+                </q-btn>
+                <q-btn :label="$t('factory_reset')" dense icon='factory' :color='color' style='margin-left: 5px;'/>
+                <q-btn :label="$t('firmware_upgrade')" dense icon='upgrade' :color='color' style='margin-left: 5px;'/>
+              </q-btn-group>
             </q-form>
           </div>
 
           <div class='col-4'>
             <div style='margin-left: 5px;'>
               <q-toolbar :class='"bg-" + color + " text-white shadow-2 rounded-borders"' style='width: auto;'>
-                <label style='text-transform: uppercase;font-size: medium'>Device Info</label>
+                <label style='text-transform: uppercase;font-size: medium'>{{ $t('device_info') }}</label>
               </q-toolbar>
               <q-space style='height: 5px;'/>
               <q-form class='q-pa-xs' v-if='model.onvif&&model.onvif.device_info'>
-                <q-input filled v-model.trim='model.onvif.device_info.manufacturer' label='Manufacturer' dense :color='color' readonly/>
+                <q-input filled v-model.trim='model.onvif.device_info.manufacturer' :label="$t('manufacturer')" dense :color='color' readonly/>
                 <q-space style='height: 10px;'/>
-                <q-input filled v-model.trim='model.onvif.device_info.model' label='Model' dense :color='color' readonly/>
+                <q-input filled v-model.trim='model.onvif.device_info.model' :label="$t('model')" dense :color='color' readonly/>
                 <q-space style='height: 10px;'/>
-                <q-input filled v-model.trim='model.onvif.device_info.firmware_version' label='Firmware Version' dense :color='color' readonly/>
+                <q-input filled v-model.trim='model.onvif.device_info.firmware_version' :label="$t('firmware_version')" dense :color='color'
+                         readonly/>
                 <q-space style='height: 10px;'/>
-                <q-input filled v-model.trim='model.onvif.device_info.serial_number' label='Serial Number' dense :color='color' readonly/>
+                <q-input filled v-model.trim='model.onvif.device_info.serial_number' :label="$t('serial_number')" dense :color='color' readonly/>
                 <q-space style='height: 10px;'/>
-                <q-input filled v-model.trim='model.onvif.device_info.hardware_id' label='Hardware Id' dense :color='color' readonly/>
+                <q-input filled v-model.trim='model.onvif.device_info.hardware_id' :label="$t('hardware_id')" dense :color='color' readonly/>
               </q-form>
             </div>
           </div>
@@ -66,22 +68,22 @@
           <div class='col-4'>
             <div style='margin-left: 5px;'>
               <q-toolbar :class='"bg-" + color + " text-white shadow-2 rounded-borders"' style='width: auto;'>
-                <label style='text-transform: uppercase;font-size: medium'>Onvif Data 1</label>
+                <label style='text-transform: uppercase;font-size: medium'>Onvif {{ $t('data') }} 1</label>
               </q-toolbar>
               <q-space style='height: 5px;'/>
               <q-form class='q-pa-xs' v-if='model.onvif'>
                 <q-space style='height: 10px;'/>
-                <q-input filled v-model.trim='model.onvif.host_name' label='Host Name' dense :color='color' readonly/>
+                <q-input filled v-model.trim='model.onvif.host_name' :label="$t('host_name')" dense :color='color' readonly/>
                 <q-space style='height: 10px;'/>
-                <q-input v-if="model.onvif.ip_addresses" filled :model-value='model.onvif.ip_addresses.join(" , ")' label='Ip Addresses' dense
-                         :color='color' readonly/>
+                <q-input v-if="model.onvif.ip_addresses" filled :model-value='model.onvif.ip_addresses.join(" , ")'
+                         :label="$t('ip_addresses')" dense :color='color' readonly/>
                 <q-space v-if="model.onvif.ip_addresses" style='height: 10px;'/>
-                <q-input filled v-model.trim='model.onvif.hw_address' label='Hw Address' dense :color='color' readonly/>
+                <q-input filled v-model.trim='model.onvif.hw_address' :label="$t('hw_address')" dense :color='color' readonly/>
                 <q-space style='height: 10px;'/>
-                <q-input filled v-model.trim='model.onvif.local_datetime' label='Local Datetime' dense :color='color' readonly/>
+                <q-input filled v-model.trim='model.onvif.local_datetime' :label="$t('local_datetime')" dense :color='color' readonly/>
                 <q-space style='height: 10px;'/>
                 <q-toggle dense v-model='model.onvif.is_discoverable' checked-icon='check' :color='color'
-                          :label='"Discoverable " + (model.onvif.is_discoverable ? "Yes" : "No")' disable/>
+                          :label="$t('discoverable') + (model.onvif.is_discoverable ? $t('yes') : $t('no'))" disable/>
               </q-form>
             </div>
           </div>
@@ -91,36 +93,36 @@
           <div class='col-8'>
             <q-space style='height: 5px;'/>
             <q-toolbar :class='"bg-" + color + " text-white shadow-2 rounded-borders"' style='width: auto;'>
-              <q-toolbar-title><label style='text-transform: uppercase;font-size: medium'>Hacking Results</label></q-toolbar-title>
-              <q-btn label='Scan' flat icon-right='radar' @click='onScanTarget' dense :disable='showScanLoading'>
+              <q-toolbar-title><label style='text-transform: uppercase;font-size: medium'>{{ $t('hacking_results') }}</label></q-toolbar-title>
+              <q-btn :label="$t('scan')" flat icon-right='radar' @click='onScanTarget' dense :disable='showScanLoading'>
                 <q-inner-loading :showing='showScanLoading'/>
               </q-btn>
             </q-toolbar>
             <q-space style='height: 5px;'/>
             <q-table title='Hacking Results' :rows='hackResults' :columns='columns'
-                     row-key='route' :pagination='initialPagination'
+                     row-key='route' :pagination='initialPagination' :rows-per-page-label="$t('rows_per_page')"
                      selection='single' v-model:selected='hackSelected' @selection='onHackSelected'/>
           </div>
           <div class='col-4'>
             <div style='margin: 5px 0 0 5px;'>
               <q-toolbar :class='"bg-" + color + " text-white shadow-2 rounded-borders"' style='width: auto;'>
-                <label style='text-transform: uppercase;font-size: medium'>Onvif Data 2</label>
+                <label style='text-transform: uppercase;font-size: medium'>Onvif {{ $t('data') }} 2</label>
               </q-toolbar>
               <q-space style='height: 5px;'/>
               <q-form class='q-pa-xs' v-if='model.onvif'>
                 <q-space style='height: 10px;'/>
-                <q-input filled v-model.number='model.onvif.stream_uri' label='Stream Uri' dense :color='color' readonly/>
+                <q-input filled v-model.number='model.onvif.stream_uri' :label="$t('stream_uri')" dense :color='color' readonly/>
                 <q-space style='height: 10px;'/>
-                <q-input filled v-model.number='model.onvif.http_port' label='Http Port' dense :color='color' readonly/>
+                <q-input filled v-model.number='model.onvif.http_port' :label="$t('http_port')" dense :color='color' readonly/>
                 <q-space style='height: 10px;'/>
-                <q-input filled v-model.number='model.onvif.https_port' label='Https Port' dense :color='color' readonly/>
+                <q-input filled v-model.number='model.onvif.https_port' :label="$t('https_port')" dense :color='color' readonly/>
                 <q-space style='height: 10px;'/>
-                <q-input filled v-model.number='model.onvif.rtsp_port' label='Rtsp Port' dense :color='color' readonly/>
+                <q-input filled v-model.number='model.onvif.rtsp_port' :label="$t('rtsp_port')" dense :color='color' readonly/>
                 <q-space style='height: 10px;'/>
-                <q-table title='Users' :rows='model.onvif.users' :columns='columnsUsers' dense
-                         row-key='username' :pagination='initialPagination'/>
+                <q-table :title="$t('users2')" :rows='model.onvif.users' :columns='columnsUsers' dense
+                         row-key='username' :pagination='initialPagination' :rows-per-page-label="$t('rows_per_page')"/>
                 <q-space style='height: 10px;'/>
-                <q-input filled type='textarea' v-model.number='model.onvif.logs' label='Logs' dense :color='color' readonly/>
+                <q-input filled type='textarea' v-model.number='model.onvif.logs' :label="$t('logs')" dense :color='color' readonly/>
               </q-form>
             </div>
           </div>
@@ -140,6 +142,7 @@ import {useQuasar} from 'quasar';
 import {WsConnection} from 'src/utils/ws/connection';
 import {NodeService} from 'src/utils/services/node_service';
 import {parseIP} from 'src/utils/utils';
+import {useI18n} from 'vue-i18n';
 
 export default {
   name: 'OnvifSettings',
@@ -155,6 +158,7 @@ export default {
   },
 
   setup(props: any) {
+    const { t } = useI18n({ useScope: 'global' });
     const $q = useQuasar();
     const addr: string = <string>(!props.address ? '127.0.0.1' : parseIP(props.address) ? parseIP(props.address) : '127.0.0.1');
     const onvifParams = {address: addr, port: 554, username: '', password: ''};
@@ -242,7 +246,7 @@ export default {
     const onScanTarget = () => {
       if (!model.value.onvif_params.address) {
         $q.notify({
-          message: 'Please input Address',
+          message: t('v_enter_address_field'),
           caption: '',
           color: 'red'
         });
@@ -269,7 +273,7 @@ export default {
       const ret = !op.address || op.port < 1 || !op.username || !op.address;
       if (ret) {
         $q.notify({
-          message: 'Please input all fields (Address, Port, User Name and Password)',
+          message: t('please_input_all_fields_onvif'),
           caption: '',
           color: 'red'
         });
@@ -297,23 +301,23 @@ export default {
       model, hackResults, onScanTarget, showScanLoading, hackSelected, onHackSelected, showOnvifLoading, onOnvifScan,
       onOnvifReboot, showOnvifReboot,
       columns: [
-        {name: 'address', align: 'center', label: 'Address', field: 'address', sortable: true},
-        {name: 'route', align: 'center', label: 'Route', field: 'route', sortable: true},
-        {name: 'port', align: 'center', label: 'port', field: 'port', sortable: true},
-        {name: 'device', align: 'center', label: 'Device', field: 'device', sortable: true},
-        {name: 'username', align: 'center', label: 'User Name', field: 'username', sortable: true},
-        {name: 'password', align: 'center', label: 'Password', field: 'password', sortable: true},
-        {name: 'credentials_found', align: 'center', label: 'Credentials Found', field: 'credentials_found', sortable: true},
-        {name: 'route_found', align: 'center', label: 'Route Found', field: 'route_found', sortable: true},
-        {name: 'available', align: 'center', label: 'Available', field: 'available', sortable: true},
-        {name: 'authentication_type', align: 'center', label: 'Authentication Type', field: 'authentication_type', sortable: true}
+        {name: 'address', align: 'center', label: t('address'), field: 'address', sortable: true},
+        {name: 'route', align: 'center', label: t('route'), field: 'route', sortable: true},
+        {name: 'port', align: 'center', label: t('port'), field: 'port', sortable: true},
+        {name: 'device', align: 'center', label: t('device'), field: 'device', sortable: true},
+        {name: 'username', align: 'center', label: t('username'), field: 'username', sortable: true},
+        {name: 'password', align: 'center', label: t('password'), field: 'password', sortable: true},
+        {name: 'credentials_found', align: 'center', label: t('credentials_found'), field: 'credentials_found', sortable: true},
+        {name: 'route_found', align: 'center', label: t('route_found'), field: 'route_found', sortable: true},
+        {name: 'available', align: 'center', label: t('available'), field: 'available', sortable: true},
+        {name: 'authentication_type', align: 'center', label: t('authentication_type'), field: 'authentication_type', sortable: true}
       ],
       initialPagination: {
         rowsPerPage: 10
       },
       columnsUsers: [
-        {name: 'username', align: 'center', label: 'User Name', field: 'username', sortable: true},
-        {name: 'user_level', align: 'center', label: 'User Level', field: 'user_level', sortable: true}
+        {name: 'username', align: 'center', label: t('username'), field: 'username', sortable: true},
+        {name: 'user_level', align: 'center', label: t('user_level'), field: 'user_level', sortable: true}
       ]
     };
   }
