@@ -31,7 +31,8 @@
                   :options='sources' :label="$t('camera')" clearable/>
       </div>
       <div class="col-3">
-        <q-input filled v-model.trim='params.pred_class_name' :label="$t('label')" :color='color' @update:model-value="onLabelChanged" style="width: 300px">
+        <q-input filled v-model.trim='params.pred_class_name' :label="$t('label')" :color='color' @update:model-value="onLabelChanged"
+                 style="width: 300px">
           <template v-if="params.pred_class_name" v-slot:append>
             <q-icon name="cancel" @click="onLabelClear" class="cursor-pointer"/>
           </template>
@@ -42,7 +43,8 @@
     <div class="row">
       <div class="col-12">
         <q-table :title="$t('ai_data')" :color="color" :rows="rows" :columns="columns" row-key="id" v-model:pagination="pagination"
-                 :loading="loading" @request="onRequest" binary-state-sort>
+                 :loading="loading" @request="onRequest" binary-state-sort
+                 :rows-per-page-label="$t('rows_per_page')" :no-data-label="$t('no_data')">
           <template v-slot:body='props'>
             <q-tr :props='props' @click='onRowClick(props.row)' :style='{"backgroundColor": props.expand ? color:"white", "cursor":"pointer"}'>
               <q-td key='base64_image'>
@@ -58,7 +60,7 @@
             <q-btn :color="color" icon="archive" :label="$t('export_to_csv')" no-caps @click="onExportData">
               <q-inner-loading :color="color" :showing="loadingExport"/>
             </q-btn>
-            <q-space style="margin-left: 5px;" />
+            <q-space style="margin-left: 5px;"/>
             <q-btn icon='refresh' :label="$t('refresh')" :color='color' @click='dataBind'/>
           </template>
         </q-table>
@@ -75,7 +77,7 @@
           </q-toolbar-title>
           <q-space/>
           <q-btn dense flat icon='close' v-close-popup>
-            <q-tooltip :class="'bg-' + color  +  ' text-primary'">{{$t('close')}}</q-tooltip>
+            <q-tooltip :class="'bg-' + color  +  ' text-primary'">{{ $t('close') }}</q-tooltip>
           </q-btn>
         </q-toolbar>
       </q-header>
@@ -92,7 +94,8 @@
                   </q-img>
                 </div>
                 <div style="float: left;width: 100%;margin-top: 5px;">
-                  <q-table :rows="detailRows" :color="color" :columns="detailColumns" :hide-pagination="true" :hide-header="true">
+                  <q-table :rows="detailRows" :color="color" :columns="detailColumns" :hide-pagination="true" :hide-header="true"
+                           :rows-per-page-label="$t('rows_per_page')" :no-data-label="$t('no_data')">
                     <template v-slot:top-left>
                       <q-btn :color='color' dense icon-right='theaters' :label="$t('download_video')"
                              @click='handleDownloadVideo(selectedItem.video_file.name, "clip")'>
@@ -118,7 +121,7 @@
   <q-dialog v-model="showDelete" transition-show="rotate" transition-hide="rotate">
     <q-card>
       <q-card-section>
-        <div class="text-h6">{{$t('deletion_an_ai_data')}}</div>
+        <div class="text-h6">{{ $t('deletion_an_ai_data') }}</div>
       </q-card-section>
 
       <q-card-section class="q-pt-none">
@@ -152,7 +155,7 @@ export default {
   name: 'AiDataGeneral',
   components: {DateTimeSelector, VideoPlayer},
   setup() {
-    const { t } = useI18n({ useScope: 'global' });
+    const {t} = useI18n({useScope: 'global'});
     const $q = useQuasar();
     const color = ref<string>('deep-purple-14');
     const tab = ref<string>('od');

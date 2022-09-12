@@ -149,7 +149,7 @@ export default {
 
     function showWidgets(){
       const w = $(window).width();
-      showNetwork.value = w > 1820;
+      showNetwork.value = w > 1850;
       showCurrentTime.value = w > 1405;
       showDisk.value = w > 1160;
       showMemory.value = w > 880;

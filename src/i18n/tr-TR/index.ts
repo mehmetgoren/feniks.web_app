@@ -236,7 +236,7 @@ export default {
   basics:'Temel Bilgiler',
   connection:'Bağlantı',
   input:'Giriş',
-  stream:'Akış',
+  stream:'Canlı Yayın',
   snapshot_for_ai:'Yapay Zeka İçin Ekran Görüntüsü',
   recording:'Kayıt',
   logging:'Loglama',

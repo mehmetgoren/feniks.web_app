@@ -168,7 +168,7 @@ export default {
 
     onMounted(async () => {
       if (!sourceId.value){
-        await router.push('node_conf');
+        await router.push('stream_gallery');
         return;
       }
 

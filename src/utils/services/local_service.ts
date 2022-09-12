@@ -155,15 +155,15 @@ export class LocalService {
     return [
       {value: 0, label: 'Auto'},
       {value: 1, label: 'NVIDIA H.264 CUVID'},
-      {value: 2, label: 'NVIDIA H.265 CUVID'},
-      {value: 3, label: 'NVIDIA MJPEG CUVID'},
-      {value: 4, label: 'NVIDIA MPEG4 CUVID'},
+      // {value: 2, label: 'NVIDIA H.265 CUVID'},
+      // {value: 3, label: 'NVIDIA MJPEG CUVID'},
+      // {value: 4, label: 'NVIDIA MPEG4 CUVID'},
       {value: 5, label: 'Quick Sync Video H.264'},
-      {value: 6, label: 'Quick Sync Video H.265'},
-      {value: 7, label: 'Quick Sync Video MPEG2'},
+      // {value: 6, label: 'Quick Sync Video H.265'},
+      // {value: 7, label: 'Quick Sync Video MPEG2'},
       {value: 8, label: 'Raspberry Pi H.264'},
-      {value: 9, label: 'Raspberry Pi MPEG-2'},
-      {value: 10, label: 'Raspberry Pi MPEG-4'}
+      // {value: 9, label: 'Raspberry Pi MPEG-2'},
+      // {value: 10, label: 'Raspberry Pi MPEG-4'}
     ];
   }
 
@@ -179,19 +179,19 @@ export class LocalService {
     return [
       {value: 0, label: 'Auto'},
       {value: 1, label: 'libx264'},
-      {value: 2, label: 'libx265'},
+      // {value: 2, label: 'libx265'},
       {value: 3, label: 'copy'},
       {value: 4, label: 'H.264 VA-API (Intel HW Accel)'},
-      {value: 5, label: 'H.265 VA-API (Intel HW Accel)'},
+      // {value: 5, label: 'H.265 VA-API (Intel HW Accel)'},
       {value: 6, label: 'H.264 NVENC (NVIDIA HW Accel)'},
-      {value: 7, label: 'H.265 NVENC (NVIDIA HW Accel)'},
+      // {value: 7, label: 'H.265 NVENC (NVIDIA HW Accel)'},
       {value: 8, label: 'H.264 (Quick Sync Video)'},
-      {value: 9, label: 'H.265 (Quick Sync Video)'},
-      {value: 10, label: 'MPEG2 (Quick Sync Video)'},
+      // {value: 9, label: 'H.265 (Quick Sync Video)'},
+      // {value: 10, label: 'MPEG2 (Quick Sync Video)'},
       {value: 11, label: 'H.264 openMAX (Raspberry Pi)'},
-      {value: 12, label: 'AV1'},
-      {value: 13, label: 'VP8'},
-      {value: 14, label: 'VP9'}
+      // {value: 12, label: 'AV1'},
+      // {value: 13, label: 'VP8'},
+      // {value: 14, label: 'VP9'}
     ];
   }
 
@@ -288,34 +288,34 @@ export class LocalService {
   public createRecordFileTypes(): SelectOption[] {
     return [
       {value: 0, label: 'MP4'},
-      {value: 1, label: 'WebM'},
-      {value: 2, label: 'FLV'},
-      {value: 3, label: 'MKV'},
-      {value: 4, label: 'AVI'},
-      {value: 5, label: 'MPG'},
-      {value: 6, label: 'OGV'}
+      // {value: 1, label: 'WebM'},
+      // {value: 2, label: 'FLV'},
+      // {value: 3, label: 'MKV'},
+      // {value: 4, label: 'AVI'},
+      // {value: 5, label: 'MPG'},
+      // {value: 6, label: 'OGV'}
     ];
   }
 
   public createRecordVideoCodecs(): SelectOption[] {
     return [
       {value: 0, label: 'Auto'},
-      {value: 1, label: 'libvpx (WebM Default)'},
-      {value: 2, label: 'libvpx-vp9 (WebM VP9)'},
-      {value: 3, label: 'libx265 (MP4)'},
+      // {value: 1, label: 'libvpx (WebM Default)'},
+      // {value: 2, label: 'libvpx-vp9 (WebM VP9)'},
+      // {value: 3, label: 'libx265 (MP4)'},
       {value: 4, label: 'libx264 (MP4 Default)'},
       {value: 5, label: 'copy'},
       {value: 6, label: 'H.264 VA-API (MP4 Intel HW Accel)'},
-      {value: 7, label: 'H.c265 VA-API (MP4 Intel HW Accel)'},
+      // {value: 7, label: 'H.c265 VA-API (MP4 Intel HW Accel)'},
       {value: 8, label: 'H.264 NVENC (MP4 NVIDIA HW Accel)'},
-      {value: 9, label: 'H.265 NVENC (MP4 NVIDIA HW Accel)'},
+      // {value: 9, label: 'H.265 NVENC (MP4 NVIDIA HW Accel)'},
       {value: 10, label: 'H.264 (MP4 Quick Sync Video)'},
-      {value: 11, label: 'H.265 (MP4 Quick Sync Video)'},
-      {value: 12, label: 'MPEG2 (MP4 Quick Sync Video)'},
+      // {value: 11, label: 'H.265 (MP4 Quick Sync Video)'},
+      // {value: 12, label: 'MPEG2 (MP4 Quick Sync Video)'},
       {value: 13, label: 'H.264 OpenMAX (MP4 Raspberry Pi)'},
-      {value: 14, label: 'VP8 NVENC (WebM NVIDIA HW Accel)'},
-      {value: 15, label: 'VP9 NVENC (WebM NVIDIA HW Accel)'},
-      {value: 16, label: 'VP8 (WebM Quick Sync Video)'}
+      // {value: 14, label: 'VP8 NVENC (WebM NVIDIA HW Accel)'},
+      // {value: 15, label: 'VP9 NVENC (WebM NVIDIA HW Accel)'},
+      // {value: 16, label: 'VP8 (WebM Quick Sync Video)'}
     ];
   }
 
