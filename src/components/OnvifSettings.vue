@@ -83,7 +83,7 @@
                 <q-input filled v-model.trim='model.onvif.local_datetime' :label="$t('local_datetime')" dense :color='color' readonly/>
                 <q-space style='height: 10px;'/>
                 <q-toggle dense v-model='model.onvif.is_discoverable' checked-icon='check' :color='color'
-                          :label="$t('discoverable') + (model.onvif.is_discoverable ? $t('yes') : $t('no'))" disable/>
+                          :label="$t('discoverable') + ' ' + (model.onvif.is_discoverable ? $t('yes') : $t('no'))" disable/>
               </q-form>
             </div>
           </div>

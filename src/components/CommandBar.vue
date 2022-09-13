@@ -1,13 +1,15 @@
 <template>
-  <q-btn v-if='showSave' flat push :label="$t('save')" icon='save' @click='onSave' :disable='inactiveSave'>
-    <q-inner-loading :showing='inactiveSave' />
-  </q-btn>
-  <q-btn v-if='showDelete' flat push :label="$t('remove')"  icon='delete' @click='onDelete' :disable='inactiveDelete'>
-    <q-inner-loading :showing='inactiveDelete' />
-  </q-btn>
-  <q-btn v-if='showRestore' flat push :label="$t('restore')"  icon='restore_page' @click='onRestore' :disable='inactiveRestore'>
-    <q-inner-loading :showing='inactiveRestore' />
-  </q-btn>
+  <q-btn-group>
+    <q-btn v-if='showSave' flat push :label="$t('save')" icon='save' @click='onSave' :disable='inactiveSave'>
+      <q-inner-loading :showing='inactiveSave' />
+    </q-btn>
+    <q-btn v-if='showDelete' flat push :label="$t('remove')"  icon='delete' @click='onDelete' :disable='inactiveDelete'>
+      <q-inner-loading :showing='inactiveDelete' />
+    </q-btn>
+    <q-btn v-if='showRestore' flat push :label="$t('restore')"  icon='restore_page' @click='onRestore' :disable='inactiveRestore'>
+      <q-inner-loading :showing='inactiveRestore' />
+    </q-btn>
+  </q-btn-group>
 </template>
 
 <script>
