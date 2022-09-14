@@ -4,25 +4,26 @@
          v-for='(stream, index) in streamList'
          :key='stream.id' :gs-w='stream.loc.w' :gs-h='stream.loc.h'
          :gs-x='stream.loc.x' :gs-y='stream.loc.y' :gs-id='stream.id' :gs-min-w='minWidth'>
-      <div class='grid-stack-item-content' style='overflow: hidden !important;'>
-        <FlvPlayer v-if='stream.show&&stream.stream_type===0' :src='stream.src' :source-id='stream.id'
+      <div :id='"ctx" + stream.id' class='grid-stack-item-content' style='overflow: hidden !important;'>
+        <FlvPlayer v-if='stream.show&&stream.stream_type===0' v-show="!stream.showHtml2Canvas" :src='stream.src' :source-id='stream.id'
                    :enable-log='false' :ref='setStreamPlayers'
                    :enable-booster='stream.booster_enabled' :seek-to-live-edge-internal='config.ui.seek_to_live_edge_internal' :gallery-index='index'
-                   @user-activity='onUserActivity' :booster-interval="config.ui.booster_interval" />
-        <HlsPlayer v-if='stream.show&&stream.stream_type===1' :src='stream.src' :source-id='stream.id'
+                   @user-activity='onUserActivity' :booster-interval="config.ui.booster_interval" @need-refresh="onNeedRefresh" />
+        <HlsPlayer v-if='stream.show&&stream.stream_type===1' v-show="!stream.showHtml2Canvas" :src='stream.src' :source-id='stream.id'
                    :enable-log='false' :ref='setStreamPlayers'
                    :enable-booster='stream.booster_enabled' :seek-to-live-edge-internal='config.ui.seek_to_live_edge_internal' :gallery-index='index'
-                   @user-activity='onUserActivity' />
+                   @user-activity='onUserActivity' @need-refresh="onNeedRefresh" />
         <FFmpegReaderPlayer v-if='stream.show&&stream.stream_type===2' :source-id='stream.id'
                             :ref='setStreamPlayers' />
 
-        <StreamCommandBar v-if='stream.show' :stream='stream' :hide='stream.hide' @full-screen='onFullScreen' @stream-stop='onStreamStop'
-                          @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh'
+        <StreamCommandBar v-if='stream.show' v-show="!stream.showHtml2Canvas" :stream='stream' :hide='stream.hide' @full-screen='onFullScreen'
+                          @stream-stop='onStreamStop' @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh'
                           @restart='onRestart' @close='onStreamClose'
                           :take-screenshot-loading='stream.takeScreenshotLoading'
                           :enable-booster='stream.booster_enabled' :transparent='stream.stream_type<2' />
 
-        <q-inner-loading :showing='!stream.show' label='Please wait...' label-class='text-cyan' />
+        <q-inner-loading :showing='!stream.show' v-show="!stream.showHtml2Canvas" label='Please wait...' label-class='text-cyan' />
+        <div :id='"ss" + stream.id' v-show="stream.showHtml2Canvas"></div>
       </div>
     </div>
   </div>
@@ -56,6 +57,7 @@ import {NodeService} from 'src/utils/services/node_service';
 import {Config} from 'src/utils/models/config';
 import {StoreService} from 'src/utils/services/store_service';
 import {StreamCommandBarActions, StreamCommandBarInfo} from 'src/store/module-settings/state';
+import html2canvas from 'html2canvas';
 // https://v3.vuejs.org/guide/migration/array-refs.html
 export default {
   name: 'LiveStreamGallery',
@@ -165,6 +167,7 @@ export default {
         stream.hide = false;
         streamList.push(stream);
         open.value = false;
+        stream.showHtml2Canvas = false;
         if (isStartStream) {
           loadInitGrid(() => storeService.setSourceLoading(stream.id, false));
         }
@@ -391,6 +394,31 @@ export default {
       }
     }
 
+    function onNeedRefresh(sourceId: string){
+      const stream = findById(sourceId);
+      if (!stream) return;
+
+      const elm = document.getElementById('ctx' + stream.id);
+      //@ts-ignore
+      void html2canvas(elm).then(function (canvas) {
+        //@ts-ignore
+        const output = document.getElementById('ss' + stream.id);
+        //@ts-ignore
+        output.innerHTML = '';
+        //@ts-ignore
+        output.appendChild(canvas);
+        stream.showHtml2Canvas = true;
+
+        stream.show = false;
+        nextTick().then(() => {
+          stream.show = true;
+          setTimeout(() => {
+            stream.showHtml2Canvas = false;
+          }, 3333);
+        }).catch(console.error);
+      });
+    }
+
     //events ends
 
     const findById = (sourceId: string): StreamExtModel | null => {
@@ -400,7 +428,7 @@ export default {
     return {
       open, streamList, showLoading, config, minWidth,
       setStreamPlayers, onFullScreen, onStreamStop, onConnect, onTakeScreenshot,
-      onRefresh, onRestart, onStreamClose, onUserActivity
+      onRefresh, onRestart, onStreamClose, onUserActivity, onNeedRefresh
     };
   }
 };
@@ -413,6 +441,7 @@ interface StreamExtModel extends StreamModel {
   loc: GsLocation;
   takeScreenshotLoading: boolean;
   hide: boolean;
+  showHtml2Canvas: boolean;
 }
 </script>
 <style scoped>

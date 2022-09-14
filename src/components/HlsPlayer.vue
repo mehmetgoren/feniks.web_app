@@ -151,14 +151,12 @@ export default {
         }
 
         const self = this;
-        setTimeout(() => {
-          const interval = self.seekToLiveEdgeInternal * 1000;
-          self.setIntervalInstance = setInterval(() => {
-            if (self.seekable('waiting')) {
-              self.seekToLiveEdge(self.player, 'interval');
-            }
-          }, interval);
-        }, index * 2000);
+        const interval = this.seekToLiveEdgeInternal * 1000;
+        this.setIntervalInstance = this.setRandomInterval(() => {
+          if (self.seekable('waiting')) {
+            self.seekToLiveEdge(self.player, 'interval');
+          }
+        }, 0, interval);
       }
     }
   },
@@ -170,7 +168,7 @@ export default {
       }
     }
     if (this.setIntervalInstance) {
-      clearInterval(this.setIntervalInstance);
+      this.setIntervalInstance.clear();
       if (this.enableLog) {
         console.log(`HlsPlayer(${this.sourceId}): the interval has been cleared at ${new Date().toLocaleString()}`);
       }
@@ -334,10 +332,38 @@ export default {
         }
         return;
       }
+      const elapsedTime = player.liveTracker.liveCurrentTime();
+      if (this.enableLog){
+        console.log(`HlsPlayer(${this.sourceId}) elapsedTime is ${elapsedTime}`);
+      }
+
+      if (elapsedTime > 660.0){//all I can do is 11 minutes
+        if (this.enableLog) {
+          console.log(`HlsPlayer(${this.sourceId}) needs a refresh since the elapsedTime is ${elapsedTime}`);
+        }
+        this.$emit('need-refresh', this.sourceId);
+        return;
+      }
+
       player.liveTracker.seekToLiveEdge();
       if (this.enableLog) {
         console.log(`HlsPlayer(${this.sourceId}): seeked to live edge at ${new Date().toLocaleString()} by ${by}`);
       }
+    },
+    setRandomInterval(intervalFunction, minDelay, maxDelay){
+      let timeout;
+      const runInterval = () => {
+        const timeoutFunction = () => {
+          intervalFunction();
+          runInterval();
+        };
+        const delay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
+        timeout = setTimeout(timeoutFunction, delay);
+      };
+      runInterval();
+      return {
+        clear() { clearTimeout(timeout) },
+      };
     }
   },
   watch: {

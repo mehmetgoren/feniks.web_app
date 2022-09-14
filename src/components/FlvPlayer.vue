@@ -14,7 +14,7 @@ import {v4 as uuidv4} from 'uuid';
 
 export default {
   name: 'FlvPlayer',
-  emits: ['user-activity'],
+  emits: ['user-activity', 'need-refresh'],
   props: {
     src: {
       type: String,
@@ -124,14 +124,13 @@ export default {
       if (this.enableLog) {
         console.log(`FlvPlayer(${this.sourceId}): booster interval is ${this.myBoosterInterval}`);
       }
-      setTimeout(() => {
-        const interval = self.seekToLiveEdgeInternal * 1000;
-        self.setIntervalInstance = setInterval(() => {
-          if (self.seekable('waiting')) {
-            self.seekToLiveEdge(self.player.liveTracker, 'interval');
-          }
-        }, interval);
-      }, index * 2000);
+
+      const interval = this.seekToLiveEdgeInternal * 1000;
+      this.setIntervalInstance = this.setRandomInterval(() => {
+        if (self.seekable('waiting')) {
+          self.seekToLiveEdge(self.player.liveTracker, 'interval');
+        }
+      }, 0, interval);
     }
   },
   beforeUnmount() {
@@ -143,7 +142,7 @@ export default {
       }
     }
     if (this.setIntervalInstance) {
-      clearInterval(this.setIntervalInstance);
+      this.setIntervalInstance.clear();
       if (this.enableLog) {
         console.log(`FlvPlayer(${this.sourceId}): the interval has been cleared at ${new Date().toLocaleString()}`);
       }
@@ -163,6 +162,18 @@ export default {
         }
         return;
       }
+      let elapsedTime = liveTracker.liveCurrentTime();
+      if (this.enableLog){
+        console.log(`FlvPlayer(${this.sourceId}) elapsedTime is ${elapsedTime}`);
+      }
+      if (elapsedTime > 660.0){//all I can do is 11 minutes
+        if (this.enableLog) {
+          console.log(`FlvPlayer(${this.sourceId}) needs a refresh since the elapsedTime is ${elapsedTime}`);
+        }
+        this.$emit('need-refresh', this.sourceId);
+        return;
+      }
+
       liveTracker.seekedBehindLive_ = false;
       if (liveTracker.atLiveEdge()) {
         if (this.enableLog) {
@@ -172,7 +183,14 @@ export default {
       }
       liveTracker.nextSeekedFromUser_ = false;
       const player = liveTracker.player_;
-      player.currentTime(liveTracker.liveCurrentTime() - this.myBoosterInterval);
+      elapsedTime -= this.myBoosterInterval;
+      if (!isFinite(elapsedTime)){
+        if (this.enableLog) {
+          console.log(`FlvPlayer(${this.sourceId}) elapsedTime is not Finite`);
+        }
+        return;
+      }
+      player.currentTime(elapsedTime);
       player.controlBar.progressControl.disable();
       setTimeout(() => {
         const vj = $('#' + this.videojsId);
@@ -232,6 +250,21 @@ export default {
           self.seekToLiveEdge(self.player.liveTracker, 'waiting');
         }
       });
+    },
+    setRandomInterval(intervalFunction, minDelay, maxDelay){
+      let timeout;
+      const runInterval = () => {
+        const timeoutFunction = () => {
+          intervalFunction();
+          runInterval();
+        };
+        const delay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
+        timeout = setTimeout(timeoutFunction, delay);
+      };
+      runInterval();
+      return {
+        clear() { clearTimeout(timeout) },
+      };
     }
   }
 };
