@@ -35,7 +35,7 @@ export default defineComponent({
       const subscribeService = new SubscribeService(await localService.getNodeIP(), await localService.getNodePort());
       subscribeService.subscribeUserLogout((event: MessageEvent) => {
         const userToken = JSON.parse(event.data);
-        if (userToken == currentUser.value.token){
+        if (userToken == currentUser.value.token) {
           void doUserLogout(localService, storeService, router);
         }
       });

@@ -442,4 +442,5 @@ export default {
   not_enough_arg_delete_record:'Not enough argument to delete this record',
   record_deleted:'The record has been deleted',
   browser_no_allow_download:'Browser Denied the File Download',
+  token:'Token',
 };

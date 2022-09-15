@@ -4,7 +4,8 @@ import axios from 'axios';
 import {StoreService} from 'src/utils/services/store_service';
 import {LocalService} from 'src/utils/services/local_service';
 import {ProbeResult} from 'src/utils/models/various';
-import { date } from 'quasar'
+import {date} from 'quasar'
+import Scrollbar from 'smooth-scrollbar';
 
 
 export function myDateToJsDate(dateString: string): Date {
@@ -17,7 +18,7 @@ export function myDateToJsDate(dateString: string): Date {
       const hour = parseInt(splits[3]);
       const minute = parseInt(splits[4]);
       const second = parseInt(splits[5]);
-      return new Date(year, Math.max(month-1, 0), day, hour, minute, second);
+      return new Date(year, Math.max(month - 1, 0), day, hour, minute, second);
     }
   }
   return new Date(0);
@@ -72,7 +73,7 @@ export function getAddedHour(addHour: number): string {
 
 export function getPrevHourDatetime(prevHour: number, separator = '_') {
   const now = new Date();
-  const prevHourDate = date.addToDate(now, { hours: -1 * prevHour })
+  const prevHourDate = date.addToDate(now, {hours: -1 * prevHour})
 
   const month = prevHourDate.getMonth() + 1;
   let monthStr = month.toString();
@@ -156,16 +157,15 @@ export function downloadFile(url: string, fileName: string, fileType: string) {
   }).catch(console.error);
 }
 
-export function downloadFile2(url: string){
+export function downloadFile2(url: string) {
   const a: any = document.createElement('a');
-  try{
-    a.target='_blank'
+  try {
+    a.target = '_blank'
     a.href = url;
     a.download = url.substr(url.lastIndexOf('/') + 1);
     document.body.appendChild(a);
     a.click();
-  }
-  finally {
+  } finally {
     document.body.removeChild(a);
   }
 }
@@ -203,34 +203,63 @@ export function generateHtmlColor(): string {
   return '#' + (Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0');
 }
 
-export function cutFloatString(val: number, size = 4): string{
-  if (val){
+export function cutFloatString(val: number, size = 4): string {
+  if (val) {
     const str = val.toString();
     return str.substring(0, size);
   }
   return '';
 }
 
-export function formatJson(json: string): string{
+export function formatJson(json: string): string {
   return JSON.stringify(JSON.parse(json), null, '\t');
 }
 
-export function setupLocale(localService: LocalService, locale: any, $q: any){
+export function setupLocale(localService: LocalService, locale: any, $q: any) {
   let localeTemp: any = localService.getLang();
-  if (!localeTemp){
+  if (!localeTemp) {
     localeTemp = $q.lang.getLocale();
     localService.setLang(localeTemp);
   }
   locale.value = localeTemp;
 }
 
-export function createTrDateLocale(): any{
+export function createTrDateLocale(): any {
   return {
-    days:['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'],
+    days: ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'],
     daysShort: ['Pzr', 'Pts', 'Sal', 'Çar', 'Per', 'Cum', 'Cts'],
-    months: ['Ocak', 'Şubat', 'Mart','Nisan', 'Mayıs', 'Haziran', 'Temmuz','Ağustos','Eylül','Ekim','Kasım', 'Aralık'],
-    monthsShort: ['Ock', 'Şbt','Mrt','Nsn','Mys','Hzn', 'Tmz', 'Ağs', 'Eyl', 'Ekm', 'Ksm', 'Arl']
+    months: ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'],
+    monthsShort: ['Ock', 'Şbt', 'Mrt', 'Nsn', 'Mys', 'Hzn', 'Tmz', 'Ağs', 'Eyl', 'Ekm', 'Ksm', 'Arl']
   };
+}
+
+export function scrollbarInit(elemId: string): Scrollbar | null {
+  const elm = document.querySelector('#' + elemId);
+  if (elm){
+    //@ts-ignore
+    return Scrollbar.init(elm)
+  }
+  return null;
+}
+
+export function isFullScreen(): boolean {
+  return !window.screenTop && !window.screenY;
+}
+
+export function isMaximized(): boolean {
+  const w = window.innerWidth / screen.availWidth;
+  const h = window.innerHeight / screen.availHeight;
+  return ((w + h) / 2.) > .94;
+}
+
+export function listenWindowSizeChangesForScrollBar(refHeight: any) {
+  window.addEventListener('resize', function () {
+    setTimeout(() => {
+      const multiplier = .95;
+      const isFoM = isFullScreen() || isMaximized();
+      refHeight.value = (window.innerHeight * multiplier) - (isFoM ? 0 : 32);
+    });
+  }, true);
 }
 
 export async function doUserLogout(localService: LocalService, storeService: StoreService, router: any) {

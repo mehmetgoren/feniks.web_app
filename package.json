@@ -17,6 +17,7 @@
     "downloadjs": "^1.4.7",
     "flv.js": "^1.6.2",
     "gridstack": "^4.4.1",
+    "html2canvas": "^1.4.1",
     "linqts": "^1.14.4",
     "nanoid": "^4.0.0",
     "quasar": "^2.7.7",
@@ -27,7 +28,7 @@
     "vue-chart-3": "^3.0.4",
     "vue-i18n": "^9.2.2",
     "vuex": "^4.0.2",
-    "html2canvas": "^1.4.1"
+    "smooth-scrollbar": "^8.7.5"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.16.5",

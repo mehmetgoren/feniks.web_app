@@ -84,6 +84,9 @@ export default {
               break;
           }
         }
+        window.addEventListener('resize', function() {
+          popupShow.value = false;
+        });
       });
 
       timeSinceInterval = setInterval(() => {

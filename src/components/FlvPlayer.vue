@@ -166,7 +166,7 @@ export default {
       if (this.enableLog){
         console.log(`FlvPlayer(${this.sourceId}) elapsedTime is ${elapsedTime}`);
       }
-      if (elapsedTime > 660.0){//all I can do is 11 minutes
+      if (elapsedTime > 900.0){//all I can do is 15 minutes
         if (this.enableLog) {
           console.log(`FlvPlayer(${this.sourceId}) needs a refresh since the elapsedTime is ${elapsedTime}`);
         }

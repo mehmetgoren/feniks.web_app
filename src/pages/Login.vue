@@ -1,137 +1,142 @@
 <template>
-  <div id='q-app'>
-    <q-layout v-if='mode < 2' view='lHh Lpr fff'>
-      <q-page class='window-height window-width row justify-center items-center' style='background: linear-gradient(#8274C5, #5A4A9F);'>
-        <div v-if='mode===0' class='column q-pa-lg'>
-          <div class='row'>
-            <q-card square class='shadow-24' style='width:310px;height:auto;'>
-              <q-card-section class='bg-deep-purple-7'>
-                <q-toolbar class='text-primary'>
-                  <q-img src='/pheoenix/phoenix.png' width='64px' no-spinner no-transition />
-                  <q-toolbar-title>
-                    <h4 class='text-h5 text-white q-my-md' style='margin-left: 15px'>FENIKS® iVMS</h4>
-                  </q-toolbar-title>
-                </q-toolbar>
-              </q-card-section>
-              <q-card-section>
-                <q-form class='q-px-sm q-pt-xl' style="margin-top: -40px;">
-                  <q-select v-model="locale" :options="localeOptions" :label="$t('language')"
-                            square  dense borderless emit-value map-options options-dense style="min-width: 150px">
-                    <template v-slot:prepend>
-                      <q-img :src="getImgSrc()" width="30px" />
-<!--                      <q-icon name='language' style="margin-right: 5px;" />-->
-                    </template>
-                  </q-select>
-                  <q-space style="margin-bottom: 5px" />
-                  <q-input square clearable v-model='loginUser.username' type='email' :label="$t('username')"
-                           lazy-rules :rules="[ val => val && val.length > 0 || $t('venterusername')]">
-                    <template v-slot:prepend>
-                      <q-icon name='person' />
-                    </template>
-                  </q-input>
-                  <q-input square clearable v-model='loginUser.password' type='password' :label="$t('password')"
-                           lazy-rules :rules="[ val => val && val.length > 0 || $t('venterpassword')]">
-                    <template v-slot:prepend>
-                      <q-icon name='lock' />
-                    </template>
-                  </q-input>
-                </q-form>
-              </q-card-section>
-              <q-card-actions class='q-px-lg'>
-                <q-btn unelevated size='lg' color='purple-4' class='full-width text-white' icon='login' :label="$t('login')" @click='onLogin'
-                :disable="showLoginLoading">
-                  <q-inner-loading :showing='showLoginLoading' />
-                </q-btn>
-              </q-card-actions>
-              <q-card-section class='text-center q-pa-sm'>
-                <p class='text-grey-6' style='cursor: pointer;' @click='onGoRegister'>{{$t('register')}}</p>
-                <p class='text-grey-6' style='cursor: pointer;' @click='onGoNodes'>{{$t('nodes')}}</p>
-              </q-card-section>
-            </q-card>
+  <div id="login-view" :style="{height:mainViewHeight.toString() + 'px'}">
+    <div id='q-app'>
+      <q-layout v-if='mode < 2' view='lHh Lpr fff'>
+        <q-page class='window-height window-width row justify-center items-center' style='background: linear-gradient(#8274C5, #5A4A9F);'>
+          <div v-if='mode===0' class='column q-pa-lg'>
+            <div class='row'>
+              <q-card square class='shadow-24' style='width:310px;height:auto;'>
+                <q-card-section class='bg-deep-purple-7'>
+                  <q-toolbar class='text-primary'>
+                    <q-img src='/pheoenix/phoenix.png' width='64px' no-spinner no-transition/>
+                    <q-toolbar-title>
+                      <h4 class='text-h5 text-white q-my-md' style='margin-left: 15px'>FENIKS® iVMS</h4>
+                    </q-toolbar-title>
+                  </q-toolbar>
+                </q-card-section>
+                <q-card-section>
+                  <q-form class='q-px-sm q-pt-xl' style="margin-top: -40px;">
+                    <q-select v-model="locale" :options="localeOptions" :label="$t('language')"
+                              square dense borderless emit-value map-options options-dense style="min-width: 150px">
+                      <template v-slot:prepend>
+                        <q-img :src="getImgSrc()" width="30px"/>
+                        <!--                      <q-icon name='language' style="margin-right: 5px;" />-->
+                      </template>
+                    </q-select>
+                    <q-space style="margin-bottom: 5px"/>
+                    <q-input square clearable v-model='loginUser.username' type='email' :label="$t('username')"
+                             lazy-rules :rules="[ val => val && val.length > 0 || $t('venterusername')]">
+                      <template v-slot:prepend>
+                        <q-icon name='person'/>
+                      </template>
+                    </q-input>
+                    <q-input square clearable v-model='loginUser.password' type='password' :label="$t('password')"
+                             lazy-rules :rules="[ val => val && val.length > 0 || $t('venterpassword')]">
+                      <template v-slot:prepend>
+                        <q-icon name='lock'/>
+                      </template>
+                    </q-input>
+                  </q-form>
+                </q-card-section>
+                <q-card-actions class='q-px-lg'>
+                  <q-btn unelevated size='lg' color='purple-4' class='full-width text-white' icon='login' :label="$t('login')" @click='onLogin'
+                         :disable="showLoginLoading">
+                    <q-inner-loading :showing='showLoginLoading'/>
+                  </q-btn>
+                </q-card-actions>
+                <q-card-section class='text-center q-pa-sm'>
+                  <p class='text-grey-6' style='cursor: pointer;' @click='onGoRegister'>{{ $t('register') }}</p>
+                  <p class='text-grey-6' style='cursor: pointer;' @click='onGoNodes'>{{ $t('nodes') }}</p>
+                </q-card-section>
+              </q-card>
+            </div>
           </div>
-        </div>
-        <div v-else-if='mode===1' class='column q-pa-lg'>
-          <div class='row'>
-            <q-card square class='shadow-24' style='width:400px;'>
-              <q-card-section class='bg-deep-purple-7'>
-                <q-toolbar class='text-primary'>
-                  <q-img src='/pheoenix/phoenix.png' width='64px' no-spinner no-transition />
-                  <q-toolbar-title>
-                    <h4 class='text-h5 text-white q-my-md' style='margin-left: 15px'>FENIKS® Registration</h4>
-                  </q-toolbar-title>
-                </q-toolbar>
-              </q-card-section>
-              <q-card-section>
-                <q-form class='q-px-sm q-pt-xl q-pb-lg'>
-                  <q-input square clearable v-model='registerUser.email' type='email' :label="$t('email')"
-                           lazy-rules :rules="[ val => val && val.length > 0 || $t('venteremail')]">
-                    <template v-slot:prepend>
-                      <q-icon name='email' />
-                    </template>
-                  </q-input>
-                  <q-input square clearable v-model='registerUser.username' type='username' :label="$t('username')"
-                           lazy-rules :rules="[ val => val && val.length > 0 || $t('venterusername')]">
-                    <template v-slot:prepend>
-                      <q-icon name='person' />
-                    </template>
-                  </q-input>
-                  <q-input square clearable v-model='registerUser.password' type='password' :label="$t('password')"
-                           lazy-rules :rules="[ val => val && val.length > 0 || $t('venterpassword')]">
-                    <template v-slot:prepend>
-                      <q-icon name='lock' />
-                    </template>
-                  </q-input>
-                  <q-input square clearable v-model='registerUser.re_password' type='password' :label="$t('reenterpassword')"
-                           lazy-rules :rules="[ val => val && val.length > 0 || $t('vreenterpassword')]">
-                    <template v-slot:prepend>
-                      <q-icon name='lock' />
-                    </template>
-                  </q-input>
-                </q-form>
-              </q-card-section>
-              <q-card-actions class='q-px-lg'>
-                <q-btn unelevated size='lg' color='purple-4' class='full-width text-white' icon='app_registration' :label="$t('signmeup')"
-                       @click='onRegister' />
-              </q-card-actions>
-              <q-card-section class='text-center q-pa-sm'>
-                <p class='text-grey-6' style='cursor: pointer;' @click='onReturnLogin'>{{$t('returntologin')}}</p>
-              </q-card-section>
-            </q-card>
+          <div v-else-if='mode===1' class='column q-pa-lg'>
+            <div class='row'>
+              <q-card square class='shadow-24' style='width:400px;'>
+                <q-card-section class='bg-deep-purple-7'>
+                  <q-toolbar class='text-primary'>
+                    <q-img src='/pheoenix/phoenix.png' width='64px' no-spinner no-transition/>
+                    <q-toolbar-title>
+                      <h4 class='text-h5 text-white q-my-md' style='margin-left: 15px'>FENIKS® Registration</h4>
+                    </q-toolbar-title>
+                  </q-toolbar>
+                </q-card-section>
+                <q-card-section>
+                  <q-form class='q-px-sm q-pt-xl q-pb-lg'>
+                    <q-input square clearable v-model='registerUser.email' type='email' :label="$t('email')"
+                             lazy-rules :rules="[ val => val && val.length > 0 || $t('venteremail')]">
+                      <template v-slot:prepend>
+                        <q-icon name='email'/>
+                      </template>
+                    </q-input>
+                    <q-input square clearable v-model='registerUser.username' type='username' :label="$t('username')"
+                             lazy-rules :rules="[ val => val && val.length > 0 || $t('venterusername')]">
+                      <template v-slot:prepend>
+                        <q-icon name='person'/>
+                      </template>
+                    </q-input>
+                    <q-input square clearable v-model='registerUser.password' type='password' :label="$t('password')"
+                             lazy-rules :rules="[ val => val && val.length > 0 || $t('venterpassword')]">
+                      <template v-slot:prepend>
+                        <q-icon name='lock'/>
+                      </template>
+                    </q-input>
+                    <q-input square clearable v-model='registerUser.re_password' type='password' :label="$t('reenterpassword')"
+                             lazy-rules :rules="[ val => val && val.length > 0 || $t('vreenterpassword')]">
+                      <template v-slot:prepend>
+                        <q-icon name='lock'/>
+                      </template>
+                    </q-input>
+                  </q-form>
+                </q-card-section>
+                <q-card-actions class='q-px-lg'>
+                  <q-btn unelevated size='lg' color='purple-4' class='full-width text-white' icon='app_registration' :label="$t('signmeup')"
+                         @click='onRegister'/>
+                </q-card-actions>
+                <q-card-section class='text-center q-pa-sm'>
+                  <p class='text-grey-6' style='cursor: pointer;' @click='onReturnLogin'>{{ $t('returntologin') }}</p>
+                </q-card-section>
+              </q-card>
+            </div>
           </div>
-        </div>
-      </q-page>
-    </q-layout>
-    <Nodes v-if='mode===2' @on-go-back='onNodesGoBack'/>
+        </q-page>
+      </q-layout>
+      <Nodes v-if='mode===2' @on-go-back='onNodesGoBack'/>
+    </div>
   </div>
 </template>
 
 <script lang='ts'>
 import {onMounted, ref, watch} from 'vue';
-import { LoginUserViewModel, RegisterUserViewModel, User } from 'src/utils/models/user_model';
-import { NodeService } from 'src/utils/services/node_service';
-import { useQuasar } from 'quasar';
+import {LoginUserViewModel, RegisterUserViewModel, User} from 'src/utils/models/user_model';
+import {NodeService} from 'src/utils/services/node_service';
+import {useQuasar} from 'quasar';
 import Nodes from 'src/pages/Nodes.vue';
-import { NodeRepository } from 'src/utils/db';
-import { useRouter } from 'vue-router';
-import { StoreService } from 'src/utils/services/store_service';
+import {NodeRepository} from 'src/utils/db';
+import {useRouter} from 'vue-router';
+import {StoreService} from 'src/utils/services/store_service';
 import {useI18n} from 'vue-i18n';
-import {setupLocale} from 'src/utils/utils';
+import {scrollbarInit, setupLocale} from 'src/utils/utils';
 
 export default {
   name: 'Login',
-  components:{Nodes},
+  components: {Nodes},
   setup() {
-    const { locale } = useI18n({ useScope: 'global' });
+    const {locale} = useI18n({useScope: 'global'});
     const $q = useQuasar();
     const router = useRouter();
     const mode = ref<Mode>(Mode.Login);
-    const loginUser = ref<LoginUserViewModel>({ username: 'admin', password: 'admin' });
-    const registerUser = ref<RegisterUserViewModel>({ email: 'admin@feniks.com', password: 'admin',
-      re_password: 'admin', username: 'admin' });
+    const loginUser = ref<LoginUserViewModel>({username: 'admin', password: 'admin'});
+    const registerUser = ref<RegisterUserViewModel>({
+      email: 'admin@feniks.com', password: 'admin',
+      re_password: 'admin', username: 'admin'
+    });
     const nodeService = new NodeService();
     const nodeRepository = new NodeRepository();
     const storeService = new StoreService();
     const showLoginLoading = ref<boolean>(false);
+    const mainViewHeight = ref<number>(window.innerHeight);
 
     watch(locale, newValue => {
       nodeService.LocalService.setLang(<any>newValue);
@@ -140,6 +145,8 @@ export default {
     onMounted(async () => {
       setupLocale(nodeService.LocalService, locale, $q);
       mode.value = await nodeRepository.hasAnyNode() ? Mode.Login : Mode.Nodes;
+
+      scrollbarInit('login-view');
     });
 
     const onLogin = async () => {
@@ -158,7 +165,7 @@ export default {
         } else {
           $q.notify({message: 'Username and/or Password are incorrect', color: 'red'});
         }
-      }finally {
+      } finally {
         showLoginLoading.value = false;
       }
     };
@@ -166,11 +173,11 @@ export default {
     const onRegister = async () => {
       const u = registerUser.value;
       if (!u.email || !u.username || !u.password || !u.re_password) {
-        $q.notify({ message: 'Please enter all fields', color: 'red' });
+        $q.notify({message: 'Please enter all fields', color: 'red'});
         return;
       }
       if (u.password !== u.re_password) {
-        $q.notify({ message: 'Please enter all fields', color: 'red' });
+        $q.notify({message: 'Please enter all fields', color: 'red'});
         return;
       }
       const result = await nodeService.registerUser(u);
@@ -179,10 +186,10 @@ export default {
     return {
       locale,
       localeOptions: [
-        { value: 'tr-TR', label: 'Türkçe' },
-        { value: 'en-US', label: 'English' }
+        {value: 'tr-TR', label: 'Türkçe'},
+        {value: 'en-US', label: 'English'}
       ],
-      mode, loginUser, registerUser, showLoginLoading,
+      mode, loginUser, registerUser, showLoginLoading,mainViewHeight,
       onLogin, onRegister,
       onGoRegister() {
         mode.value = Mode.Register;
@@ -190,14 +197,14 @@ export default {
       onReturnLogin() {
         mode.value = Mode.Login;
       },
-      onGoNodes(){
+      onGoNodes() {
         mode.value = Mode.Nodes;
       },
-      onNodesGoBack(){
+      onNodesGoBack() {
         mode.value = Mode.Login;
       },
-      getImgSrc(){
-        if (locale.value === 'tr-TR'){
+      getImgSrc() {
+        if (locale.value === 'tr-TR') {
           return 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGlkPSJmbGFnLWljb25zLXRyIiB2aWV3Qm94PSIwIDAgNjQwIDQ4MCI+CiAgPGcgZmlsbC1ydWxlPSJldmVub2RkIj4KICAgIDxwYXRoIGZpbGw9IiNlMzBhMTciIGQ9Ik0wIDBoNjQwdjQ4MEgweiIvPgogICAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTQwNyAyNDcuNWMwIDY2LjItNTQuNiAxMTkuOS0xMjIgMTE5LjlzLTEyMi01My43LTEyMi0xMjAgNTQuNi0xMTkuOCAxMjItMTE5LjggMTIyIDUzLjcgMTIyIDExOS45eiIvPgogICAgPHBhdGggZmlsbD0iI2UzMGExNyIgZD0iTTQxMyAyNDcuNWMwIDUzLTQzLjYgOTUuOS05Ny41IDk1LjlzLTk3LjYtNDMtOTcuNi05NiA0My43LTk1LjggOTcuNi05NS44IDk3LjYgNDIuOSA5Ny42IDk1Ljl6Ii8+CiAgICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJtNDMwLjcgMTkxLjUtMSA0NC4zLTQxLjMgMTEuMiA0MC44IDE0LjUtMSA0MC43IDI2LjUtMzEuOCA0MC4yIDE0LTIzLjItMzQuMSAyOC4zLTMzLjktNDMuNSAxMi0yNS44LTM3eiIvPgogIDwvZz4KPC9zdmc+Cg==';
         }
         return 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGlkPSJmbGFnLWljb25zLWdiIiB2aWV3Qm94PSIwIDAgNjQwIDQ4MCI+CiAgPHBhdGggZmlsbD0iIzAxMjE2OSIgZD0iTTAgMGg2NDB2NDgwSDB6Ii8+CiAgPHBhdGggZmlsbD0iI0ZGRiIgZD0ibTc1IDAgMjQ0IDE4MUw1NjIgMGg3OHY2Mkw0MDAgMjQxbDI0MCAxNzh2NjFoLTgwTDMyMCAzMDEgODEgNDgwSDB2LTYwbDIzOS0xNzhMMCA2NFYwaDc1eiIvPgogIDxwYXRoIGZpbGw9IiNDODEwMkUiIGQ9Im00MjQgMjgxIDIxNiAxNTl2NDBMMzY5IDI4MWg1NXptLTE4NCAyMCA2IDM1TDU0IDQ4MEgwbDI0MC0xNzl6TTY0MCAwdjNMMzkxIDE5MWwyLTQ0TDU5MCAwaDUwek0wIDBsMjM5IDE3NmgtNjBMMCA0MlYweiIvPgogIDxwYXRoIGZpbGw9IiNGRkYiIGQ9Ik0yNDEgMHY0ODBoMTYwVjBIMjQxek0wIDE2MHYxNjBoNjQwVjE2MEgweiIvPgogIDxwYXRoIGZpbGw9IiNDODEwMkUiIGQ9Ik0wIDE5M3Y5Nmg2NDB2LTk2SDB6TTI3MyAwdjQ4MGg5NlYwaC05NnoiLz4KPC9zdmc+Cg==';

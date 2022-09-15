@@ -52,8 +52,8 @@
       </q-toolbar>
     </q-header>
 
-    <q-drawer v-model='leftDrawerOpen' show-if-above bordered class='bg-white' :width='280'>
-      <q-scroll-area class='fit'>
+    <q-drawer v-model='leftDrawerOpen' show-if-above bordered class='bg-white' :width='265'>
+      <div id="left-view" :style="{height:mainViewHeight.toString() + 'px'}">
         <q-list padding class='text-grey-8'>
           <div v-for='(menu, index) in menus' :key='index'>
             <q-item v-for='link in menu' :key='link.text' class='GNL__drawer-item'
@@ -67,14 +67,14 @@
               <q-item-section v-if='link.isSource'>
                 <q-img :src="'data:image/png;base64, ' + (link.thumbnail ? link.thumbnail : emptyBase64Image)" spinner-color='white'
                        style='height: 80px; width: 200px; cursor: pointer;' class='rounded-borders'>
-                  <div class='absolute-bottom text-subtitle1'>
+                  <div class='absolute-bottom text-subtitle1 three-dots'>
                     <q-icon v-if='sourceStreamStatus[link.id]&&sourceStreamStatus[link.id].streaming' name='live_tv' color='green'
                             style='margin-right: 3px;'
                             class='blink_me'/>
                     <q-icon v-if='sourceStreamStatus[link.id]&&sourceStreamStatus[link.id].recording' name='fiber_manual_record' color='red'
                             style='margin-right: 3px;' class='blink_me'/>
                     <q-icon :name='link.icon'/>
-                    {{ link.text }}
+                    <span>{{ link.text }}</span>
                   </div>
                   <q-inner-loading v-if='loadingObject[link.id]' :showing='true' label='Please wait...' label-class='text-cyan'
                                    label-style='font-size: 1.1em'>
@@ -149,11 +149,13 @@
             <q-separator v-if='menu.length' inset class='q-my-sm'/>
           </div>
         </q-list>
-      </q-scroll-area>
+      </div>
     </q-drawer>
 
     <q-page-container>
-      <router-view/>
+      <div id="main-view" :style="{height:mainViewHeight.toString() + 'px'}">
+        <router-view/>
+      </div>
     </q-page-container>
   </q-layout>
 
@@ -182,7 +184,7 @@ import SourceRecords from 'components/SourceRecords.vue';
 import OnvifSettings from 'components/OnvifSettings.vue';
 import ServerStatsBar from 'components/ServerStatsBar.vue';
 import {SourceModel} from 'src/utils/models/source_model';
-import {createEmptyBase64Image, doUserLogout, setupLocale, startStream} from 'src/utils/utils';
+import {createEmptyBase64Image, doUserLogout, listenWindowSizeChangesForScrollBar, scrollbarInit, setupLocale, startStream} from 'src/utils/utils';
 import {StoreService} from 'src/utils/services/store_service';
 import {WsConnection} from 'src/utils/ws/connection';
 import Notifier from 'components/Notifier.vue';
@@ -217,6 +219,7 @@ export default {
     const selectedSourceAddress = ref<string>('');
     const showOnvif = ref<boolean>(false);
     const menus = ref(storeService.getNode());
+    const mainViewHeight = ref<number>(window.innerHeight);
     let editorConnection: WsConnection | null = null;
 
     const loadSources = async () => {
@@ -270,6 +273,9 @@ export default {
     });
 
     onMounted(async () => {
+      scrollbarInit('left-view');
+      scrollbarInit('main-view');
+      listenWindowSizeChangesForScrollBar(mainViewHeight);
       const currentPath = route.path;
       if (currentPath) {
         activeLeftMenu.value = currentPath.replace('/', '');
@@ -347,22 +353,9 @@ export default {
     };
 
     return {
-      leftDrawerOpen,
-      menus,
-      currentUser,
-      loadingObject,
-      sourceStreamStatus,
-      showSettings,
-      selectedSourceId,
-      showRecords,
-      emptyBase64Image,
-      activeLeftMenu,
-      selectedSourceAddress,
-      showOnvif,
-      toggleLeftDrawer,
-      getThumbnail,
-      onAiClick,
-      onLogoutUser,
+      leftDrawerOpen, menus, currentUser, loadingObject, sourceStreamStatus, showSettings, selectedSourceId, showRecords, emptyBase64Image,
+      activeLeftMenu, selectedSourceAddress, showOnvif, mainViewHeight,
+      toggleLeftDrawer, getThumbnail, onAiClick, onLogoutUser,
       onSaveSettingsClicked(sourceId: string) {
         showSettings.value = true;
         selectedSourceId.value = sourceId;
@@ -483,5 +476,13 @@ export default {
   50% {
     opacity: 0;
   }
+}
+
+.three-dots{
+  display: inline-block;
+  width: 200px;
+  white-space: nowrap;
+  overflow: hidden !important;
+  text-overflow: ellipsis;
 }
 </style>

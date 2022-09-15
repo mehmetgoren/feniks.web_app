@@ -442,4 +442,5 @@ export default {
   not_enough_arg_delete_record:'Bu kaydı silmek için yeterli argüman yok',
   record_deleted:'İlgili Kayıt Silindi',
   browser_no_allow_download:'Tarayıcı Dosya indirmeye İzin Vermiyor',
+  token:'Token',
 };

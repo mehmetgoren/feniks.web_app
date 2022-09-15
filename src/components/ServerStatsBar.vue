@@ -62,9 +62,8 @@
 
   <div class='q-pa-md q-gutter-sm' v-if='showCurrentTime'>
     <div v-if='currentTime' class='row'>
-      <label style='float: left;width: 100%;color: #455a64;font-size: large;text-align: center;display: block;'>{{ currentTime.toLocaleDateString(locale, localeOptions) }} </label>
-      <label
-        style='float: left;width: 100%;color: #455a64;font-size: x-large;text-align: center;display: block;'>{{ currentTime.toLocaleTimeString(locale)
+      <label style='float: left;width: 100%;color: #455a64;font-size: 12px;text-align: center;display: block;'>{{ currentTime.toLocaleDateString(locale, localeOptions) }} </label>
+      <label style='float: left;width: 100%;color: #455a64;font-size: 24px;text-align: center;display: block;'>{{ currentTime.toLocaleTimeString(locale)
         }} </label>
     </div>
   </div>
