@@ -1,15 +1,13 @@
 <template>
   <div class='q-pa-md q-gutter-sm' style='margin-bottom: -35px;'>
-    <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='width: 99.5%'>
+    <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='width: 99.5%' >
       <label style='text-transform: uppercase;font-size: medium; font-weight: bold;margin-right: 15px;'> {{ currentNode.name }}</label>
-      <q-tabs v-model='tab' narrow-indicator inline-label align='left'>
+      <q-tabs v-model='tab' narrow-indicator inline-label dense shrink stretch align='left' :breakpoint="0">
         <q-tab name='config' icon='settings_applications' :label="$t('config')"/>
         <q-tab name='cloud' icon='cloud' :label="$t('cloud')"/>
         <q-tab name='general' icon='developer_board' :label="$t('general')"/>
         <q-tab name='info' icon='analytics' :label="$t('info')"/>
       </q-tabs>
-      <q-toolbar-title></q-toolbar-title>
-      <CommandBar v-if='tab==="config"' :show-delete='false' @on-save='onSave' @on-restore='onRestore'></CommandBar>
     </q-toolbar>
   </div>
 
@@ -19,7 +17,7 @@
       <div class='col-4'>
         <q-card class="my-card" flat bordered>
           <q-card-section class="bg-cyan text-white">
-            <div class="text-subtitle2"><label style='text-transform: uppercase;font-size: medium'>{{ $t('device') }}</label></div>
+            <CommandBar v-if='tab==="config"' :show-delete='false' @on-save='onSave' @on-restore='onRestore'></CommandBar>
           </q-card-section>
           <q-separator/>
           <q-card-section>
@@ -96,7 +94,6 @@
           </q-card-section>
         </q-card>
         <q-space style='height: 10px;'/>
-
       </div>
 
       <div class='col-4'>

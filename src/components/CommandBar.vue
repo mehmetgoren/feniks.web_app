@@ -1,5 +1,5 @@
 <template>
-  <q-btn-group>
+  <q-btn-group unelevated>
     <q-btn v-if='showSave' flat push :label="$t('save')" icon='save' @click='onSave' :disable='inactiveSave'>
       <q-inner-loading :showing='inactiveSave' />
     </q-btn>

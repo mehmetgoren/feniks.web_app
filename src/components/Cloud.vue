@@ -9,22 +9,23 @@
         </q-card-section>
         <q-card-actions align='left'>
           <q-form @submit='onGdriveSubmit' @reset='onGdriveReset' class='q-pa-xs' style='width: 100%;'>
-            <q-toggle v-model='gdriveModel.enabled' :label="$t('active')" color="blue-grey-6" />
-            <q-input v-model="gdriveModel.credentials_json" filled type="textarea" :label="$t('credentials')" rows="13" />
-            <q-space style='margin-bottom: 15px;' />
-            <q-input v-model='gdriveModel.auth_code' :label="$t('auth_code')" dense filled color="blue-grey-6" />
-            <q-space style='margin-bottom: 15px;' />
-            <q-input v-model="gdriveModel.token_json" filled type="textarea" :label="$t('token_json')" rows="8" disable />
-            <q-space style='margin-bottom: 15px;' />
-            <q-input v-model='gdriveModel.url' :label="$t('url')" dense filled color="blue-grey-6" disable />
+            <q-toggle v-model='gdriveModel.enabled' :label="$t('active')" color="blue-grey-6"/>
+            <q-input v-model="gdriveModel.credentials_json" filled type="textarea" :label="$t('credentials')" rows="13"/>
+            <q-space style='margin-bottom: 15px;'/>
+            <q-input v-model='gdriveModel.auth_code' :label="$t('auth_code')" dense filled color="blue-grey-6"/>
+            <q-space style='margin-bottom: 15px;'/>
+            <q-input v-model="gdriveModel.token_json" filled type="textarea" :label="$t('token_json')" rows="8" disable/>
+            <q-space style='margin-bottom: 15px;'/>
+            <q-input v-model='gdriveModel.url' :label="$t('url')" dense filled color="blue-grey-6" disable/>
 
             <div class='q-pa-md q-gutter-sm'>
               <q-btn :label="$t('save')" type='submit' color='blue-grey-6' dense icon='save' :disable="gdriveSubmitLoading">
-                <q-inner-loading :showing='gdriveSubmitLoading' />
+                <q-inner-loading :showing='gdriveSubmitLoading'/>
               </q-btn>
-              <q-btn :label="$t('refresh')" type='reset' color='blue-grey-6' flat class='q-ml-sm' dense icon='restart_alt' />
-              <q-btn :label="$t('refresh_credentials')" color='red' dense icon='report' :disable="gdriveResetLoading" @click="onResetGdriveTokenAndUrl">
-                <q-inner-loading :showing='gdriveResetLoading' />
+              <q-btn :label="$t('refresh')" type='reset' color='blue-grey-6' flat class='q-ml-sm' dense icon='restart_alt'/>
+              <q-btn :label="$t('refresh_credentials')" color='red' dense icon='report' :disable="gdriveResetLoading"
+                     @click="onResetGdriveTokenAndUrl">
+                <q-inner-loading :showing='gdriveResetLoading'/>
               </q-btn>
             </div>
           </q-form>
@@ -49,10 +50,10 @@
                      :rules="[ val => val && val.length > 0 ||  $t('v_enter_url')]" color="blue-grey-6"/>
 
             <div class='q-pa-md q-gutter-sm'>
-              <q-btn :label="$t('save')"  type='submit' color='blue-grey-6' dense icon='save' :disable="telegramSubmitLoading">
-                <q-inner-loading :showing='telegramSubmitLoading' />
+              <q-btn :label="$t('save')" type='submit' color='blue-grey-6' dense icon='save' :disable="telegramSubmitLoading">
+                <q-inner-loading :showing='telegramSubmitLoading'/>
               </q-btn>
-              <q-btn :label="$t('refresh')" type='reset' color='blue-grey-6' flat class='q-ml-sm' dense icon='restart_alt' />
+              <q-btn :label="$t('refresh')" type='reset' color='blue-grey-6' flat class='q-ml-sm' dense icon='restart_alt'/>
             </div>
           </q-form>
         </q-card-actions>
@@ -92,7 +93,7 @@ import {useI18n} from 'vue-i18n';
 export default {
   name: 'Cloud',
   setup() {
-    const { t } = useI18n({ useScope: 'global' });
+    const {t} = useI18n({useScope: 'global'});
     const $q = useQuasar();
     const nodeService = new NodeService();
     const telegramModel = ref<TelegramViewModel>();
@@ -151,11 +152,11 @@ export default {
     const onGdriveSubmit = async () => {
       gdriveSubmitLoading.value = true;
       try {
-        if (gdriveModel.value){
+        if (gdriveModel.value) {
           await nodeService.saveGdriveViewModel(gdriveModel.value);
           await nodeService.restartAfterCloudChanges();
         }
-      }finally {
+      } finally {
         gdriveSubmitLoading.value = false;
       }
     };
@@ -164,13 +165,13 @@ export default {
       await gdriveDatabind();
     };
 
-    const onResetGdriveTokenAndUrl = () =>{
+    const onResetGdriveTokenAndUrl = () => {
       const doResetGdriveTokenAndUrl = async () => {
         gdriveResetLoading.value = true;
-        try{
+        try {
           await nodeService.resetGdriveTokenAndUrl();
           await gdriveDatabind();
-        }finally {
+        } finally {
           gdriveResetLoading.value = false;
         }
       };

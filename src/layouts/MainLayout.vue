@@ -53,7 +53,7 @@
     </q-header>
 
     <q-drawer v-model='leftDrawerOpen' show-if-above bordered class='bg-white' :width='265'>
-      <div id="left-view" :style="{height:mainViewHeight.toString() + 'px'}">
+      <q-scroll-area class="fit">
         <q-list padding class='text-grey-8'>
           <div v-for='(menu, index) in menus' :key='index'>
             <q-item v-for='link in menu' :key='link.text' class='GNL__drawer-item'
@@ -149,7 +149,7 @@
             <q-separator v-if='menu.length' inset class='q-my-sm'/>
           </div>
         </q-list>
-      </div>
+      </q-scroll-area>
     </q-drawer>
 
     <q-page-container>
@@ -273,7 +273,6 @@ export default {
     });
 
     onMounted(async () => {
-      scrollbarInit('left-view');
       scrollbarInit('main-view');
       listenWindowSizeChangesForScrollBar(mainViewHeight);
       const currentPath = route.path;
