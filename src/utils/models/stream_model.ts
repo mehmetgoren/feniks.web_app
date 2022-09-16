@@ -43,6 +43,7 @@ export interface StreamModel {
   ai_clip_pid: number;
   ai_clip_args: string;
 
+  flv_player_type: number;
   booster_enabled: boolean;
 
   concat_demuxer_pid: number;

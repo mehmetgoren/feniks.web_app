@@ -443,4 +443,6 @@ export default {
   record_deleted:'The record has been deleted',
   browser_no_allow_download:'Browser Denied the File Download',
   token:'Token',
+  player:'Player',
+  flv_player:'FLV Player',
 };

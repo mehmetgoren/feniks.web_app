@@ -133,7 +133,12 @@
                           v-model='source.stream_type' color='cyan' @update:model-value='onStreamTypeChanged'
                           :options='streamTypes' :label="$t('stream_type')" transition-show='flip-up'
                           transition-hide='flip-down'/>
-                <q-toggle v-if='source.stream_type < 2' dense v-model='source.booster_enabled' checked-icon='check' color='cyan'
+                <q-select v-if="source.stream_type===0" dense emit-value map-options filled
+                          v-model='source.flv_player_type' color='cyan'
+                          :options='flvPlayerTypes' :label="$t('flv_player')" transition-show='flip-up'
+                          transition-hide='flip-down'/>
+                <q-toggle v-if='source.stream_type < 2&&(source.stream_type === 1 || source.flv_player_type===1)'
+                          dense v-model='source.booster_enabled' checked-icon='check' color='cyan'
                           :label="$t('booster') + ' ' + (source.booster_enabled ? $t('enabled') : $t('disabled'))"/>
                 <q-select dense emit-value map-options filled v-model='source.stream_video_codec' color='cyan'
                           :options='streamVideoCodecs' :label="$t('video_codec')" transition-show='scale' transition-hide='scale'/>
@@ -382,6 +387,7 @@ export default {
     const recordPresets = ref(localService.createPresets(t));
     const recordRotations = ref(localService.createRotations(t));
     const snapshotTypes = ref(localService.createSnapshotTypes());
+    const flvPlayerTypes = ref(localService.createFlvPlayerTypes(t));
     const inactives = ref({save: false, delete: false});
     const showOnvif = ref<boolean>(false);
     const recommendedRtspAddresses = ref<string[]>([]);
@@ -633,7 +639,7 @@ export default {
       audioCodecs, streamVideoCodecs, presets, recommendedRtspAddresses,
       streamRotations, rtmpServerTypes, audioChannels, inactives, showOnvif,
       audioQualities, audioSampleRates, recordFileTypes, recordVideoCodecs,
-      recordPresets, recordRotations, showFindOptimalSettings, snapshotTypes,
+      recordPresets, recordRotations, showFindOptimalSettings, snapshotTypes, flvPlayerTypes,
       onSave, onDelete, onStep1Click, onRecordChange, onStreamTypeChanged, onFindOptimalSettings,
       insertMode, showQuickWizard, quickWizardShowing,
       onFindOptimalSettings2() {

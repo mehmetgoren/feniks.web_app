@@ -4,25 +4,27 @@
          v-for='(stream, index) in streamList'
          :key='stream.id' :gs-w='stream.loc.w' :gs-h='stream.loc.h'
          :gs-x='stream.loc.x' :gs-y='stream.loc.y' :gs-id='stream.id' :gs-min-w='minWidth'>
-      <div :id='"ctx" + stream.id' class='grid-stack-item-content' style='overflow: hidden !important;'>
-        <FlvPlayer v-if='stream.show&&stream.stream_type===0' v-show="!stream.showHtml2Canvas" :src='stream.src' :source-id='stream.id'
-                   :enable-log='false' :ref='setStreamPlayers'
+      <div :id='"ctx" + stream.id' class='grid-stack-item-content' style='overflow: hidden !important;background-color: black'>
+        <MpegTsPlayer v-if='stream.show&&stream.stream_type===0&&stream.flv_player_type===0' :src='stream.src' :source-id='stream.id'
+                      :enable-log='false' :ref='setStreamPlayers' :gallery-index='index' @user-activity='onUserActivity'/>
+        <FlvPlayer v-if='stream.show&&stream.stream_type===0&&stream.flv_player_type===1'
+                   v-show="!stream.showHtml2Canvas" :src='stream.src' :source-id='stream.id' :enable-log='false' :ref='setStreamPlayers'
                    :enable-booster='stream.booster_enabled' :seek-to-live-edge-internal='config.ui.seek_to_live_edge_internal' :gallery-index='index'
-                   @user-activity='onUserActivity' :booster-interval="config.ui.booster_interval" @need-refresh="onNeedRefresh" />
+                   @user-activity='onUserActivity' :booster-interval="config.ui.booster_interval" @need-refresh="onNeedRefresh"/>
         <HlsPlayer v-if='stream.show&&stream.stream_type===1' v-show="!stream.showHtml2Canvas" :src='stream.src' :source-id='stream.id'
                    :enable-log='false' :ref='setStreamPlayers'
                    :enable-booster='stream.booster_enabled' :seek-to-live-edge-internal='config.ui.seek_to_live_edge_internal' :gallery-index='index'
-                   @user-activity='onUserActivity' @need-refresh="onNeedRefresh" />
-        <FFmpegReaderPlayer v-if='stream.show&&stream.stream_type===2' :source-id='stream.id'
-                            :ref='setStreamPlayers' />
+                   @user-activity='onUserActivity' @need-refresh="onNeedRefresh"/>
+        <FFmpegReaderPlayer v-if='stream.show&&stream.stream_type===2' :source-id='stream.id' :ref='setStreamPlayers'
+                            @user-activity='onUserActivity'/>
 
         <StreamCommandBar v-if='stream.show' v-show="!stream.showHtml2Canvas" :stream='stream' :hide='stream.hide' @full-screen='onFullScreen'
                           @stream-stop='onStreamStop' @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh'
                           @restart='onRestart' @close='onStreamClose'
                           :take-screenshot-loading='stream.takeScreenshotLoading'
-                          :enable-booster='stream.booster_enabled' :transparent='stream.stream_type<2' />
+                          :enable-booster='stream.booster_enabled' :transparent='true'/>
 
-        <q-inner-loading :showing='!stream.show' v-show="!stream.showHtml2Canvas" label='Please wait...' label-class='text-cyan' />
+        <q-inner-loading :showing='!stream.show' v-show="!stream.showHtml2Canvas" label='Please wait...' label-class='text-cyan'/>
         <div :id='"ss" + stream.id' v-show="stream.showHtml2Canvas"></div>
       </div>
     </div>
@@ -41,6 +43,7 @@ import {List} from 'linqts';
 import HlsPlayer from 'components/HlsPlayer.vue';
 import FlvPlayer from 'components/FlvPlayer.vue';
 import FFmpegReaderPlayer from 'components/FFmpegReaderPlayer.vue';
+import MpegTsPlayer from 'components/MpegTsPlayer.vue';
 import StreamCommandBar from 'components/StreamCommandBar.vue';
 import 'gridstack/dist/gridstack.min.css';
 import {GridStack} from 'gridstack';
@@ -58,11 +61,12 @@ import {Config} from 'src/utils/models/config';
 import {StoreService} from 'src/utils/services/store_service';
 import {StreamCommandBarActions, StreamCommandBarInfo} from 'src/store/module-settings/state';
 import html2canvas from 'html2canvas';
+
 // https://v3.vuejs.org/guide/migration/array-refs.html
 export default {
   name: 'LiveStreamGallery',
   components: {
-    HlsPlayer, FlvPlayer, FFmpegReaderPlayer, StreamCommandBar
+    HlsPlayer, FlvPlayer, FFmpegReaderPlayer, MpegTsPlayer, StreamCommandBar
   },
   setup() {
     const open = ref<boolean>(false);
@@ -200,7 +204,7 @@ export default {
         grid = GridStack.init({
           float: true
         });
-        if (!grid){
+        if (!grid) {
           return;
         }
         GridStack.setupDragIn(
@@ -303,7 +307,7 @@ export default {
         if (responseModel.event_type != 1) {
           return;
         }
-        const stream = findById(responseModel.id??'');
+        const stream = findById(responseModel.id ?? '');
         if (stream) {
           stream.takeScreenshotLoading = false;
         }
@@ -394,7 +398,7 @@ export default {
       }
     }
 
-    function onNeedRefresh(sourceId: string){
+    function onNeedRefresh(sourceId: string) {
       const stream = findById(sourceId);
       if (!stream) return;
 

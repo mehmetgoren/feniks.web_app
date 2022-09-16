@@ -408,6 +408,7 @@ export class LocalService {
       record_enabled: false,
       ai_clip_enabled: false,
 
+      flv_player_type: 0, // 0 is MpegTsJs, 1 is FlvJs
       booster_enabled: false,
 
       created_at: ''
@@ -459,6 +460,7 @@ export class LocalService {
       ai_clip_pid: 0,
       ai_clip_args: '',
 
+      flv_player_type: 0, // 0 is MpegTsJs, 1 is FlvJs
       booster_enabled: false,
 
       concat_demuxer_pid: 0,
@@ -699,6 +701,13 @@ export class LocalService {
     return [
       {value: 0, label: t('delete')},
       {value: 1, label: t('move_another_location')}
+    ];
+  }
+
+  public createFlvPlayerTypes(t: any): SelectOption[]{
+    return [
+      {value: 0, label: 'MpegTsJs ' + t('player')},
+      {value: 1, label: 'FlvJs ' + t('player')}
     ];
   }
 }

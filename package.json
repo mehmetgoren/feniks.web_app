@@ -28,7 +28,8 @@
     "vue-chart-3": "^3.0.4",
     "vue-i18n": "^9.2.2",
     "vuex": "^4.0.2",
-    "smooth-scrollbar": "^8.7.5"
+    "smooth-scrollbar": "^8.7.5",
+    "mpegts.js": "^1.6.10"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.16.5",

@@ -443,4 +443,6 @@ export default {
   record_deleted:'İlgili Kayıt Silindi',
   browser_no_allow_download:'Tarayıcı Dosya indirmeye İzin Vermiyor',
   token:'Token',
+  player:'Oynatıcı',
+  flv_player:'FLV Oynatıcı',
 };
