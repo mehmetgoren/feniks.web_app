@@ -4,6 +4,7 @@ import LiveStreamGallery from 'pages/LiveStreamGallery.vue';
 import AiSettings from 'pages/AiSettings.vue';
 import FrTraining from 'pages/FrTraining.vue';
 import AiDataGeneral from 'pages/AiDataGeneral.vue';
+import SourceRecords from 'pages/SourceRecords.vue';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -15,7 +16,8 @@ const routes: RouteRecordRaw[] = [
       {path: 'stream_gallery', component: LiveStreamGallery},
       {path: 'ai_settings', component: AiSettings},
       {path: 'fr_training', component: FrTraining},
-      {path: 'ai_data', component: AiDataGeneral}
+      {path: 'ai_data', component: AiDataGeneral},
+      {path: 'source_records', component: SourceRecords},
     ],
   },
 

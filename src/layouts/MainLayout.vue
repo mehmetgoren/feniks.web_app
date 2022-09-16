@@ -163,10 +163,6 @@
     <SourceSettings :source-id='selectedSourceId' @on-save='onSourceSettingsSave' @on-delete='onSourceDelete'/>
   </q-dialog>
 
-  <q-dialog v-model='showRecords' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
-    <SourceRecords :source-id='selectedSourceId'/>
-  </q-dialog>
-
   <q-dialog v-model='showOnvif' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
     <OnvifSettings :address='selectedSourceAddress' :color='"brown-5"'/>
   </q-dialog>
@@ -180,7 +176,6 @@ import {LoadingInfo, MenuLink, StreamCommandBarInfo, StreamCommandBarActions} fr
 import {PublishService, SubscribeService} from 'src/utils/services/websocket_services';
 import {EditorImageResponseModel} from 'src/utils/entities';
 import SourceSettings from 'components/SourceSettings.vue';
-import SourceRecords from 'components/SourceRecords.vue';
 import OnvifSettings from 'components/OnvifSettings.vue';
 import ServerStatsBar from 'components/ServerStatsBar.vue';
 import {SourceModel} from 'src/utils/models/source_model';
@@ -194,7 +189,7 @@ import {useQuasar} from 'quasar';
 export default {
   name: 'Ionix Layout',
   components: {
-    SourceSettings, SourceRecords, OnvifSettings,
+    SourceSettings, OnvifSettings,
     ServerStatsBar, Notifier
   },
   setup() {
@@ -212,7 +207,6 @@ export default {
     const loadingObject = reactive<any>({});
     const sourceStreamStatus = reactive<any>({});
     const showSettings = ref<boolean>(false);
-    const showRecords = ref<boolean>(false);
     const selectedSourceId = ref<string>('');
     const emptyBase64Image = ref<string>(createEmptyBase64Image());
     const activeLeftMenu = ref<string>('config');
@@ -256,10 +250,6 @@ export default {
         case  StreamCommandBarActions.ShowSourceSettings:
           selectedSourceId.value = info.source.id;
           showSettings.value = true;
-          break;
-        case StreamCommandBarActions.ShowSourceRecords:
-          selectedSourceId.value = info.source.id;
-          showRecords.value = true;
           break;
         case StreamCommandBarActions.ShowOnvifSettings:
           selectedSourceAddress.value = info.source.address;
@@ -341,6 +331,11 @@ export default {
       }, 30000);
     }
 
+    const onShowRecordClicked = (sourceId: string) => {
+      storeService.setRecordSourceId(sourceId);
+      void router.push('source_records');
+    }
+
     const onAiClick = (sourceId: string) => {
       storeService.setAiSettingsSourceId(sourceId);
       void router.push('ai_settings');
@@ -352,19 +347,15 @@ export default {
     };
 
     return {
-      leftDrawerOpen, menus, currentUser, loadingObject, sourceStreamStatus, showSettings, selectedSourceId, showRecords, emptyBase64Image,
+      leftDrawerOpen, menus, currentUser, loadingObject, sourceStreamStatus, showSettings, selectedSourceId, emptyBase64Image,
       activeLeftMenu, selectedSourceAddress, showOnvif, mainViewHeight,
-      toggleLeftDrawer, getThumbnail, onAiClick, onLogoutUser,
+      toggleLeftDrawer, getThumbnail, onShowRecordClicked, onAiClick, onLogoutUser,
       onSaveSettingsClicked(sourceId: string) {
         showSettings.value = true;
         selectedSourceId.value = sourceId;
       },
       onStartStreaming(link: MenuLink) {
         startStream(storeService, publishService, <SourceModel>link.source);
-      },
-      onShowRecordClicked(sourceId: string) {
-        showRecords.value = true;
-        selectedSourceId.value = sourceId;
       },
       onTakeScreenshotClicked(link: MenuLink) {
         const source = <SourceModel>link.source;

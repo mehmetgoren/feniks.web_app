@@ -26,6 +26,9 @@ const getters: GetterTree<ISettingsState, IState> = {
   aiSettingsSourceId(state: ISettingsState): string {
     return state.aiSettingsSourceId;
   },
+  recordSourceId(state: ISettingsState): string {
+    return state.recordSourceId;
+  },
   currentUser(state: ISettingsState): User | null {
     let user = state.currentUser;
     if (!user) {

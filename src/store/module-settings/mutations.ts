@@ -62,6 +62,9 @@ const mutation: MutationTree<ISettingsState> = {
   aiSettingsSourceId(state: ISettingsState, sourceId: string){
     state.aiSettingsSourceId = sourceId;
   },
+  recordSourceId(state: ISettingsState, sourceId: string){
+    state.recordSourceId = sourceId;
+  },
   currentUser(state: ISettingsState, user: User){
     state.currentUser = user;
     new LocalService().setCurrentUser(user);

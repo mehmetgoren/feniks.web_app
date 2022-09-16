@@ -110,7 +110,8 @@ export default {
     const nodeService = new NodeService();
 
     const onRecordClick = () => {
-      storeService.setStreamCommandBar({ source: cloneStream, action: StreamCommandBarActions.ShowSourceRecords});
+      storeService.setRecordSourceId(props.stream.id);
+      void router.push('source_records');
     };
 
     const onAiClick = () => {

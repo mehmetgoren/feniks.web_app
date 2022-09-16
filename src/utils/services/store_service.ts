@@ -1,10 +1,10 @@
-import { SourceModel } from 'src/utils/models/source_model';
-import { IState, useStore } from 'src/store';
-import { Store } from 'vuex';
+import {SourceModel} from 'src/utils/models/source_model';
+import {IState, useStore} from 'src/store';
+import {Store} from 'vuex';
 import {MenuLink, StreamCommandBarInfo} from 'src/store/module-settings/state';
-import { computed } from 'vue';
-import { EditorImageResponseModel } from 'src/utils/entities';
-import { User } from 'src/utils/models/user_model';
+import {computed} from 'vue';
+import {EditorImageResponseModel} from 'src/utils/entities';
+import {User} from 'src/utils/models/user_model';
 
 export class StoreService {
   private readonly $store: Store<IState> = useStore();
@@ -40,7 +40,7 @@ export class StoreService {
   }
 
   public setSourceLoading(sourceId: string, loading: boolean) {
-    this.$store.commit('settings/setSourceLoading', { id: sourceId, loading });
+    this.$store.commit('settings/setSourceLoading', {id: sourceId, loading});
   }
 
   public get sourceLoading() {
@@ -66,12 +66,20 @@ export class StoreService {
     return computed(() => this.$store.getters['settings/aiSettingsSourceId']);
   }
 
+  public get recordSourceId() {
+    return computed(() => this.$store.getters['settings/recordSourceId']);
+  }
+
   public setCurrentUser(user: User | null) {
     this.$store.commit('settings/currentUser', user);
   }
 
   public setAiSettingsSourceId(sourceId: string) {
     this.$store.commit('settings/aiSettingsSourceId', sourceId);
+  }
+
+  public setRecordSourceId(sourceId: string) {
+    this.$store.commit('settings/recordSourceId', sourceId);
   }
 
   public setNotifySourceStreamStatusChanged() {
@@ -86,7 +94,7 @@ export class StoreService {
     this.$store.commit('settings/streamCommandbarClicked', info);
   }
 
-  public set18n(t: any){
+  public set18n(t: any) {
     this.$store.commit('settings/set18n', t);
   }
 }

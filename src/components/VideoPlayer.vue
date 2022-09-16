@@ -40,7 +40,8 @@ export default {
             src: src,
             type: 'video/mp4'
           }
-        ]
+        ],
+        playbackRates: [0.5, 1, 1.5, 2]
       }
       self.player = videojs(self.$refs.videoPlayer, videoOptions);
       self.$emit('on-player-ready', self.player);

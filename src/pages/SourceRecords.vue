@@ -1,100 +1,99 @@
 <template>
-  <q-layout view='lHh lpr lFf' container style='height: 600px' class='shadow-2 rounded-borders'>
-    <q-header elevated class='bg-purple'>
-      <q-toolbar>
-        <q-btn flat round dense icon='dvr'/>
-        <q-toolbar-title>
-          {{ stream.name }} {{ $t('record_list') }}
-        </q-toolbar-title>
-        <q-space/>
-        <q-btn dense flat icon='close' v-close-popup>
-          <q-tooltip class='bg-white text-primary'>{{ $t('close') }}</q-tooltip>
-        </q-btn>
-      </q-toolbar>
-    </q-header>
-    <q-page-container>
-      <q-page padding style='background-color: whitesmoke;'>
-        <div class='row'>
-          <div class='col-3'>
-            <q-toggle v-model='recordEnabled' disable checked-icon='check' color='purple'
-                      :label="$t('record') + ' ' + (recordEnabled ? $t('on') : $t('off'))"/>
-            <q-space/>
-            <q-date v-model='selectedDate' color='purple' mask='YYYY_MM_DD' :locale="locale"/>
+  <div class='q-pa-md q-gutter-sm'>
+    <q-layout view='lHh lpr lFf' container :style="{minHeight: viewHeight.toString() + 'px'}" class='shadow-2 rounded-borders'>
+      <q-header elevated class='bg-purple'>
+        <q-toolbar>
+          <q-btn flat round dense icon='dvr'/>
+          <q-toolbar-title>
+            {{ stream.name }} {{ $t('record_list') }}
+          </q-toolbar-title>
+        </q-toolbar>
+      </q-header>
+      <q-page-container>
+        <q-page padding style='background-color: whitesmoke;'>
+          <div class='row'>
+            <div class='col-3'>
+              <q-toggle v-model='recordEnabled' disable checked-icon='check' color='purple'
+                        :label="$t('record') + ' ' + (recordEnabled ? $t('on') : $t('off'))"/>
+              <q-space/>
+              <q-date v-model='selectedDate' color='purple' mask='YYYY_MM_DD' :locale="locale"/>
+            </div>
+            <div class='col-9'>
+              <q-table :title="$t('records')" :columns='columns'
+                       :rows='hours' row-key='hour'
+                       virtual-scroll :virtual-scroll-item-size='24' :pagination='pagination'
+                       :rows-per-page-options='[0]' :rows-per-page-label="$t('rows_per_page')"
+                       :filter='filter'>
+
+                <template v-slot:body='props'>
+                  <q-tr :props='props' @click='onRootClick(props)' style='cursor: pointer;'>
+                    <q-td key='hour' auto-width>
+                      <q-toggle v-model='props.expand' size='lg' color='accent' style='float: left;' disable/>
+                      <div style='font-size: large;text-align: center;margin: 15px 0 0 0;'>
+                        <label>{{ props.row.hour + ' : 00' }}</label>
+                      </div>
+                    </q-td>
+                  </q-tr>
+                  <q-tr v-show='props.expand' :props='props'>
+                    <q-table
+                      :rows='props.row.videoFiles' :columns='innerColumns'
+                      :pagination='innerPagination' row-key='name' :rows-per-page-label="$t('rows_per_page')"
+                      :selected='selected' :filter='innerFilter'>
+                      <template v-slot:body-cell-play='props'>
+                        <q-td :props='props'>
+                          <div>
+                            <q-btn round color='purple' icon='play_arrow' @click='onPlay(props.row)'/>
+                          </div>
+                        </q-td>
+                      </template>
+                      <template v-slot:body-cell-download='props'>
+                        <q-td :props='props'>
+                          <div>
+                            <q-btn round color='teal' icon='download' @click='onDownload(props.row)'/>
+                          </div>
+                        </q-td>
+                      </template>
+                      <template v-slot:body-cell-delete='props'>
+                        <q-td :props='props'>
+                          <div>
+                            <q-btn round color='deep-orange' icon='delete' @click='onDelete(props.row)'/>
+                          </div>
+                        </q-td>
+                      </template>
+                      <template v-slot:top-left>
+                        <q-btn v-if='props.row.videoFiles.length>1' icon-right='movie_creation' :label="$t('merge')" glossy color='purple'
+                               style='margin-right: 15px;' @click='onMerge(props.row)' :disable='showMergeLoading'>
+                          <q-inner-loading :showing='showMergeLoading'/>
+                        </q-btn>
+                      </template>
+                      <template v-slot:top-right>
+                        <q-input v-if='props.row.videoFiles.length>1' borderless dense debounce='300' v-model='innerFilter'
+                                 :placeholder="$t('search')">
+                          <template v-slot:append>
+                            <q-icon name='search'/>
+                          </template>
+                        </q-input>
+                      </template>
+                    </q-table>
+                  </q-tr>
+                </template>
+
+                <template v-slot:top-right>
+                  <q-btn icon='refresh' :label="$t('refresh')" glossy color='purple' style='margin-right: 15px;' @click='onRefresh'/>
+                  <q-input borderless dense debounce='300' v-model='filter' :placeholder="$t('search')">
+                    <template v-slot:append>
+                      <q-icon name='search'/>
+                    </template>
+                  </q-input>
+                </template>
+
+              </q-table>
+            </div>
           </div>
-          <div class='col-9'>
-            <q-table :title="$t('records')" :columns='columns'
-                     :rows='hours' row-key='hour'
-                     virtual-scroll :virtual-scroll-item-size='24' :pagination='pagination'
-                     :rows-per-page-options='[0]' :rows-per-page-label="$t('rows_per_page')"
-                     :filter='filter'>
-
-              <template v-slot:body='props'>
-                <q-tr :props='props' @click='onRootClick(props)' style='cursor: pointer;'>
-                  <q-td key='hour' auto-width>
-                    <q-toggle v-model='props.expand' size='lg' color='accent' style='float: left;' disable/>
-                    <div style='font-size: large;text-align: center;margin: 15px 0 0 0;'>
-                      <label>{{ props.row.hour + ' : 00' }}</label>
-                    </div>
-                  </q-td>
-                </q-tr>
-                <q-tr v-show='props.expand' :props='props'>
-                  <q-table
-                    :rows='props.row.videoFiles' :columns='innerColumns'
-                    :pagination='innerPagination' row-key='name' :rows-per-page-label="$t('rows_per_page')"
-                    :selected='selected' :filter='innerFilter'>
-                    <template v-slot:body-cell-play='props'>
-                      <q-td :props='props'>
-                        <div>
-                          <q-btn round color='purple' icon='play_arrow' @click='onPlay(props.row)'/>
-                        </div>
-                      </q-td>
-                    </template>
-                    <template v-slot:body-cell-download='props'>
-                      <q-td :props='props'>
-                        <div>
-                          <q-btn round color='teal' icon='download' @click='onDownload(props.row)'/>
-                        </div>
-                      </q-td>
-                    </template>
-                    <template v-slot:body-cell-delete='props'>
-                      <q-td :props='props'>
-                        <div>
-                          <q-btn round color='deep-orange' icon='delete' @click='onDelete(props.row)'/>
-                        </div>
-                      </q-td>
-                    </template>
-                    <template v-slot:top-left>
-                      <q-btn v-if='props.row.videoFiles.length>1' icon-right='movie_creation' :label="$t('merge')" glossy color='purple'
-                             style='margin-right: 15px;' @click='onMerge(props.row)' :disable='showMergeLoading'>
-                        <q-inner-loading :showing='showMergeLoading'/>
-                      </q-btn>
-                    </template>
-                    <template v-slot:top-right>
-                      <q-input v-if='props.row.videoFiles.length>1' borderless dense debounce='300' v-model='innerFilter' :placeholder="$t('search')">
-                        <template v-slot:append>
-                          <q-icon name='search'/>
-                        </template>
-                      </q-input>
-                    </template>
-                  </q-table>
-                </q-tr>
-              </template>
-
-              <template v-slot:top-right>
-                <q-btn icon='refresh' :label="$t('refresh')" glossy color='purple' style='margin-right: 15px;' @click='onRefresh'/>
-                <q-input borderless dense debounce='300' v-model='filter' :placeholder="$t('search')">
-                  <template v-slot:append>
-                    <q-icon name='search'/>
-                  </template>
-                </q-input>
-              </template>
-
-            </q-table>
-          </div>
-        </div>
-      </q-page>
-    </q-page-container>
-  </q-layout>
+        </q-page>
+      </q-page-container>
+    </q-layout>
+  </div>
   <q-dialog v-model='showPlayer' transition-show='rotate' transition-hide='rotate'>
     <q-card style='width: 50%; max-width: 80vw;'>
       <q-card-section>
@@ -120,23 +119,21 @@ import {StreamModel} from 'src/utils/models/stream_model';
 import {PublishService, SubscribeService} from 'src/utils/services/websocket_services';
 import {VideMergeResponseEvent} from 'src/utils/models/video_merge';
 import {useI18n} from 'vue-i18n';
+import {StoreService} from 'src/utils/services/store_service';
+import {useRouter} from 'vue-router';
 
 export default {
   name: 'SourceRecords',
   components: {
     VideoPlayer
   },
-  props: {
-    sourceId: {
-      type: String,
-      required: true
-    }
-  },
-  setup(props: any) {
+  setup() {
     const {t} = useI18n({useScope: 'global'});
     const $q = useQuasar();
+    const router = useRouter();
     const recordEnabled = ref<boolean>(false);
     const nodeService = new NodeService();
+    const storeService = new StoreService();
     const locale = ref(nodeService.LocalService.getLang() === 'tr-TR' ? createTrDateLocale() : null);
     const publishService = new PublishService();
     let connVideoMerge: WsConnection | null = null;
@@ -147,14 +144,27 @@ export default {
     const innerFilter = ref('');
     const stream = ref<StreamModel>(nodeService.LocalService.createEmptyStream());
     const nodeAddress = ref<string>('');
-    const selectedDate = ref<string>(getTodayString());
-    const showMergeLoading = ref<boolean>(false);
-    let prevProps: any = null;
+    const viewHeight = ref<number>(window.innerHeight);
 
+    const sourceId = storeService.recordSourceId;
+    watch(sourceId, async () => {
+      await dataBindStream();
+      await refresh();
+    });
+
+    const selectedDate = ref<string>(getTodayString());
     watch(selectedDate, () => {
       restoreList();
       void dataBind();
     });
+
+    const dataBindStream = async () => {
+      stream.value = await nodeService.getStream(sourceId.value);
+      recordEnabled.value = stream.value.record_enabled;
+    };
+
+    const showMergeLoading = ref<boolean>(false);
+    let prevProps: any = null;
 
     const dataBind = async () => {
       let dateStr = selectedDate.value;
@@ -162,22 +172,31 @@ export default {
         dateStr = getTodayString();
         selectedDate.value = dateStr;
       }
-      const hourStrings = await nodeService.getRecordHours(props.sourceId, dateStr);
+      const hourStrings = await nodeService.getRecordHours(sourceId.value, dateStr);
       const _hours: Hour[] = [];
       for (const hs of hourStrings) {
-        _hours.push({sourceId: props.sourceId, hour: hs, videoFiles: []});
+        _hours.push({sourceId: sourceId.value, hour: hs, videoFiles: []});
       }
       hours.value = _hours;
     };
 
+    const refresh = async () => {
+      restoreList();
+      await dataBind();
+    };
+
     onMounted(async () => {
+      if (!sourceId.value){
+        await router.push('stream_gallery');
+        return;
+      }
+
       const nodeIp = await nodeService.LocalService.getNodeIP();
       const nodePort = await nodeService.LocalService.getNodePort();
       const subscribeService = new SubscribeService(nodeIp, nodePort);
 
       nodeAddress.value = await nodeService.LocalService.getNodeAddress('');
-      stream.value = await nodeService.getStream(props.sourceId);
-      recordEnabled.value = stream.value.record_enabled;
+      await dataBindStream();
 
       await dataBind();
 
@@ -295,13 +314,13 @@ export default {
         }
         values.push(row.hour);
         const fixedSelectedDate = values.join('_');
-        void publishService.publishVideoMerge({source_id: props.sourceId, date_str: fixedSelectedDate});
+        void publishService.publishVideoMerge({source_id: sourceId.value, date_str: fixedSelectedDate});
         showMergeLoading.value = true;
       });
     };
 
     return {
-      hours, nodeAddress, selected, lastIndex, tableRef, filter, innerFilter, selectedDate, onMerge, showMergeLoading, locale,
+      hours, nodeAddress, selected, lastIndex, tableRef, filter, innerFilter, selectedDate, onMerge, showMergeLoading, locale, viewHeight,
       columns: [
         {name: 'hour', align: 'left', label: t('hour'), field: 'hour', sortable: false}
       ],
@@ -310,6 +329,7 @@ export default {
       },
 
       innerColumns: [
+        {name: 'play', align: 'center', label: t('play'), field: 'play'},
         {
           name: 'created_at',
           align: 'center',
@@ -328,7 +348,6 @@ export default {
         },
         {name: 'name', align: 'center', label: t('file_name'), field: 'name', sortable: true},
         {name: 'size', align: 'center', label: t('size_mb'), field: 'size', sortable: true},
-        {name: 'play', align: 'center', label: t('play'), field: 'play'},
         {name: 'download', align: 'center', label: t('download'), field: 'download'},
         {name: 'delete', align: 'center', label: t('delete'), field: 'delete'}
       ],
@@ -340,10 +359,7 @@ export default {
       },
 
       recordEnabled, onPlay, onDownload, onDelete, showPlayer, selectedVideo, stream,
-      onRefresh() {
-        restoreList();
-        void dataBind();
-      },
+      onRefresh : refresh,
       onRootClick
     };
   }
