@@ -384,57 +384,55 @@
 
   </div>
   <div class='q-pa-md q-gutter-sm' v-if='config&&tab==="info"'>
-    <div class='row'>
-      <q-toolbar class='bg-lime-7 text-white shadow-2 rounded-borders' style='margin-bottom: -12px;'>
-        <q-tabs v-model='otherTabs' narrow-indicator inline-label align='left'>
-          <q-tab name="gpu" icon="memory" :label="$t('gpu')"/>
-          <q-tab name='failedstreams' icon='sms_failed' :label="$t('failed_streams')"/>
-          <q-tab name='recstucks' icon='radio_button_checked' :label="$t('stuck_records')"/>
-          <q-tab name='ods' icon='collections' :label="$t('od_models')"/>
-          <q-tab name='various' icon='notes' :label="$t('various_infos')"/>
-        </q-tabs>
-      </q-toolbar>
-      <div v-if='otherTabs==="gpu"' class='q-pa-md q-gutter-sm' style='margin-left: -22px;'>
-        <GpuInfo/>
-      </div>
-      <div v-if='otherTabs==="failedstreams"' class='q-pa-md q-gutter-sm' style='margin-left: -22px;width: 100%;'>
-        <q-table :pagination='initialPagination' :rows='failedStreams' row-key='id' :columns='failedStreamsColumns'
-                 :rows-per-page-label="$t('rows_per_page')" color='lime-6'/>
-      </div>
-      <div v-if='otherTabs==="recstucks"' class='q-pa-md q-gutter-sm' style='margin-left: -22px;width: 100%;'>
-        <q-table :pagination='initialPagination' :rows='recStucks' row-key='id' :columns='recStucksColumns' color='lime-6'
-                 :rows-per-page-label="$t('rows_per_page')"/>
-      </div>
-      <div v-if='otherTabs==="ods"' class='q-pa-md q-gutter-sm' style='margin-left: -22px;width: 100%;'>
-        <q-table :pagination='initialPagination' :rows='ods' row-key='id' :columns='odColumns' color='lime-6'
-                 :rows-per-page-label="$t('rows_per_page')"/>
-      </div>
-      <div v-if='otherTabs==="various"' class='q-pa-md q-gutter-sm' style='margin-left: -22px;'>
-        <table style='width: 500px;' class="bg-teal-1">
-          <tr>
-            <td>
-              <q-input v-model='variousInfos.rtmp_port_counter' type='number' :label="$t('rtmp_counter')" readonly/>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <q-input v-model='variousInfos.ffmpeg_process_zombies.length' type='number' :label="$t('total_detected_zombie_ffmpeg_processes')"
-                       readonly/>
-            </td>
-          </tr>
-        </table>
-        <q-list bordered class='rounded-borders bg-teal-1'>
-          <q-item-label header>{{ $t('zombie_rtmp_containers') }}</q-item-label>
-          <q-item clickable v-ripple v-for='zr in variousInfos.rtmp_container_zombies' :key='zr'>
-            <q-item-section>
-              <q-item-label caption lines='2'>
-                {{ zr }}
-              </q-item-label>
-            </q-item-section>
-            <q-separator inset='item'/>
-          </q-item>
-        </q-list>
-      </div>
+    <q-toolbar class='bg-lime-7 text-white shadow-2 rounded-borders' style='width: 99.5%;margin-bottom: -20px;'>
+      <q-tabs v-model='otherTabs' narrow-indicator inline-label dense shrink stretch align='left'>
+        <q-tab name="gpu" icon="memory" :label="$t('gpu')"/>
+        <q-tab name='failedstreams' icon='sms_failed' :label="$t('failed_streams')"/>
+        <q-tab name='recstucks' icon='radio_button_checked' :label="$t('stuck_records')"/>
+        <q-tab name='ods' icon='collections' :label="$t('od_models')"/>
+        <q-tab name='various' icon='notes' :label="$t('various_infos')"/>
+      </q-tabs>
+    </q-toolbar>
+    <div v-if='otherTabs==="gpu"' style="margin-top: 25px;">
+      <GpuInfo/>
+    </div>
+    <div v-if='otherTabs==="failedstreams"' style="margin-top: 25px;">
+      <q-table :pagination='initialPagination' :rows='failedStreams' row-key='id' :columns='failedStreamsColumns'
+               :rows-per-page-label="$t('rows_per_page')" color='lime-6'/>
+    </div>
+    <div v-if='otherTabs==="recstucks"' style="margin-top: 25px;">
+      <q-table :pagination='initialPagination' :rows='recStucks' row-key='id' :columns='recStucksColumns' color='lime-6'
+               :rows-per-page-label="$t('rows_per_page')"/>
+    </div>
+    <div v-if='otherTabs==="ods"' style="margin-top: 25px;">
+      <q-table :pagination='initialPagination' :rows='ods' row-key='id' :columns='odColumns' color='lime-6'
+               :rows-per-page-label="$t('rows_per_page')"/>
+    </div>
+    <div v-if='otherTabs==="various"' style="margin-top: 35px">
+      <table style='width: 500px;' class="bg-teal-1">
+        <tr>
+          <td>
+            <q-input v-model='variousInfos.rtmp_port_counter' type='number' :label="$t('rtmp_counter')" readonly/>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <q-input v-model='variousInfos.ffmpeg_process_zombies.length' type='number' :label="$t('total_detected_zombie_ffmpeg_processes')"
+                     readonly/>
+          </td>
+        </tr>
+      </table>
+      <q-list bordered class='rounded-borders bg-teal-1' style="max-width: 300px;margin-top: 15px;">
+        <q-item-label header>{{ $t('zombie_rtmp_containers') }}</q-item-label>
+        <q-item clickable v-ripple v-for='zr in variousInfos.rtmp_container_zombies' :key='zr'>
+          <q-item-section>
+            <q-item-label caption lines='2'>
+              {{ zr }}
+            </q-item-label>
+          </q-item-section>
+          <q-separator inset='item'/>
+        </q-item>
+      </q-list>
     </div>
   </div>
   <!--  <div class='q-pa-md q-gutter-sm' v-if='config&&tab==="others"'>-->
