@@ -2,17 +2,16 @@
   <q-layout view='lHh lpr lFf' container style='height: 600px' class='shadow-2 rounded-borders'>
     <q-header elevated class='bg-cyan'>
       <q-toolbar>
-        <q-btn flat round dense icon='settings'/>
         <q-toolbar-title>
-          <label v-if="!insertMode" style='text-transform: uppercase;font-size: medium'> {{ source.name }}</label>
-          <q-btn v-if="insertMode" dense flat glossy icon-right='auto_awesome' :label="$t('add_new_source_quickly')"
+          <CommandBar :show-restore='false' @on-save='onSave' :inactive-save='inactives.save' @on-delete='onDelete' :show-delete="source.id.length>0"
+                      :inactive-delete='inactives.delete' :show-refresh="false"/>
+          <q-btn v-if="insertMode" class="gt-xs" dense flat icon='auto_awesome' :label="$t('add_new_source_quickly')"
                  @click="showQuickWizard=true">
             <q-tooltip>{{ $t('t_add_new_source_quickly') }}</q-tooltip>
           </q-btn>
         </q-toolbar-title>
+        <label v-if="!insertMode" style='text-transform: uppercase;font-size: medium'> {{ source.name }}</label>
         <q-space/>
-        <CommandBar :show-restore='false' @on-save='onSave' :inactive-save='inactives.save' @on-delete='onDelete' :show-delete="source.id.length>0"
-                    :inactive-delete='inactives.delete' :show-refresh="false"/>
         <q-btn dense flat icon='close' v-close-popup>
           <q-tooltip class='bg-white text-primary'>{{ $t('close') }}</q-tooltip>
         </q-btn>
@@ -21,9 +20,8 @@
 
     <q-page-container>
       <q-page padding style='background-color: whitesmoke;'>
-
         <div class='q-pa-md'>
-          <q-btn-group push>
+          <q-btn-group class="gt-xs">
             <q-btn push :label="$t('basics')" color='cyan' icon='videocam' @click='step=1'/>
             <q-btn push :label="$t('connection')" color='cyan' icon='power' @click='step=2'/>
             <q-btn push :label="$t('input')" color='cyan' icon='input' @click='step=3'/>
@@ -319,7 +317,7 @@
       </q-card-section>
       <q-separator/>
       <q-card-actions align="right">
-        <q-btn flat color="cyan" glossy :label="$t('find_best_settings')" icon-right="auto_awesome" @click="onFindOptimalSettings2"
+        <q-btn flat color="cyan" :label="$t('find_best_settings')" icon-right="auto_awesome" @click="onFindOptimalSettings2"
                :disable="quickWizardShowing">
           <q-inner-loading :showing="quickWizardShowing"/>
         </q-btn>
