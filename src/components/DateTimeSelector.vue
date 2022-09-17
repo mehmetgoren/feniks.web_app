@@ -1,6 +1,6 @@
 <template>
   <table>
-    <tr>
+    <tr class="gt-xs">
       <td>
         <q-input :label="labelDate" v-model='selectedDate' mask='YYYY-MM-DD' type='date' filled :dense="dense" :color='color' readonly
                  style='cursor: pointer;width: 155px;' :style="{width:widthDate<1?'155px':widthDate.toString() + 'px'}">

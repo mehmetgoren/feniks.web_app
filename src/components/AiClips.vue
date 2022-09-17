@@ -13,7 +13,7 @@
     <q-page-container style="margin-top: -15px">
       <q-page padding style='background-color: whitesmoke;'>
         <div class='row'>
-          <div class='col-12'>
+          <div class='col-12' style="margin-top: -8px;">
             <q-table title='Video Clips' :rows='rows' :columns='columns'
                      virtual-scroll :virtual-scroll-item-size='48' :pagination='pagination'
                      :rows-per-page-options='[0]' :rows-per-page-label="$t('rows_per_page')"
@@ -76,7 +76,7 @@
                 </q-tr>
               </template>
               <template v-slot:top-right>
-                <q-btn icon='refresh' :label="$t('refresh')" :color='color' style='margin-right: 15px;' @click='onRefresh'/>
+                <q-btn class="gt-xs" icon='refresh' :label="$t('refresh')" :color='color' style='margin-right: 15px;' @click='onRefresh'/>
                 <DateTimeSelector :dense="true" :color='color' :show-hour='true' :label-date="$t('date')" :label-time="$t('time')"
                                   @date-changed='onDateChanged' @hour-changed='onHourChanged'/>
               </template>

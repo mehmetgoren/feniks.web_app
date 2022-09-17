@@ -66,7 +66,7 @@
               </q-item-section>
               <q-item-section v-if='link.isSource'>
                 <q-img :src="'data:image/png;base64, ' + (link.thumbnail ? link.thumbnail : emptyBase64Image)" spinner-color='white'
-                       style='height: 80px; width: 200px; cursor: pointer;' class='rounded-borders'>
+                       style='height: 80px; width: 200px; cursor: pointer;' class="shadow-2">
                   <div class='absolute-bottom text-subtitle1 three-dots'>
                     <q-icon v-if='sourceStreamStatus[link.id]&&sourceStreamStatus[link.id].streaming' name='live_tv' color='green'
                             style='margin-right: 3px;'
@@ -82,7 +82,7 @@
                   </q-inner-loading>
                 </q-img>
               </q-item-section>
-              <q-btn-dropdown v-if='link.isSource' color='primary' dropdown-icon='settings' :dense='true'>
+              <q-btn-dropdown v-if='link.isSource' color='primary' dropdown-icon='settings' :dense='true' square>
                 <q-list>
                   <q-item clickable v-close-popup @click='onStartStreaming(link)' v-ripple>
                     <q-item-section side>

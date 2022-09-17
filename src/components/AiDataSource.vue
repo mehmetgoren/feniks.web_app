@@ -14,8 +14,8 @@
       <div class="row">
         <div class="col-3">
           <DateTimeSelector width-date="187" :dense="true" :color='color' :show-hour='true' :label-date="$t('date')" :label-time="$t('time')"
-                            @date-changed='onDateChanged' @hour-changed='onHourChanged'/>
-          <q-toggle dense v-model='params.no_preparing_video_file' :color='color' @update:model-value='onNoPreparingVideoFileChanged'
+                            @date-changed='onDateChanged' @hour-changed='onHourChanged' class="gt-sm"/>
+          <q-toggle dense v-model='params.no_preparing_video_file' :color='color' @update:model-value='onNoPreparingVideoFileChanged' class="gt-sm"
                     :label="params.no_preparing_video_file ? $t('include_preparing_video_file') : $t('do_not_include_preparing_video_file') " />
           <q-input dense filled v-model.trim='params.pred_class_name' :label="$t('label')" :color='color' @update:model-value="onLabelChanged" style="width: 300px" />
         </div>
@@ -63,12 +63,15 @@
           </div>
         </div>
         <div class="col-9" style="margin-top: -65px;">
-          <VideoPlayer :auto-play="true" @on-player-ready="onVideoPlayerReady" style="float: left;width: 50%"/>
+          <VideoPlayer v-show="selectedItem" :auto-play="true" @on-player-ready="onVideoPlayerReady" style="float: left;width: 50%"/>
           <q-img v-if="selectedItem" :src="selectedItem.image_file_name" style="float: left;width: 50%">
             <div class="absolute-bottom text-center">
               {{selectedItem.pred_cls_name}} ({{selectedItem.pred_score}}) at {{selectedItem.created_at?.toLocaleTimeString()}} / {{selectedItem.video_file.object_appears_at}} sec.
             </div>
           </q-img>
+          <q-inner-loading :showing="leftPanelLoading">
+            <q-spinner-gears  size="150px" :color="color" />
+          </q-inner-loading>
         </div>
       </div>
     </div>
@@ -152,6 +155,11 @@ export default {
           const firstItem = leftItems.value[0];
           selectedItem.value = firstItem;
           onLeftItemChanged(firstItem);
+        }else{
+          selectedItem.value = null;
+          if (videoPlayer){
+            videoPlayer.pause();
+          }
         }
       }finally {
         leftPanelLoading.value = false;
