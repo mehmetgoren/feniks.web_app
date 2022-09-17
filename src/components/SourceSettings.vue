@@ -12,7 +12,7 @@
         </q-toolbar-title>
         <q-space/>
         <CommandBar :show-restore='false' @on-save='onSave' :inactive-save='inactives.save' @on-delete='onDelete' :show-delete="source.id.length>0"
-                    :inactive-delete='inactives.delete'/>
+                    :inactive-delete='inactives.delete' :show-refresh="false"/>
         <q-btn dense flat icon='close' v-close-popup>
           <q-tooltip class='bg-white text-primary'>{{ $t('close') }}</q-tooltip>
         </q-btn>

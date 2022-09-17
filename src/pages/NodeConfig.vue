@@ -1,6 +1,6 @@
 <template>
   <div class='q-pa-md q-gutter-sm' style='margin-bottom: -35px;'>
-    <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='width: 99.5%' >
+    <q-toolbar class='bg-cyan text-white shadow-2 rounded-borders' style='width: 99.5%'>
       <label style='text-transform: uppercase;font-size: medium; font-weight: bold;margin-right: 15px;'> {{ currentNode.name }}</label>
       <q-tabs v-model='tab' narrow-indicator inline-label dense shrink stretch align='left' :breakpoint="0">
         <q-tab name='config' icon='settings_applications' :label="$t('config')"/>
@@ -17,7 +17,8 @@
       <div class='col-4'>
         <q-card class="my-card" flat bordered>
           <q-card-section class="bg-cyan text-white">
-            <CommandBar v-if='tab==="config"' :show-delete='false' @on-save='onSave' @on-restore='onRestore'></CommandBar>
+            <CommandBar v-if='tab==="config"' :show-delete='false' @on-save='onSave' @on-restore='onRestore'
+                        :show-refresh="true" :inactive-refresh="loadingConfig" @on-refresh="configDatabind"/>
           </q-card-section>
           <q-separator/>
           <q-card-section>
@@ -295,7 +296,7 @@
       </q-card-section>
       <q-separator/>
       <q-table :pagination='initialPagination' :rows='services' row-key='name' :columns='servicesColumns' color='yellow-14'
-               :rows-per-page-label="$t('rows_per_page')">
+               :rows-per-page-label="$t('rows_per_page')" :filter="filterServices" :loading="loadingServices">
 
         <template v-slot:body-cell-restart='props'>
           <q-td :props='props' v-if="props.row.instance_type===1">
@@ -324,6 +325,19 @@
           </q-td>
         </template>
 
+        <template v-slot:top-right>
+          <q-btn icon='refresh' :label="$t('refresh')" color='yellow-14' style='margin-right: 15px;' @click='serviceDataBind'/>
+          <q-input borderless dense debounce='300' v-model='filterServices' :placeholder="$t('search')">
+            <template v-slot:append>
+              <q-icon name='search'/>
+            </template>
+          </q-input>
+        </template>
+
+        <template v-slot:loading>
+          <q-inner-loading showing color="lime-6"/>
+        </template>
+
       </q-table>
     </q-card>
     <q-space style='height: 10px;'/>
@@ -336,7 +350,7 @@
       </q-card-section>
       <q-separator/>
       <q-table :pagination='initialPagination' :rows='users' row-key='id' :columns='userColumns' color='teal'
-               :rows-per-page-label="$t('rows_per_page')">
+               :rows-per-page-label="$t('rows_per_page')" :filter="filterUsers" :loading="loadingUsers">
         <template v-slot:body-cell-delete='props'>
           <q-td :props='props'>
             <div>
@@ -346,6 +360,20 @@
             </div>
           </q-td>
         </template>
+
+        <template v-slot:top-right>
+          <q-btn icon='refresh' :label="$t('refresh')" color='teal' style='margin-right: 15px;' @click='userDataBind'/>
+          <q-input borderless dense debounce='300' v-model='filterUsers' :placeholder="$t('search')">
+            <template v-slot:append>
+              <q-icon name='search'/>
+            </template>
+          </q-input>
+        </template>
+
+        <template v-slot:loading>
+          <q-inner-loading showing color="teal"/>
+        </template>
+
       </q-table>
     </q-card>
     <q-space style='height: 10px;'/>
@@ -365,7 +393,22 @@
         </q-btn>
         <q-space style='height: 10px;'/>
         <q-table :title="$t('scan_network_results')" :rows='networkScanResults.results' :columns='networkColumns'
-                 row-key='address' :pagination='initialPagination' color='brown-5' :rows-per-page-label="$t('rows_per_page')"/>
+                 row-key='address' :pagination='initialPagination' color='brown-5' :rows-per-page-label="$t('rows_per_page')"
+        :loading="showScanLoading" :filter="filterNetworkScanResults">
+
+          <template v-slot:top-right>
+            <q-input borderless dense debounce='300' v-model='filterNetworkScanResults' :placeholder="$t('search')">
+              <template v-slot:append>
+                <q-icon name='search'/>
+              </template>
+            </q-input>
+          </template>
+
+          <template v-slot:loading>
+            <q-inner-loading showing color="brown-5"/>
+          </template>
+
+        </q-table>
       </q-card-section>
     </q-card>
     <q-space style='height: 10px;'/>
@@ -378,7 +421,20 @@
       </q-card-section>
       <q-separator/>
       <q-table :pagination='initialPagination' :rows='rtmpTemplates' row-key='id' :columns='rtmpTemplatesColumns' color='light-blue-6'
-               :rows-per-page-label="$t('rows_per_page')"/>
+               :rows-per-page-label="$t('rows_per_page')" :loading="loadingRtmpTemplates" :filter="filterRtmpTemplates">
+        <template v-slot:top-right>
+          <q-btn icon='refresh' :label="$t('refresh')" color='light-blue-6' style='margin-right: 15px;' @click='rtmpTemplatesDataBind'/>
+          <q-input borderless dense debounce='300' v-model='filterRtmpTemplates' :placeholder="$t('search')">
+            <template v-slot:append>
+              <q-icon name='search'/>
+            </template>
+          </q-input>
+        </template>
+
+        <template v-slot:loading>
+          <q-inner-loading showing color="light-blue-6"/>
+        </template>
+      </q-table>
     </q-card>
     <q-space style='height: 10px;'/>
 
@@ -398,21 +454,48 @@
     </div>
     <div v-if='otherTabs==="failedstreams"' style="margin-top: 25px;">
       <q-table :pagination='initialPagination' :rows='failedStreams' row-key='id' :columns='failedStreamsColumns'
-               :rows-per-page-label="$t('rows_per_page')" color='lime-6'/>
+               :rows-per-page-label="$t('rows_per_page')" color='lime-6' :loading="loadingFailedStreams">
+        <template v-slot:top-right>
+          <q-btn icon='refresh' :label="$t('refresh')" glossy color='lime-6' style='margin-right: 15px;' @click='failedStreamsDatabind'/>
+        </template>
+        <template v-slot:loading>
+          <q-inner-loading showing color="lime-6"/>
+        </template>
+      </q-table>
     </div>
     <div v-if='otherTabs==="recstucks"' style="margin-top: 25px;">
       <q-table :pagination='initialPagination' :rows='recStucks' row-key='id' :columns='recStucksColumns' color='lime-6'
-               :rows-per-page-label="$t('rows_per_page')"/>
+               :rows-per-page-label="$t('rows_per_page')" :loading="loadingRecStucks">
+        <template v-slot:top-right>
+          <q-btn icon='refresh' :label="$t('refresh')" glossy color='lime-6' style='margin-right: 15px;' @click='recStucksDatabind'/>
+        </template>
+        <template v-slot:loading>
+          <q-inner-loading showing color="lime-6"/>
+        </template>
+      </q-table>
     </div>
     <div v-if='otherTabs==="ods"' style="margin-top: 25px;">
       <q-table :pagination='initialPagination' :rows='ods' row-key='id' :columns='odColumns' color='lime-6'
-               :rows-per-page-label="$t('rows_per_page')"/>
+               :rows-per-page-label="$t('rows_per_page')" :loading="loadingOds">
+        <template v-slot:top-right>
+          <q-btn icon='refresh' :label="$t('refresh')" glossy color='lime-6' style='margin-right: 15px;' @click='odsDatabind'/>
+        </template>
+        <template v-slot:loading>
+          <q-inner-loading showing color="lime-6"/>
+        </template>
+      </q-table>
     </div>
     <div v-if='otherTabs==="various"' style="margin-top: 35px">
       <table style='width: 500px;' class="bg-teal-1">
         <tr>
           <td>
             <q-input v-model='variousInfos.rtmp_port_counter' type='number' :label="$t('rtmp_counter')" readonly/>
+          </td>
+          <td>
+            <q-btn icon='refresh' :label="$t('refresh')" glossy color='lime-6' style='margin-right: 15px;' @click='variousInfosDataBind'
+                   :disable="loadingVariousInfo">
+              <q-inner-loading :showing="loadingVariousInfo" color="lime-6"/>
+            </q-btn>
           </td>
         </tr>
         <tr>
@@ -457,7 +540,7 @@ import {
 } from 'src/utils/models/config';
 import {PublishService, SubscribeService} from 'src/utils/services/websocket_services';
 import {NetworkDiscoveryModel, OnvifAction, OnvifEvent} from 'src/utils/models/onvif_models';
-import {fixArrayDates, myDateToJsDate} from 'src/utils/utils';
+import {databindWithLoading, fixArrayDates, myDateToJsDate} from 'src/utils/utils';
 import {WsConnection} from 'src/utils/ws/connection';
 import {ServiceModel} from 'src/utils/models/service_model';
 import {User} from 'src/utils/models/user_model';
@@ -481,6 +564,7 @@ export default {
     const nodeService = new NodeService();
     const publishService = new PublishService();
     const config = ref<Config>();
+    const loadingConfig = ref<boolean>(false);
     const device = ref<DeviceConfig>();
     const general = ref<GeneralConfig>();
     const db = ref<DbConfig>();
@@ -512,21 +596,32 @@ export default {
 
     const showScanLoading = ref<boolean>(false);
     const networkScanResults = ref<NetworkDiscoveryModel>({});
+    const filterNetworkScanResults = ref<string>('');
     let connOnvif: WsConnection | null = null;
 
     const currentNode = ref<Node>(nodeService.LocalService.createEmptyNode());
 
     const services = ref<ServiceModel[]>([]);
+    const loadingServices = ref<boolean>(false);
+    const filterServices = ref<string>('');
     const restartLoading = ref<any>({});
     const startLoading = ref<any>({});
     const stopLoading = ref<any>({});
     const users = ref<User[]>([]);
+    const loadingUsers = ref<boolean>(false);
+    const filterUsers = ref<string>('');
     const rtmpTemplates = ref<RtspTemplateModel[]>([]);
+    const loadingRtmpTemplates = ref<boolean>(false);
+    const filterRtmpTemplates = ref<string>('');
 
     const failedStreams = ref<FailedStreamModel[]>([]);
+    const loadingFailedStreams = ref<boolean>(false);
     const recStucks = ref<RecStuckModel[]>([]);
+    const loadingRecStucks = ref<boolean>(false);
     const variousInfos = ref<VariousInfos>({rtmp_port_counter: 0, rtmp_container_zombies: [], ffmpeg_process_zombies: []});
+    const loadingVariousInfo = ref<boolean>(false);
     const ods = ref<OdModel[]>([]);
+    const loadingOds = ref<boolean>(false);
 
     const setConfigValue = (c: Config) => {
       device.value = c.device;
@@ -545,19 +640,63 @@ export default {
       archive.value = c.archive;
     };
 
+    const configDatabind = async () => {
+      await databindWithLoading(loadingConfig, async () => {
+        config.value = await nodeService.getConfig();
+        setConfigValue(config.value);
+      });
+    }
+
     const serviceDataBind = async () => {
-      const svcs = await nodeService.getServices();
-      for (const svc of svcs) {
-        restartLoading.value[svc.name] = false;
-      }
-      fixArrayDates(svcs, 'created_at', 'heartbeat');
-      services.value = svcs;
+      await databindWithLoading(loadingServices, async () => {
+        const svcs = await nodeService.getServices();
+        for (const svc of svcs) {
+          restartLoading.value[svc.name] = false;
+        }
+        fixArrayDates(svcs, 'created_at', 'heartbeat');
+        services.value = svcs;
+      });
     };
 
     const userDataBind = async () => {
-      const usrs = await nodeService.getUsers();
-      fixArrayDates(usrs, 'last_login_at');
-      users.value = usrs;
+      await databindWithLoading(loadingUsers, async () => {
+        const usrs = await nodeService.getUsers();
+        fixArrayDates(usrs, 'last_login_at');
+        users.value = usrs;
+      });
+    };
+
+    const failedStreamsDatabind = async () => {
+      await databindWithLoading(loadingFailedStreams, async () => {
+        failedStreams.value = await nodeService.getFailedStreams();
+        fixArrayDates(failedStreams.value, 'last_check_at');
+      });
+    };
+
+    const recStucksDatabind = async () => {
+      await databindWithLoading(loadingRecStucks, async () => {
+        recStucks.value = await nodeService.getRecStucks();
+        fixArrayDates(recStucks.value, 'last_check_at');
+      });
+    };
+
+    const odsDatabind = async () => {
+      await databindWithLoading(loadingOds, async () => {
+        ods.value = await nodeService.getOds();
+        fixArrayDates(ods.value, 'created_at');
+      });
+    }
+
+    const variousInfosDataBind = async () => {
+      await databindWithLoading(loadingVariousInfo, async () => {
+        variousInfos.value = await nodeService.getVariousInfos();
+      });
+    };
+
+    const rtmpTemplatesDataBind = async ()=> {
+      await databindWithLoading(loadingRtmpTemplates, async () => {
+        rtmpTemplates.value = await nodeService.getRtspTemplates();
+      });
     };
 
     onMounted(async () => {
@@ -569,8 +708,7 @@ export default {
       if (an) {
         currentNode.value = an;
       }
-      config.value = await nodeService.getConfig();
-      setConfigValue(config.value);
+      await configDatabind();
       const on = await nodeService.getOnvifNetwork();
       if (on) {
         networkScanResults.value = on;
@@ -580,18 +718,12 @@ export default {
       await serviceDataBind();
       await userDataBind();
 
-      rtmpTemplates.value = await nodeService.getRtspTemplates();
+      await rtmpTemplatesDataBind();
 
-      failedStreams.value = await nodeService.getFailedStreams();
-      fixArrayDates(failedStreams.value, 'last_check_at');
-
-      recStucks.value = await nodeService.getRecStucks();
-      fixArrayDates(recStucks.value, 'last_check_at');
-
-      variousInfos.value = await nodeService.getVariousInfos();
-
-      ods.value = await nodeService.getOds();
-      fixArrayDates(ods.value, 'created_at');
+      await failedStreamsDatabind();
+      await recStucksDatabind();
+      await odsDatabind();
+      await variousInfosDataBind();
 
       connOnvif = subscribeService.subscribeOnvif((event: MessageEvent) => {
         const result: OnvifEvent = JSON.parse(event.data);
@@ -656,8 +788,10 @@ export default {
     return {
       config, device, optDeviceTypes, onceDetector, sourceReader,
       jetson, jetsonFilter, ffmpeg, tf, ai, general, ui, jobs, db, dbTypes, deepstack, archive,
-      torch, torchFilter, tfFilter, showScanLoading, users, restartLoading, startLoading, stopLoading,
+      torch, torchFilter, tfFilter, showScanLoading, users, restartLoading, startLoading, stopLoading, loadingConfig,
       deepStackPerOpts, deepStackDockerTypes, archiveActionTypes,
+      loadingFailedStreams, loadingRecStucks, loadingOds, loadingVariousInfo,
+      filterServices, loadingServices, loadingUsers, filterUsers, filterNetworkScanResults,
       currentNode, tab: ref<string>('config'),
       imageExtensions: ['jpg', 'jpeg', 'png', 'bmp', 'gif'],
       onSave, onRestore, onScanNetwork: function () {
@@ -685,9 +819,10 @@ export default {
       otherTabs: ref<string>('gpu'),
       failedStreams, failedStreamsColumns: createFailedStreamsColumns(t),
       recStucks, recStucksColumns: createRecStucksColumns(t),
-      variousInfos,
+      variousInfos, loadingRtmpTemplates, filterRtmpTemplates,
       ods, odColumns: createOdColumns(t),
-      onRestartService, onStartService, onStopService
+      onRestartService, onStartService, onStopService, serviceDataBind, userDataBind, rtmpTemplatesDataBind,
+      failedStreamsDatabind, recStucksDatabind, odsDatabind, variousInfosDataBind, configDatabind
     };
   }
 };
@@ -764,7 +899,6 @@ function createRtmpTemplatesColumns(t: any) {
     {name: 'default_user', align, label: t('default_user'), field: 'default_user', sortable: true},
     {name: 'default_password', align, label: t('default_password'), field: 'default_password', sortable: true},
     {name: 'default_port', align, label: t('default_port'), field: 'default_port', sortable: true},
-    {name: 'address', align, label: t('address'), field: 'address', sortable: true},
     {name: 'route', align, label: t('route'), field: 'route', sortable: true},
     {name: 'templates', align, label: t('templates2'), field: 'templates', sortable: true}
   ];

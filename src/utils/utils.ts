@@ -262,6 +262,16 @@ export function listenWindowSizeChangesForScrollBar(refHeight: any) {
   }, true);
 }
 
+export async function databindWithLoading(loading: any, fn : ()=> Promise<void> ){
+  loading.value = true;
+  try{
+    await fn();
+  }
+  finally {
+    loading.value = false;
+  }
+}
+
 export async function doUserLogout(localService: LocalService, storeService: StoreService, router: any) {
   localService.setCurrentUser(null);
   storeService.setCurrentUser(null);

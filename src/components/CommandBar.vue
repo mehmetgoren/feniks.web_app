@@ -9,13 +9,16 @@
     <q-btn v-if='showRestore' flat push :label="$t('restore')"  icon='restore_page' @click='onRestore' :disable='inactiveRestore'>
       <q-inner-loading :showing='inactiveRestore' />
     </q-btn>
+    <q-btn v-if='showRefresh' flat push :label="$t('refresh')"  icon='refresh' @click='onRefresh' :disable='inactiveRefresh'>
+      <q-inner-loading :showing='inactiveRefresh' />
+    </q-btn>
   </q-btn-group>
 </template>
 
 <script>
 export default {
   name: 'CommandBar',
-  emits: ['on-save', 'on-delete', 'on-restore'],
+  emits: ['on-save', 'on-delete', 'on-restore', 'on-refresh'],
 
   props: {
     showSave: {
@@ -42,6 +45,14 @@ export default {
       type: Boolean,
       default: false
     },
+    showRefresh: {
+      type: Boolean,
+      default: true
+    },
+    inactiveRefresh:{
+      type: Boolean,
+      default: false
+    }
   },
 
   setup(props, { emit }) {
@@ -54,6 +65,9 @@ export default {
       },
       onRestore(e) {
         emit('on-restore', e);
+      },
+      onRefresh(e){
+        emit('on-refresh', e);
       }
     };
   }

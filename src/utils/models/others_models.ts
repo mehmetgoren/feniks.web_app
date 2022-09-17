@@ -6,7 +6,6 @@ export interface RtspTemplateModel {
   default_user: string;
   default_password: string;
   default_port: string;
-  address: string;
   route: string;
   templates: string;
 }
