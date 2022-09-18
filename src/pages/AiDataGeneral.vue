@@ -15,24 +15,24 @@
       </div>
     </div>
     <div class="row" style="margin-top: 15px;">
-      <div class="col-3">
+      <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 col-xl-3">
         <DateTimeSelector :width-date="200" :width-time="125" :label-date="$t('start_date')" :label-time="$t('start_time')"
-                          :color='color' :dense="false" :show-hour='true' :allow-minute-selection="true" @date-time-changed='onStartDateTimeChanged'
+                          :color='color' :dense="true" :show-hour='true' :allow-minute-selection="true" @date-time-changed='onStartDateTimeChanged'
                           :date-string="parseDate(params.start_date_time_str)" :time-string="parseTime(params.start_date_time_str)"/>
       </div>
-      <div class="col-3">
+      <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 col-xl-3">
         <DateTimeSelector :width-date="200" :width-time="125" :label-date="$t('end_date')" :label-time="$t('end_time')"
-                          :color='color' :dense="false" :show-hour='true' :allow-minute-selection="true" @date-time-changed='onEndDateTimeChanged'
+                          :color='color' :dense="true" :show-hour='true' :allow-minute-selection="true" @date-time-changed='onEndDateTimeChanged'
                           :date-string="parseDate(params.end_date_time_str)" :time-string="parseTime(params.end_date_time_str)"/>
       </div>
-      <div class="col-3">
-        <q-select emit-value map-options filled style="width: 300px" @update:model-value="onSourceIdChanged"
+      <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 col-xl-3">
+        <q-select emit-value map-options filled style="max-width: 300px;margin-top: 3px;" @update:model-value="onSourceIdChanged"
                   v-model='params.source_id' :color='color' option-value="id" option-label="name"
-                  :options='sources' :label="$t('camera')" clearable/>
+                  :options='sources' :label="$t('camera')" clearable dense/>
       </div>
-      <div class="col-3">
+      <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 col-xl-3">
         <q-input filled v-model.trim='params.pred_class_name' :label="$t('label')" :color='color' @update:model-value="onLabelChanged"
-                 style="width: 300px">
+                 style="max-width: 300px;margin-top: 3px;" dense>
           <template v-if="params.pred_class_name" v-slot:append>
             <q-icon name="cancel" @click="onLabelClear" class="cursor-pointer"/>
           </template>
@@ -62,6 +62,9 @@
             </q-btn>
             <q-space style="margin-left: 5px;"/>
             <q-btn icon='refresh' :label="$t('refresh')" :color='color' @click='dataBind'/>
+          </template>
+          <template v-slot:loading>
+            <q-inner-loading showing :color="color" />
           </template>
         </q-table>
       </div>
@@ -146,7 +149,7 @@ import VideoPlayer from 'src/components/VideoPlayer.vue';
 import DateTimeSelector from 'components/DateTimeSelector.vue';
 import {SourceModel} from 'src/utils/models/source_model';
 import {NodeService} from 'src/utils/services/node_service';
-import {deepCopy, downloadFile, getAddedHour, getPrevHourDatetime, getTodayString, myDateToJsDate} from 'src/utils/utils';
+import {databindWithLoading, deepCopy, downloadFile, getAddedHour, getPrevHourDatetime, getTodayString, myDateToJsDate} from 'src/utils/utils';
 import {setUpDatesAndPaths} from 'src/utils/path_utils';
 import {useQuasar, exportFile} from 'quasar';
 import {useI18n} from 'vue-i18n';
@@ -225,9 +228,11 @@ export default {
     let videoPlayer: any = null;
 
     async function dataBind() {
-      pagination.value.rowsNumber = await nodeService.queryAiDataCount(params.value);
-      const items = await nodeService.queryAiDataAdvanced(params.value);
-      rows.value = await setUpDatesAndPaths(nodeService.LocalService, items);
+      await databindWithLoading(loading, async () => {
+        pagination.value.rowsNumber = await nodeService.queryAiDataCount(params.value);
+        const items = await nodeService.queryAiDataAdvanced(params.value);
+        rows.value = await setUpDatesAndPaths(nodeService.LocalService, items);
+      });
     }
 
     onMounted(async () => {

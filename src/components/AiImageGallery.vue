@@ -14,7 +14,7 @@
           <div style='background-color: whitesmoke;margin-right: 5px;'>
             <DateTimeSelector :dense="true" :color='color' :show-hour='false' :label-date="$t('date')" @date-changed='onDateChanged'/>
           </div>
-          <q-btn :color='color' :label="$t('refresh')" icon='restore_page' @click='onRefresh' :disable='refreshLoading'>
+          <q-btn class="gt-xs" :color='color' :label="$t('refresh')" icon='restore_page' @click='onRefresh' :disable='refreshLoading'>
             <q-inner-loading :showing='refreshLoading' />
           </q-btn>
         </q-toolbar>

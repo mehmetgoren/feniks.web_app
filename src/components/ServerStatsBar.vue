@@ -1,7 +1,7 @@
 <template>
   <div class='q-pa-md q-gutter-sm'>
     <div v-if='cpu' class='row'>
-      <span class='q-ml-sm' style='font-size: large'>{{ currentNode.name }} / {{ currentNode.node_address }}</span>
+      <span class='q-ml-sm' style='font-size: large'>{{ currentNode.name }} <span class="gt-md"> / {{ currentNode.node_address }}</span></span>
     </div>
     <q-inner-loading v-if='showLoading' :showing='true' :label="$t('pleasewait')" label-class='text-cyan' label-style='font-size: 1.1em'>
       <q-spinner-hourglass size='75%' color='cyan' />
