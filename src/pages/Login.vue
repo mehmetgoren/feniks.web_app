@@ -10,7 +10,7 @@
                   <q-toolbar class='text-primary'>
                     <q-img src='/pheoenix/phoenix.png' width='64px' no-spinner no-transition/>
                     <q-toolbar-title>
-                      <h4 class='text-h5 text-white q-my-md' style='margin-left: 15px'>FENIKS® iVMS</h4>
+                      <h4 class='text-h5 text-white q-my-md' style='margin-left: 15px'>FENIKS® iNVR</h4>
                     </q-toolbar-title>
                   </q-toolbar>
                 </q-card-section>
@@ -118,6 +118,7 @@ import {useRouter} from 'vue-router';
 import {StoreService} from 'src/utils/services/store_service';
 import {useI18n} from 'vue-i18n';
 import {scrollbarInit, setupLocale} from 'src/utils/utils';
+import {auto as followSystemColorScheme, disable as disableDarkMode, exportGeneratedCSS as collectCSS} from 'darkreader';
 
 export default {
   name: 'Login',
@@ -142,11 +143,21 @@ export default {
       nodeService.LocalService.setLang(<any>newValue);
     });
 
+    const constInitDarkTheme = async () => {
+      //@ts-ignore
+      followSystemColorScheme(true);
+      await collectCSS();
+
+      disableDarkMode();
+    };
+
     onMounted(async () => {
       setupLocale(nodeService.LocalService, locale, $q);
       mode.value = await nodeRepository.hasAnyNode() ? Mode.Login : Mode.Nodes;
 
       scrollbarInit('login-view');
+
+      await constInitDarkTheme();
     });
 
     const onLogin = async () => {

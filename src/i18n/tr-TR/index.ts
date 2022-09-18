@@ -445,4 +445,7 @@ export default {
   token:'Token',
   player:'Oynatıcı',
   flv_player:'FLV Oynatıcı',
+  please_wait: 'Lütfen Bekleyin',
+  light_theme:'Açık Tema',
+  dark_theme:'Siyah Tema',
 };

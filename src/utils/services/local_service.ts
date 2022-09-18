@@ -115,6 +115,20 @@ export class LocalService {
     localStorage.removeItem(sourceId);
   }
 
+  public saveTheme(theme: Themes){
+    const currentUser = this.getCurrentUser();
+    if (!currentUser) return;
+    localStorage.setItem(`theme_${currentUser.token}`, theme.toString());
+  }
+
+  public getTheme(): Themes{
+    const currentUser = this.getCurrentUser();
+    if (!currentUser) return Themes.Light;
+    const themeStr = localStorage.getItem(`theme_${currentUser.token}`);
+    if (!themeStr)  return Themes.Light;
+    return <Themes>parseInt(themeStr);
+  }
+
   public createRtspTransport(): SelectOption[] {
     return [
       {value: 0, label: 'Auto'},
@@ -723,4 +737,9 @@ export interface GsLocation {
   h: number;
   x: number;
   y: number;
+}
+
+export enum Themes{
+  Light = 0,
+  Dark = 1
 }

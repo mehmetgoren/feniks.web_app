@@ -445,4 +445,7 @@ export default {
   token:'Token',
   player:'Player',
   flv_player:'FLV Player',
+  please_wait: 'Please Wait',
+  light_theme:'Light Theme',
+  dark_theme:'Dark Theme',
 };

@@ -9,14 +9,14 @@
         <q-space/>
         <!--  left panel panel-->
         <div class='q-gutter-sm row items-center no-wrap'>
-          <Notifier style="margin-right: -15px"/>
-          <q-btn-dropdown icon='account_circle' round flat :label='currentUser?.username'>
+          <Notifier style="margin-right: -8px"/>
+          <q-btn-dropdown icon='account_circle' round flat :label='currentUser?.username' v-model="showRightDropDown">
             <q-list>
               <q-item clickable v-close-popup @click="onChangeLocale('tr-TR')">
                 <q-item-section>
                   <q-item-label>
                     <q-avatar size='36px'>
-                      <q-img src="../assets/tr.svg" width="30px" />
+                      <q-img src="../assets/tr.svg" width="30px"/>
                     </q-avatar>
                     Türkçe
                     <q-tooltip>Uygulama Dilini Türkçe Yap</q-tooltip>
@@ -27,12 +27,16 @@
                 <q-item-section>
                   <q-item-label>
                     <q-avatar size='36px'>
-                      <q-img src="../assets/gb.svg" width="30px" />
+                      <q-img src="../assets/gb.svg" width="30px"/>
                     </q-avatar>
                     English
                     <q-tooltip>Makes English Default Language</q-tooltip>
                   </q-item-label>
                 </q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup>
+                <q-toggle style="margin-left: -12px;" v-model="theme" color="dark" checked-icon="dark_mode" unchecked-icon="light_mode"
+                          :label="(theme ? $t('dark_theme') : $t('light_theme'))"/>
               </q-item>
               <q-item clickable v-close-popup @click='onLogoutUser'>
                 <q-item-section>
@@ -40,8 +44,8 @@
                     <q-avatar size='36px'>
                       <q-icon name='logout'/>
                     </q-avatar>
-                    {{$t('logout')}}
-                    <q-tooltip>{{$t('dlogout')}}</q-tooltip>
+                    {{ $t('logout') }}
+                    <q-tooltip>{{ $t('dlogout') }}</q-tooltip>
                   </q-item-label>
                 </q-item-section>
               </q-item>
@@ -76,7 +80,7 @@
                     <q-icon :name='link.icon'/>
                     <span>{{ link.text }}</span>
                   </div>
-                  <q-inner-loading v-if='loadingObject[link.id]' :showing='true' label='Please wait...' label-class='text-cyan'
+                  <q-inner-loading v-if='loadingObject[link.id]' :showing='true' :label="$t('please_wait')" label-class='text-cyan'
                                    label-style='font-size: 1.1em'>
                     <q-spinner-hourglass size='75%' color='cyan'/>
                   </q-inner-loading>
@@ -89,7 +93,7 @@
                       <q-icon name='live_tv' color='cyan'/>
                     </q-item-section>
                     <q-item-section>
-                      <q-item-label>{{$t('start_streaming')}}</q-item-label>
+                      <q-item-label>{{ $t('start_streaming') }}</q-item-label>
                     </q-item-section>
                   </q-item>
                   <q-item clickable v-close-popup @click='onSaveSettingsClicked(link.id)' v-ripple>
@@ -97,7 +101,7 @@
                       <q-icon name='settings' color='cyan'/>
                     </q-item-section>
                     <q-item-section>
-                      <q-item-label>{{$t('settings')}}</q-item-label>
+                      <q-item-label>{{ $t('settings') }}</q-item-label>
                     </q-item-section>
                   </q-item>
                   <q-item clickable v-close-popup @click='onShowRecordClicked(link.id)'>
@@ -105,7 +109,7 @@
                       <q-icon name='dvr' color='purple'/>
                     </q-item-section>
                     <q-item-section>
-                      <q-item-label>{{$t('playback')}}</q-item-label>
+                      <q-item-label>{{ $t('playback') }}</q-item-label>
                     </q-item-section>
                   </q-item>
                   <q-item clickable v-close-popup @click='onAiClick(link.id)'>
@@ -113,7 +117,7 @@
                       <q-icon name='psychology' color='orange'/>
                     </q-item-section>
                     <q-item-section>
-                      <q-item-label>{{$t('ai')}}</q-item-label>
+                      <q-item-label>{{ $t('ai') }}</q-item-label>
                     </q-item-section>
                   </q-item>
                   <q-item clickable v-close-popup @click='onOnvifClick(link)'>
@@ -121,7 +125,7 @@
                       <q-icon name='settings_ethernet' color='brown-5'/>
                     </q-item-section>
                     <q-item-section>
-                      <q-item-label>{{$t('onvif')}}</q-item-label>
+                      <q-item-label>{{ $t('onvif') }}</q-item-label>
                     </q-item-section>
                   </q-item>
                   <q-item clickable v-close-popup @click='onTakeScreenshotClicked(link)'>
@@ -129,7 +133,7 @@
                       <q-icon name='photo_camera' color='purple'/>
                     </q-item-section>
                     <q-item-section>
-                      <q-item-label>{{$t('take_screenshot')}}</q-item-label>
+                      <q-item-label>{{ $t('take_screenshot') }}</q-item-label>
                     </q-item-section>
                   </q-item>
                 </q-list>
@@ -138,7 +142,7 @@
                     <q-icon name='center_focus_strong' color='purple'/>
                   </q-item-section>
                   <q-item-section>
-                    <q-item-label>{{$t('test')}}</q-item-label>
+                    <q-item-label>{{ $t('test') }}</q-item-label>
                   </q-item-section>
                 </q-item>
                 <!--                <q-inner-loading v-if='loadingObject[link.id]' :showing='true'>-->
@@ -172,7 +176,7 @@
 import {onBeforeUnmount, onMounted, reactive, ref, watch} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
 import {NodeService} from 'src/utils/services/node_service';
-import {LoadingInfo, MenuLink, StreamCommandBarInfo, StreamCommandBarActions} from 'src/store/module-settings/state';
+import {LoadingInfo, MenuLink, StreamCommandBarActions, StreamCommandBarInfo} from 'src/store/module-settings/state';
 import {PublishService, SubscribeService} from 'src/utils/services/websocket_services';
 import {EditorImageResponseModel} from 'src/utils/entities';
 import SourceSettings from 'components/SourceSettings.vue';
@@ -185,6 +189,8 @@ import {WsConnection} from 'src/utils/ws/connection';
 import Notifier from 'components/Notifier.vue';
 import {useI18n} from 'vue-i18n';
 import {useQuasar} from 'quasar';
+import {auto as followSystemColorScheme, disable as disableDarkMode, enable as enableDarkMode, exportGeneratedCSS as collectCSS} from 'darkreader';
+import {Themes} from 'src/utils/services/local_service';
 
 export default {
   name: 'Ionix Layout',
@@ -193,7 +199,7 @@ export default {
     ServerStatsBar, Notifier
   },
   setup() {
-    const { locale, t } = useI18n({ useScope: 'global' });
+    const {locale, t} = useI18n({useScope: 'global'});
     const storeService = new StoreService();
     const nodeService = new NodeService();
     const localService = nodeService.LocalService;
@@ -214,6 +220,8 @@ export default {
     const showOnvif = ref<boolean>(false);
     const menus = ref(storeService.getNode());
     const mainViewHeight = ref<number>(window.innerHeight);
+    const theme = ref<boolean>(false);
+    const showRightDropDown = ref<boolean>(false);
     let editorConnection: WsConnection | null = null;
 
     const loadSources = async () => {
@@ -262,6 +270,33 @@ export default {
       }
     });
 
+    watch(theme, (darkTheme: boolean) => {
+      if (darkTheme) {
+        //@ts-ignore
+        enableDarkMode();
+        localService.saveTheme(Themes.Dark);
+      } else {
+        disableDarkMode();
+        localService.saveTheme(Themes.Light);
+      }
+      showRightDropDown.value = false;
+    });
+
+    const constInitDarkTheme = async () => {
+      //@ts-ignore
+      followSystemColorScheme(true);
+      await collectCSS();
+
+      if (localService.getTheme() == Themes.Dark) {
+        //@ts-ignore
+        enableDarkMode();
+        theme.value = true;
+      } else {
+        disableDarkMode();
+        theme.value = false;
+      }
+    };
+
     onMounted(async () => {
       scrollbarInit('main-view');
       listenWindowSizeChangesForScrollBar(mainViewHeight);
@@ -288,6 +323,7 @@ export default {
 
       await loadSources();
       await sourceStreamDatabind();
+      await constInitDarkTheme();
     });
 
     onBeforeUnmount(() => {
@@ -348,7 +384,7 @@ export default {
 
     return {
       leftDrawerOpen, menus, currentUser, loadingObject, sourceStreamStatus, showSettings, selectedSourceId, emptyBase64Image,
-      activeLeftMenu, selectedSourceAddress, showOnvif, mainViewHeight,
+      activeLeftMenu, selectedSourceAddress, showOnvif, mainViewHeight, theme, showRightDropDown,
       toggleLeftDrawer, getThumbnail, onShowRecordClicked, onAiClick, onLogoutUser,
       onSaveSettingsClicked(sourceId: string) {
         showSettings.value = true;
@@ -370,19 +406,23 @@ export default {
       },
       onSourceSettingsSave() {
         showSettings.value = false;
-        storeService.setStreamCommandBar({ source: {id: selectedSourceId, address: selectedSourceAddress},
-          action: StreamCommandBarActions.SaveSource});
+        storeService.setStreamCommandBar({
+          source: {id: selectedSourceId, address: selectedSourceAddress},
+          action: StreamCommandBarActions.SaveSource
+        });
       },
       onSourceDelete() {
         showSettings.value = false;
-        storeService.setStreamCommandBar({ source: {id: selectedSourceId, address: selectedSourceAddress},
-          action: StreamCommandBarActions.DeleteSource});
+        storeService.setStreamCommandBar({
+          source: {id: selectedSourceId, address: selectedSourceAddress},
+          action: StreamCommandBarActions.DeleteSource
+        });
       },
       onOnvifClick(link: MenuLink) {
         selectedSourceAddress.value = <string>link.source?.address;
         showOnvif.value = true;
       },
-      onChangeLocale(lang: string){
+      onChangeLocale(lang: string) {
         locale.value = lang;
         localService.setLang(lang);
         storeService.set18n(t);
@@ -468,7 +508,7 @@ export default {
   }
 }
 
-.three-dots{
+.three-dots {
   display: inline-block;
   width: 200px;
   white-space: nowrap;
