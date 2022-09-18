@@ -20,12 +20,12 @@
           <q-list bordered separator>
             <q-item clickable v-ripple v-for='person in people' :key='person.name'
                     :active='link === person.name' active-class='my-menu-link' @click='onLeftPersonMenuClicked(person)'>
-              <q-item-section>{{ person.name }}</q-item-section>
               <q-item-section v-if='person.image_paths&&person.image_paths.length' avatar>
                 <q-avatar>
-                  <img :src='person.image_paths[0]' :alt="$t('no_image')" />
+                  <q-img :src='person.image_paths[0]' :alt="$t('no_image')" />
                 </q-avatar>
               </q-item-section>
+              <q-item-section>{{ person.name }}</q-item-section>
             </q-item>
             <q-separator />
           </q-list>
@@ -39,7 +39,7 @@
         <q-page padding>
           <div class='row wrap justify-start content-stretch'>
             <div class='col-3'>
-              <q-form class='q-gutter-md'>
+              <q-form class='q-gutter-md' style="margin-right: 5px;">
                 <q-input filled v-model='selectedPerson.name' :label="$t('person_name')" :hint="$t('name_and_surname')"
                          lazy-rules :rules="[ val => val && val.length > 0 || $t('v_type_something')]" />
                 <q-btn v-if='mode===0' :label="$t('rename')" color='deep-purple-9' @click='onRename'
@@ -62,8 +62,10 @@
                   <q-inner-loading :showing='showTakeScreenshot' />
                 </q-btn>
                 <q-separator size='2px' />
-                <q-uploader :factory='factoryFn' :label="$t('upload_jpeg_image')" multiple
-                            accept='.jpg, image/*' max-files='1' :disable='mode===1' />
+                <q-responsive :ratio="16/9" class="col">
+                  <q-uploader :factory='factoryFn' :label="$t('upload_jpeg_image')" multiple
+                              accept='.jpg, image/*' max-files='1' :disable='mode===1' />
+                </q-responsive>
               </q-form>
             </div>
             <div class='col-9'>

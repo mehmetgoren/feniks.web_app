@@ -456,7 +456,7 @@
       <q-table :pagination='initialPagination' :rows='failedStreams' row-key='id' :columns='failedStreamsColumns'
                :rows-per-page-label="$t('rows_per_page')" color='lime-6' :loading="loadingFailedStreams">
         <template v-slot:top-right>
-          <q-btn icon='refresh' :label="$t('refresh')" glossy color='lime-6' style='margin-right: 15px;' @click='failedStreamsDatabind'/>
+          <q-btn icon='refresh' :label="$t('refresh')" color='lime-6' style='margin-right: 15px;' @click='failedStreamsDatabind'/>
         </template>
         <template v-slot:loading>
           <q-inner-loading showing color="lime-6"/>
@@ -467,7 +467,7 @@
       <q-table :pagination='initialPagination' :rows='recStucks' row-key='id' :columns='recStucksColumns' color='lime-6'
                :rows-per-page-label="$t('rows_per_page')" :loading="loadingRecStucks">
         <template v-slot:top-right>
-          <q-btn icon='refresh' :label="$t('refresh')" glossy color='lime-6' style='margin-right: 15px;' @click='recStucksDatabind'/>
+          <q-btn icon='refresh' :label="$t('refresh')" color='lime-6' style='margin-right: 15px;' @click='recStucksDatabind'/>
         </template>
         <template v-slot:loading>
           <q-inner-loading showing color="lime-6"/>
@@ -478,7 +478,7 @@
       <q-table :pagination='initialPagination' :rows='ods' row-key='id' :columns='odColumns' color='lime-6'
                :rows-per-page-label="$t('rows_per_page')" :loading="loadingOds">
         <template v-slot:top-right>
-          <q-btn icon='refresh' :label="$t('refresh')" glossy color='lime-6' style='margin-right: 15px;' @click='odsDatabind'/>
+          <q-btn icon='refresh' :label="$t('refresh')" color='lime-6' style='margin-right: 15px;' @click='odsDatabind'/>
         </template>
         <template v-slot:loading>
           <q-inner-loading showing color="lime-6"/>
@@ -492,7 +492,7 @@
             <q-input v-model='variousInfos.rtmp_port_counter' type='number' :label="$t('rtmp_counter')" readonly/>
           </td>
           <td>
-            <q-btn icon='refresh' :label="$t('refresh')" glossy color='lime-6' style='margin-right: 15px;' @click='variousInfosDataBind'
+            <q-btn icon='refresh' :label="$t('refresh')" color='lime-6' style='margin-right: 15px;' @click='variousInfosDataBind'
                    :disable="loadingVariousInfo">
               <q-inner-loading :showing="loadingVariousInfo" color="lime-6"/>
             </q-btn>
