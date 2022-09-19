@@ -918,6 +918,7 @@ function createFailedStreamsColumns(t: any) {
     {name: 'record_failed_count', align, label: t('record_failed_count'), field: 'record_failed_count', sortable: true},
     {name: 'snapshot_failed_count', align, label: t('snapshot_failed_count'), field: 'snapshot_failed_count', sortable: true},
     {name: 'record_stuck_process_count', align, label: t('record_stuck_process_count'), field: 'record_stuck_process_count', sortable: true},
+    {name: 'source_state_conflict_count', align, label: t('source_state_conflict_count'), field: 'source_state_conflict_count', sortable: true},
     {name: 'last_check_at', align, label: t('last_check_at'), field: 'last_check_at', format: (val: any) => `${val.toLocaleString()}`, sortable: true}
   ];
 }

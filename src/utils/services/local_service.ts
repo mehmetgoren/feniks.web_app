@@ -1,10 +1,11 @@
-import {isNullOrEmpty, isNullOrUndefined} from 'src/utils/utils';
+import {isNullOrEmpty} from 'src/utils/utils';
 import {SourceModel} from 'src/utils/models/source_model';
 import {StreamModel} from 'src/utils/models/stream_model';
 import {OdModel} from 'src/utils/models/od_model';
 import {User} from 'src/utils/models/user_model';
 import {NodeRepository} from 'src/utils/db';
 import {Node} from 'src/utils/entities';
+import {GalleryLocationsService} from 'src/utils/services/gallery_locations_service';
 
 export class LocalService {
 
@@ -72,61 +73,34 @@ export class LocalService {
     return null;
   }
 
-  public getLang(): string{
+  public getLang(): string {
     try {
       return localStorage.getItem('feniks_language') ?? '';
-    }catch {
+    } catch {
       return '';
     }
   }
-  public setLang(lang: string){
+
+  public setLang(lang: string) {
     localStorage.setItem('feniks_language', lang);
   }
 
-  public saveGsLocation(sourceId: string, option: GsLocation) {
-    if (isNullOrEmpty(sourceId) || isNullOrUndefined(option))
-      return;
-    localStorage.setItem(sourceId, JSON.stringify(option));
-  }
-
-  public getGsLocation(sourceId: string): GsLocation | null {
-    const json = localStorage.getItem(sourceId);
-    if (json) {
-      return JSON.parse(json);
-    }
-    return null;
-  }
-
-  public getGsLocations(): GsLocation[] {
-    const ret: GsLocation[] = [];
-    Object.keys(localStorage).forEach(function (key) {
-      const strValue = localStorage.getItem(key)
-      if (strValue && strValue.startsWith('{')) {
-        const gso = JSON.parse(strValue);
-        if (gso && gso.x !== undefined && gso.y !== undefined) {
-          ret.push(gso);
-        }
-      }
-    });
-    return ret;
-  }
-
-  public deleteGsLocation(sourceId: string) {
-    localStorage.removeItem(sourceId);
-  }
-
-  public saveTheme(theme: Themes){
+  public saveTheme(theme: Themes) {
     const currentUser = this.getCurrentUser();
     if (!currentUser) return;
     localStorage.setItem(`theme_${currentUser.token}`, theme.toString());
   }
 
-  public getTheme(): Themes{
+  public getTheme(): Themes {
     const currentUser = this.getCurrentUser();
     if (!currentUser) return Themes.Light;
     const themeStr = localStorage.getItem(`theme_${currentUser.token}`);
-    if (!themeStr)  return Themes.Light;
+    if (!themeStr) return Themes.Light;
     return <Themes>parseInt(themeStr);
+  }
+
+  public createGalleryLocationService(): GalleryLocationsService {
+    return new GalleryLocationsService(this);
   }
 
   public createRtspTransport(): SelectOption[] {
@@ -407,6 +381,7 @@ export class LocalService {
       ip_address: '',
 
       enabled: true,
+      state: 0, //NotStartedYet
       rtmp_server_type: 1, //SRS Realtime
 
       snapshot_enabled: false,
@@ -718,10 +693,18 @@ export class LocalService {
     ];
   }
 
-  public createFlvPlayerTypes(t: any): SelectOption[]{
+  public createFlvPlayerTypes(t: any): SelectOption[] {
     return [
       {value: 0, label: 'MpegTsJs ' + t('player')},
       {value: 1, label: 'FlvJs ' + t('player')}
+    ];
+  }
+
+  public createSourceStates(t: any): SelectOption[] {
+    return [
+      {value: 0, label: t('not_started_yet')},
+      {value: 1, label: t('started')},
+      {value: 2, label: t('stopped')}
     ];
   }
 }
@@ -732,14 +715,7 @@ export interface SelectOption {
   label: string;
 }
 
-export interface GsLocation {
-  w: number;
-  h: number;
-  x: number;
-  y: number;
-}
-
-export enum Themes{
+export enum Themes {
   Light = 0,
   Dark = 1
 }

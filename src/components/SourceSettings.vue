@@ -43,13 +43,15 @@
               </div>
               <q-space v-if='insertMode&&copyPrevSources.length' style="margin-top: 15px;"/>
               <q-form class='q-gutter-md'>
-                <q-checkbox dense v-model='source.enabled' color='cyan' :label="$t('enable')"/>
                 <q-input dense filled v-model.trim='source.name' :label="$t('name')" color='cyan'
                          lazy-rules :rules="[ val => val && val.length > 0 || $t('v_enter_valid_name')]"/>
                 <q-input dense filled v-model.trim='source.brand' :label="$t('brand')" color='cyan'/>
                 <q-input dense filled v-model.trim='source.description' :label="$t('description')" color='cyan'/>
                 <q-toggle dense v-model='source.record_enabled' color='red' @update:model-value='onRecordChange'
                           :label="$t('record') + ' ' + (source.record_enabled ? $t('on') : $t('off'))"/>
+                <q-input v-if="!insertMode" dense filled v-model.trim='source.id' :label="$t('id')" color='cyan' disable/>
+                <q-select v-if="!insertMode" dense emit-value map-options filled v-model='source.state' disable
+                          :options='sourceStates' :label="$t('source_state')" color='cyan'/>
               </q-form>
               <q-stepper-navigation>
                 <q-btn @click='onStep1Click' color='cyan' :label="$t('continue')"/>
@@ -386,6 +388,7 @@ export default {
     const recordRotations = ref(localService.createRotations(t));
     const snapshotTypes = ref(localService.createSnapshotTypes());
     const flvPlayerTypes = ref(localService.createFlvPlayerTypes(t));
+    const sourceStates = ref(localService.createSourceStates(t));
     const inactives = ref({save: false, delete: false});
     const showOnvif = ref<boolean>(false);
     const recommendedRtspAddresses = ref<string[]>([]);
@@ -637,7 +640,7 @@ export default {
       audioCodecs, streamVideoCodecs, presets, recommendedRtspAddresses,
       streamRotations, rtmpServerTypes, audioChannels, inactives, showOnvif,
       audioQualities, audioSampleRates, recordFileTypes, recordVideoCodecs,
-      recordPresets, recordRotations, showFindOptimalSettings, snapshotTypes, flvPlayerTypes,
+      recordPresets, recordRotations, showFindOptimalSettings, snapshotTypes, flvPlayerTypes, sourceStates,
       onSave, onDelete, onStep1Click, onRecordChange, onStreamTypeChanged, onFindOptimalSettings,
       insertMode, showQuickWizard, quickWizardShowing,
       onFindOptimalSettings2() {

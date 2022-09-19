@@ -23,6 +23,7 @@ export interface FailedStreamModel {
   record_failed_count: number;
   snapshot_failed_count: number;
   record_stuck_process_count: number;
+  source_state_conflict_count: number;
   last_check_at: string;
 }
 

@@ -96,6 +96,14 @@
                       <q-item-label>{{ $t('start_streaming') }}</q-item-label>
                     </q-item-section>
                   </q-item>
+                  <q-item clickable v-close-popup @click='onStopStreaming(link)' v-ripple>
+                    <q-item-section side>
+                      <q-icon name='power_off' color='deep-orange'/>
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label>{{ $t('stop_streaming') }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
                   <q-item clickable v-close-popup @click='onSaveSettingsClicked(link.id)' v-ripple>
                     <q-item-section side>
                       <q-icon name='settings' color='cyan'/>
@@ -183,7 +191,15 @@ import SourceSettings from 'components/SourceSettings.vue';
 import OnvifSettings from 'components/OnvifSettings.vue';
 import ServerStatsBar from 'components/ServerStatsBar.vue';
 import {SourceModel} from 'src/utils/models/source_model';
-import {createEmptyBase64Image, doUserLogout, listenWindowSizeChangesForScrollBar, scrollbarInit, setupLocale, startStream} from 'src/utils/utils';
+import {
+  createEmptyBase64Image,
+  doUserLogout,
+  listenWindowSizeChangesForScrollBar,
+  scrollbarInit,
+  setupLocale,
+  startStream,
+  stopStream
+} from 'src/utils/utils';
 import {StoreService} from 'src/utils/services/store_service';
 import {WsConnection} from 'src/utils/ws/connection';
 import Notifier from 'components/Notifier.vue';
@@ -392,6 +408,9 @@ export default {
       },
       onStartStreaming(link: MenuLink) {
         startStream(storeService, publishService, <SourceModel>link.source);
+      },
+      onStopStreaming(link: MenuLink){
+        stopStream(storeService, publishService, <SourceModel>link.source);
       },
       onTakeScreenshotClicked(link: MenuLink) {
         const source = <SourceModel>link.source;

@@ -85,3 +85,7 @@ export interface NotifierResponseEvent{
   base_64_object:string;
   type:number;
 }
+
+export interface StopStreamResponseEvent{
+  id?:string;
+}

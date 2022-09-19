@@ -56,13 +56,14 @@ import 'gridstack/dist/gridstack-h5.js';
 import 'gridstack/dist/jq/gridstack-dd-jqueryui';
 import {PublishService, SubscribeService} from 'src/utils/services/websocket_services';
 import {WsConnection} from 'src/utils/ws/connection';
-import {checkIpIsLoopBack, isNullOrUndefined, startStream} from 'src/utils/utils';
-import {GsLocation, LocalService} from 'src/utils/services/local_service';
+import {checkIpIsLoopBack, isNullOrUndefined, startStream, stopStream} from 'src/utils/utils';
 import {NodeService} from 'src/utils/services/node_service';
 import {Config} from 'src/utils/models/config';
 import {StoreService} from 'src/utils/services/store_service';
 import {StreamCommandBarActions, StreamCommandBarInfo} from 'src/store/module-settings/state';
 import html2canvas from 'html2canvas';
+import {GsLocation} from 'src/utils/services/gallery_locations_service';
+import {StopStreamResponseEvent} from 'src/utils/models/various';
 
 // https://v3.vuejs.org/guide/migration/array-refs.html
 export default {
@@ -75,9 +76,11 @@ export default {
     const publishService = new PublishService();
     const storeService = new StoreService();
     let connStartStream: WsConnection | null = null;
+    let connStopStream: WsConnection | null = null;
     let connTakeScreenshot: WsConnection | null = null;
-    const localService = new LocalService();
     const nodeService = new NodeService();
+    const localService = nodeService.LocalService;
+    const galleryLocService = localService.createGalleryLocationService();
     const showLoading = ref<boolean>(false);
     let grid: GridStack | null = null;
     const waitInterval = 500;
@@ -118,16 +121,20 @@ export default {
         player.fullScreen();
       }
     };
-    const onStreamStop = (cloneStream: StreamExtModel) => {
-      const stream = findById(cloneStream.id);
+
+    const doStreamStop = (sourceId: string) => {
+      const stream = findById(sourceId);
       if (!stream) return;
 
-      void publishService.publishStopStream(stream);
-      storeService.setNotifySourceStreamStatusChanged();
+      stopStream(storeService, publishService, stream);
       stream.show = false;
       setTimeout(() => {
         removeSource(stream);
       }, 3000);
+    };
+
+    const onStreamStop = (cloneStream: StreamExtModel) => {
+      doStreamStop(cloneStream.id);
     };
     const streamList = reactive<Array<StreamExtModel>>([]);
     //
@@ -200,6 +207,13 @@ export default {
       addPlayer(streamModel, true);
     }
 
+    function onSubscribeStopStream(event: MessageEvent){
+      const stopStreamResponse: StopStreamResponseEvent = JSON.parse(event.data);
+      if (stopStreamResponse.id){
+        doStreamStop(stopStreamResponse.id);
+      }
+    }
+
     //gs section starts
     function initGs() {
       try {
@@ -229,7 +243,7 @@ export default {
         for (const gridItem of gridItems) {
           const gridStackNode = gridItem.gridstackNode;
           if (gridStackNode) {
-            localService.saveGsLocation(<string>gridStackNode.id, {
+            galleryLocService.addGsLocationByUser(<string>gridStackNode.id, {
               w: <number>gridStackNode.w, h: <number>gridStackNode.h,
               x: <number>gridStackNode.x, y: <number>gridStackNode.y
             });
@@ -246,7 +260,7 @@ export default {
       const dividing = 12 / w;
       const yMultiplier = h;
 
-      const gsLocations = localService.getGsLocations();
+      const gsLocations = galleryLocService.getGsLocations();
       let x = 0, y = 0;
       const len = gsLocations.length;
       if (len > 0) {
@@ -257,7 +271,7 @@ export default {
         y = result * yMultiplier;
       }
       let ret: GsLocation = {w, h, x: x, y: y};
-      const loc = localService.getGsLocation(sourceId);
+      const loc = galleryLocService.getGsLocation(sourceId);
       if (loc) {
         ret = {...loc};
       }
@@ -270,7 +284,7 @@ export default {
       const streamModels: StreamModel[] = await nodeService.getStreamList();
       if (!isNullOrUndefined(streamModels) && streamModels.length > 0) {
         for (const streamModel of streamModels) {
-          const loc = localService.getGsLocation(streamModel.id);
+          const loc = galleryLocService.getGsLocation(streamModel.id);
           if (loc) {
             addPlayer(streamModel, false);
           }
@@ -304,6 +318,7 @@ export default {
       }
       config.value = cf;
       connStartStream = subscribeService.subscribeStartStream(onSubscribeStartStream);
+      connStopStream = subscribeService.subscribeStopStream(onSubscribeStopStream);
 
       connTakeScreenshot = subscribeService.subscribeEditor('lsg', (event: MessageEvent) => {
         const responseModel: EditorImageResponseModel = JSON.parse(event.data);
@@ -338,6 +353,9 @@ export default {
       if (connStartStream) {
         connStartStream.close();
       }
+      if (connStopStream){
+        connStopStream.close();
+      }
       if (connTakeScreenshot) {
         connTakeScreenshot.close();
       }
@@ -365,7 +383,7 @@ export default {
       if (index > -1) {
         streamList[index].show = false;
         streamList.splice(index, 1);
-        localService.deleteGsLocation(stream.id);
+        galleryLocService.deleteGsLocation(stream.id);
       }
     }
 

@@ -60,6 +60,7 @@ export interface SourceModel {
   ip_address?: string | null;
 
   enabled?: boolean | null;
+  state?: number | null;
   rtmp_server_type?: number | null;
 
   snapshot_enabled: boolean | null;

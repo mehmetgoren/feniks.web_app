@@ -131,15 +131,21 @@ export function isNullOrEmpty(val: string | undefined | null) {
 
 export function startStream(storeService: StoreService, publishService: PublishService, source: SourceModel) {
   if (isNullOrEmpty(source?.id)) {
-    console.error('invalid source object. Streaming request will not ben sent');
     return;
   }
   storeService.setSourceLoading(<string>source.id, true);
-  publishService.publishStartStream(source).then(() => {
-    console.log('stream request has been started');
-  }).catch((err) => {
-    console.log('stream request had an error: ' + err);
-  });
+  void publishService.publishStartStream(source);
+}
+
+export function stopStream(storeService: StoreService, publishService: PublishService, source: SourceModel) {
+  if (isNullOrEmpty(source?.id)) {
+    return;
+  }
+  publishService.publishStopStream(source).then(() => {
+    setTimeout(() =>{
+      storeService.setNotifySourceStreamStatusChanged();
+    }, 3000);
+  }).catch(console.error);
 }
 
 export function createEmptyBase64Image(): string {
@@ -235,7 +241,7 @@ export function createTrDateLocale(): any {
 
 export function scrollbarInit(elemId: string): Scrollbar | null {
   const elm = document.querySelector('#' + elemId);
-  if (elm){
+  if (elm) {
     //@ts-ignore
     return Scrollbar.init(elm)
   }
@@ -262,12 +268,11 @@ export function listenWindowSizeChangesForScrollBar(refHeight: any) {
   }, true);
 }
 
-export async function databindWithLoading(loading: any, fn : ()=> Promise<void> ){
+export async function databindWithLoading(loading: any, fn: () => Promise<void>) {
   loading.value = true;
-  try{
+  try {
     await fn();
-  }
-  finally {
+  } finally {
     loading.value = false;
   }
 }
