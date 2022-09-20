@@ -219,6 +219,7 @@ export default {
     const storeService = new StoreService();
     const nodeService = new NodeService();
     const localService = nodeService.LocalService;
+    const gls = localService.createGalleryLocationService();
     const $q = useQuasar();
     setupLocale(localService, locale, $q);
     storeService.set18n(t);
@@ -407,10 +408,10 @@ export default {
         selectedSourceId.value = sourceId;
       },
       onStartStreaming(link: MenuLink) {
-        startStream(storeService, publishService, <SourceModel>link.source);
+        startStream(storeService, publishService, gls, <SourceModel>link.source);
       },
-      onStopStreaming(link: MenuLink){
-        stopStream(storeService, publishService, <SourceModel>link.source);
+      onStopStreaming(link: MenuLink) {
+        stopStream(storeService, publishService, gls, <SourceModel>link.source);
       },
       onTakeScreenshotClicked(link: MenuLink) {
         const source = <SourceModel>link.source;

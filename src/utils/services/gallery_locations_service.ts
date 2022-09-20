@@ -1,13 +1,13 @@
-import {isNullOrEmpty, isNullOrUndefined} from 'src/utils/utils';
+import {isNullOrUndefined} from 'src/utils/utils';
 import {LocalService} from 'src/utils/services/local_service';
 
 export class GalleryLocationsService {
-  private readonly localSerivice: LocalService;
+  private readonly localService: LocalService;
   private readonly userToken: string | null;
 
   constructor(localService: LocalService) {
-    this.localSerivice = localService;
-    this.userToken = this.localSerivice.getCurrentUser()?.token ?? null;
+    this.localService = localService;
+    this.userToken = this.localService.getCurrentUser()?.token ?? null;
   }
 
   private getKey(sourceId: string): string | null {
@@ -17,22 +17,38 @@ export class GalleryLocationsService {
     return `${this.userToken}_${sourceId}`;
   }
 
-  public addGsLocationByUser(sourceId: string, option: GsLocation) {
-    if (isNullOrEmpty(sourceId) || isNullOrUndefined(option))
-      return;
-    localStorage.setItem(sourceId, JSON.stringify(option));
+  public registerGsLocation(sourceId: string){
+    const key = this.getKey(sourceId);
+    if (!key) return;
+    localStorage.setItem(key, JSON.stringify({}));
   }
 
-  public isAddedByUser(sourceId: string): boolean {
+  public saveGsLocationWithOption(sourceId: string, option: GsLocation) {
+    const key = this.getKey(sourceId);
+    if (!key || isNullOrUndefined(option)) return;
+    localStorage.setItem(key, JSON.stringify(option));
+  }
+
+  public hasLocation(sourceId: string): boolean {
     return this.getGsLocation(sourceId) !== null;
   }
 
   public getGsLocation(sourceId: string): GsLocation | null {
-    const json = localStorage.getItem(sourceId);
+    const key = this.getKey(sourceId);
+    if (!key) return null;
+
+    const json = localStorage.getItem(key);
     if (json) {
       return JSON.parse(json);
     }
     return null;
+  }
+
+  public removeGsLocation(sourceId: string) {
+    const key = this.getKey(sourceId);
+    if (!key) return null;
+
+    localStorage.removeItem(key);
   }
 
   public getGsLocations(): GsLocation[] {
@@ -47,10 +63,6 @@ export class GalleryLocationsService {
       }
     });
     return ret;
-  }
-
-  public deleteGsLocation(sourceId: string) {
-    localStorage.removeItem(sourceId);
   }
 }
 

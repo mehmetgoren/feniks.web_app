@@ -6,6 +6,7 @@ import {LocalService} from 'src/utils/services/local_service';
 import {ProbeResult} from 'src/utils/models/various';
 import {date} from 'quasar'
 import Scrollbar from 'smooth-scrollbar';
+import {GalleryLocationsService} from 'src/utils/services/gallery_locations_service';
 
 
 export function myDateToJsDate(dateString: string): Date {
@@ -129,18 +130,20 @@ export function isNullOrEmpty(val: string | undefined | null) {
   return isNullOrUndefined(val) ? true : val.length === 0;
 }
 
-export function startStream(storeService: StoreService, publishService: PublishService, source: SourceModel) {
+export function startStream(storeService: StoreService, publishService: PublishService, gls: GalleryLocationsService,  source: SourceModel) {
   if (isNullOrEmpty(source?.id)) {
     return;
   }
+  gls.registerGsLocation(<string>source.id);
   storeService.setSourceLoading(<string>source.id, true);
   void publishService.publishStartStream(source);
 }
 
-export function stopStream(storeService: StoreService, publishService: PublishService, source: SourceModel) {
+export function stopStream(storeService: StoreService, publishService: PublishService, gls: GalleryLocationsService, source: SourceModel) {
   if (isNullOrEmpty(source?.id)) {
     return;
   }
+  gls.removeGsLocation(<string>source.id);
   publishService.publishStopStream(source).then(() => {
     setTimeout(() =>{
       storeService.setNotifySourceStreamStatusChanged();
