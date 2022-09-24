@@ -139,15 +139,13 @@ export default {
     const streamList = reactive<Array<StreamExtModel>>([]);
     //
 
-    const loadInitGrid = (onGridInitialized: (() => any) | null) => {
+    const loadInitGrid = (onGridInitialized: () => any) => {
       setTimeout(() => {
         open.value = true;
         nextTick().then(() => {
           initGs();
-          if (onGridInitialized) {
-            onGridInitialized();
-            fixVideoJsFullScreenButton();
-          }
+          onGridInitialized();
+          fixVideoJsFullScreenButton();
         }).catch(console.error);
       }, waitInterval);
     };
@@ -204,18 +202,18 @@ export default {
 
     function onSubscribeStartStream(event: MessageEvent) {
       const streamModel: StreamModel = JSON.parse(event.data);
-      if (!gls.hasLocation(streamModel?.id??'')){
+      if (!gls.hasLocation(streamModel?.id ?? '')) {
         return;
       }
       addPlayer(streamModel, true);
     }
 
-    function onSubscribeStopStream(event: MessageEvent){
+    function onSubscribeStopStream(event: MessageEvent) {
       const stopStreamResponse: StopStreamResponseEvent = JSON.parse(event.data);
-      if (gls.hasLocation(stopStreamResponse.id??'')){
+      if (gls.hasLocation(stopStreamResponse.id ?? '')) {
         return;
       }
-      if (stopStreamResponse.id){
+      if (stopStreamResponse.id) {
         doStreamStop(stopStreamResponse.id);
       }
     }
@@ -286,7 +284,7 @@ export default {
 
     //gs section ends
 
-    async function initActiveStreams() {
+    async function initActiveStreamsFirstTime() {
       const streamModels: StreamModel[] = await nodeService.getStreamList();
       if (!isNullOrUndefined(streamModels) && streamModels.length > 0) {
         for (const streamModel of streamModels) {
@@ -295,7 +293,13 @@ export default {
             addPlayer(streamModel, false);
           }
         }
-        loadInitGrid(null);
+        loadInitGrid(() => {
+          setTimeout(() => {
+            for (const stream of streamList) {
+              stream.hide = true;
+            }
+          }, 250);
+        });
       }
     }
 
@@ -337,7 +341,7 @@ export default {
         }
       });
 
-      await initActiveStreams();
+      await initActiveStreamsFirstTime();
 
       fixVideoJsFullScreenButton();
 
@@ -359,7 +363,7 @@ export default {
       if (connStartStream) {
         connStartStream.close();
       }
-      if (connStopStream){
+      if (connStopStream) {
         connStopStream.close();
       }
       if (connTakeScreenshot) {

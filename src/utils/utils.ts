@@ -280,6 +280,44 @@ export async function databindWithLoading(loading: any, fn: () => Promise<void>)
   }
 }
 
+export function validateModel<T>(t:any, empty: T, viewModel:T): string[]{
+  const ret: string[] = [];
+  for (const [field, value] of Object.entries(empty)){
+    if (!value) continue; // means nullable
+
+    const typeName = typeof value;
+    if (typeName === 'object'){
+      //@ts-ignore
+      const addItems = validateModel(t, empty[field], viewModel[field]);
+      for(const item of addItems){
+        ret.push(item);
+      }
+    }
+    //@ts-ignore
+    const viewValue = viewModel[field];
+     switch (typeName){
+       case 'string':
+         if (!viewValue){
+           ret.push(`${t('please_enter_value')} for ${t(field)}`);
+         }
+         break;
+       case 'number':
+         if (!viewValue){
+           ret.push(`${t('please_enter_value')} for ${t(field)}`);
+         }else if (isNaN(viewValue)){
+           ret.push(`${t('please_enter_valid_number')} for ${t(field)}`);
+         }
+         break;
+       case 'boolean':
+         if (!viewValue){
+           ret.push(`${t('please_enter_value')} for ${t(field)}`);
+         }
+         break;
+     }
+  }
+  return ret;
+}
+
 export async function doUserLogout(localService: LocalService, storeService: StoreService, router: any) {
   localService.setCurrentUser(null);
   storeService.setCurrentUser(null);

@@ -34,7 +34,7 @@
 
           <q-stepper v-model='step' vertical color='cyan' animated>
             <q-step id='step1' :name='1' color='cyan' :title="$t('basics')" icon='settings' :done='step > 1'>
-              <div class="q-gutter-md row" v-if='insertMode&&copyPrevSources.length'>
+              <div class="q-gutter-md row" v-if='insertMode&&copyPrevSources.length' style="margin-bottom: 25px;">
                 <q-select dense emit-value map-options filled v-model='copySelectedSourceId' color='cyan' style="width: 400px;"
                           :options='copyPrevSources' transition-show='scale' transition-hide='scale' option-value="id" option-label="name"
                           :label="$t('select_source_copy_from')"/>
@@ -280,7 +280,7 @@
               </q-form>
               <q-stepper-navigation>
                 <q-btn @click='step = 7' color='cyan' :label="$t('continue')"/>
-                <q-btn flat @click='step = 5' color='cyan' :label="$t('back')"  class='q-ml-sm'/>
+                <q-btn flat @click='step = 5' color='cyan' :label="$t('back')" class='q-ml-sm'/>
               </q-stepper-navigation>
             </q-step>
 

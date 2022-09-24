@@ -695,8 +695,8 @@ export class LocalService {
 
   public createFlvPlayerTypes(t: any): SelectOption[] {
     return [
-      {value: 0, label: 'MpegTsJs ' + t('player')},
-      {value: 1, label: 'FlvJs ' + t('player')}
+      {value: 0, label: `${t('low_latency')} ${t('player')}`},
+      {value: 1, label: `${t('flv')} ${t('player')}`}
     ];
   }
 

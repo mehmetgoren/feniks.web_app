@@ -394,7 +394,7 @@
         <q-space style='height: 10px;'/>
         <q-table :title="$t('scan_network_results')" :rows='networkScanResults.results' :columns='networkColumns'
                  row-key='address' :pagination='initialPagination' color='brown-5' :rows-per-page-label="$t('rows_per_page')"
-        :loading="showScanLoading" :filter="filterNetworkScanResults">
+                 :loading="showScanLoading" :filter="filterNetworkScanResults">
 
           <template v-slot:top-right>
             <q-input borderless dense debounce='300' v-model='filterNetworkScanResults' :placeholder="$t('search')">
@@ -540,7 +540,7 @@ import {
 } from 'src/utils/models/config';
 import {PublishService, SubscribeService} from 'src/utils/services/websocket_services';
 import {NetworkDiscoveryModel, OnvifAction, OnvifEvent} from 'src/utils/models/onvif_models';
-import {databindWithLoading, fixArrayDates, myDateToJsDate} from 'src/utils/utils';
+import {databindWithLoading, fixArrayDates, myDateToJsDate, validateModel} from 'src/utils/utils';
 import {WsConnection} from 'src/utils/ws/connection';
 import {ServiceModel} from 'src/utils/models/service_model';
 import {User} from 'src/utils/models/user_model';
@@ -693,7 +693,7 @@ export default {
       });
     };
 
-    const rtmpTemplatesDataBind = async ()=> {
+    const rtmpTemplatesDataBind = async () => {
       await databindWithLoading(loadingRtmpTemplates, async () => {
         rtmpTemplates.value = await nodeService.getRtspTemplates();
       });
@@ -740,6 +740,19 @@ export default {
     });
 
     const onSave = async () => {
+      const prevConfig = await nodeService.getConfig();
+      const validationResult = validateModel(t, prevConfig, config.value);
+      if (validationResult.length > 0) {
+        for (const result of validationResult) {
+          $q.notify({
+            message: result,
+            caption: t('invalid'),
+            color: 'red',
+            position: 'bottom-right'
+          });
+        }
+        return;
+      }
       await nodeService.saveConfig(<Config>config.value);
       await nodeService.restartAllServices();
     };
