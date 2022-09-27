@@ -3,11 +3,16 @@
     <q-header elevated class='bg-cyan'>
       <q-toolbar>
         <q-toolbar-title>
-          <CommandBar :show-restore='false' @on-save='onSave' :inactive-save='inactives.save' @on-delete='onDelete' :show-delete="source.id.length>0"
-                      :inactive-delete='inactives.delete' :show-refresh="false"/>
+          <CommandBar :show-restore='false' @on-save='onSave' :inactive-save='inactives.save' @on-delete='onDelete' :show-delete="!insertMode"
+                      :inactive-delete='inactives.delete' :show-refresh="false"  :disable="!insertMode&&!source.enabled"/>
           <q-btn v-if="insertMode" class="gt-xs" dense flat icon='auto_awesome' :label="$t('add_new_source_quickly')"
                  @click="showQuickWizard=true">
             <q-tooltip>{{ $t('t_add_new_source_quickly') }}</q-tooltip>
+          </q-btn>
+          <q-btn v-if="!insertMode" class="gt-xs" style="margin-left: 15px" dense flat @click="onMakeEnabledOrDisabled"
+                 :label="source.enabled ? $t('make_disabled') : $t('make_enabled')" :icon="source.enabled ? 'videocam_off' : 'videocam'"
+                 :disable="loadingMakeEnabledOrDisabled">
+            <q-inner-loading :showing="loadingMakeEnabledOrDisabled"/>
           </q-btn>
         </q-toolbar-title>
         <label v-if="!insertMode" style='text-transform: uppercase;font-size: medium'> {{ source.name }}</label>
@@ -22,13 +27,14 @@
       <q-page padding style='background-color: whitesmoke;'>
         <div class='q-pa-md'>
           <q-btn-group class="gt-xs">
-            <q-btn push :label="$t('basics')" color='cyan' icon='videocam' @click='step=1'/>
-            <q-btn push :label="$t('connection')" color='cyan' icon='power' @click='step=2'/>
-            <q-btn push :label="$t('input')" color='cyan' icon='input' @click='step=3'/>
-            <q-btn push :label="$t('stream')" color='cyan' icon='live_tv' @click='step=4'/>
-            <q-btn push :label="$t('snapshot_for_ai')" color='cyan' icon='psychology' @click='step=5'/>
-            <q-btn v-if='source.record_enabled' push :label="$t('recording')" color='cyan' icon='radio_button_checked' @click='step=6'/>
-            <q-btn push :label="$t('logging')" color='cyan' icon='announcement' @click='step=7'/>
+            <q-btn push :label="$t('basics')" color='cyan' icon='videocam' @click='step=1' :disable="!source.enabled"/>
+            <q-btn push :label="$t('connection')" color='cyan' icon='power' @click='step=2' :disable="!source.enabled"/>
+            <q-btn push :label="$t('input')" color='cyan' icon='input' @click='step=3' :disable="!source.enabled"/>
+            <q-btn push :label="$t('stream')" color='cyan' icon='live_tv' @click='step=4' :disable="!source.enabled"/>
+            <q-btn push :label="$t('snapshot_for_ai')" color='cyan' icon='psychology' @click='step=5' :disable="!source.enabled"/>
+            <q-btn v-if='source.record_enabled' push :label="$t('recording')" color='cyan' icon='radio_button_checked' @click='step=6'
+                   :disable="!source.enabled"/>
+            <q-btn push :label="$t('logging')" color='cyan' icon='announcement' @click='step=7' :disable="!source.enabled"/>
           </q-btn-group>
           <q-space style='margin-bottom: 5px;'/>
 
@@ -43,25 +49,27 @@
               </div>
               <q-space v-if='insertMode&&copyPrevSources.length' style="margin-top: 15px;"/>
               <q-form class='q-gutter-md'>
-                <q-input dense filled v-model.trim='source.name' :label="$t('name')" color='cyan'
+                <q-checkbox v-if="!insertMode" dense v-model='source.enabled' color='cyan'
+                            :label="source.enabled ? $t('enabled') : $t('disabled')" disable/>
+                <q-input dense filled v-model.trim='source.name' :label="$t('name')" color='cyan' :disable="!source.enabled"
                          lazy-rules :rules="[ val => val && val.length > 0 || $t('v_enter_valid_name')]"/>
-                <q-input dense filled v-model.trim='source.brand' :label="$t('brand')" color='cyan'/>
-                <q-input dense filled v-model.trim='source.description' :label="$t('description')" color='cyan'/>
+                <q-input dense filled v-model.trim='source.brand' :label="$t('brand')" color='cyan' :disable="!source.enabled"/>
+                <q-input dense filled v-model.trim='source.description' :label="$t('description')" color='cyan' :disable="!source.enabled"/>
                 <q-toggle dense v-model='source.record_enabled' color='red' @update:model-value='onRecordChange'
-                          :label="$t('record') + ' ' + (source.record_enabled ? $t('on') : $t('off'))"/>
+                          :label="$t('record') + ' ' + (source.record_enabled ? $t('on') : $t('off'))" :disable="!source.enabled"/>
                 <q-input v-if="!insertMode" dense filled v-model.trim='source.id' :label="$t('id')" color='cyan' disable/>
                 <q-select v-if="!insertMode" dense emit-value map-options filled v-model='source.state' disable
                           :options='sourceStates' :label="$t('source_state')" color='cyan'/>
               </q-form>
               <q-stepper-navigation>
-                <q-btn @click='onStep1Click' color='cyan' :label="$t('continue')"/>
+                <q-btn @click='onStep1Click' color='cyan' :label="$t('continue')" :disable="!source.enabled"/>
               </q-stepper-navigation>
             </q-step>
 
             <q-step id='step2' :name='2' :title="$t('connection')" icon='power' color='cyan' :done='step > 2'>
               <q-form class='q-gutter-md'>
                 <q-input dense filled v-model.trim='source.address' color='cyan' :label="$t('address')"
-                         lazy-rules :rules="[ val => val && val.length > 0 || $t('v_enter_valid_address')]">
+                         lazy-rules :rules="[ val => val && val.length > 0 || $t('v_enter_valid_address')]" :disable="!source.enabled">
                   <template v-slot:prepend v-if="recommendedRtspAddresses.length">
                     <q-icon name="list">
                       <q-popup-proxy>
@@ -74,52 +82,53 @@
                     </q-icon>
                   </template>
                   <template v-slot:after>
-                    <q-btn flat icon="query_stats" @click="onFindOptimalSettings" :disable="showFindOptimalSettings">
+                    <q-btn flat icon="query_stats" @click="onFindOptimalSettings" :disable="showFindOptimalSettings||!source.enabled" >
                       <q-tooltip transition-show="rotate" transition-hide="rotate">
                         {{ $t('find_optimal_settings') }}
                       </q-tooltip>
                       <q-inner-loading :showing='showFindOptimalSettings'/>
                     </q-btn>
-                    <q-btn dense color='brown-5' flat icon='settings_ethernet' :label="$t('start_onvif')" @click='showOnvif = true'/>
+                    <q-btn dense color='brown-5' flat icon='settings_ethernet' :label="$t('start_onvif')" @click='showOnvif = true'
+                           :disable="!source.enabled"/>
                   </template>
                 </q-input>
                 <q-select dense emit-value map-options filled v-model='source.rtsp_transport'
                           :options='rtspTransports' :label="$t('rtsp_transport')" transition-show='flip-up'
-                          transition-hide='flip-down' color='cyan'/>
+                          transition-hide='flip-down' color='cyan' :disable="!source.enabled"/>
               </q-form>
               <q-stepper-navigation>
-                <q-btn @click='step = 3' color='cyan' :label="$t('continue')"/>
-                <q-btn flat @click='step = 1' color='cyan' :label="$t('back')" class='q-ml-sm'/>
+                <q-btn @click='step = 3' color='cyan' :label="$t('continue')" :disable="!source.enabled"/>
+                <q-btn flat @click='step = 1' color='cyan' :label="$t('back')" class='q-ml-sm' :disable="!source.enabled"/>
               </q-stepper-navigation>
             </q-step>
 
             <q-step id='step3' :name='3' :title="$t('input')" icon='input' color='cyan'>
               <q-form class='q-gutter-md'>
                 <q-input dense filled v-model.number='source.analyzation_duration' type='number'
-                         :label="$t('analysis_duration')" color='cyan'/>
+                         :label="$t('analysis_duration')" color='cyan' :disable="!source.enabled"/>
                 <q-input dense filled v-model.number='source.probe_size' type='number' :label="$t('probe_size')"
-                         color='cyan'/>
+                         color='cyan' :disable="!source.enabled"/>
                 <q-input dense filled v-model.number='source.input_frame_rate' type='number' :label="$t('fps')"
                          hint='Frame Rate' color='cyan'/>
                 <q-toggle dense v-model='source.use_camera_timestamp' checked-icon='check'
-                          :label="$t('use_camera_timestamps')" color='cyan'/>
+                          :label="$t('use_camera_timestamps')" color='cyan' :disable="!source.enabled"/>
                 <q-space/>
                 <q-toggle dense v-model='source.use_hwaccel' checked-icon='check'
-                          :label="$t('use_hardware_accelerator')" color='cyan'/>
+                          :label="$t('use_hardware_accelerator')" color='cyan' :disable="!source.enabled"/>
                 <q-select v-if='source.use_hwaccel' dense emit-value map-options filled
                           v-model='source.hwaccel_engine' color='cyan'
                           :options='accelerationEngines' :label="$t('acceleration_engine')" transition-show='scale'
-                          transition-hide='scale'/>
+                          transition-hide='scale' :disable="!source.enabled"/>
                 <q-select v-if='source.use_hwaccel' dense emit-value map-options filled
                           v-model='source.video_decoder' color='cyan'
                           :options='videoDecoders' :label="$t('video_decoders')" transition-show=''
-                          transition-hide='scale'/>
+                          transition-hide='scale' :disable="!source.enabled"/>
                 <q-input v-if='source.use_hwaccel' dense filled v-model.trim='source.hwaccel_device'
-                         :label="$t('hwaccel_device')" color='cyan'/>
+                         :label="$t('hwaccel_device')" color='cyan' :disable="!source.enabled"/>
               </q-form>
               <q-stepper-navigation>
-                <q-btn @click='step = 4' color='cyan' :label="$t('continue')"/>
-                <q-btn flat @click='step = 2' color='cyan' :label="$t('back')" class='q-ml-sm'/>
+                <q-btn @click='step = 4' color='cyan' :label="$t('continue')" :disable="!source.enabled"/>
+                <q-btn flat @click='step = 2' color='cyan' :label="$t('back')" class='q-ml-sm' :disable="!source.enabled"/>
               </q-stepper-navigation>
             </q-step>
 
@@ -128,167 +137,166 @@
                 <q-select dense emit-value map-options filled
                           v-model='source.rtmp_server_type' color='cyan'
                           :options='rtmpServerTypes' :label="$t('rtmp_server')" transition-show='flip-up'
-                          transition-hide='flip-down'/>
+                          transition-hide='flip-down' :disable="!source.enabled"/>
                 <q-select dense emit-value map-options filled
                           v-model='source.stream_type' color='cyan' @update:model-value='onStreamTypeChanged'
                           :options='streamTypes' :label="$t('stream_type')" transition-show='flip-up'
-                          transition-hide='flip-down'/>
+                          transition-hide='flip-down' :disable="!source.enabled"/>
                 <q-select v-if="source.stream_type===0" dense emit-value map-options filled
                           v-model='source.flv_player_type' color='cyan'
                           :options='flvPlayerTypes' :label="$t('flv_player')" transition-show='flip-up'
-                          transition-hide='flip-down'/>
+                          transition-hide='flip-down' :disable="!source.enabled"/>
                 <q-toggle v-if='source.stream_type < 2&&(source.stream_type === 1 || source.flv_player_type===1)'
                           dense v-model='source.booster_enabled' checked-icon='check' color='cyan'
-                          :label="$t('booster') + ' ' + (source.booster_enabled ? $t('enabled') : $t('disabled'))"/>
+                          :label="$t('booster') + ' ' + (source.booster_enabled ? $t('enabled') : $t('disabled'))"
+                          :disable="!source.enabled"/>
                 <q-select dense emit-value map-options filled v-model='source.stream_video_codec' color='cyan'
-                          :options='streamVideoCodecs' :label="$t('video_codec')" transition-show='scale' transition-hide='scale'/>
+                          :options='streamVideoCodecs' :label="$t('video_codec')" transition-show='scale' transition-hide='scale'
+                          :disable="!source.enabled"/>
                 <q-select v-if='source.stream_video_codec !== 3' dense emit-value
                           map-options filled color='cyan' v-model='source.preset'
-                          :options='presets' :label="$t('preset')" transition-show='scale' transition-hide='scale'/>
+                          :options='presets' :label="$t('preset')" transition-show='scale' transition-hide='scale'
+                          :disable="!source.enabled"/>
                 <q-input v-if='source.stream_video_codec !== 3' dense filled
                          v-model.number='source.stream_quality' color='cyan'
                          type='number' min='2' max='31'
-                         :label="$t('quality')"/>
+                         :label="$t('quality')" :disable="!source.enabled"/>
                 <q-input v-if='source.stream_video_codec !== 3' dense filled
                          v-model.number='source.stream_frame_rate' color='cyan'
-                         type='number' :label="$t('frame_rate')"/>
+                         type='number' :label="$t('frame_rate')" :disable="!source.enabled"/>
                 <q-input v-if='source.stream_video_codec !== 3' dense filled
                          v-model.number='source.stream_width' color='cyan'
-                         type='number' :label="$t('width')"/>
+                         type='number' :label="$t('width')" :disable="!source.enabled"/>
                 <q-input v-if='source.stream_video_codec !== 3' dense filled
                          v-model.number='source.stream_height' color='cyan'
-                         type='number' :label="$t('height')"/>
+                         type='number' :label="$t('height')" :disable="!source.enabled"/>
                 <q-select v-if='source.stream_video_codec !== 3' dense emit-value
                           map-options filled v-model='source.stream_rotate' color='cyan'
-                          :options='streamRotations' :label="$t('rotate')" transition-show='scale' transition-hide='scale'/>
+                          :options='streamRotations' :label="$t('rotate')" transition-show='scale' transition-hide='scale'
+                          :disable="!source.enabled"/>
                 <q-select dense emit-value map-options filled
-                          v-model='source.stream_audio_codec' color='cyan' :disable='source.stream_type>1&&!source.record_enabled'
-                          :options='audioCodecs' :label="$t('audio_codec')" transition-show='scale'
-                          transition-hide='scale'/>
+                          v-model='source.stream_audio_codec' color='cyan' :disable='(source.stream_type>1&&!source.record_enabled)||!source.enabled'
+                          :options='audioCodecs' :label="$t('audio_codec')" transition-show='scale' transition-hide='scale'/>
                 <q-select v-if='source.stream_audio_codec !== 0 && source.stream_audio_codec !== 8' dense emit-value
                           map-options filled
                           v-model='source.stream_audio_channel' color='cyan'
                           :options='audioChannels' :label="$t('audio_channel')" transition-show='flip-up'
-                          transition-hide='flip-down'/>
+                          transition-hide='flip-down' :disable="!source.enabled"/>
                 <q-select v-if='source.stream_audio_codec !== 0 && source.stream_audio_codec !== 8' dense emit-value
                           map-options filled
                           v-model='source.stream_audio_quality' color='cyan'
                           :options='audioQualities' :label="$t('audio_quality')" transition-show='scale'
-                          transition-hide='scale'/>
+                          transition-hide='scale' :disable="!source.enabled"/>
                 <q-select v-if='source.stream_audio_codec !== 0 && source.stream_audio_codec !== 8' dense emit-value
                           map-options filled
                           v-model='source.stream_audio_sample_rate' color='cyan'
                           :options='audioSampleRates' :label="$t('audio_sample_rate')" transition-show='scale'
-                          transition-hide='scale'/>
+                          transition-hide='scale' :disable="!source.enabled"/>
                 <q-input v-if='source.stream_audio_codec !== 0 && source.stream_audio_codec !== 8' dense filled
                          v-model.number='source.stream_audio_volume'
-                         :label="$t('audio_volume')" color='cyan'/>
+                         :label="$t('audio_volume')" color='cyan' :disable="!source.enabled"/>
 
                 <q-input v-if='source.stream_type>1' dense filled
                          v-model.number='source.ffmpeg_reader_frame_rate'
-                         type='number' :label="$t('reader_frame_rate')" color='cyan'/>
+                         type='number' :label="$t('reader_frame_rate')" color='cyan' :disable="!source.enabled"/>
                 <q-input v-if='source.stream_type>1' dense filled
                          v-model.number='source.ffmpeg_reader_width' color='cyan'
-                         type='number' :label="$t('reader_width')"/>
+                         type='number' :label="$t('reader_width')" :disable="!source.enabled"/>
                 <q-input v-if='source.stream_type>1' dense filled
                          v-model.number='source.ffmpeg_reader_height' color='cyan'
-                         type='number' :label="$t('reader_height')"/>
+                         type='number' :label="$t('reader_height')" :disable="!source.enabled"/>
 
                 <q-input v-if='source.stream_video_codec === 2 && source.stream_type===1' dense filled
                          v-model.number='source.hls_time' type='number' color='cyan'
-                         :label="$t('hls_segment_length')"/>
+                         :label="$t('hls_segment_length')" :disable="!source.enabled"/>
                 <q-input v-if='source.stream_video_codec === 2 && source.stream_type===1' dense filled
                          v-model.number='source.hls_list_size' color='cyan'
-                         type='number'
-                         :label="$t('hls_list_size')"/>
+                         type='number' :label="$t('hls_list_size')" :disable="!source.enabled"/>
               </q-form>
 
               <q-stepper-navigation>
-                <q-btn @click='step = 5' color='cyan' :label="$t('continue')"/>
-                <q-btn flat @click='step = 3' color='cyan' :label="$t('back')" class='q-ml-sm'/>
+                <q-btn @click='step = 5' color='cyan' :label="$t('continue')" :disable="!source.enabled"/>
+                <q-btn flat @click='step = 3' color='cyan' :label="$t('back')" class='q-ml-sm' :disable="!source.enabled"/>
               </q-stepper-navigation>
             </q-step>
 
             <q-step id='step5' :name='5' :title="$t('snapshot_for_ai')" icon='psychology' color='cyan' :done='step > 5'>
               <q-form class='q-gutter-md'>
                 <q-toggle dense v-model='source.snapshot_enabled' checked-icon='check' color='cyan'
-                          :label="$t('snapshot_for_ai') + ' ' + (source.snapshot_enabled ? $t('enabled') : $t('disabled'))"/>
-                <q-select v-if='source.snapshot_enabled' dense emit-value
-                          map-options filled v-model='source.snapshot_type' color='cyan'
-                          :options='snapshotTypes' :label="$t('snapshot_type')" transition-show='scale' transition-hide='scale'>
+                          :label="$t('snapshot_for_ai') + ' ' + (source.snapshot_enabled ? $t('enabled') : $t('disabled'))"
+                          :disable="!source.enabled"/>
+                <q-select v-if='source.snapshot_enabled' dense emit-value map-options filled v-model='source.snapshot_type' color='cyan'
+                          :options='snapshotTypes' :label="$t('snapshot_type')" transition-show='scale' transition-hide='scale'
+                          :disable="!source.enabled">
                   <q-tooltip><strong>{{ $t('t_snapshot_type') }}</strong></q-tooltip>
                 </q-select>
                 <q-input v-if='source.snapshot_enabled' dense filled v-model.number='source.snapshot_frame_rate'
-                         type='number' :label="$t('frame_rate')" color='cyan'/>
+                         type='number' :label="$t('frame_rate')" color='cyan' :disable="!source.enabled"/>
                 <q-input v-if='source.snapshot_enabled' dense filled v-model.number='source.snapshot_width'
-                         type='number' :label="$t('width')"/>
+                         type='number' :label="$t('width')" :disable="!source.enabled"/>
                 <q-input v-if='source.snapshot_enabled' dense filled v-model.number='source.snapshot_height'
-                         type='number' :label="$t('height')" color='cyan'/>
+                         type='number' :label="$t('height')" color='cyan' :disable="!source.enabled"/>
                 <q-toggle dense v-if='source.snapshot_enabled&&source.record_enabled' v-model='source.ai_clip_enabled' checked-icon='check'
-                          color='cyan' :label="$t('ai_clip') + ' ' + (source.ai_clip_enabled ? $t('enabled') : $t('disabled'))"/>
+                          color='cyan' :label="$t('ai_clip') + ' ' + (source.ai_clip_enabled ? $t('enabled') : $t('disabled'))"
+                          :disable="!source.enabled"/>
               </q-form>
               <q-stepper-navigation>
-                <q-btn @click='step = source.record_enabled ? 6 : 7' color='cyan' :label="$t('continue')"/>
-                <q-btn flat @click='step = 4' color='cyan' :label="$t('back')" class='q-ml-sm'/>
+                <q-btn @click='step = source.record_enabled ? 6 : 7' color='cyan' :label="$t('continue')" :disable="!source.enabled"/>
+                <q-btn flat @click='step = 4' color='cyan' :label="$t('back')" class='q-ml-sm' :disable="!source.enabled"/>
               </q-stepper-navigation>
             </q-step>
 
             <q-step v-if='source.record_enabled' id='step6' :name='6' :title="$t('recording')" icon='radio_button_checked' color='cyan'
                     :done='step > 6'>
               <q-form class='q-gutter-md'>
-                <q-select dense emit-value map-options filled
-                          v-model='source.record_file_type' color='cyan'
-                          :options='recordFileTypes' :label="$t('record_file_type')"
-                          transition-show='scale' transition-hide='scale'/>
-                <q-select dense emit-value map-options filled v-model='source.record_video_codec'
-                          :options='recordVideoCodecs' :label="$t('record_video_codec')" color='cyan'
-                          transition-show='scale' transition-hide='scale'/>
-                <q-input v-if='showRecordDetail' dense filled v-model.number='source.record_quality'
-                         type='number' :label="$t('record_quality')" color='cyan'/>
-                <q-select v-if='showRecordDetail' dense emit-value map-options filled
-                          v-model='source.record_preset' color='cyan'
-                          :options='recordPresets' :label="$t('record_preset')"
-                          transition-show='scale' transition-hide='scale'/>
-                <q-input v-if='showRecordDetail' dense filled v-model.number='source.record_frame_rate'
-                         type='number' :label="$t('record_frame_rate')" color='cyan'/>
-                <q-input v-if='showRecordDetail' dense filled v-model.number='source.record_width'
-                         type='number' :label="$t('record_width')" color='cyan'/>
-                <q-input v-if='showRecordDetail' dense filled v-model.number='source.record_height'
-                         type='number' :label="$t('record_height')" color='cyan'/>
-                <q-input dense filled v-model.number='source.record_segment_interval'
-                         type='number' :label="$t('record_segment_interval')" color='cyan'/>
-                <q-select v-if='showRecordDetail' dense emit-value map-options filled
-                          v-model='source.record_rotate' color='cyan'
-                          :options='recordRotations' :label="$t('record_rotate')" transition-show='scale' transition-hide='scale'/>
+                <q-select dense emit-value map-options filled v-model='source.record_file_type' color='cyan' :options='recordFileTypes'
+                          :label="$t('record_file_type')" transition-show='scale' transition-hide='scale' :disable="!source.enabled"/>
+                <q-select dense emit-value map-options filled v-model='source.record_video_codec' :options='recordVideoCodecs'
+                          :label="$t('record_video_codec')" color='cyan' transition-show='scale' transition-hide='scale'
+                          :disable="!source.enabled"/>
+                <q-input v-if='showRecordDetail' dense filled v-model.number='source.record_quality' type='number' :label="$t('record_quality')"
+                         color='cyan' :disable="!source.enabled"/>
+                <q-select v-if='showRecordDetail' dense emit-value map-options filled v-model='source.record_preset' color='cyan'
+                          :options='recordPresets' :label="$t('record_preset')" transition-show='scale' transition-hide='scale'
+                          :disable="!source.enabled"/>
+                <q-input v-if='showRecordDetail' dense filled v-model.number='source.record_frame_rate' type='number'
+                         :label="$t('record_frame_rate')" color='cyan' :disable="!source.enabled"/>
+                <q-input v-if='showRecordDetail' dense filled v-model.number='source.record_width' type='number' :label="$t('record_width')"
+                         color='cyan' :disable="!source.enabled"/>
+                <q-input v-if='showRecordDetail' dense filled v-model.number='source.record_height' type='number' :label="$t('record_height')"
+                         color='cyan' :disable="!source.enabled"/>
+                <q-input dense filled v-model.number='source.record_segment_interval' type='number' :label="$t('record_segment_interval')"
+                         color='cyan' :disable="!source.enabled"/>
+                <q-select v-if='showRecordDetail' dense emit-value map-options filled v-model='source.record_rotate' color='cyan'
+                          :options='recordRotations' :label="$t('record_rotate')" transition-show='scale' transition-hide='scale'
+                          :disable="!source.enabled"/>
                 <q-select emit-value map-options dense filled v-model='source.record_audio_codec'
-                          :options='audioCodecs' :label="$t('record_audio_codec')" color='cyan'
-                          transition-show='scale' transition-hide='scale'/>
+                          :options='audioCodecs' :label="$t('record_audio_codec')" color='cyan' transition-show='scale' transition-hide='scale'
+                          :disable="!source.enabled"/>
                 <q-select v-if='source.record_audio_codec !== 0 && source.record_audio_codec !== 8' dense emit-value map-options filled
-                          v-model='source.record_audio_channel' color='cyan'
-                          :options='audioChannels' :label="$t('record_audio_channel')" transition-show='flip-up'
-                          transition-hide='flip-down'/>
+                          v-model='source.record_audio_channel' color='cyan' :options='audioChannels' :label="$t('record_audio_channel')"
+                          transition-show='flip-up' transition-hide='flip-down' :disable="!source.enabled"/>
                 <q-select v-if='source.record_audio_codec !== 0 && source.record_audio_codec !== 8' dense emit-value map-options filled
-                          v-model='source.record_audio_quality' color='cyan'
-                          :options='audioQualities' :label="$t('record_audio_quality')" transition-show='scale'
-                          transition-hide='scale'/>
+                          v-model='source.record_audio_quality' color='cyan' :options='audioQualities' :label="$t('record_audio_quality')"
+                          transition-show='scale' transition-hide='scale' :disable="!source.enabled"/>
                 <q-select v-if='source.record_audio_codec !== 0 && source.record_audio_codec !== 8' dense emit-value map-options filled
-                          v-model='source.record_audio_sample_rate' color='cyan'
-                          :options='audioSampleRates' :label="$t('record_audio_sample_rate')" transition-show='scale'
-                          transition-hide='scale'/>
+                          v-model='source.record_audio_sample_rate' color='cyan' :options='audioSampleRates'
+                          :label="$t('record_audio_sample_rate')" transition-show='scale'
+                          transition-hide='scale' :disable="!source.enabled"/>
                 <q-input v-if='source.record_audio_codec !== 0 && source.record_audio_codec !== 8' dense filled
-                         v-model.number='source.record_audio_volume' :label="$t('record_audio_codec')" color='cyan'/>
+                         v-model.number='source.record_audio_volume' :label="$t('record_audio_codec')" color='cyan' :disable="!source.enabled"/>
               </q-form>
               <q-stepper-navigation>
-                <q-btn @click='step = 7' color='cyan' :label="$t('continue')"/>
-                <q-btn flat @click='step = 5' color='cyan' :label="$t('back')" class='q-ml-sm'/>
+                <q-btn @click='step = 7' color='cyan' :label="$t('continue')" :disable="!source.enabled"/>
+                <q-btn flat @click='step = 5' color='cyan' :label="$t('back')" class='q-ml-sm' :disable="!source.enabled"/>
               </q-stepper-navigation>
             </q-step>
 
             <q-step id='step7' :name='7' :title="$t('logging')" icon='announcement' color='cyan'>
               <q-select dense emit-value map-options filled v-model='source.log_level' :options='logLevels'
-                        :label="$t('log_level')" transition-show='scale' transition-hide='scale' color='cyan'/>
+                        :label="$t('log_level')" transition-show='scale' transition-hide='scale' color='cyan' :disable="!source.enabled"/>
               <q-stepper-navigation>
-                <q-btn flat @click='step = source.record_enabled ? 6 : 5' color='cyan' :label="$t('back')" class='q-ml-sm'/>
+                <q-btn flat @click='step = source.record_enabled ? 6 : 5' color='cyan' :label="$t('back')" class='q-ml-sm' :disable="!source.enabled"/>
               </q-stepper-navigation>
             </q-step>
 
@@ -337,13 +345,14 @@ import OnvifSettings from 'components/OnvifSettings.vue';
 import {NodeService} from 'src/utils/services/node_service';
 import {useQuasar} from 'quasar';
 import {PublishService, SubscribeService} from 'src/utils/services/websocket_services';
-import {findBestSettings, isNullOrEmpty, isNullOrUndefined} from 'src/utils/utils';
+import {databindWithLoading, findBestSettings, isNullOrEmpty, isNullOrUndefined} from 'src/utils/utils';
 import {LocalService} from 'src/utils/services/local_service';
 import {StoreService} from 'src/utils/services/store_service';
 import {WsConnection} from 'src/utils/ws/connection';
 import {ProbeResponseEvent, ProbeResult} from 'src/utils/models/various';
 import {List} from 'linqts';
 import {useI18n} from 'vue-i18n';
+import {StreamCommandBarActions} from 'src/store/module-settings/state';
 
 declare var $: any;
 export default {
@@ -397,6 +406,7 @@ export default {
     const quickWizardShowing = ref<boolean>(false);
     const copySelectedSourceId = ref<string>('');
     const copyPrevSources = ref<SourceModel[]>([]);
+    const loadingMakeEnabledOrDisabled = ref<boolean>(false);
 
     const insertMode = computed(() => {
       return isNullOrEmpty(source.value.id);
@@ -634,14 +644,26 @@ export default {
       });
     };
 
+    const onMakeEnabledOrDisabled = async () => {
+      await databindWithLoading(loadingMakeEnabledOrDisabled, async () => {
+        source.value = await nodeService.setSourceEnabled({id: <string>source.value.id, enabled: !source.value.enabled});
+        setTimeout(() =>{
+          storeService.setNotifySourceStreamStatusChanged();
+          if (!source.value.enabled){
+            storeService.setStreamCommandBar({ source: {...source.value}, action: StreamCommandBarActions.CloseSourceSettings});
+          }
+        }, 3000);
+      });
+    };
+
     return {
       source, showRecordDetail, step, rtspTransports, logLevels,
       accelerationEngines, videoDecoders, streamTypes,
       audioCodecs, streamVideoCodecs, presets, recommendedRtspAddresses,
       streamRotations, rtmpServerTypes, audioChannels, inactives, showOnvif,
       audioQualities, audioSampleRates, recordFileTypes, recordVideoCodecs,
-      recordPresets, recordRotations, showFindOptimalSettings, snapshotTypes, flvPlayerTypes, sourceStates,
-      onSave, onDelete, onStep1Click, onRecordChange, onStreamTypeChanged, onFindOptimalSettings,
+      recordPresets, recordRotations, showFindOptimalSettings, snapshotTypes, flvPlayerTypes, sourceStates, loadingMakeEnabledOrDisabled,
+      onSave, onDelete, onStep1Click, onRecordChange, onStreamTypeChanged, onFindOptimalSettings, onMakeEnabledOrDisabled,
       insertMode, showQuickWizard, quickWizardShowing,
       onFindOptimalSettings2() {
         let model = source.value;

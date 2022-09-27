@@ -1,63 +1,66 @@
 <template>
-  <div v-show='!hide'>
+  <div v-show='!hide' :id="containerId">
     <q-chip square :class='{"transparent": transparent}' color='primary' text-color='white' icon='videocam'>
       {{ stream.name }} ({{ rtmpType }} / {{ streamType }}{{ (enableBooster ? ' / Boosted' : '') }}{{ (stream.snapshot_enabled ? ' / AI' : '') }})
     </q-chip>
     <q-icon style="margin-left: 5px;" v-if='stream.record_enabled' name='fiber_manual_record' size='sm' color='red' class='blink_me'>
       <label style='font-size: x-small; color: black;'>REC</label>
     </q-icon>
-    <q-separator style='margin-bottom: 5px;' />
+    <q-separator style='margin-bottom: 5px;'/>
     <q-btn-group>
-      <q-btn :dense='dense' color='cyan' rounded glossy icon-right='settings' @click='onSettingsClick'>
-        <q-tooltip class='bg-cyan'>{{$t('settings')}}</q-tooltip>
+      <q-btn v-show="visibilityList['settings']" :dense='dense' color='cyan' rounded glossy icon-right='settings' @click='onSettingsClick'>
+        <q-tooltip class='bg-cyan'>{{ $t('settings') }}</q-tooltip>
       </q-btn>
-      <q-btn :dense='dense' color='secondary' rounded glossy icon='sync' @click='onRefresh'>
-        <q-tooltip class='bg-secondary'>{{$t('refresh')}}</q-tooltip>
+      <q-btn v-show="visibilityList['sync']" :dense='dense' color='secondary' rounded glossy icon='sync' @click='onRefresh'>
+        <q-tooltip class='bg-secondary'>{{ $t('refresh') }}</q-tooltip>
       </q-btn>
-      <q-btn :dense='dense' color='secondary' rounded glossy icon='power' @click='onConnectClick'>
-        <q-tooltip class='bg-secondary'>{{$t('connect')}}</q-tooltip>
+      <q-btn v-show="visibilityList['power']" :dense='dense' color='secondary' rounded glossy icon='power' @click='onConnectClick'>
+        <q-tooltip class='bg-secondary'>{{ $t('connect') }}</q-tooltip>
       </q-btn>
-      <q-btn :dense='dense' color='secondary' rounded glossy icon='restart_alt' @click='onRestartClick'>
-        <q-tooltip class='bg-secondary'>{{$t('restart')}}</q-tooltip>
+      <q-btn v-show="visibilityList['restart_alt']" :dense='dense' color='secondary' rounded glossy icon='restart_alt' @click='onRestartClick'>
+        <q-tooltip class='bg-secondary'>{{ $t('restart') }}</q-tooltip>
       </q-btn>
-      <q-btn :dense='dense' color='deep-orange' rounded glossy icon='power_off' @click='onStreamStopClick'>
-        <q-tooltip class='bg-deep-orange'>{{$t('stop')}}</q-tooltip>
+      <q-btn v-show="visibilityList['power_off']" :dense='dense' color='deep-orange' rounded glossy icon='power_off' @click='onStreamStopClick'>
+        <q-tooltip class='bg-deep-orange'>{{ $t('stop') }}</q-tooltip>
       </q-btn>
-      <q-btn :dense='dense' color='purple' rounded glossy icon='dvr' @click='onRecordClick'>
-        <q-tooltip class='bg-accent'>{{$t('playback')}}</q-tooltip>
+      <q-btn v-show="visibilityList['dvr']" :dense='dense' color='purple' rounded glossy icon='dvr' @click='onRecordClick'>
+        <q-tooltip class='bg-accent'>{{ $t('playback') }}</q-tooltip>
       </q-btn>
-      <q-btn :dense='dense' color='purple' rounded glossy icon='photo_camera' @click='onTakeScreenshot'>
-        <q-tooltip class='bg-accent'>{{$t('take_screenshot')}}</q-tooltip>
-        <q-inner-loading :showing='takeScreenshotLoading' :size="dense?'32px':'42px'" />
+      <q-btn v-show="visibilityList['photo_camera']" :dense='dense' color='purple' rounded glossy icon='photo_camera' @click='onTakeScreenshot'>
+        <q-tooltip class='bg-accent'>{{ $t('take_screenshot') }}</q-tooltip>
+        <q-inner-loading :showing='takeScreenshotLoading' :size="dense?'32px':'42px'"/>
       </q-btn>
-      <q-btn :dense='dense' color='orange' rounded glossy icon='psychology' @click='onAiClick'>
-        <q-tooltip class='bg-orange'>{{$t('ai')}}</q-tooltip>
+      <q-btn v-show="visibilityList['psychology']" :dense='dense' color='orange' rounded glossy icon='psychology' @click='onAiClick'>
+        <q-tooltip class='bg-orange'>{{ $t('ai') }}</q-tooltip>
       </q-btn>
-      <q-btn :dense='dense' color='brown-5' rounded glossy icon='settings_ethernet' @click='onOnvifClick'>
-        <q-tooltip class='bg-brown-5'>{{$t('onvif')}}</q-tooltip>
+      <q-btn v-show="visibilityList['settings_ethernet']" :dense='dense' color='brown-5' rounded glossy icon='settings_ethernet'
+             @click='onOnvifClick'>
+        <q-tooltip class='bg-brown-5'>{{ $t('onvif') }}</q-tooltip>
       </q-btn>
-      <q-btn :dense='dense' v-if='showFullScreenButton' color='primary' rounded glossy icon='fullscreen' @click='onFullScreenClick'>
-        <q-tooltip class='bg-primary'>{{$t('fullscreen')}}</q-tooltip>
+      <q-btn v-show="visibilityList['fullscreen']" :dense='dense' v-if='showFullScreenButton' color='primary' rounded glossy icon='fullscreen'
+             @click='onFullScreenClick'>
+        <q-tooltip class='bg-primary'>{{ $t('fullscreen') }}</q-tooltip>
       </q-btn>
-      <q-btn :dense='dense' color='deep-orange' rounded glossy icon='close' @click='onClose'>
-        <q-tooltip class='bg-deep-orange'>{{$t('close')}}</q-tooltip>
+      <q-btn v-show="visibilityList['close']" :dense='dense' color='deep-orange' rounded glossy icon='close' @click='onClose'>
+        <q-tooltip class='bg-deep-orange'>{{ $t('close') }}</q-tooltip>
       </q-btn>
     </q-btn-group>
-    <q-separator style='margin-top: 5px;' />
+    <q-separator style='margin-top: 5px;'/>
   </div>
 </template>
 
 <script lang='ts'>
-import { ref, computed } from 'vue';
-import { PublishService } from 'src/utils/services/websocket_services';
-import { NodeService } from 'src/utils/services/node_service';
-import { SourceModel } from 'src/utils/models/source_model';
-import { StreamModel } from 'src/utils/models/stream_model';
-import { LocalService, SelectOption } from 'src/utils/services/local_service';
-import { List } from 'linqts';
-import { useRouter } from 'vue-router';
-import { StoreService } from 'src/utils/services/store_service';
+import {ref, computed, onMounted} from 'vue';
+import {PublishService} from 'src/utils/services/websocket_services';
+import {NodeService} from 'src/utils/services/node_service';
+import {SourceModel} from 'src/utils/models/source_model';
+import {StreamModel} from 'src/utils/models/stream_model';
+import {LocalService, SelectOption} from 'src/utils/services/local_service';
+import {List} from 'linqts';
+import {useRouter} from 'vue-router';
+import {StoreService} from 'src/utils/services/store_service';
 import {StreamCommandBarActions} from 'src/store/module-settings/state';
+import {v4 as uuidv4} from 'uuid';
 
 export default {
   name: 'StreamCommandBar',
@@ -85,14 +88,14 @@ export default {
       default: false,
       required: true
     },
-    hide:{
-      type:Boolean,
-      default:false,
-      required:false
+    hide: {
+      type: Boolean,
+      default: false,
+      required: false
     }
   },
   //@ts-ignore
-  setup(props: any, { emit }) {
+  setup(props: any, {emit}) {
     const router = useRouter();
     const dense = ref<boolean>(props.transparent);
     const localService = new LocalService();
@@ -108,6 +111,41 @@ export default {
     });
     const publishService = new PublishService();
     const nodeService = new NodeService();
+    const visibilityList = ref({
+      'settings': true,
+      'sync': true,
+      'power': true,
+      'restart_alt': true,
+      'power_off': true,
+      'dvr': true,
+      'photo_camera': true,
+      'psychology': true,
+      'settings_ethernet': true,
+      'fullscreen': true,
+      'close': true,
+    });
+    const containerId = ref(uuidv4())
+
+    onMounted(() => {
+      window.addEventListener('resize', function () {
+        setTimeout(() => {
+          const meDiv = document.getElementById(containerId.value);
+          if (!meDiv) return;
+          const parent = meDiv.parentNode
+          //@ts-ignore
+          if (!parent) return;
+          //@ts-ignore
+          const clientWidth = parent.clientWidth
+          if (!clientWidth) return;
+          //@ts-ignore
+          visibilityList.value['settings_ethernet'] = clientWidth > 400; // onvif
+          visibilityList.value['photo_camera'] = clientWidth > 375; // screenshot
+          visibilityList.value['power'] = clientWidth > 350; // connect
+          visibilityList.value['dvr'] = clientWidth > 325; // record
+          visibilityList.value['psychology'] = clientWidth > 300; // ai,
+        }, 250);
+      }, true);
+    });
 
     const onRecordClick = () => {
       storeService.setRecordSourceId(props.stream.id);
@@ -141,17 +179,17 @@ export default {
         emit('refresh', cloneStream);
       },
       onSettingsClick() {
-        storeService.setStreamCommandBar({ source: cloneStream, action: StreamCommandBarActions.ShowSourceSettings});
+        storeService.setStreamCommandBar({source: cloneStream, action: StreamCommandBarActions.ShowSourceSettings});
       },
       onAiClick,
       onOnvifClick() {
-        storeService.setStreamCommandBar({ source: cloneStream, action: StreamCommandBarActions.ShowOnvifSettings});
+        storeService.setStreamCommandBar({source: cloneStream, action: StreamCommandBarActions.ShowOnvifSettings});
       },
       onClose() {
         emit('close', cloneStream);
-        storeService.setStreamCommandBar({ source: cloneStream, action: StreamCommandBarActions.CloseSourceSettings});
+        storeService.setStreamCommandBar({source: cloneStream, action: StreamCommandBarActions.CloseSourceSettings});
       },
-      dense,
+      dense, visibilityList, containerId,
       onRecordClick,
       rtmpType, streamType
     };

@@ -68,7 +68,7 @@
               <q-item-section v-if='!link.isSource' style='cursor: pointer;' v-ripple @click='onLeftMenuClick(link)'>
                 <q-item-label>{{ link.text }}</q-item-label>
               </q-item-section>
-              <q-item-section v-if='link.isSource'>
+              <q-item-section v-if='link.isSource' :class="{'disabled':sourceStreamStatus[link.id]&&!sourceStreamStatus[link.id].enabled}">
                 <q-img :src="'data:image/png;base64, ' + (link.thumbnail ? link.thumbnail : emptyBase64Image)" spinner-color='white'
                        style='height: 80px; width: 200px; cursor: pointer;' class="shadow-2">
                   <div class='absolute-bottom text-subtitle1 three-dots'>
@@ -78,7 +78,7 @@
                     <q-icon v-if='sourceStreamStatus[link.id]&&sourceStreamStatus[link.id].recording' name='fiber_manual_record' color='red'
                             style='margin-right: 3px;' class='blink_me'/>
                     <q-icon :name='link.icon'/>
-                    <span>{{ link.text }}</span>
+                    <span style="margin-left: 5px;">{{ link.text }}</span>
                   </div>
                   <q-inner-loading v-if='loadingObject[link.id]' :showing='true' :label="$t('please_wait')" label-class='text-cyan'
                                    label-style='font-size: 1.1em'>
@@ -88,7 +88,7 @@
               </q-item-section>
               <q-btn-dropdown v-if='link.isSource' color='primary' dropdown-icon='settings' :dense='true' square>
                 <q-list>
-                  <q-item clickable v-close-popup @click='onStartStreaming(link)' v-ripple>
+                  <q-item clickable v-close-popup @click='onStartStreaming(link)' v-ripple :disable="sourceStreamStatus[link.id]&&!sourceStreamStatus[link.id].enabled">
                     <q-item-section side>
                       <q-icon name='live_tv' color='cyan'/>
                     </q-item-section>
@@ -96,7 +96,7 @@
                       <q-item-label>{{ $t('start_streaming') }}</q-item-label>
                     </q-item-section>
                   </q-item>
-                  <q-item clickable v-close-popup @click='onStopStreaming(link)' v-ripple>
+                  <q-item clickable v-close-popup @click='onStopStreaming(link)' v-ripple :disable="sourceStreamStatus[link.id]&&!sourceStreamStatus[link.id].enabled">
                     <q-item-section side>
                       <q-icon name='power_off' color='deep-orange'/>
                     </q-item-section>
@@ -128,7 +128,7 @@
                       <q-item-label>{{ $t('ai') }}</q-item-label>
                     </q-item-section>
                   </q-item>
-                  <q-item clickable v-close-popup @click='onOnvifClick(link)'>
+                  <q-item clickable v-close-popup @click='onOnvifClick(link)' :disable="sourceStreamStatus[link.id]&&!sourceStreamStatus[link.id].enabled">
                     <q-item-section side>
                       <q-icon name='settings_ethernet' color='brown-5'/>
                     </q-item-section>

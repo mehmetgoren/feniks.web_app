@@ -6,7 +6,7 @@ import {SourceModel} from 'src/utils/models/source_model';
 import {VideoFile} from 'src/utils/entities';
 import {isNullOrEmpty} from 'src/utils/utils';
 import {StreamModel} from 'src/utils/models/stream_model';
-import {SourceStatusModel} from 'src/utils/models/source_status_model';
+import {SourceEnabledModel, SourceStatusModel} from 'src/utils/models/source_status_model';
 import {OdModel} from 'src/utils/models/od_model';
 import {ImagesParams, FolderTreeItem, ImageItem} from 'src/utils/models/detected';
 import {AiClipViewModel, AiClipQueryViewModel} from 'src/utils/models/ai_clip_view_models';
@@ -51,6 +51,11 @@ export class NodeService extends BaseService {
 
   public async getSourceStreamStatus(): Promise<SourceStatusModel[]> {
     const response = await api.get(await this.LocalService.getNodeAddress('sourcestreamstatus'));
+    return response.data;
+  }
+
+  public async setSourceEnabled(model: SourceEnabledModel): Promise<SourceModel> {
+    const response = await api.post(await this.LocalService.getNodeAddress('setsourceenabled'), model);
     return response.data;
   }
 

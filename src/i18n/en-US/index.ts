@@ -244,7 +244,6 @@ export default {
   logging: 'Logging',
   select_source_copy_from: 'Please Select a Camera to Copy From',
   copy_settings_from: 'Copy Settings From',
-  enable: 'Enable',
   v_enter_valid_name: 'Please Enter a Valid Name',
   v_enter_valid_address: 'Please Enter a Valid Address',
   record: 'Recording',
@@ -459,4 +458,6 @@ export default {
   please_enter_valid_number: 'Please Enter a Valid Number',
   low_latency: 'Low Latency',
   flv: 'FLV',
+  make_enabled: 'Make Enabled',
+  make_disabled: 'Make Disable',
 };

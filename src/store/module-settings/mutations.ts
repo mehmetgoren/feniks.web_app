@@ -33,7 +33,7 @@ const mutation: MutationTree<ISettingsState> = {
     const route = 'node';
     const menuLink: MenuLink = {
       route: route + '&source=' + source.id,
-      icon: 'videocam',
+      icon: source.enabled ? 'videocam' :  'videocam_off',
       text: source.name,
       id: source.id,
       source: source,
@@ -45,9 +45,11 @@ const mutation: MutationTree<ISettingsState> = {
   updateSourceToLeftMenu(state: ISettingsState, source: SourceModel){
     const cameras = [...state.menu['node']['cameras']];
     for (let j = 0; j < cameras.length; ++j){
-      if (cameras[j].id === source.id){
-        cameras[j].text = source.name;
-        cameras[j].source = source;
+      const cam = cameras[j];
+      if (cam.id === source.id){
+        cam.text = source.name;
+        cam.source = source;
+        cam.icon = source.enabled ? 'videocam' :  'videocam_off';
         break;
       }
     }

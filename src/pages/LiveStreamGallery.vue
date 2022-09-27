@@ -18,13 +18,11 @@
         <FFmpegReaderPlayer v-if='stream.show&&stream.stream_type===2' :source-id='stream.id' :ref='setStreamPlayers'
                             @user-activity='onUserActivity'/>
 
-        <div v-show="!stream.hideCommandBarForSize">
-          <StreamCommandBar v-if='stream.show' v-show="!stream.showHtml2Canvas" :stream='stream' :hide='stream.hide' @full-screen='onFullScreen'
-                            @stream-stop='onStreamStop' @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh'
-                            @restart='onRestart' @close='onStreamClose'
-                            :take-screenshot-loading='stream.takeScreenshotLoading'
-                            :enable-booster='stream.booster_enabled' :transparent='true'/>
-        </div>
+        <StreamCommandBar v-if='stream.show' v-show="!stream.showHtml2Canvas" :stream='stream' :hide='stream.hide' @full-screen='onFullScreen'
+                          @stream-stop='onStreamStop' @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh'
+                          @restart='onRestart' @close='onStreamClose'
+                          :take-screenshot-loading='stream.takeScreenshotLoading'
+                          :enable-booster='stream.booster_enabled' :transparent='true'/>
 
         <q-inner-loading :showing='!stream.show' v-show="!stream.showHtml2Canvas" label='Please wait...' label-class='text-cyan'/>
         <div :id='"ss" + stream.id' v-show="stream.showHtml2Canvas"></div>
@@ -99,6 +97,7 @@ export default {
         case StreamCommandBarActions.ShowOnvifSettings:
           //do nothing
           break;
+        case StreamCommandBarActions.CloseSourceSettings:
         case  StreamCommandBarActions.DeleteSource:
           removeSource(stream);
           break;
@@ -179,7 +178,6 @@ export default {
         streamList.push(stream);
         open.value = false;
         stream.showHtml2Canvas = false;
-        stream.hideCommandBarForSize = false;
         if (triggeredByWebSocket) {
           loadInitGrid(() => storeService.setSourceLoading(stream.id, false));
         }
@@ -344,19 +342,6 @@ export default {
       await initActiveStreamsFirstTime();
 
       fixVideoJsFullScreenButton();
-
-      window.addEventListener('resize', function () {
-        setTimeout(() => {
-          for (const stream of streamList) {
-            const div = document.querySelector('#ctx' + stream.id)
-            if (!div || !div.clientWidth) {
-              stream.hideCommandBarForSize = false;
-              continue;
-            }
-            stream.hideCommandBarForSize = div.clientWidth <= 385
-          }
-        });
-      }, true);
     });
 
     onBeforeUnmount(() => {
@@ -490,7 +475,6 @@ interface StreamExtModel extends StreamModel {
   takeScreenshotLoading: boolean;
   hide: boolean;
   showHtml2Canvas: boolean;
-  hideCommandBarForSize: boolean;
 }
 </script>
 <style scoped>

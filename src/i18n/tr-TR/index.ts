@@ -244,7 +244,6 @@ export default {
   logging: 'Loglama',
   select_source_copy_from: 'Lütfen Kopyalamak İçin Bir Kamera Seçin',
   copy_settings_from: 'Ayarları Kopyala',
-  enable: 'Etkin',
   v_enter_valid_name: 'Lütfen Kamera İsmini Girin',
   v_enter_valid_address: 'Lütfen Kamera İçin Geçerli Bir Adres Girin',
   record: 'Kayıt',
@@ -459,4 +458,6 @@ export default {
   please_enter_valid_number: 'Lütfen Sayısal Bir Değer Girin',
   low_latency: 'Düşük Gecikmeli',
   flv: 'FLV',
+  make_enabled: 'Etkinleştir',
+  make_disabled: 'Devre Dışı Bırak',
 };
