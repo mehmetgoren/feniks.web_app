@@ -1,8 +1,10 @@
 <template>
-  <video :id="videoId" controls preload='auto' autoplay muted @mouseover="onMouseOver" @mouseleave="onMouseLeave"
-         style='width: 100%;height: 100%;margin-bottom: -85px;' class="mpegts-player">
-    Your browser is too old which doesn't support HTML5 video.
-  </video>
+  <div style='width: 100%;height: 100%;'>
+    <video :id="videoId" controls preload='auto' autoplay muted @mouseover="onMouseOver" @mouseleave="onMouseLeave" class="mpegts-player"
+           style='width: 100%;height: 100%;'>
+      Your browser is too old which doesn't support HTML5 video.
+    </video>
+  </div>
 </template>
 
 <script lang="ts">

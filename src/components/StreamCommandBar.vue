@@ -50,7 +50,7 @@
 </template>
 
 <script lang='ts'>
-import {ref, computed, onMounted} from 'vue';
+import {ref, computed, onMounted, onBeforeUnmount} from 'vue';
 import {PublishService} from 'src/utils/services/websocket_services';
 import {NodeService} from 'src/utils/services/node_service';
 import {SourceModel} from 'src/utils/models/source_model';
@@ -127,25 +127,31 @@ export default {
     const containerId = ref(uuidv4())
 
     onMounted(() => {
-      window.addEventListener('resize', function () {
-        setTimeout(() => {
-          const meDiv = document.getElementById(containerId.value);
-          if (!meDiv) return;
-          const parent = meDiv.parentNode
-          //@ts-ignore
-          if (!parent) return;
-          //@ts-ignore
-          const clientWidth = parent.clientWidth
-          if (!clientWidth) return;
-          //@ts-ignore
-          visibilityList.value['settings_ethernet'] = clientWidth > 400; // onvif
-          visibilityList.value['photo_camera'] = clientWidth > 375; // screenshot
-          visibilityList.value['power'] = clientWidth > 350; // connect
-          visibilityList.value['dvr'] = clientWidth > 325; // record
-          visibilityList.value['psychology'] = clientWidth > 300; // ai,
-        }, 250);
-      }, true);
+      window.addEventListener('resize', tuneButtonVisibility, true);
     });
+
+    onBeforeUnmount(() => {
+      window.removeEventListener('resize', tuneButtonVisibility, true);
+    });
+
+    function tuneButtonVisibility(){
+      setTimeout(() => {
+        const meDiv = document.getElementById(containerId.value);
+        if (!meDiv) return;
+        const parent = meDiv.parentNode
+        //@ts-ignore
+        if (!parent) return;
+        //@ts-ignore
+        const clientWidth = parent.clientWidth
+        if (!clientWidth) return;
+        //@ts-ignore
+        visibilityList.value['settings_ethernet'] = clientWidth > 400; // onvif
+        visibilityList.value['photo_camera'] = clientWidth > 375; // screenshot
+        visibilityList.value['power'] = clientWidth > 350; // connect
+        visibilityList.value['dvr'] = clientWidth > 325; // record
+        visibilityList.value['psychology'] = clientWidth > 300; // ai,
+      }, 250);
+    }
 
     const onRecordClick = () => {
       storeService.setRecordSourceId(props.stream.id);

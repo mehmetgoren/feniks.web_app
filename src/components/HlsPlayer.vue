@@ -1,5 +1,5 @@
 <template>
-  <div class='video-player' v-if='reset' style='width: 100%;height: 100%;margin-bottom: -85px;'>
+  <div class='video-player' v-if='reset' style='width: 100%;height: 100%;'>
     <video class='video-js' ref='video'>
       <track v-for='crtTrack in trackList' :kind='crtTrack.kind' :label='crtTrack.label' :src='crtTrack.src'
              :key='crtTrack.src'

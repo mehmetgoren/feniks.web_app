@@ -15,13 +15,13 @@
                    :enable-log='false' :ref='setStreamPlayers'
                    :enable-booster='stream.booster_enabled' :seek-to-live-edge-internal='config.ui.seek_to_live_edge_internal' :gallery-index='index'
                    @user-activity='onUserActivity' @need-refresh="onNeedRefresh"/>
-        <FFmpegReaderPlayer v-if='stream.show&&stream.stream_type===2' :source-id='stream.id' :ref='setStreamPlayers'
+        <WebSocketPlayer v-if='stream.show&&stream.stream_type===2' :source-id='stream.id' :ref='setStreamPlayers'
                             @user-activity='onUserActivity'/>
 
         <StreamCommandBar v-if='stream.show' v-show="!stream.showHtml2Canvas" :stream='stream' :hide='stream.hide' @full-screen='onFullScreen'
                           @stream-stop='onStreamStop' @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh'
-                          @restart='onRestart' @close='onStreamClose'
-                          :take-screenshot-loading='stream.takeScreenshotLoading'
+                          @restart='onRestart' @close='onStreamClose' :take-screenshot-loading='stream.takeScreenshotLoading'
+                          :style="{'margin-top': marginTop[stream.id].toString() + 'px'}"
                           :enable-booster='stream.booster_enabled' :transparent='true'/>
 
         <q-inner-loading :showing='!stream.show' v-show="!stream.showHtml2Canvas" label='Please wait...' label-class='text-cyan'/>
@@ -36,13 +36,14 @@
 </template>
 
 <script lang='ts'>
+declare var $: any;
 import {nextTick, onBeforeUnmount, onBeforeUpdate, onMounted, reactive, ref, watch} from 'vue';
 import {StreamModel} from 'src/utils/models/stream_model';
 import {EditorImageResponseModel} from 'src/utils/entities';
 import {List} from 'linqts';
 import HlsPlayer from 'components/HlsPlayer.vue';
 import FlvPlayer from 'components/FlvPlayer.vue';
-import FFmpegReaderPlayer from 'components/FFmpegReaderPlayer.vue';
+import WebSocketPlayer from 'components/WebSocketPlayer.vue';
 import MpegTsPlayer from 'components/MpegTsPlayer.vue';
 import StreamCommandBar from 'components/StreamCommandBar.vue';
 import 'gridstack/dist/gridstack.min.css';
@@ -67,7 +68,7 @@ import {StopStreamResponseEvent} from 'src/utils/models/various';
 export default {
   name: 'LiveStreamGallery',
   components: {
-    HlsPlayer, FlvPlayer, FFmpegReaderPlayer, MpegTsPlayer, StreamCommandBar
+    HlsPlayer, FlvPlayer, WebSocketPlayer, MpegTsPlayer, StreamCommandBar
   },
   setup() {
     const open = ref<boolean>(false);
@@ -87,6 +88,7 @@ export default {
     let isRemoteServer = false;
     const config = ref<Config>();
     const minWidth = ref<number>(4);
+    const marginTop = ref<any>({});
 
     const clickedStreamCommandBar = storeService.clickedStreamCommandBar;
     watch(clickedStreamCommandBar, (info: StreamCommandBarInfo) => {
@@ -176,6 +178,7 @@ export default {
         stream.takeScreenshotLoading = false;
         stream.hide = false;
         streamList.push(stream);
+        calculateMarginTop(stream.id);
         open.value = false;
         stream.showHtml2Canvas = false;
         if (triggeredByWebSocket) {
@@ -197,6 +200,30 @@ export default {
         storeService.setNotifySourceStreamStatusChanged();
       }
     };
+
+    function calculateMarginTopAll(){
+      for(const stream of streamList){
+        calculateMarginTop(stream.id);
+      }
+    }
+
+    function calculateMarginTop(sourceId: string){
+      const defaultValue = -77;
+      const parentHeight: number = $('#ctx' + sourceId).width();
+      if (!parentHeight){
+        marginTop.value[sourceId] = defaultValue;
+        return;
+      }
+
+      const multiplier = 70.0;
+      const meHeight = 79.9688;
+      let top = (meHeight / parentHeight * multiplier) + multiplier + 2.0;
+      top *= -1.0
+      if (top > -defaultValue){
+        top = defaultValue;
+      }
+      marginTop.value[sourceId] = top;
+    }
 
     function onSubscribeStartStream(event: MessageEvent) {
       const streamModel: StreamModel = JSON.parse(event.data);
@@ -297,6 +324,9 @@ export default {
               stream.hide = true;
             }
           }, 250);
+          setTimeout(() => {
+            calculateMarginTopAll();
+          }, 1000);
         });
       }
     }
@@ -342,7 +372,10 @@ export default {
       await initActiveStreamsFirstTime();
 
       fixVideoJsFullScreenButton();
+
+      window.addEventListener('resize', calculateMarginTopAll, true);
     });
+
 
     onBeforeUnmount(() => {
       if (connStartStream) {
@@ -354,6 +387,7 @@ export default {
       if (connTakeScreenshot) {
         connTakeScreenshot.close();
       }
+      window.removeEventListener('resize', calculateMarginTopAll, true);
     });
 
     //events starts
@@ -459,7 +493,7 @@ export default {
     }
 
     return {
-      open, streamList, showLoading, config, minWidth,
+      open, streamList, showLoading, config, minWidth, marginTop,
       setStreamPlayers, onFullScreen, onStreamStop, onConnect, onTakeScreenshot,
       onRefresh, onRestart, onStreamClose, onUserActivity, onNeedRefresh
     };

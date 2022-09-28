@@ -1,5 +1,5 @@
 <template>
-  <div class='video-player' style='width: 100%;height: 100%;margin-bottom: -85px;'>
+  <div class='video-player' style='width: 100%;height: 100%;'>
     <video :id="videojsId" ref='videoPlayer' class='video-js' controls preload='auto'>
       <source :src='src' type='video/x-flv'>
     </video>

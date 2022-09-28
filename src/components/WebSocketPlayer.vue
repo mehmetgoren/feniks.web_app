@@ -1,5 +1,5 @@
 <template>
-  <div style='width: 100%;height: 100%;margin-bottom: -85px;' @mouseover="onMouseOver" @mouseleave="onMouseLeave">
+  <div style='width: 100%;height: 100%;' @mouseover="onMouseOver" @mouseleave="onMouseLeave">
     <img :id='"ffrp_" + sourceId' :src='src' alt='video' :width='width' :height='height' class="container_img"/>
   </div>
 </template>
@@ -12,7 +12,7 @@ import {NodeService} from 'src/utils/services/node_service';
 import {LocalService} from 'src/utils/services/local_service';
 
 export default {
-  name: 'FFmpegReaderPlayer',
+  name: 'WebSocketPlayer',
   emits: ['user-activity'],
   props: {
     sourceId: {

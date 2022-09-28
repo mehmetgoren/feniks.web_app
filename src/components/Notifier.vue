@@ -84,9 +84,7 @@ export default {
               break;
           }
         }
-        window.addEventListener('resize', function() {
-          popupShow.value = false;
-        });
+        window.addEventListener('resize', popupHide, true);
       });
 
       timeSinceInterval = setInterval(() => {
@@ -104,7 +102,12 @@ export default {
       if (timeSinceInterval){
         clearInterval(timeSinceInterval);
       }
+      window.removeEventListener('resize', popupHide, true);
     });
+
+    function popupHide(){
+      popupShow.value = false;
+    }
 
     const addCachedSource = async (sourceId: string) => {
       cachedSources[sourceId] = await nodeService.getSource(sourceId);
