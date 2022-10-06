@@ -4,7 +4,7 @@
       <q-toolbar>
         <q-toolbar-title>
           <CommandBar :show-restore='false' @on-save='onSave' :inactive-save='inactives.save' @on-delete='onDelete' :show-delete="!insertMode"
-                      :inactive-delete='inactives.delete' :show-refresh="false"  :disable="!insertMode&&!source.enabled"/>
+                      :inactive-delete='inactives.delete' :show-refresh="false" :disable="!insertMode&&!source.enabled"/>
           <q-btn v-if="insertMode" class="gt-xs" dense flat icon='auto_awesome' :label="$t('add_new_source_quickly')"
                  @click="showQuickWizard=true">
             <q-tooltip>{{ $t('t_add_new_source_quickly') }}</q-tooltip>
@@ -82,7 +82,7 @@
                     </q-icon>
                   </template>
                   <template v-slot:after>
-                    <q-btn flat icon="query_stats" @click="onFindOptimalSettings" :disable="showFindOptimalSettings||!source.enabled" >
+                    <q-btn flat icon="query_stats" @click="onFindOptimalSettings" :disable="showFindOptimalSettings||!source.enabled">
                       <q-tooltip transition-show="rotate" transition-hide="rotate">
                         {{ $t('find_optimal_settings') }}
                       </q-tooltip>
@@ -236,6 +236,34 @@
                          type='number' :label="$t('width')" :disable="!source.enabled"/>
                 <q-input v-if='source.snapshot_enabled' dense filled v-model.number='source.snapshot_height'
                          type='number' :label="$t('height')" color='cyan' :disable="!source.enabled"/>
+                <q-select v-if='source.snapshot_enabled' dense emit-value map-options filled v-model='source.md_type' color='cyan'
+                          :options='motionDetectionTypes' :label="$t('md_type')" transition-show='scale' transition-hide='scale'
+                          :disable="!source.enabled"/>
+
+                <q-badge v-if='source.snapshot_enabled&&source.md_type===1' color="cyan">
+                  {{ $t('md_opencv_threshold') }} : {{ source.md_opencv_threshold }} (0 - 255)
+                </q-badge>
+                <q-slider v-if='source.snapshot_enabled&&source.md_type===1' dense v-model.number='source.md_opencv_threshold' :min="0" :max="255"
+                          color='cyan' :disable="!source.enabled" label label-always switch-label-side :step="1"/>
+
+                <q-badge v-if='source.snapshot_enabled&&source.md_type===1' color="cyan">
+                  {{ $t('md_contour_area_limit') }} : {{ source.md_contour_area_limit }} (1000 - 20000)
+                </q-badge>
+                <q-slider v-if='source.snapshot_enabled&&source.md_type===1' dense v-model.number='source.md_contour_area_limit' :min="1000"
+                          :max="20000" color='cyan' :disable="!source.enabled" label label-always switch-label-side :step="1000"/>
+
+                <q-badge v-if='source.snapshot_enabled&&source.md_type===2' color="cyan">
+                  {{ $t('md_imagehash_threshold') }} : {{ source.md_imagehash_threshold }} (1 - 5)
+                </q-badge>
+                <q-slider v-if='source.snapshot_enabled&&source.md_type===2' dense v-model.number='source.md_imagehash_threshold' :min="1" :max="5"
+                          color='cyan' :disable="!source.enabled" label label-always switch-label-side :step="1" />
+
+                <q-badge v-if='source.snapshot_enabled&&source.md_type===3' color="cyan">
+                  {{ $t('md_psnr_threshold') }} : {{ source.md_psnr_threshold }} (0.1 - 1.0)
+                </q-badge>
+                <q-slider v-if='source.snapshot_enabled&&source.md_type===3' dense v-model.number='source.md_psnr_threshold' :min="0.1" :max="1.0"
+                          color='cyan' :disable="!source.enabled" label label-always switch-label-side :step="0.1"/>
+
                 <q-toggle dense v-if='source.snapshot_enabled&&source.record_enabled' v-model='source.ai_clip_enabled' checked-icon='check'
                           color='cyan' :label="$t('ai_clip') + ' ' + (source.ai_clip_enabled ? $t('enabled') : $t('disabled'))"
                           :disable="!source.enabled"/>
@@ -296,7 +324,8 @@
               <q-select dense emit-value map-options filled v-model='source.log_level' :options='logLevels'
                         :label="$t('log_level')" transition-show='scale' transition-hide='scale' color='cyan' :disable="!source.enabled"/>
               <q-stepper-navigation>
-                <q-btn flat @click='step = source.record_enabled ? 6 : 5' color='cyan' :label="$t('back')" class='q-ml-sm' :disable="!source.enabled"/>
+                <q-btn flat @click='step = source.record_enabled ? 6 : 5' color='cyan' :label="$t('back')" class='q-ml-sm'
+                       :disable="!source.enabled"/>
               </q-stepper-navigation>
             </q-step>
 
@@ -407,6 +436,7 @@ export default {
     const copySelectedSourceId = ref<string>('');
     const copyPrevSources = ref<SourceModel[]>([]);
     const loadingMakeEnabledOrDisabled = ref<boolean>(false);
+    const motionDetectionTypes = ref(localService.createMotionDetectionTypes(t));
 
     const insertMode = computed(() => {
       return isNullOrEmpty(source.value.id);
@@ -647,10 +677,10 @@ export default {
     const onMakeEnabledOrDisabled = async () => {
       await databindWithLoading(loadingMakeEnabledOrDisabled, async () => {
         source.value = await nodeService.setSourceEnabled({id: <string>source.value.id, enabled: !source.value.enabled});
-        setTimeout(() =>{
+        setTimeout(() => {
           storeService.setNotifySourceStreamStatusChanged();
-          if (!source.value.enabled){
-            storeService.setStreamCommandBar({ source: {...source.value}, action: StreamCommandBarActions.CloseSourceSettings});
+          if (!source.value.enabled) {
+            storeService.setStreamCommandBar({source: {...source.value}, action: StreamCommandBarActions.CloseSourceSettings});
           }
         }, 3000);
       });
@@ -661,7 +691,7 @@ export default {
       accelerationEngines, videoDecoders, streamTypes,
       audioCodecs, streamVideoCodecs, presets, recommendedRtspAddresses,
       streamRotations, rtmpServerTypes, audioChannels, inactives, showOnvif,
-      audioQualities, audioSampleRates, recordFileTypes, recordVideoCodecs,
+      audioQualities, audioSampleRates, recordFileTypes, recordVideoCodecs, motionDetectionTypes,
       recordPresets, recordRotations, showFindOptimalSettings, snapshotTypes, flvPlayerTypes, sourceStates, loadingMakeEnabledOrDisabled,
       onSave, onDelete, onStep1Click, onRecordChange, onStreamTypeChanged, onFindOptimalSettings, onMakeEnabledOrDisabled,
       insertMode, showQuickWizard, quickWizardShowing,

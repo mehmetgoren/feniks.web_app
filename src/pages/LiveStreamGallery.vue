@@ -127,7 +127,7 @@ export default {
       const stream = findById(sourceId);
       if (!stream) return;
 
-      stopStream(storeService, publishService, gls, stream);
+      stopStream(storeService, publishService, gls, <any>stream);
       stream.show = false;
       setTimeout(() => {
         removeSource(stream);

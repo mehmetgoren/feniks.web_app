@@ -102,16 +102,12 @@
         <q-card class="my-card" flat bordered style="margin: 0 5px 0 5px;">
           <q-card-section class="bg-cyan text-white">
             <div class="text-subtitle2">
-              <label style='text-transform: uppercase;font-size: medium'>{{ $t('motion_detection') }}</label>
+              <label style='text-transform: uppercase;font-size: medium'>{{ $t('snapshot') }}</label>
             </div>
           </q-card-section>
           <q-separator/>
           <q-card-section>
-            <q-input v-model.number='onceDetector.imagehash_threshold' type='number' filled dense :label="'Imagehash ' + $t('threshold')"/>
-            <q-space style='height: 10px;'/>
-            <q-input v-model.number='onceDetector.psnr_threshold' type='number' filled dense :label="'PSNR ' + $t('threshold')"/>
-            <q-space style='height: 10px;'/>
-            <q-input v-model.number='onceDetector.ssim_threshold' type='number' filled dense :label="'SSIM ' + $t('threshold')"/>
+            <q-input v-model.number='snapshot.process_count' type='number' filled dense :label="$t('process_count')"/>
           </q-card-section>
         </q-card>
         <q-space style='height: 10px;'/>
@@ -463,7 +459,7 @@
         </template>
       </q-table>
     </div>
-    <div v-if='otherTabs==="recstucks"' style="margin-top: 25px;">
+    <div v-if='otherTabs==="recstucks"' style="margin-top: 25px;">onceDetector
       <q-table :pagination='initialPagination' :rows='recStucks' row-key='id' :columns='recStucksColumns' color='lime-6'
                :rows-per-page-label="$t('rows_per_page')" :loading="loadingRecStucks">
         <template v-slot:top-right>
@@ -534,9 +530,9 @@
 import {NodeService} from 'src/utils/services/node_service';
 import {onBeforeUnmount, onMounted, ref} from 'vue';
 import {
-  Config, JetsonConfig, DeviceConfig, TorchConfig, OnceDetectorConfig, SourceReaderConfig,
+  Config, JetsonConfig, DeviceConfig, TorchConfig, SourceReaderConfig,
   FFmpegConfig, TensorflowConfig, AiConfig, GeneralConfig, UiConfig, DbConfig, JobsConfig,
-  DeepStackConfig, ArchiveConfig
+  DeepStackConfig, ArchiveConfig, SnapshotConfig
 } from 'src/utils/models/config';
 import {PublishService, SubscribeService} from 'src/utils/services/websocket_services';
 import {NetworkDiscoveryModel, OnvifAction, OnvifEvent} from 'src/utils/models/onvif_models';
@@ -572,7 +568,6 @@ export default {
 
 
     const optDeviceTypes = ref(getDeviceTypes());
-    const onceDetector = ref<OnceDetectorConfig>();
     const sourceReader = ref<SourceReaderConfig>();
     const ffmpeg = ref<FFmpegConfig>();
     const ai = ref<AiConfig>();
@@ -582,6 +577,7 @@ export default {
     const deepStackPerOpts = ref<SelectOption[]>(nodeService.LocalService.createDeepStackPerformanceModes());
     const deepStackDockerTypes = ref<SelectOption[]>(nodeService.LocalService.createDeepStackDockerTypes());
     const archive = ref<ArchiveConfig>();
+    const snapshot = ref<SnapshotConfig>();
     const archiveActionTypes = ref<SelectOption[]>(nodeService.LocalService.createArchiveActionTypes(t));
 
     //jetson
@@ -625,7 +621,6 @@ export default {
 
     const setConfigValue = (c: Config) => {
       device.value = c.device;
-      onceDetector.value = c.once_detector;
       sourceReader.value = c.source_reader;
       general.value = c.general;
       db.value = c.db;
@@ -638,6 +633,7 @@ export default {
       jobs.value = c.jobs;
       deepstack.value = c.deep_stack;
       archive.value = c.archive;
+      snapshot.value = c.snapshot;
     };
 
     const configDatabind = async () => {
@@ -799,7 +795,7 @@ export default {
     };
 
     return {
-      config, device, optDeviceTypes, onceDetector, sourceReader,
+      config, device, optDeviceTypes, snapshot, sourceReader,
       jetson, jetsonFilter, ffmpeg, tf, ai, general, ui, jobs, db, dbTypes, deepstack, archive,
       torch, torchFilter, tfFilter, showScanLoading, users, restartLoading, startLoading, stopLoading, loadingConfig,
       deepStackPerOpts, deepStackDockerTypes, archiveActionTypes,

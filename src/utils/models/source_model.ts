@@ -68,12 +68,17 @@ export interface SourceModel {
   snapshot_frame_rate: number | null;
   snapshot_width: number | null;
   snapshot_height: number | null;
+  md_type: number | null;
+  md_opencv_threshold: number | null;
+  md_contour_area_limit: number | null;
+  md_imagehash_threshold: number | null;
+  md_psnr_threshold: number | null;
 
   ffmpeg_reader_frame_rate?: number | null;
   ffmpeg_reader_width?: number | null;
   ffmpeg_reader_height?: number | null;
 
-  flv_player_type?:number | null;
+  flv_player_type?: number | null;
   booster_enabled?: boolean | null;
 
   created_at?: string | null;

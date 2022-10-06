@@ -389,6 +389,11 @@ export class LocalService {
       snapshot_frame_rate: 1,
       snapshot_width: 640,
       snapshot_height: 360,
+      md_type: 1, // OpenCV
+      md_opencv_threshold: 30,
+      md_contour_area_limit: 10000,
+      md_imagehash_threshold: 3,
+      md_psnr_threshold: 0.2,
 
       ffmpeg_reader_frame_rate: 5,
       ffmpeg_reader_width: 640,
@@ -705,6 +710,15 @@ export class LocalService {
       {value: 0, label: t('not_started_yet')},
       {value: 1, label: t('started')},
       {value: 2, label: t('stopped')}
+    ];
+  }
+
+  public createMotionDetectionTypes(t: any): SelectOption[]{
+    return [
+      {value: 0, label: t('no_motion_detection')},
+      {value: 1, label: 'Open CV'},
+      {value: 2, label: t('image_hash')},
+      {value: 3, label: t('PSNR')}
     ];
   }
 }
