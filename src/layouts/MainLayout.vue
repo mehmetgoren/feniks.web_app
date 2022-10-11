@@ -12,17 +12,6 @@
           <Notifier style="margin-right: -8px"/>
           <q-btn-dropdown icon='account_circle' round flat :label='currentUser?.username' v-model="showRightDropDown">
             <q-list>
-              <q-item clickable v-close-popup @click="onChangeLocale('tr-TR')">
-                <q-item-section>
-                  <q-item-label>
-                    <q-avatar size='36px'>
-                      <q-img src="../assets/tr.svg" width="30px"/>
-                    </q-avatar>
-                    Türkçe
-                    <q-tooltip>Uygulama Dilini Türkçe Yap</q-tooltip>
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
               <q-item clickable v-close-popup @click="onChangeLocale('en-US')">
                 <q-item-section>
                   <q-item-label>
@@ -31,6 +20,17 @@
                     </q-avatar>
                     English
                     <q-tooltip>Makes English Default Language</q-tooltip>
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click="onChangeLocale('tr-TR')">
+                <q-item-section>
+                  <q-item-label>
+                    <q-avatar size='36px'>
+                      <q-img src="../assets/tr.svg" width="30px"/>
+                    </q-avatar>
+                    Türkçe
+                    <q-tooltip>Uygulama Dilini Türkçe Yap</q-tooltip>
                   </q-item-label>
                 </q-item-section>
               </q-item>

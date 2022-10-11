@@ -240,29 +240,75 @@
                           :options='motionDetectionTypes' :label="$t('md_type')" transition-show='scale' transition-hide='scale'
                           :disable="!source.enabled"/>
 
-                <q-badge v-if='source.snapshot_enabled&&source.md_type===1' color="cyan">
-                  {{ $t('md_opencv_threshold') }} : {{ source.md_opencv_threshold }} (0 - 255)
-                </q-badge>
-                <q-slider v-if='source.snapshot_enabled&&source.md_type===1' dense v-model.number='source.md_opencv_threshold' :min="0" :max="255"
-                          color='cyan' :disable="!source.enabled" label label-always switch-label-side :step="1"/>
-
-                <q-badge v-if='source.snapshot_enabled&&source.md_type===1' color="cyan">
-                  {{ $t('md_contour_area_limit') }} : {{ source.md_contour_area_limit }} (1000 - 20000)
-                </q-badge>
-                <q-slider v-if='source.snapshot_enabled&&source.md_type===1' dense v-model.number='source.md_contour_area_limit' :min="1000"
-                          :max="20000" color='cyan' :disable="!source.enabled" label label-always switch-label-side :step="1000"/>
-
-                <q-badge v-if='source.snapshot_enabled&&source.md_type===2' color="cyan">
-                  {{ $t('md_imagehash_threshold') }} : {{ source.md_imagehash_threshold }} (1 - 5)
-                </q-badge>
-                <q-slider v-if='source.snapshot_enabled&&source.md_type===2' dense v-model.number='source.md_imagehash_threshold' :min="1" :max="5"
-                          color='cyan' :disable="!source.enabled" label label-always switch-label-side :step="1" />
-
-                <q-badge v-if='source.snapshot_enabled&&source.md_type===3' color="cyan">
-                  {{ $t('md_psnr_threshold') }} : {{ source.md_psnr_threshold }} (0.1 - 1.0)
-                </q-badge>
-                <q-slider v-if='source.snapshot_enabled&&source.md_type===3' dense v-model.number='source.md_psnr_threshold' :min="0.1" :max="1.0"
-                          color='cyan' :disable="!source.enabled" label label-always switch-label-side :step="0.1"/>
+                <div class="gt-xs">
+                  <q-separator/>
+                  <table>
+                    <tr v-if='source.snapshot_enabled&&source.md_type===1'>
+                      <td class="td1">
+                        <q-badge color="cyan">
+                          {{ $t('md_opencv_threshold') }} : {{ source.md_opencv_threshold }} (0 - 255)
+                        </q-badge>
+                      </td>
+                      <td class="td2">
+                        <q-slider dense v-model.number='source.md_opencv_threshold' :min="0"
+                                  :max="255" color='cyan' :disable="!source.enabled" label label-always switch-label-side :step="1"
+                                  style="max-width: 300px;"/>
+                        <q-tooltip class="bg-cyan" anchor="top middle"  self="bottom middle"
+                                   transition-show="flip-right" transition-hide="flip-left" >
+                          {{ $t('default') }} : 30
+                        </q-tooltip>
+                      </td>
+                    </tr>
+                    <tr v-if='source.snapshot_enabled&&source.md_type===1'>
+                      <td class="td1">
+                        <q-badge color="cyan">
+                          {{ $t('md_contour_area_limit') }} : {{ source.md_contour_area_limit }} (1000 - 20000)
+                        </q-badge>
+                      </td>
+                      <td class="td2">
+                        <q-slider dense v-model.number='source.md_contour_area_limit' :min="1000"
+                                  :max="20000" color='cyan' :disable="!source.enabled" label label-always switch-label-side :step="1000"
+                                  style="max-width: 300px;"/>
+                        <q-tooltip class="bg-cyan" anchor="top middle"  self="bottom middle"
+                                   transition-show="flip-right" transition-hide="flip-left" >
+                          {{ $t('default') }} : 10000
+                        </q-tooltip>
+                      </td>
+                    </tr>
+                    <tr v-if='source.snapshot_enabled&&source.md_type===2'>
+                      <td class="td1">
+                        <q-badge color="cyan">
+                          {{ $t('md_imagehash_threshold') }} : {{ source.md_imagehash_threshold }} (1 - 5)
+                        </q-badge>
+                      </td>
+                      <td class="td2">
+                        <q-slider dense v-model.number='source.md_imagehash_threshold' :min="1" :max="5"
+                                  color='cyan' :disable="!source.enabled" label label-always switch-label-side :step="1" style="max-width: 300px;"/>
+                        <q-tooltip class="bg-cyan" anchor="top middle"  self="bottom middle"
+                                   transition-show="flip-right" transition-hide="flip-left" >
+                          {{ $t('default') }} : 3
+                        </q-tooltip>
+                      </td>
+                    </tr>
+                    <tr v-if='source.snapshot_enabled&&source.md_type===3'>
+                      <td class="td1">
+                        <q-badge color="cyan">
+                          {{ $t('md_psnr_threshold') }} : {{ source.md_psnr_threshold }} (0.1 - 1.0)
+                        </q-badge>
+                      </td>
+                      <td class="td2">
+                        <q-slider v-if='source.snapshot_enabled&&source.md_type===3' dense v-model.number='source.md_psnr_threshold' :min="0.1"
+                                  :max="1.0" color='cyan' :disable="!source.enabled" label label-always switch-label-side :step="0.1"
+                                  style="max-width: 300px;"/>
+                        <q-tooltip class="bg-cyan" anchor="top middle"  self="bottom middle"
+                                   transition-show="flip-right" transition-hide="flip-left" >
+                          {{ $t('default') }} : 0.2
+                        </q-tooltip>
+                      </td>
+                    </tr>
+                  </table>
+                  <q-separator/>
+                </div>
 
                 <q-toggle dense v-if='source.snapshot_enabled&&source.record_enabled' v-model='source.ai_clip_enabled' checked-icon='check'
                           color='cyan' :label="$t('ai_clip') + ' ' + (source.ai_clip_enabled ? $t('enabled') : $t('disabled'))"
@@ -732,5 +778,14 @@ export default {
   50% {
     opacity: 0;
   }
+}
+
+.td1 {
+  padding-right: 25px;
+}
+
+.td2 {
+  width: 300px;
+  padding-top: 7px;
 }
 </style>

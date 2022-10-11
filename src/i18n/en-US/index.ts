@@ -468,4 +468,5 @@ export default {
   md_contour_area_limit:'Open CV Contour Area Limit',
   md_imagehash_threshold:'ImageHash Threshold',
   md_psnr_threshold:'PSNR Threshold',
+  default:'Default',
 };

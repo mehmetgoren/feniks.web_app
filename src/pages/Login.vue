@@ -197,8 +197,8 @@ export default {
     return {
       locale,
       localeOptions: [
-        {value: 'tr-TR', label: 'Türkçe'},
-        {value: 'en-US', label: 'English'}
+        {value: 'en-US', label: 'English'},
+        {value: 'tr-TR', label: 'Türkçe'}
       ],
       mode, loginUser, registerUser, showLoginLoading,mainViewHeight,
       onLogin, onRegister,

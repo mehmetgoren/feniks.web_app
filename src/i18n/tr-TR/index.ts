@@ -468,4 +468,5 @@ export default {
   md_contour_area_limit:'Open CV Alan Sınırı',
   md_imagehash_threshold:'Resim Tarama Eşiği',
   md_psnr_threshold:'PSNR Eşiği',
+  default:'Varsayılan',
 };
