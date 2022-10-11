@@ -713,12 +713,12 @@ export class LocalService {
     ];
   }
 
-  public createMotionDetectionTypes(t: any): SelectOption[]{
+  public createMotionDetectionTypes(t: any): SelectOption[] {
     return [
       {value: 0, label: t('no_motion_detection')},
       {value: 1, label: 'Open CV'},
       {value: 2, label: t('image_hash')},
-      {value: 3, label: t('PSNR')}
+      {value: 3, label: 'PSNR'}
     ];
   }
 }
