@@ -253,8 +253,8 @@
                         <q-slider dense v-model.number='source.md_opencv_threshold' :min="0"
                                   :max="255" color='cyan' :disable="!source.enabled" label label-always switch-label-side :step="1"
                                   style="max-width: 300px;"/>
-                        <q-tooltip class="bg-cyan" anchor="top middle"  self="bottom middle"
-                                   transition-show="flip-right" transition-hide="flip-left" >
+                        <q-tooltip class="bg-cyan" anchor="top middle" self="bottom middle"
+                                   transition-show="flip-right" transition-hide="flip-left">
                           {{ $t('default') }} : 30
                         </q-tooltip>
                       </td>
@@ -269,8 +269,8 @@
                         <q-slider dense v-model.number='source.md_contour_area_limit' :min="1000"
                                   :max="20000" color='cyan' :disable="!source.enabled" label label-always switch-label-side :step="1000"
                                   style="max-width: 300px;"/>
-                        <q-tooltip class="bg-cyan" anchor="top middle"  self="bottom middle"
-                                   transition-show="flip-right" transition-hide="flip-left" >
+                        <q-tooltip class="bg-cyan" anchor="top middle" self="bottom middle"
+                                   transition-show="flip-right" transition-hide="flip-left">
                           {{ $t('default') }} : 10000
                         </q-tooltip>
                       </td>
@@ -284,8 +284,8 @@
                       <td class="td2">
                         <q-slider dense v-model.number='source.md_imagehash_threshold' :min="1" :max="5"
                                   color='cyan' :disable="!source.enabled" label label-always switch-label-side :step="1" style="max-width: 300px;"/>
-                        <q-tooltip class="bg-cyan" anchor="top middle"  self="bottom middle"
-                                   transition-show="flip-right" transition-hide="flip-left" >
+                        <q-tooltip class="bg-cyan" anchor="top middle" self="bottom middle"
+                                   transition-show="flip-right" transition-hide="flip-left">
                           {{ $t('default') }} : 3
                         </q-tooltip>
                       </td>
@@ -300,8 +300,8 @@
                         <q-slider v-if='source.snapshot_enabled&&source.md_type===3' dense v-model.number='source.md_psnr_threshold' :min="0.1"
                                   :max="1.0" color='cyan' :disable="!source.enabled" label label-always switch-label-side :step="0.1"
                                   style="max-width: 300px;"/>
-                        <q-tooltip class="bg-cyan" anchor="top middle"  self="bottom middle"
-                                   transition-show="flip-right" transition-hide="flip-left" >
+                        <q-tooltip class="bg-cyan" anchor="top middle" self="bottom middle"
+                                   transition-show="flip-right" transition-hide="flip-left">
                           {{ $t('default') }} : 0.2
                         </q-tooltip>
                       </td>
@@ -327,7 +327,7 @@
                           :label="$t('record_file_type')" transition-show='scale' transition-hide='scale' :disable="!source.enabled"/>
                 <q-select dense emit-value map-options filled v-model='source.record_video_codec' :options='recordVideoCodecs'
                           :label="$t('record_video_codec')" color='cyan' transition-show='scale' transition-hide='scale'
-                          :disable="!source.enabled"/>
+                          :disable="!source.enabled" @update:model-value="onRecordVideoCodecChanged"/>
                 <q-input v-if='showRecordDetail' dense filled v-model.number='source.record_quality' type='number' :label="$t('record_quality')"
                          color='cyan' :disable="!source.enabled"/>
                 <q-select v-if='showRecordDetail' dense emit-value map-options filled v-model='source.record_preset' color='cyan'
@@ -448,7 +448,7 @@ export default {
     const source = ref<SourceModel>(localService.createEmptySource());
     const showRecordDetail = computed(() => {
       //@ts-ignore
-      return source.value.record_video_codec != 5 && source.value.record_video_codec < 14;
+      return source.value.record_video_codec != 6 && source.value.record_video_codec < 19;
     });
     const step = ref<number>(1);
     const nodeService = new NodeService();
@@ -761,8 +761,13 @@ export default {
         }, 3000);
       },
       copySelectedSourceId, copyPrevSources,
-      onCopySettingsFromChanged
-    };
+      onCopySettingsFromChanged,
+      onRecordVideoCodecChanged() {
+        const arr = [3, 4, 15, 16]
+        const isWebM = arr.includes(<any>source.value.record_video_codec);
+        source.value.record_file_type = isWebM ? 1 : 0;
+      }
+    }
   }
 };
 </script>

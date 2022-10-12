@@ -130,28 +130,28 @@ export class LocalService {
   public createAccelerationEngines(): SelectOption[] {
     return [
       {value: 0, label: 'Auto'},
-      {value: 1, label: 'vdpau'},
-      {value: 2, label: 'cuda (NVIDIA NVENC)'},
-      {value: 3, label: 'vaapi (VA-API)'},
-      {value: 4, label: 'DRM object sharing'},
-      {value: 5, label: 'OpenCL'},
-      {value: 6, label: 'cuvid (NVIDIA NVENC)'}
+      {value: 1, label: 'NVIDIA NVENC Cuda'},
+      {value: 2, label: 'NVIDIA NVENC Cuvid'},
+      {value: 3, label: 'Video Decode and Presentation API for Unix (VDPAU)'},
+      {value: 4, label: 'Video Acceleration API (VA-API)'},
+      {value: 5, label: 'ARM DRM Object Sharing'},
+      {value: 6, label: 'OpenCL'}
     ];
   }
 
   public createVideoDecoders(): SelectOption[] {
     return [
       {value: 0, label: 'Auto'},
-      {value: 1, label: 'NVIDIA H.264 CUVID'},
-      // {value: 2, label: 'NVIDIA H.265 CUVID'},
-      // {value: 3, label: 'NVIDIA MJPEG CUVID'},
-      // {value: 4, label: 'NVIDIA MPEG4 CUVID'},
-      {value: 5, label: 'Quick Sync Video H.264'},
-      // {value: 6, label: 'Quick Sync Video H.265'},
-      // {value: 7, label: 'Quick Sync Video MPEG2'},
-      {value: 8, label: 'Raspberry Pi H.264'},
-      // {value: 9, label: 'Raspberry Pi MPEG-2'},
-      // {value: 10, label: 'Raspberry Pi MPEG-4'}
+      {value: 1, label: 'NVDEC (H.264 NVIDIA Hardware)'},
+      // {value: 2, label: 'NVDEC (H.265 NVIDIA Hardware)'},
+      // {value: 3, label: 'NVDEC (MJPEG NVIDIA Hardware)'},
+      // {value: 4, label: 'NVDEC (MPEG4 NVIDIA Hardware)'},
+      {value: 5, label: 'Quick Sync Video (H.264 INTEL Hardware)'},
+      // {value: 6, label: 'Quick Sync Video (H.265 INTEL Hardware)'},
+      // {value: 7, label: 'Quick Sync Video (MPEG2 INTEL Hardware)'},
+      {value: 8, label: 'MMAL (H.264 Raspberry Pi Hardware)'},
+      // {value: 9, label: 'MMAL (MPEG2 Raspberry Pi Hardware)'},
+      // {value: 10, label: 'MMAL (MPEG4 Raspberry Pi Hardware)'}
     ];
   }
 
@@ -166,20 +166,20 @@ export class LocalService {
   public createStreamVideoCodecs(): SelectOption[] {
     return [
       {value: 0, label: 'Auto'},
-      {value: 1, label: 'libx264'},
-      // {value: 2, label: 'libx265'},
+      {value: 1, label: 'libx264 (H.264 Software)'},
+      // {value: 2, label: 'libx265 (H265 Software)'},
       {value: 3, label: 'copy'},
-      {value: 4, label: 'H.264 VA-API (Intel HW Accel)'},
-      // {value: 5, label: 'H.265 VA-API (Intel HW Accel)'},
-      {value: 6, label: 'H.264 NVENC (NVIDIA HW Accel)'},
-      // {value: 7, label: 'H.265 NVENC (NVIDIA HW Accel)'},
-      {value: 8, label: 'H.264 (Quick Sync Video)'},
-      // {value: 9, label: 'H.265 (Quick Sync Video)'},
-      // {value: 10, label: 'MPEG2 (Quick Sync Video)'},
-      {value: 11, label: 'H.264 openMAX (Raspberry Pi)'},
-      // {value: 12, label: 'AV1'},
-      // {value: 13, label: 'VP8'},
-      // {value: 14, label: 'VP9'}
+      {value: 4, label: 'NVENC (H.264 NVIDIA Hardware)'},
+      // {value: 5, label: 'NVENC (H.265 NVIDIA Hardware)'},
+      {value: 6, label: 'Video Acceleration API (H.264 GPU Hardware)'},
+      // {value: 7, label: 'Video Acceleration API (H.265 GPU Hardware)'},
+      {value: 8, label: 'Quick Sync Video (H.264 INTEL Hardware)'},
+      // {value: 9, label: 'Quick Sync Video (H.265 INTEL Hardware)'},
+      // {value: 10, label: 'Quick Sync Video (MPEG2 INTEL Hardware)'},
+      {value: 11, label: 'OpenMAX (H.264 Raspberry Pi Hardware)'},
+      // {value: 12, label: 'AV1 (AV1 Software)'},
+      // {value: 13, label: 'VP8 (VP8 Software)'},
+      // {value: 14, label: 'VP9 (VP9 Software)'}
     ];
   }
 
@@ -276,7 +276,7 @@ export class LocalService {
   public createRecordFileTypes(): SelectOption[] {
     return [
       {value: 0, label: 'MP4'},
-      // {value: 1, label: 'WebM'},
+      {value: 1, label: 'WebM'},
       // {value: 2, label: 'FLV'},
       // {value: 3, label: 'MKV'},
       // {value: 4, label: 'AVI'},
@@ -288,22 +288,25 @@ export class LocalService {
   public createRecordVideoCodecs(): SelectOption[] {
     return [
       {value: 0, label: 'Auto'},
-      // {value: 1, label: 'libvpx (WebM Default)'},
-      // {value: 2, label: 'libvpx-vp9 (WebM VP9)'},
-      // {value: 3, label: 'libx265 (MP4)'},
-      {value: 4, label: 'libx264 (MP4 Default)'},
-      {value: 5, label: 'copy'},
-      {value: 6, label: 'H.264 VA-API (MP4 Intel HW Accel)'},
-      // {value: 7, label: 'H.c265 VA-API (MP4 Intel HW Accel)'},
-      {value: 8, label: 'H.264 NVENC (MP4 NVIDIA HW Accel)'},
-      // {value: 9, label: 'H.265 NVENC (MP4 NVIDIA HW Accel)'},
-      {value: 10, label: 'H.264 (MP4 Quick Sync Video)'},
-      // {value: 11, label: 'H.265 (MP4 Quick Sync Video)'},
-      // {value: 12, label: 'MPEG2 (MP4 Quick Sync Video)'},
-      {value: 13, label: 'H.264 OpenMAX (MP4 Raspberry Pi)'},
-      // {value: 14, label: 'VP8 NVENC (WebM NVIDIA HW Accel)'},
-      // {value: 15, label: 'VP9 NVENC (WebM NVIDIA HW Accel)'},
-      // {value: 16, label: 'VP8 (WebM Quick Sync Video)'}
+      {value: 1, label: 'libx264 (H264 Software)'},
+      {value: 2, label: 'libx265 (H265 Software)'},
+      {value: 3, label: 'libvpx (VP8 Software)'},
+      {value: 4, label: 'libvpx-vp9 (VP9 Software)'},
+      {value: 5, label: 'libsvtav1 (AV1 Software)'},
+      {value: 6, label: 'copy'},
+      {value: 7, label: 'NVENC (H.264 NVIDIA Hardware)'},
+      {value: 8, label: 'NVENC (H.265 NVIDIA Hardware)'},
+      {value: 9, label: 'NVENC (AV1 NVIDIA Hardware)'},
+      {value: 10, label: 'Video Acceleration API (H.264 GPU Hardware)'},
+      {value: 11, label: 'Video Acceleration API (H.265 GPU Hardware)'},
+      {value: 12, label: 'Video Acceleration API (AV1 GPU Hardware)'},
+      {value: 13, label: 'Quick Sync Video (H.264 Intel Hardware)'},
+      {value: 14, label: 'Quick Sync Video (H.265 Intel Hardware)'},
+      {value: 15, label: 'Quick Sync Video (VP8 Intel Hardware)'},
+      {value: 16, label: 'Quick Sync Video (VP9 Intel Hardware)'},
+      {value: 17, label: 'Quick Sync Video (AV1 Intel Hardware)'},
+      // {value: 18, label: 'Quick Sync Video (MPEG2 Intel Hardware)'},
+      {value: 19, label: 'H.264 OpenMAX (Raspberry Pi)'}
     ];
   }
 
@@ -355,7 +358,7 @@ export class LocalService {
       stream_audio_volume: 100,
 
       record_file_type: 0, //MP4
-      record_video_codec: 5, //copy
+      record_video_codec: 6, //copy
       record_quality: 0,
       record_preset: 0,
       record_frame_rate: 0,

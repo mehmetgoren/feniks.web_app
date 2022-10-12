@@ -375,7 +375,7 @@ export function findBestSettings(source: SourceModel, probeResult: ProbeResult):
 
   source.record_file_type = 0; //MP4
   source.record_preset = 1; //ultra fast
-  source.record_video_codec = 5; //copy
+  source.record_video_codec = 6; //copy
   source.record_segment_interval = 15;
   source.record_frame_rate = 0;
   if (hasAudio) {
