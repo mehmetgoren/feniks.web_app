@@ -9,7 +9,7 @@ export interface FaceTrainResponseEvent {
 
 export interface FrTrainScreenshotViewModel {
   name: string;
-  base64_image: string;
+  base64_images: string[];
 }
 
 export interface FrTrainRename{

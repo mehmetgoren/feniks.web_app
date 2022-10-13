@@ -1,24 +1,22 @@
 <template>
   <div class='q-pa-md q-gutter-sm'>
-    <q-layout view='lHh lpr lFf' container :style="{minHeight: viewHeight.toString() + 'px'}" class='shadow-2 rounded-borders'>
-      <q-header elevated class='bg-purple'>
-        <q-toolbar>
-          <q-btn flat round dense icon='dvr'/>
-          <q-toolbar-title>
-            {{ stream.name }} {{ $t('record_list') }}
-          </q-toolbar-title>
-        </q-toolbar>
-      </q-header>
+    <q-layout view='lHh lpr lFf' :style="{minHeight: viewHeight.toString() + 'px'}" class='shadow-2 rounded-borders'>
+      <q-toolbar class='bg-purple text-white shadow-2 rounded-borders'>
+        <q-btn flat round dense icon='dvr'/>
+        <q-toolbar-title>
+          {{ stream.name }} {{ $t('record_list') }}
+        </q-toolbar-title>
+      </q-toolbar>
       <q-page-container>
         <q-page padding style='background-color: whitesmoke;'>
           <div class='row'>
-            <div class='col-3'>
+            <div class='col-xs-12 col-sm-12 col-md-5 col-lg-3 col-xl-3' style="padding: 10px">
               <q-toggle v-model='recordEnabled' disable checked-icon='check' color='purple'
                         :label="$t('record') + ' ' + (recordEnabled ? $t('on') : $t('off'))"/>
               <q-space/>
               <q-date v-model='selectedDate' color='purple' mask='YYYY_MM_DD' :locale="locale"/>
             </div>
-            <div class='col-9'>
+            <div class='col-xs-12 col-sm-12 col-md-7 col-lg-9 col-xl-9'>
               <q-table :title="$t('records')" :columns='columns'
                        :rows='hours' row-key='hour'
                        virtual-scroll :virtual-scroll-item-size='24' :pagination='pagination'
@@ -186,7 +184,7 @@ export default {
     };
 
     onMounted(async () => {
-      if (!sourceId.value){
+      if (!sourceId.value) {
         await router.push('stream_gallery');
         return;
       }
@@ -359,7 +357,7 @@ export default {
       },
 
       recordEnabled, onPlay, onDownload, onDelete, showPlayer, selectedVideo, stream,
-      onRefresh : refresh,
+      onRefresh: refresh,
       onRootClick
     };
   }

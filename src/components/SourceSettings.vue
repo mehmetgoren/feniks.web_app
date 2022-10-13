@@ -10,7 +10,7 @@
             <q-tooltip>{{ $t('t_add_new_source_quickly') }}</q-tooltip>
           </q-btn>
           <q-btn v-if="!insertMode" class="gt-xs" style="margin-left: 15px" dense flat @click="onMakeEnabledOrDisabled"
-                 :label="source.enabled ? $t('make_disabled') : $t('make_enabled')" :icon="source.enabled ? 'videocam_off' : 'videocam'"
+                 :label="source.enabled ? $t('disable') : $t('enable')" :icon="source.enabled ? 'videocam_off' : 'videocam'"
                  :disable="loadingMakeEnabledOrDisabled">
             <q-inner-loading :showing="loadingMakeEnabledOrDisabled"/>
           </q-btn>
@@ -602,7 +602,7 @@ export default {
         storeService.updateSourceToLeftMenu(source.value);
       }
       $q.notify({
-        message: model.name + t(isAdded ? 'has_been_added' : 'has_been_saved'),
+        message: model.name + ' ' + t(isAdded ? 'has_been_added' : 'has_been_saved'),
         color: 'green',
         position: 'bottom-right'
       });
