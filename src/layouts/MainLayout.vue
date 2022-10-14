@@ -12,27 +12,13 @@
           <Notifier style="margin-right: -8px"/>
           <q-btn-dropdown icon='account_circle' round flat :label='currentUser?.username' v-model="showRightDropDown">
             <q-list>
-              <q-item clickable v-close-popup @click="onChangeLocale('en-US')">
-                <q-item-section>
-                  <q-item-label>
-                    <q-avatar size='36px'>
-                      <q-img src="../assets/gb.svg" width="30px"/>
-                    </q-avatar>
-                    English
-                    <q-tooltip>Makes English Default Language</q-tooltip>
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-              <q-item clickable v-close-popup @click="onChangeLocale('tr-TR')">
-                <q-item-section>
-                  <q-item-label>
-                    <q-avatar size='36px'>
-                      <q-img src="../assets/tr.svg" width="30px"/>
-                    </q-avatar>
-                    Türkçe
-                    <q-tooltip>Uygulama Dilini Türkçe Yap</q-tooltip>
-                  </q-item-label>
-                </q-item-section>
+              <q-item clickable>
+                <q-select v-model="locale" :options="localeOptions" :label="$t('language')"
+                          square dense borderless emit-value map-options options-dense style="min-width: 150px">
+                  <template v-slot:prepend>
+                    <q-img :src="getImgSrc()" width="30px"/>
+                  </template>
+                </q-select>
               </q-item>
               <q-item clickable v-close-popup>
                 <q-toggle style="margin-left: -12px;" v-model="theme" color="dark" checked-icon="dark_mode" unchecked-icon="light_mode"
@@ -88,7 +74,8 @@
               </q-item-section>
               <q-btn-dropdown v-if='link.isSource' color='primary' dropdown-icon='settings' :dense='true' square>
                 <q-list>
-                  <q-item clickable v-close-popup @click='onStartStreaming(link)' v-ripple :disable="sourceStreamStatus[link.id]&&!sourceStreamStatus[link.id].enabled">
+                  <q-item clickable v-close-popup @click='onStartStreaming(link)' v-ripple
+                          :disable="sourceStreamStatus[link.id]&&!sourceStreamStatus[link.id].enabled">
                     <q-item-section side>
                       <q-icon name='live_tv' color='cyan'/>
                     </q-item-section>
@@ -96,7 +83,8 @@
                       <q-item-label>{{ $t('start_streaming') }}</q-item-label>
                     </q-item-section>
                   </q-item>
-                  <q-item clickable v-close-popup @click='onStopStreaming(link)' v-ripple :disable="sourceStreamStatus[link.id]&&!sourceStreamStatus[link.id].enabled">
+                  <q-item clickable v-close-popup @click='onStopStreaming(link)' v-ripple
+                          :disable="sourceStreamStatus[link.id]&&!sourceStreamStatus[link.id].enabled">
                     <q-item-section side>
                       <q-icon name='power_off' color='deep-orange'/>
                     </q-item-section>
@@ -128,7 +116,8 @@
                       <q-item-label>{{ $t('ai') }}</q-item-label>
                     </q-item-section>
                   </q-item>
-                  <q-item clickable v-close-popup @click='onOnvifClick(link)' :disable="sourceStreamStatus[link.id]&&!sourceStreamStatus[link.id].enabled">
+                  <q-item clickable v-close-popup @click='onOnvifClick(link)'
+                          :disable="sourceStreamStatus[link.id]&&!sourceStreamStatus[link.id].enabled">
                     <q-item-section side>
                       <q-icon name='settings_ethernet' color='brown-5'/>
                     </q-item-section>
@@ -192,13 +181,8 @@ import OnvifSettings from 'components/OnvifSettings.vue';
 import ServerStatsBar from 'components/ServerStatsBar.vue';
 import {SourceModel} from 'src/utils/models/source_model';
 import {
-  createEmptyBase64Image,
-  doUserLogout,
-  listenWindowSizeChangesForScrollBar,
-  scrollbarInit,
-  setupLocale,
-  startStream,
-  stopStream
+  createEmptyBase64Image, doUserLogout, getImgSrc, listenWindowSizeChangesForScrollBar, scrollbarInit,
+  setupLocale, startStream, stopStream
 } from 'src/utils/utils';
 import {StoreService} from 'src/utils/services/store_service';
 import {WsConnection} from 'src/utils/ws/connection';
@@ -314,6 +298,16 @@ export default {
       }
     };
 
+    watch(locale, lang => {
+      locale.value = lang;
+      localService.setLang(<any>lang);
+      storeService.set18n(t);
+      showRightDropDown.value = false;
+      // setTimeout(() => {
+      //   window.location.reload();
+      // }, 100);
+    });
+
     onMounted(async () => {
       scrollbarInit('main-view');
       listenWindowSizeChangesForScrollBar(mainViewHeight);
@@ -401,7 +395,11 @@ export default {
 
     return {
       leftDrawerOpen, menus, currentUser, loadingObject, sourceStreamStatus, showSettings, selectedSourceId, emptyBase64Image,
-      activeLeftMenu, selectedSourceAddress, showOnvif, mainViewHeight, theme, showRightDropDown,
+      activeLeftMenu, selectedSourceAddress, showOnvif, mainViewHeight, theme, showRightDropDown, locale,
+      localeOptions: [
+        {value: 'en-US', label: 'English'},
+        {value: 'tr-TR', label: 'Türkçe'}
+      ],
       toggleLeftDrawer, getThumbnail, onShowRecordClicked, onAiClick, onLogoutUser,
       onSaveSettingsClicked(sourceId: string) {
         showSettings.value = true;
@@ -442,13 +440,8 @@ export default {
         selectedSourceAddress.value = <string>link.source?.address;
         showOnvif.value = true;
       },
-      onChangeLocale(lang: string) {
-        locale.value = lang;
-        localService.setLang(lang);
-        storeService.set18n(t);
-        // setTimeout(() => {
-        //   window.location.reload();
-        // }, 100);
+      getImgSrc() {
+        return getImgSrc(locale);
       }
     };
   },

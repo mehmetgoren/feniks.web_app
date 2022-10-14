@@ -469,4 +469,10 @@ export default {
   md_imagehash_threshold:'Resim Tarama Eşiği',
   md_psnr_threshold:'PSNR Eşiği',
   default:'Varsayılan',
+  sources:'Kameralar',
+  import: 'Verileri İçe Aktar',
+  export:'Verileri Dışa Aktar',
+  v_please_select_at_least_a_camera:'Lütfen En Azından Bir Kamera Seçin',
+  v_invalid_source_json:'The Json File Is Not Valid',
+  sources_imported_successfully:'Kameralar Başarılı Bir Şekilde Yüklendi',
 };

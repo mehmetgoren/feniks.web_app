@@ -91,7 +91,7 @@ import {useQuasar} from 'quasar';
 import {List} from 'linqts';
 import {SourceModel} from 'src/utils/models/source_model';
 import {EditorImageResponseModel} from 'src/utils/entities';
-import {isFrDirNameValid} from 'src/utils/utils';
+import {isFrDirNameValid, toBase64} from 'src/utils/utils';
 import {useI18n} from 'vue-i18n';
 
 export default {
@@ -245,13 +245,6 @@ export default {
         event_type: 1
       });
     }
-
-    const toBase64 = (file: File) => new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = error => reject(error);
-    });
 
     async function onDelete() {
       showDeleteLoading.value = true;

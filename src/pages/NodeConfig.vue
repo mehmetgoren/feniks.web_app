@@ -482,6 +482,8 @@
       </q-table>
     </div>
     <div v-if='otherTabs==="various"' style="margin-top: 35px">
+      <ImportExportSource/>
+      <q-separator style="margin: 15px 0 15px 0;" />
       <table style='width: 500px;' class="bg-teal-1">
         <tr>
           <td>
@@ -501,6 +503,7 @@
           </td>
         </tr>
       </table>
+      <q-separator style="margin: 15px 0 15px 0;" />
       <q-list bordered class='rounded-borders bg-teal-1' style="max-width: 300px;margin-top: 15px;">
         <q-item-label header>{{ $t('zombie_rtmp_containers') }}</q-item-label>
         <q-item clickable v-ripple v-for='zr in variousInfos.rtmp_container_zombies' :key='zr'>
@@ -548,12 +551,13 @@ import GpuInfo from 'components/GpuInfo.vue';
 import {FailedStreamModel, RecStuckModel, RtspTemplateModel, VariousInfos} from 'src/utils/models/others_models';
 import {OdModel} from 'src/utils/models/od_model';
 import Cloud from 'components/Cloud.vue';
+import ImportExportSource from 'components/ImportExportSource.vue';
 import {SelectOption} from 'src/utils/services/local_service';
 import {useI18n} from 'vue-i18n';
 
 export default {
   name: 'NodeConfig',
-  components: {Cloud, CommandBar, GpuInfo},
+  components: {Cloud, CommandBar, GpuInfo, ImportExportSource},
   setup() {
     const {t} = useI18n({useScope: 'global'});
     const $q = useQuasar();

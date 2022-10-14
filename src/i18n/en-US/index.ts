@@ -469,4 +469,10 @@ export default {
   md_imagehash_threshold:'ImageHash Threshold',
   md_psnr_threshold:'PSNR Threshold',
   default:'Default',
+  sources:'Cameras',
+  import: 'import',
+  export:'Export',
+  v_please_select_at_least_a_camera:'Please Select At Least One Camera',
+  v_invalid_source_json:'The Json File Is Not Valid',
+  sources_imported_successfully:'Cameras Have Been Imported Successfully',
 };
