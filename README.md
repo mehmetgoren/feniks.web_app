@@ -1,6 +1,5 @@
-# feniks app (feniks-ui)
-
-a ui for read, detection, cloud integration and manager services
+# Feniks iNVR Web Application Service
+# For more information: https://github.com/mehmetgoren/feniks
 
 ## Install the dependencies
 ```bash
