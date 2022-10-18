@@ -2,12 +2,12 @@
   <table>
     <tr>
       <td>
-        <q-btn color="positive" glossy :label="$t('import')" @click="showImportList = true"/>
+        <q-btn color="positive" glossy :label="$t('export_cameras')" @click="showImportList = true"/>
       </td>
     </tr>
     <tr>
       <td>
-        <q-uploader :factory='onImport'  color="amber" text-color="black" :label="$t('export')" no-thumbnails
+        <q-uploader :factory='onImport'  color="amber" text-color="black" :label="$t('import_cameras')" no-thumbnails
                     style="max-width: 300px"  accept=".json"/>
       </td>
     </tr>

@@ -92,7 +92,7 @@
 
             <q-step id='step2' :name='2' :title="$t('input')" icon='input' color='cyan' :done='step > 2'>
               <q-form class='q-gutter-md'>
-                <q-select v-if="source.address&&source.address.startsWith('rtsp')" dense emit-value map-options filled v-model='source.rtsp_transport'
+                <q-select dense emit-value map-options filled v-model='source.rtsp_transport'
                           :options='rtspTransports' :label="$t('rtsp_transport')" transition-show='flip-up'
                           transition-hide='flip-down' color='cyan' :disable="!source.enabled"/>
                 <q-input dense filled v-model.number='source.analyzation_duration' type='number'
@@ -755,6 +755,18 @@ export default {
         const isWebM = arr.includes(<any>source.value.record_video_codec);
         source.value.record_file_type = isWebM ? 1 : 0;
       }
+    }
+  },
+  watch:{
+    'source.address'(newValue: string){
+      if (newValue){
+        const isRtsp = newValue.toLowerCase().startsWith('rtsp');
+        //@ts-ignore
+        this.source.rtsp_transport = isRtsp ? 1 : 0; // 1: TCP, 0: Auto
+        //@ts-ignore
+        this.source.flv_player_type = isRtsp ? 0 : 1; // 0: MpegTsPlayer, 1: FlvPlayer
+      }
+      console.warn(newValue);
     }
   }
 };
