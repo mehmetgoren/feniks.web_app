@@ -24,7 +24,7 @@
             <q-form class='q-pa-xs'>
               <q-input filled v-model.trim='model.onvif_params.address' :label="$t('address')" dense :color='color'/>
               <q-space style='height: 10px;'/>
-              <q-input filled v-model.number='model.onvif_params.port' type='number' :label="$t('port')" dense :color='color'/>
+              <q-input filled v-model.number='model.onvif_params.port' type='number' :label="$t('onvif_port')" dense :color='color'/>
               <q-space style='height: 10px;'/>
               <q-input filled v-model.trim='model.onvif_params.username' :label="$t('username')" dense :color='color'/>
               <q-space style='height: 10px;'/>
@@ -111,7 +111,18 @@
               <q-space style='height: 5px;'/>
               <q-form class='q-pa-xs' v-if='model.onvif'>
                 <q-space style='height: 10px;'/>
-                <q-input filled v-model.number='model.onvif.stream_uri' :label="$t('stream_uri')" dense :color='color' readonly/>
+                <table v-if="showStreamUriButton">
+                  <tr>
+                    <td style="width: 65%;">
+                      <q-input filled v-model.number='model.onvif.stream_uri' :label="$t('stream_uri')" dense :color='color' readonly/>
+                    </td>
+                    <td>
+                      <q-btn :label="$t('take_stream_uri_address')" dense icon="settings_ethernet" :color='color'
+                             v-close-popup :disable="model.onvif.stream_uri?.length ?? 0> 0" @click="onStreamUriSelected"/>
+                    </td>
+                  </tr>
+                </table>
+                <q-input v-else filled v-model.number='model.onvif.stream_uri' :label="$t('stream_uri')" dense :color='color' readonly/>
                 <q-space style='height: 10px;'/>
                 <q-input filled v-model.number='model.onvif.http_port' :label="$t('http_port')" dense :color='color' readonly/>
                 <q-space style='height: 10px;'/>
@@ -154,11 +165,17 @@ export default {
       type: String,
       required: true,
       default: 'primary'
+    },
+    showStreamUriButton:{
+      type:Boolean,
+      default: false
     }
   },
+  emits: ['on-stream-uri-selected'],
 
-  setup(props: any) {
-    const { t } = useI18n({ useScope: 'global' });
+  //@ts-ignore
+  setup(props: any, {emit}) {
+    const {t} = useI18n({useScope: 'global'});
     const $q = useQuasar();
     const addr: string = <string>(!props.address ? '127.0.0.1' : parseIP(props.address) ? parseIP(props.address) : '127.0.0.1');
     const onvifParams = {address: addr, port: 554, username: '', password: ''};
@@ -297,9 +314,22 @@ export default {
       showOnvifReboot.value = true;
     };
 
+    const onStreamUriSelected = () => {
+      let val = model.value.onvif?.stream_uri;
+      if (val){
+        const username = model.value.onvif_params.username;
+        const password = model.value.onvif_params.password;
+        if (username && password){
+          const rtspEndIndex = 'rtsp://'.length;
+          val = val.slice(0, rtspEndIndex) + `${username}:${password}@` + val.slice(rtspEndIndex);
+        }
+        emit('on-stream-uri-selected', val);
+      }
+    };
+
     return {
       model, hackResults, onScanTarget, showScanLoading, hackSelected, onHackSelected, showOnvifLoading, onOnvifScan,
-      onOnvifReboot, showOnvifReboot,
+      onOnvifReboot, showOnvifReboot, onStreamUriSelected,
       columns: [
         {name: 'address', align: 'center', label: t('address'), field: 'address', sortable: true},
         {name: 'route', align: 'center', label: t('route'), field: 'route', sortable: true},

@@ -370,7 +370,8 @@
   </q-layout>
 
   <q-dialog v-model='showOnvif' full-width full-height>
-    <OnvifSettings :color='"brown-5"' :address='source.address'/>
+    <OnvifSettings :color='"brown-5"' :address='source.address' @on-stream-uri-selected="onStreamUriSelected"
+                   :showStreamUriButton="insertMode"/>
   </q-dialog>
 
   <q-dialog v-model="showQuickWizard">
@@ -754,12 +755,17 @@ export default {
         const arr = [3, 4, 15, 16]
         const isWebM = arr.includes(<any>source.value.record_video_codec);
         source.value.record_file_type = isWebM ? 1 : 0;
+      },
+      onStreamUriSelected(newUri: string){
+        source.value.address = newUri;
       }
     }
   },
   watch:{
     'source.address'(newValue: string){
-      if (newValue){
+      //@ts-ignore
+      const isInsertMode = isNullOrEmpty(this.source.id);
+      if (newValue && isInsertMode){
         const isRtsp = newValue.toLowerCase().startsWith('rtsp');
         //@ts-ignore
         this.source.rtsp_transport = isRtsp ? 1 : 0; // 1: TCP, 0: Auto

@@ -474,4 +474,6 @@ export default {
   v_please_select_at_least_a_camera:'Lütfen En Azından Bir Kamera Seçin',
   v_invalid_source_json:'The Json File Is Not Valid',
   sources_imported_successfully:'Kameralar Başarılı Bir Şekilde Yüklendi',
+  onvif_port:'ONVIF Port',
+  take_stream_uri_address: 'Bu Adresi Kullan',
 };
