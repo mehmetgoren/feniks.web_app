@@ -436,7 +436,7 @@ export default {
         id: stream.id,
         brand: stream.brand,
         name: stream.name,
-        address: stream.address,
+        address: stream.rtmp_address,
         event_type: 1
       });
     }

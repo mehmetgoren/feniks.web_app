@@ -172,6 +172,9 @@
             <q-toggle v-model='jobs.mac_ip_matching_enabled' filled dense :label="$t('mac_ip_match_enabled')"/>
             <q-space style='height: 10px;'/>
             <q-input type="number" v-model.number='jobs.mac_ip_matching_interval' filled dense :label="$t('mac_ip_matching_interval')"/>
+            <q-toggle v-model='jobs.black_screen_monitor_enabled' filled dense :label="$t('black_screen_monitor_enabled')"/>
+            <q-space style='height: 10px;'/>
+            <q-input type="number" v-model.number='jobs.black_screen_monitor_interval' filled dense :label="$t('black_screen_monitor_interval')"/>
           </q-card-section>
         </q-card>
         <q-space style='height: 10px;'/>

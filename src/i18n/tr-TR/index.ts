@@ -476,4 +476,8 @@ export default {
   sources_imported_successfully:'Kameralar Başarılı Bir Şekilde Yüklendi',
   onvif_port:'ONVIF Port',
   take_stream_uri_address: 'Bu Adresi Kullan',
+  black_screen_check_enabled: 'Kamera Bağlantı Kopma Kontrolü',
+  page_will_refresh_in:'Web Sayfası 3 Saniye İçinde Yenilenecek',
+  black_screen_monitor_enabled:'Kamera Bağlantı Kopma Kontrolü',
+  black_screen_monitor_interval:'Kamera Bağlantı Kopma Aralığı',
 };

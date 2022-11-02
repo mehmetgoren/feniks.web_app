@@ -81,6 +81,7 @@ export interface SourceModel {
   flv_player_type?: number | null;
   booster_enabled?: boolean | null;
 
+  black_screen_check_enabled?: boolean | null;
   created_at?: string | null;
   // SourceModel section ends
 }

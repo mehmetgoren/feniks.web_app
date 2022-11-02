@@ -92,6 +92,8 @@
 
             <q-step id='step2' :name='2' :title="$t('input')" icon='input' color='cyan' :done='step > 2'>
               <q-form class='q-gutter-md'>
+                <q-toggle dense v-model='source.black_screen_check_enabled' checked-icon='check'
+                          :label="$t('black_screen_check_enabled')" color='cyan' :disable="!source.enabled"/>
                 <q-select dense emit-value map-options filled v-model='source.rtsp_transport'
                           :options='rtspTransports' :label="$t('rtsp_transport')" transition-show='flip-up'
                           transition-hide='flip-down' color='cyan' :disable="!source.enabled"/>
@@ -472,6 +474,7 @@ export default {
     const copyPrevSources = ref<SourceModel[]>([]);
     const loadingMakeEnabledOrDisabled = ref<boolean>(false);
     const motionDetectionTypes = ref(localService.createMotionDetectionTypes(t));
+    const needReloadModel: NeedReloadModel = {};
 
     const insertMode = computed(() => {
       return isNullOrEmpty(source.value.id);
@@ -485,6 +488,8 @@ export default {
     onMounted(async () => {
       if (!isNullOrEmpty(props.sourceId)) {
         source.value = await nodeService.getSource(props.sourceId);
+        needReloadModel.streamType = source.value.stream_type;
+        needReloadModel.flvPlayerType = source.value.flv_player_type;
       } else {
         const onfn = await nodeService.getOnvifNetwork();
         if (onfn && onfn.results) {
@@ -597,6 +602,18 @@ export default {
       });
       emit('on-save', e);
       storeService.setNotifySourceStreamStatusChanged();
+
+      if (needReloadModel.streamType !== source.value.stream_type
+        || needReloadModel.flvPlayerType !== source.value.flv_player_type) {
+        $q.notify({
+          message: t('page_will_refresh_in'),
+          color: 'green',
+          position: 'bottom-right'
+        });
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
+      }
     }
 
     function onDelete(e: any) {
@@ -756,16 +773,16 @@ export default {
         const isWebM = arr.includes(<any>source.value.record_video_codec);
         source.value.record_file_type = isWebM ? 1 : 0;
       },
-      onStreamUriSelected(newUri: string){
+      onStreamUriSelected(newUri: string) {
         source.value.address = newUri;
       }
     }
   },
-  watch:{
-    'source.address'(newValue: string){
+  watch: {
+    'source.address'(newValue: string) {
       //@ts-ignore
       const isInsertMode = isNullOrEmpty(this.source.id);
-      if (newValue && isInsertMode){
+      if (newValue && isInsertMode) {
         const isRtsp = newValue.toLowerCase().startsWith('rtsp');
         //@ts-ignore
         this.source.rtsp_transport = isRtsp ? 1 : 0; // 1: TCP, 0: Auto
@@ -776,6 +793,11 @@ export default {
     }
   }
 };
+
+interface NeedReloadModel {
+  streamType?: number | null;
+  flvPlayerType?: number | null;
+}
 </script>
 
 <style scoped>

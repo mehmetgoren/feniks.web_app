@@ -476,4 +476,8 @@ export default {
   sources_imported_successfully:'Cameras Have Been Imported Successfully',
   onvif_port:'ONVIF Port',
   take_stream_uri_address: 'Use this address',
+  black_screen_check_enabled: 'Black Screen Check Enabled',
+  page_will_refresh_in:'The page is going to reload again in 3 seconds.',
+  black_screen_monitor_enabled:'Black Screen Monitor Enabled',
+  black_screen_monitor_interval:'Black Screen Monitor Interval',
 };

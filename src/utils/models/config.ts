@@ -63,6 +63,8 @@ export interface UiConfig {
 export interface JobsConfig {
   mac_ip_matching_enabled: boolean;
   mac_ip_matching_interval: number;
+  black_screen_monitor_enabled: boolean;
+  black_screen_monitor_interval: number;
 }
 
 export interface DeepStackConfig {
