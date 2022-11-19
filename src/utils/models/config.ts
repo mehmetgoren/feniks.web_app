@@ -43,6 +43,8 @@ export interface FFmpegConfig {
   start_task_wait_for_interval: number;
   record_concat_limit: number;
   record_video_file_indexer_interval: number;
+  rtmp_server_port_start: number;
+  rtmp_server_port_end: number;
 }
 
 export interface AiConfig {

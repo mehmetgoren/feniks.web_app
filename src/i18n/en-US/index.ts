@@ -480,4 +480,10 @@ export default {
   page_will_refresh_in:'The page is going to reload again in 3 seconds.',
   black_screen_monitor_enabled:'Black Screen Monitor Enabled',
   black_screen_monitor_interval:'Black Screen Monitor Interval',
+  rtmp_server_port_start:'RTMP Server Port Start At',
+  rtmp_server_port_end:'RTMP Server Port End At',
+  v_rtmp_server_port_start:'RTMP Server end port cannot be less or equal then start port',
+  v_rtmp_server_port_start_source:'Differences between RTMP Server start and end ports should be greater than total camera count X 5',
+  v_l_rtmp_server_port_start: 'RTMP Server start port cannot be lower than 1024',
+  v_g_rtmp_server_port_end: 'RTMP Server end port cannot be greater than 65535',
 };

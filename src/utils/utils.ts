@@ -335,7 +335,7 @@ export function validateModel<T>(t:any, empty: T, viewModel:T): string[]{
          }
          break;
        case 'boolean':
-         if (!viewValue){
+         if (isNullOrUndefined(viewValue)){
            ret.push(`${t('please_enter_value')} for ${t(field)}`);
          }
          break;

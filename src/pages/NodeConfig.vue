@@ -95,6 +95,25 @@
           </q-card-section>
         </q-card>
         <q-space style='height: 10px;'/>
+
+        <q-card class="my-card" flat bordered style="margin: 0 5px 0 5px;">
+          <q-card-section class="bg-cyan text-white">
+            <div class="text-subtitle2">
+              <label style='text-transform: uppercase;font-size: medium'>{{ $t('recurring_jobs') }}</label>
+            </div>
+          </q-card-section>
+          <q-separator/>
+          <q-card-section>
+            <q-toggle v-model='jobs.mac_ip_matching_enabled' filled dense :label="$t('mac_ip_match_enabled')"/>
+            <q-space style='height: 10px;'/>
+            <q-input type="number" v-model.number='jobs.mac_ip_matching_interval' filled dense :label="$t('mac_ip_matching_interval')"/>
+            <q-toggle v-model='jobs.black_screen_monitor_enabled' filled dense :label="$t('black_screen_monitor_enabled')"/>
+            <q-space style='height: 10px;'/>
+            <q-input type="number" v-model.number='jobs.black_screen_monitor_interval' filled dense :label="$t('black_screen_monitor_interval')"/>
+          </q-card-section>
+        </q-card>
+        <q-space style='height: 10px;'/>
+
       </div>
 
       <div class='col-4'>
@@ -157,24 +176,10 @@
             <q-space style='height: 10px;'/>
             <q-input v-model.number='ffmpeg.record_video_file_indexer_interval' type='number' filled dense
                      :label="$t('record_video_file_indexer_interval')"/>
-          </q-card-section>
-        </q-card>
-        <q-space style='height: 10px;'/>
-
-        <q-card class="my-card" flat bordered style="margin: 0 5px 0 5px;">
-          <q-card-section class="bg-cyan text-white">
-            <div class="text-subtitle2">
-              <label style='text-transform: uppercase;font-size: medium'>{{ $t('recurring_jobs') }}</label>
-            </div>
-          </q-card-section>
-          <q-separator/>
-          <q-card-section>
-            <q-toggle v-model='jobs.mac_ip_matching_enabled' filled dense :label="$t('mac_ip_match_enabled')"/>
             <q-space style='height: 10px;'/>
-            <q-input type="number" v-model.number='jobs.mac_ip_matching_interval' filled dense :label="$t('mac_ip_matching_interval')"/>
-            <q-toggle v-model='jobs.black_screen_monitor_enabled' filled dense :label="$t('black_screen_monitor_enabled')"/>
+            <q-input v-model.number='ffmpeg.rtmp_server_port_start' type='number' filled dense :label="$t('rtmp_server_port_start')"/>
             <q-space style='height: 10px;'/>
-            <q-input type="number" v-model.number='jobs.black_screen_monitor_interval' filled dense :label="$t('black_screen_monitor_interval')"/>
+            <q-input v-model.number='ffmpeg.rtmp_server_port_end' type='number' filled dense :label="$t('rtmp_server_port_end')"/>
           </q-card-section>
         </q-card>
         <q-space style='height: 10px;'/>
@@ -756,6 +761,45 @@ export default {
         }
         return;
       }
+      const portDiff = (config.value?.ffmpeg.rtmp_server_port_end ?? 0) - (config.value?.ffmpeg.rtmp_server_port_start ?? 0);
+      if (portDiff < 1){
+        $q.notify({
+          message: t('v_rtmp_server_port_start'),
+          caption: t('invalid'),
+          color: 'red',
+          position: 'bottom-right'
+        });
+        return;
+      }
+      if ((config.value?.ffmpeg.rtmp_server_port_start ?? 0)< 1024){
+        $q.notify({
+          message: t('v_l_rtmp_server_port_start'),
+          caption: t('invalid'),
+          color: 'red',
+          position: 'bottom-right'
+        });
+        return;
+      }
+      if ((config.value?.ffmpeg.rtmp_server_port_end ?? 0)> 65535){
+        $q.notify({
+          message: t('v_g_rtmp_server_port_end'),
+          caption: t('invalid'),
+          color: 'red',
+          position: 'bottom-right'
+        });
+        return;
+      }
+      const source = await nodeService.getSourceList();
+      if (source.length * 5 > portDiff){
+        $q.notify({
+          message: t('v_rtmp_server_port_start_source'),
+          caption: t('invalid'),
+          color: 'red',
+          position: 'bottom-right'
+        });
+        return;
+      }
+
       await nodeService.saveConfig(<Config>config.value);
       await nodeService.restartAllServices();
     };

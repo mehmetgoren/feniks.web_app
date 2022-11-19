@@ -480,4 +480,10 @@ export default {
   page_will_refresh_in:'Web Sayfası 3 Saniye İçinde Yenilenecek',
   black_screen_monitor_enabled:'Kamera Bağlantı Kopma Kontrolü',
   black_screen_monitor_interval:'Kamera Bağlantı Kopma Aralığı',
+  rtmp_server_port_start:'RTMP Sunucu Port Başlangıç',
+  rtmp_server_port_end:'RTMP Sunucu Port Bitiş',
+  v_rtmp_server_port_start:'RTMP Sunucu Başlangıç Portu Bitiş Portundan Az veya Eşit Olamaz',
+  v_rtmp_server_port_start_source:'RTMP Sunucu Başlangıç Portu Bitiş Portu Farkı Toplan Kamera Sayısından X 5 Büyük olmalı',
+  v_l_rtmp_server_port_start: 'RTMP Sunucu Başlangıç Portu 1024 ten Küçük Olamaz',
+  v_g_rtmp_server_port_end: 'RTMP Sunucu bitiş Portu 65535 ten Büyük Olamaz',
 };
