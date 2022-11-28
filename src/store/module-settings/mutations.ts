@@ -1,9 +1,9 @@
-import { MutationTree } from 'vuex';
+import {MutationTree} from 'vuex';
 import {ISettingsState, LoadingInfo, MenuItem, MenuLink, StreamCommandBarInfo} from './state';
-import { List } from 'linqts';
-import { SourceModel } from 'src/utils/models/source_model';
-import { LocalService } from 'src/utils/services/local_service';
-import { User } from 'src/utils/models/user_model';
+import {List} from 'linqts';
+import {SourceModel} from 'src/utils/models/source_model';
+import {LocalService} from 'src/utils/services/local_service';
+import {User} from 'src/utils/models/user_model';
 
 const mutation: MutationTree<ISettingsState> = {
   changeDense(state: ISettingsState, value: boolean) {
@@ -29,11 +29,11 @@ const mutation: MutationTree<ISettingsState> = {
   setSourceLoading(state: ISettingsState, value: LoadingInfo) {
     state.sourceLoading = value;
   },
-  addSourceToLeftMenu(state: ISettingsState, source: SourceModel){
+  addSourceToLeftMenu(state: ISettingsState, source: SourceModel) {
     const route = 'node';
     const menuLink: MenuLink = {
       route: route + '&source=' + source.id,
-      icon: source.enabled ? 'videocam' :  'videocam_off',
+      icon: source.enabled ? 'videocam' : 'videocam_off',
       text: source.name,
       id: source.id,
       source: source,
@@ -42,39 +42,42 @@ const mutation: MutationTree<ISettingsState> = {
     };
     state.menu['node']['cameras'].push(menuLink);
   },
-  updateSourceToLeftMenu(state: ISettingsState, source: SourceModel){
+  updateSourceToLeftMenu(state: ISettingsState, source: SourceModel) {
     const cameras = [...state.menu['node']['cameras']];
-    for (let j = 0; j < cameras.length; ++j){
+    for (let j = 0; j < cameras.length; ++j) {
       const cam = cameras[j];
-      if (cam.id === source.id){
+      if (cam.id === source.id) {
         cam.text = source.name;
         cam.source = source;
-        cam.icon = source.enabled ? 'videocam' :  'videocam_off';
+        cam.icon = source.enabled ? 'videocam' : 'videocam_off';
         break;
       }
     }
   },
-  removeSourceFromLeftMenu(state: ISettingsState, sourceId: string){
+  removeSourceFromLeftMenu(state: ISettingsState, sourceId: string) {
     const cameras = [...state.menu['node']['cameras']];
     state.menu['node']['cameras'] = cameras.filter(x => x.id != sourceId);
   },
-  notifySourceStreamStatusChanged(state: ISettingsState){
+  notifySourceStreamStatusChanged(state: ISettingsState) {
     state.sourceStreamStatusChanged = !state.sourceStreamStatusChanged;
   },
-  aiSettingsSourceId(state: ISettingsState, sourceId: string){
+  aiSettingsSourceId(state: ISettingsState, sourceId: string) {
     state.aiSettingsSourceId = sourceId;
   },
-  recordSourceId(state: ISettingsState, sourceId: string){
+  recordSourceId(state: ISettingsState, sourceId: string) {
     state.recordSourceId = sourceId;
   },
-  currentUser(state: ISettingsState, user: User){
+  currentUser(state: ISettingsState, user: User) {
     state.currentUser = user;
     new LocalService().setCurrentUser(user);
   },
-  streamCommandbarClicked(state: ISettingsState, info: StreamCommandBarInfo){
+  streamCommandbarClicked(state: ISettingsState, info: StreamCommandBarInfo) {
     state.clickedStreamCommandBar = info;
   },
-  set18n(state: ISettingsState, t: any){
+  readonlyMode(state: ISettingsState, readOnlyMode: boolean) {
+    state.readonlyMode = readOnlyMode;
+  },
+  set18n(state: ISettingsState, t: any) {
     const n = state.menu.node;
     n['config'][0].text = t('config');
     n['stream_gallery'][0].text = t('stream_gallery');

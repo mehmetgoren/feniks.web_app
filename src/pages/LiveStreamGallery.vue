@@ -312,10 +312,16 @@ export default {
     async function initActiveStreamsFirstTime() {
       const streamModels: StreamModel[] = await nodeService.getStreamList();
       if (!isNullOrUndefined(streamModels) && streamModels.length > 0) {
-        for (const streamModel of streamModels) {
-          const loc = gls.getGsLocation(streamModel.id);
-          if (loc) {
+        if (storeService.readonlyMode){
+          for (const streamModel of streamModels) {
             addPlayer(streamModel, false);
+          }
+        }else {
+          for (const streamModel of streamModels) {
+            const loc = gls.getGsLocation(streamModel.id);
+            if (loc) {
+              addPlayer(streamModel, false);
+            }
           }
         }
         loadInitGrid(() => {

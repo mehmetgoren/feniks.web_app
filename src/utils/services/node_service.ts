@@ -12,7 +12,7 @@ import {ImagesParams, FolderTreeItem, ImageItem} from 'src/utils/models/detected
 import {AiClipViewModel, AiClipQueryViewModel} from 'src/utils/models/ai_clip_view_models';
 import {NetworkDiscoveryModel, OnvifModel} from 'src/utils/models/onvif_models';
 import {FrTrainRename, FrTrainName, FrTrainScreenshotViewModel, FrTrainViewModel} from 'src/utils/models/fr_models';
-import {LoginUserViewModel, RegisterUserViewModel, User} from 'src/utils/models/user_model';
+import {ClientInfoModel, LoginUserViewModel, RegisterUserViewModel, User} from 'src/utils/models/user_model';
 import {ServiceModel, ServiceViewModel} from 'src/utils/models/service_model';
 import {ServerStats} from 'src/utils/models/server_stats';
 import {FailedStreamModel, RecStuckModel, RtspTemplateModel, VariousInfos} from 'src/utils/models/others_models';
@@ -195,7 +195,7 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
-  public async registerWebAppService():Promise<boolean>{
+  public async registerWebAppService(): Promise<boolean> {
     const resp = await api.post(await this.LocalService.getNodeAddress('registerwebappservice'));
     return resp.data;
   }
@@ -215,12 +215,12 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
-  public async restartAfterCloudChanges():Promise<boolean>{
+  public async restartAfterCloudChanges(): Promise<boolean> {
     const resp = await api.post(await this.LocalService.getNodeAddress('restartaftercloudchanges'));
     return resp.data;
   }
 
-  public async restartAllServices():Promise<boolean>{
+  public async restartAllServices(): Promise<boolean> {
     const resp = await api.post(await this.LocalService.getNodeAddress('restartallservices'));
     return resp.data;
   }
@@ -244,8 +244,8 @@ export class NodeService extends BaseService {
     try {
       const resp = await api.get(await this.LocalService.getNodeAddress('serverstats'));
       return resp.data;
-    }catch (e: any){
-      if (e.code && e.code === 'ERR_NETWORK'){
+    } catch (e: any) {
+      if (e.code && e.code === 'ERR_NETWORK') {
         this.LocalService.setCurrentUser(null);
         window.location.href = '/';
         window.location.reload();
@@ -304,28 +304,52 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
-  public async resetGdriveTokenAndUrl(): Promise<boolean>{
+  public async resetGdriveTokenAndUrl(): Promise<boolean> {
     const resp = await api.post(await this.LocalService.getNodeAddress('resetgdrivetokenandurl'));
     return resp.data;
   }
 
-  public async queryAiData(model: QueryAiDataParams):Promise<AiDataDto[]>{
+  public async queryAiData(model: QueryAiDataParams): Promise<AiDataDto[]> {
     const resp = await api.post(await this.LocalService.getNodeAddress('queryaidata'), model);
     return resp.data;
   }
 
-  public async queryAiDataAdvanced(model: QueryAiDataAdvancedParams):Promise<AiDataDto[]>{
+  public async queryAiDataAdvanced(model: QueryAiDataAdvancedParams): Promise<AiDataDto[]> {
     const resp = await api.post(await this.LocalService.getNodeAddress('queryaidataadvanced'), model);
     return resp.data;
   }
 
-  public async queryAiDataCount(model: QueryAiDataAdvancedParams): Promise<number>{
+  public async queryAiDataCount(model: QueryAiDataAdvancedParams): Promise<number> {
     const resp = await api.post(await this.LocalService.getNodeAddress('queryaidatacount'), model);
     return resp.data;
   }
 
-  public async deleteAiData(model: AiDataDeleteOptions): Promise<boolean>{
+  public async deleteAiData(model: AiDataDeleteOptions): Promise<boolean> {
     const resp = await api.delete(await this.LocalService.getNodeAddress('deleteaidata'), {data: model});
     return resp.data;
+  }
+
+  public async getIsReadOnlyMode(): Promise<boolean> {
+    const resp = await api.get(await this.LocalService.getNodeAddress('isReadOnlyMode'));
+    return resp.data;
+  }
+
+  public async getClientInfo(): Promise<ClientInfoModel | null> {
+    const resp = await api.get('https://cloudflare.com/cdn-cgi/trace');
+    const data = resp.data.trim().split('\n').reduce(function (obj: any, pair: string) {
+      const pairs = pair.split('=');
+      return obj[pairs[0]] = pairs[1], obj;
+    }, {});
+
+    let ret : any = null;
+    if (data && data.ip){
+      ret = {};
+      ret.ip = data.ip;
+      ret.uag = data.uag;
+      ret.location = data.loc;
+      ret.data_center_location = data.colo;
+    }
+
+    return ret;
   }
 }

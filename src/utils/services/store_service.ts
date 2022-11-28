@@ -70,6 +70,10 @@ export class StoreService {
     return computed(() => this.$store.getters['settings/recordSourceId']);
   }
 
+  public get readonlyMode(){
+    return computed(() => this.$store.getters['settings/readonlyMode']);
+  }
+
   public setCurrentUser(user: User | null) {
     this.$store.commit('settings/currentUser', user);
   }
@@ -92,6 +96,10 @@ export class StoreService {
 
   public setStreamCommandBar(info: StreamCommandBarInfo) {
     this.$store.commit('settings/streamCommandbarClicked', info);
+  }
+
+  public setReadonlyMode(value: boolean){
+    this.$store.commit('settings/readonlyMode', value);
   }
 
   public set18n(t: any) {

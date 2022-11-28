@@ -3,7 +3,7 @@
   <Login v-else/>
 </template>
 <script lang="ts">
-import {defineComponent, ref, watch} from 'vue';
+import {defineComponent, onMounted, ref, watch} from 'vue';
 import Login from 'pages/Login.vue';
 import {User} from 'src/utils/models/user_model';
 import {isNullOrEmpty, doUserLogout} from 'src/utils/utils';
@@ -28,6 +28,10 @@ export default defineComponent({
         void nodeService.registerWebAppService();
         void registerUserLogout();
       }
+    });
+
+    onMounted(async () => {
+      storeService.setReadonlyMode(await nodeService.getIsReadOnlyMode());
     });
 
     const registerUserLogout = async () => {

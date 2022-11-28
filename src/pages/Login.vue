@@ -109,7 +109,7 @@
 
 <script lang='ts'>
 import {onMounted, ref, watch} from 'vue';
-import {LoginUserViewModel, RegisterUserViewModel, User} from 'src/utils/models/user_model';
+import {ClientInfoModel, LoginUserViewModel, RegisterUserViewModel, User} from 'src/utils/models/user_model';
 import {NodeService} from 'src/utils/services/node_service';
 import {useQuasar} from 'quasar';
 import Nodes from 'src/pages/Nodes.vue';
@@ -132,13 +132,14 @@ export default {
     const loginUser = ref<LoginUserViewModel>({username: 'admin', password: 'admin'});
     const registerUser = ref<RegisterUserViewModel>({
       email: 'admin@feniks.com', password: 'admin',
-      re_password: 'admin', username: 'admin'
+      re_password: 'admin', username: 'admin', ip: '', uag: '', location: '', data_center_location: ''
     });
     const nodeService = new NodeService();
     const nodeRepository = new NodeRepository();
     const storeService = new StoreService();
     const showLoginLoading = ref<boolean>(false);
     const mainViewHeight = ref<number>(window.innerHeight);
+    let clientInfo: ClientInfoModel | null = null;
 
     watch(locale, newValue => {
       nodeService.LocalService.setLang(<any>newValue);
@@ -160,6 +161,40 @@ export default {
       scrollbarInit('login-view');
 
       await constInitDarkTheme();
+
+      nodeService.getClientInfo().then(ci => {
+        if (!ci) return;
+        clientInfo = ci
+        const ru = registerUser.value;
+        ru.ip = ci.ip
+        ru.uag = ci.uag;
+        ru.location = ci.location;
+        ru.data_center_location = ci.data_center_location;
+
+      }).catch(console.error);
+
+      const readOnlyMode = await nodeService.getIsReadOnlyMode();
+      if (readOnlyMode) {
+        setTimeout(() => {
+          if (clientInfo && clientInfo.ip) {
+            //@ts-ignore
+            const uniqueName = `user_${clientInfo.ip.replaceAll('.', '_')}`;
+            const ru = registerUser.value;
+            ru.username = uniqueName;
+            ru.password = clientInfo.ip;
+            ru.re_password = ru.password;
+            ru.email = `${ru.username}@feniks.com`;
+            onRegister().then(() => {
+              setTimeout(() => {
+                const u = loginUser.value;
+                u.username = ru.username;
+                u.password = ru.password;
+                void onLogin();
+              }, 500);
+            }).catch(console.error);
+          }
+        }, 1000);
+      }
     });
 
     const onLogin = async () => {
@@ -225,7 +260,7 @@ export default {
       onNodesGoBack() {
         mode.value = Mode.Login;
       },
-      getImgSrc(){
+      getImgSrc() {
         return getImgSrc(locale);
       }
     };

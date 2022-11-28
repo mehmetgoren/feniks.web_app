@@ -45,6 +45,7 @@ export interface ISettingsState {
   recordSourceId: string;
   currentUser: User | null;
   clickedStreamCommandBar: StreamCommandBarInfo | null;
+  readonlyMode: boolean;
 }
 
 export interface LoadingInfo {
@@ -82,7 +83,8 @@ function state(): ISettingsState {
     aiSettingsSourceId: '',
     recordSourceId: '',
     currentUser: null,
-    clickedStreamCommandBar: null
+    clickedStreamCommandBar: null,
+    readonlyMode:false
   };
 }
 

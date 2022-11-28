@@ -346,7 +346,7 @@
     </q-card>
     <q-space style='height: 10px;'/>
 
-    <q-card class="my-card" flat bordered>
+    <q-card class="my-card" flat bordered v-if="!readonlyMode">
       <q-card-section class="bg-teal text-white">
         <div class="text-subtitle2">
           <label style='text-transform: uppercase;font-size: medium'>{{ $t('users2') }}</label>
@@ -380,7 +380,7 @@
 
       </q-table>
     </q-card>
-    <q-space style='height: 10px;'/>
+    <q-space style='height: 10px;' v-if="!readonlyMode"/>
 
     <q-card class="my-card" flat bordered>
       <q-card-section class="bg-brown-5 text-white">
@@ -562,6 +562,7 @@ import Cloud from 'components/Cloud.vue';
 import ImportExportSource from 'components/ImportExportSource.vue';
 import {SelectOption} from 'src/utils/services/local_service';
 import {useI18n} from 'vue-i18n';
+import {StoreService} from 'src/utils/services/store_service';
 
 export default {
   name: 'NodeConfig',
@@ -571,6 +572,7 @@ export default {
     const $q = useQuasar();
     const nodeService = new NodeService();
     const publishService = new PublishService();
+    const storeService = new StoreService();
     const config = ref<Config>();
     const loadingConfig = ref<boolean>(false);
     const device = ref<DeviceConfig>();
@@ -630,6 +632,7 @@ export default {
     const loadingVariousInfo = ref<boolean>(false);
     const ods = ref<OdModel[]>([]);
     const loadingOds = ref<boolean>(false);
+    const readonlyMode = storeService.readonlyMode;
 
     const setConfigValue = (c: Config) => {
       device.value = c.device;
@@ -667,6 +670,9 @@ export default {
     };
 
     const userDataBind = async () => {
+      if (readonlyMode.value){
+        return;
+      }
       await databindWithLoading(loadingUsers, async () => {
         const usrs = await nodeService.getUsers();
         fixArrayDates(usrs, 'last_login_at');
@@ -879,7 +885,7 @@ export default {
       otherTabs: ref<string>('gpu'),
       failedStreams, failedStreamsColumns: createFailedStreamsColumns(t),
       recStucks, recStucksColumns: createRecStucksColumns(t),
-      variousInfos, loadingRtmpTemplates, filterRtmpTemplates,
+      variousInfos, loadingRtmpTemplates, filterRtmpTemplates, readonlyMode,
       ods, odColumns: createOdColumns(t),
       onRestartService, onStartService, onStopService, serviceDataBind, userDataBind, rtmpTemplatesDataBind,
       failedStreamsDatabind, recStucksDatabind, odsDatabind, variousInfosDataBind, configDatabind

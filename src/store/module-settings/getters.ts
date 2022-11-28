@@ -38,6 +38,9 @@ const getters: GetterTree<ISettingsState, IState> = {
   },
   clickedStreamCommandBar(state: ISettingsState): StreamCommandBarInfo | null {
     return state.clickedStreamCommandBar;
+  },
+  readonlyMode(state: ISettingsState): boolean {
+    return state.readonlyMode;
   }
 };
 
