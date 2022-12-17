@@ -486,4 +486,12 @@ export default {
   v_rtmp_server_port_start_source:'Differences between RTMP Server start and end ports should be greater than total camera count X 5',
   v_l_rtmp_server_port_start: 'RTMP Server start port cannot be lower than 1024',
   v_g_rtmp_server_port_end: 'RTMP Server end port cannot be greater than 65535',
+  open_onvif_window: 'You can use ONVIF window to get stream URI if you know the camera\'s ONVIF port',
+  tt_black_screen_checker:'Adds second FFmpeg process checker to ensure the camera is still working and has durable connection.',
+  tt_analysis_probe:'Please lower this value if you faced connection issues.',
+  tt_use_hwaccel:'This option enables HW-assisted decoding to reduce CPU usage and latency.',
+  tt_booster_enabled:'Enable it if you want to reduce latency. Otherwise stream delay can be up to 10-30 seconds for some wireless cheap IP cameras.',
+  tt_vodeo_codec:'copy is the best option if your source is an IP camera.',
+  tt_stream_quality:'This option must be between 2-31. Lower value means higher quality.',
+  tt_motion_detection_type:'OpenCV provides best precision and accuracy. ImageHash is the fastest and most lightweight method.',
 };

@@ -67,13 +67,17 @@
                   </template>
                   <template v-slot:after>
                     <q-btn flat icon="query_stats" @click="onFindOptimalSettings" :disable="showFindOptimalSettings||!source.enabled">
-                      <q-tooltip transition-show="rotate" transition-hide="rotate">
+                      <q-tooltip>
                         {{ $t('find_optimal_settings') }}
                       </q-tooltip>
                       <q-inner-loading :showing='showFindOptimalSettings'/>
                     </q-btn>
                     <q-btn dense color='brown-5' flat icon='settings_ethernet' :label="$t('start_onvif')" @click='showOnvif = true'
-                           :disable="!source.enabled"/>
+                           :disable="!source.enabled">
+                      <q-tooltip>
+                        {{ $t('open_onvif_window') }}
+                      </q-tooltip>
+                    </q-btn>
                   </template>
                 </q-input>
 
@@ -93,19 +97,29 @@
             <q-step id='step2' :name='2' :title="$t('input')" icon='input' color='cyan' :done='step > 2'>
               <q-form class='q-gutter-md'>
                 <q-toggle dense v-model='source.black_screen_check_enabled' checked-icon='check'
-                          :label="$t('black_screen_check_enabled')" color='cyan' :disable="!source.enabled"/>
+                          :label="$t('black_screen_check_enabled')" color='cyan' :disable="!source.enabled">
+                  <q-tooltip>
+                    {{ $t('tt_black_screen_checker')}}
+                  </q-tooltip>
+                </q-toggle>
                 <q-select dense emit-value map-options filled v-model='source.rtsp_transport'
                           :options='rtspTransports' :label="$t('rtsp_transport')" transition-show='flip-up'
                           transition-hide='flip-down' color='cyan' :disable="!source.enabled"/>
                 <q-input dense filled v-model.number='source.analyzation_duration' type='number'
-                         :label="$t('analysis_duration')" color='cyan' :disable="!source.enabled"/>
+                         :label="$t('analysis_duration')" color='cyan' :disable="!source.enabled">
+                  <q-tooltip>{{$t('tt_analysis_probe')}}</q-tooltip>
+                </q-input>
                 <q-input dense filled v-model.number='source.probe_size' type='number' :label="$t('probe_size')"
-                         color='cyan' :disable="!source.enabled"/>
+                         color='cyan' :disable="!source.enabled">
+                  <q-tooltip>{{$t('tt_analysis_probe')}}</q-tooltip>
+                </q-input>
                 <q-input dense filled v-model.number='source.input_frame_rate' type='number' :label="$t('fps')"
                          hint='Frame Rate' color='cyan'/>
                 <q-space/>
                 <q-toggle dense v-model='source.use_hwaccel' checked-icon='check'
-                          :label="$t('use_hardware_accelerator')" color='cyan' :disable="!source.enabled"/>
+                          :label="$t('use_hardware_accelerator')" color='cyan' :disable="!source.enabled">
+                  <q-tooltip>{{$t('tt_use_hwaccel')}}</q-tooltip>
+                </q-toggle>
                 <q-select v-if='source.use_hwaccel' dense emit-value map-options filled
                           v-model='source.hwaccel_engine' color='cyan'
                           :options='accelerationEngines' :label="$t('acceleration_engine')" transition-show='scale'
@@ -138,10 +152,14 @@
                 <q-toggle v-if='source.stream_type < 2&&(source.stream_type === 1 || source.flv_player_type===1)'
                           dense v-model='source.booster_enabled' checked-icon='check' color='cyan'
                           :label="$t('booster') + ' ' + (source.booster_enabled ? $t('enabled') : $t('disabled'))"
-                          :disable="!source.enabled"/>
+                          :disable="!source.enabled">
+                  <q-tooltip>{{$t('tt_booster_enabled')}}</q-tooltip>
+                </q-toggle>
                 <q-select dense emit-value map-options filled v-model='source.stream_video_codec' color='cyan'
                           :options='streamVideoCodecs' :label="$t('video_codec')" transition-show='scale' transition-hide='scale'
-                          :disable="!source.enabled"/>
+                          :disable="!source.enabled">
+                  <q-tooltip>{{$t('tt_vodeo_codec')}}</q-tooltip>
+                </q-select>
                 <q-select v-if='source.stream_video_codec !== 3' dense emit-value
                           map-options filled color='cyan' v-model='source.preset'
                           :options='presets' :label="$t('preset')" transition-show='scale' transition-hide='scale'
@@ -150,7 +168,9 @@
                   <tr>
                     <td style="width: 25%">
                       <q-input dense filled v-model.number='source.stream_quality' color='cyan' type='number' min='2' max='31'
-                               :label="$t('quality')" :disable="!source.enabled"/>
+                               :label="$t('quality')" :disable="!source.enabled">
+                        <q-tooltip>{{$t('tt_stream_quality')}}</q-tooltip>
+                      </q-input>
                     </td>
                     <td>
                       <q-input dense filled v-model.number='source.stream_frame_rate' color='cyan' type='number' :label="$t('frame_rate')"
@@ -230,7 +250,9 @@
                          type='number' :label="$t('height')" color='cyan' :disable="!source.enabled"/>
                 <q-select v-if='source.snapshot_enabled' dense emit-value map-options filled v-model='source.md_type' color='cyan'
                           :options='motionDetectionTypes' :label="$t('md_type')" transition-show='scale' transition-hide='scale'
-                          :disable="!source.enabled"/>
+                          :disable="!source.enabled">
+                  <q-tooltip ><strong>{{ $t('tt_motion_detection_type') }}</strong></q-tooltip>
+                </q-select>
 
                 <div class="gt-xs">
                   <q-separator/>
@@ -245,8 +267,7 @@
                         <q-slider dense v-model.number='source.md_opencv_threshold' :min="0"
                                   :max="255" color='cyan' :disable="!source.enabled" label label-always switch-label-side :step="1"
                                   style="max-width: 300px;"/>
-                        <q-tooltip class="bg-cyan" anchor="top middle" self="bottom middle"
-                                   transition-show="flip-right" transition-hide="flip-left">
+                        <q-tooltip class="bg-cyan" anchor="top middle" self="bottom middle">
                           {{ $t('default') }} : 30
                         </q-tooltip>
                       </td>
@@ -261,8 +282,7 @@
                         <q-slider dense v-model.number='source.md_contour_area_limit' :min="1000"
                                   :max="20000" color='cyan' :disable="!source.enabled" label label-always switch-label-side :step="1000"
                                   style="max-width: 300px;"/>
-                        <q-tooltip class="bg-cyan" anchor="top middle" self="bottom middle"
-                                   transition-show="flip-right" transition-hide="flip-left">
+                        <q-tooltip class="bg-cyan" anchor="top middle" self="bottom middle">
                           {{ $t('default') }} : 10000
                         </q-tooltip>
                       </td>
@@ -276,8 +296,7 @@
                       <td class="td2">
                         <q-slider dense v-model.number='source.md_imagehash_threshold' :min="1" :max="5"
                                   color='cyan' :disable="!source.enabled" label label-always switch-label-side :step="1" style="max-width: 300px;"/>
-                        <q-tooltip class="bg-cyan" anchor="top middle" self="bottom middle"
-                                   transition-show="flip-right" transition-hide="flip-left">
+                        <q-tooltip class="bg-cyan" anchor="top middle" self="bottom middle">
                           {{ $t('default') }} : 3
                         </q-tooltip>
                       </td>
@@ -292,8 +311,7 @@
                         <q-slider v-if='source.snapshot_enabled&&source.md_type===3' dense v-model.number='source.md_psnr_threshold' :min="0.1"
                                   :max="1.0" color='cyan' :disable="!source.enabled" label label-always switch-label-side :step="0.1"
                                   style="max-width: 300px;"/>
-                        <q-tooltip class="bg-cyan" anchor="top middle" self="bottom middle"
-                                   transition-show="flip-right" transition-hide="flip-left">
+                        <q-tooltip class="bg-cyan" anchor="top middle" self="bottom middle">
                           {{ $t('default') }} : 0.2
                         </q-tooltip>
                       </td>
@@ -358,7 +376,7 @@
                           :label="$t('record_audio_sample_rate')" transition-show='scale'
                           transition-hide='scale' :disable="!source.enabled"/>
                 <q-input v-if='source.record_audio_codec !== 0 && source.record_audio_codec !== 8' dense filled
-                         v-model.number='source.record_audio_volume' :label="$t('record_audio_codec')" color='cyan' :disable="!source.enabled"/>
+                         v-model.number='source.record_audio_volume' :label="$t('record_audio_volume')" color='cyan' :disable="!source.enabled"/>
               </q-form>
               <q-stepper-navigation>
                 <q-btn flat @click='step = 4' color='cyan' :label="$t('back')" class='q-ml-sm' :disable="!source.enabled"/>

@@ -486,4 +486,12 @@ export default {
   v_rtmp_server_port_start_source:'RTMP Sunucu Başlangıç Portu Bitiş Portu Farkı Toplan Kamera Sayısından X 5 Büyük olmalı',
   v_l_rtmp_server_port_start: 'RTMP Sunucu Başlangıç Portu 1024 ten Küçük Olamaz',
   v_g_rtmp_server_port_end: 'RTMP Sunucu bitiş Portu 65535 ten Büyük Olamaz',
+  open_onvif_window: 'Eğer Kameranızın ONVIF portunu biliyorsunız akış URI\' sini bulmak için ONVIF penceresini Kullanın',
+  tt_black_screen_checker:'Kameranın hala çalıştığından ve dayanıklı bir bağlantıya sahip olduğundan emin olmak için ikinci FFmpeg işlem denetleyicisini ekler.',
+  tt_analysis_probe:'Bağlantı sorunlarıyla karşılaşırsanız lütfen bu değeri düşürün.',
+  tt_use_hwaccel:'Bu seçenek, CPU kullanımını ve gecikmeyi azaltmak için HW destekli kod çözmeyi etkinleştirir.',
+  tt_booster_enabled:'Gecikmeyi azaltmak istiyorsanız etkinleştirin. Aksi takdirde, bazı kablosuz ucuz IP kameralar için akış gecikmesi 10-30 saniyeye kadar çıkabilir.',
+  tt_vodeo_codec:'kaynağınız bir IP kamera ise copy en iyi seçenektir.',
+  tt_stream_quality:'Bu seçenek 2-31 arasında olmalıdır. Daha düşük değer, daha yüksek kalite anlamına gelir.',
+  tt_motion_detection_type:'OpenCV en iyi hassasiyeti ve doğruluğu sağlar. ImageHash, en hızlı ve en hafif yöntemdir.',
 };

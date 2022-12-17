@@ -213,13 +213,13 @@ export class LocalService {
   public createAudioCodecs(): SelectOption[] {
     return [
       {value: 0, label: 'No Audio'},
-      {value: 1, label: 'Vorbis'},
-      {value: 2, label: 'Opus'},
-      {value: 3, label: 'MP3LAME'},
+      // {value: 1, label: 'Vorbis'},
+      // {value: 2, label: 'Opus'},
+      // {value: 3, label: 'MP3LAME'},
       {value: 4, label: 'AAC'},
       {value: 5, label: 'AC3'},
-      {value: 6, label: 'DTS'},
-      {value: 7, label: 'ALAC'},
+      // {value: 6, label: 'DTS'},
+      // {value: 7, label: 'ALAC'},
       {value: 8, label: 'copy'}
     ];
   }
@@ -237,8 +237,8 @@ export class LocalService {
     return [
       {value: 0, label: 'Source'},
       {value: 1, label: 'Mono'},
-      {value: 2, label: 'Stereo'},
-      {value: 9, label: '5.1'}
+      {value: 2, label: 'Stereo'}
+      // {value: 9, label: '5.1'}
     ];
   }
 
@@ -262,14 +262,14 @@ export class LocalService {
       {value: 0, label: 'Auto'},
       {value: 1, label: '7.35k'},
       {value: 2, label: '8k'},
-      {value: 2, label: '11.025k'},
-      {value: 3, label: '12k'},
-      {value: 4, label: '16k'},
-      {value: 3, label: '22.05k'},
-      {value: 3, label: '24k'},
-      {value: 3, label: '32k'},
-      {value: 3, label: '44.1k'},
-      {value: 3, label: '48k'}
+      {value: 3, label: '11.025k'},
+      {value: 4, label: '12k'},
+      {value: 5, label: '16k'},
+      {value: 6, label: '22.05k'},
+      {value: 7, label: '24k'},
+      {value: 8, label: '32k'},
+      {value: 9, label: '44.1k'},
+      {value: 10, label: '48k'}
     ];
   }
 
@@ -313,7 +313,7 @@ export class LocalService {
   public createSnapshotTypes(): SelectOption[] {
     return [
       {value: 0, label: 'Standard'},
-      {value: 1, label: 'OpenCVPersistent'},
+      {value: 1, label: 'OpenCV Persistent'},
     ];
   }
 
