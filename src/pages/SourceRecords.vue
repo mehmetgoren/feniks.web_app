@@ -4,7 +4,7 @@
       <q-toolbar class='bg-purple text-white shadow-2 rounded-borders'>
         <q-btn flat round dense icon='dvr'/>
         <q-toolbar-title>
-          {{ stream.name }} {{ $t('record_list') }}
+          {{ stream.name }} {{ $t('playback_list') }}
         </q-toolbar-title>
       </q-toolbar>
       <q-page-container>
@@ -14,19 +14,19 @@
               <q-toggle v-model='recordEnabled' disable checked-icon='check' color='purple'
                         :label="$t('record') + ' ' + (recordEnabled ? $t('on') : $t('off'))"/>
               <q-space/>
-              <q-date v-model='selectedDate' color='purple' mask='YYYY_MM_DD' :locale="locale"/>
+              <q-date v-model='selectedDateStr' color='purple' mask='YYYY_MM_DD' :locale="localeDates"/>
             </div>
             <div class='col-xs-12 col-sm-12 col-md-7 col-lg-9 col-xl-9'>
-              <q-table :title="$t('records')" :columns='columns'
+              <q-table :title="$t('daily_video_list') + ' - ' + selectedData" :columns='columns'
                        :rows='hours' row-key='hour'
                        virtual-scroll :virtual-scroll-item-size='24' :pagination='pagination'
                        :rows-per-page-options='[0]' :rows-per-page-label="$t('rows_per_page')"
                        :filter='filter'>
 
                 <template v-slot:body='props'>
-                  <q-tr :props='props' @click='onRootClick(props)' style='cursor: pointer;'>
-                    <q-td key='hour' auto-width>
-                      <q-toggle v-model='props.expand' size='lg' color='accent' style='float: left;' disable/>
+                  <q-tr :props='props' style='cursor: pointer;'>
+                    <q-td key='hour' @click='onRootClick(props)'  auto-width>
+                      <q-toggle v-model='toggleItems[props.row.hour]' size='lg' color='accent' style='float: left;' @click='onRootClick(props)' />
                       <div style='font-size: large;text-align: center;margin: 15px 0 0 0;'>
                         <label>{{ props.row.hour + ' : 00' }}</label>
                       </div>
@@ -106,12 +106,12 @@
 
 <script lang='ts'>
 import {useQuasar} from 'quasar';
-import {onMounted, ref, onBeforeUnmount, watch} from 'vue';
+import {onMounted, ref, onBeforeUnmount, watch, computed} from 'vue';
 import {VideoFile} from 'src/utils/entities';
 import {NodeService} from 'src/utils/services/node_service';
 import {WsConnection} from 'src/utils/ws/connection';
 import VideoPlayer from 'src/components/VideoPlayer.vue';
-import {createTrDateLocale, fixArrayDates, getTodayString, isNullOrEmpty} from 'src/utils/utils';
+import {createLongDateLocale, createTrDateLocale, fixArrayDates, getTodayString, isNullOrEmpty} from 'src/utils/utils';
 import axios from 'axios';
 import {StreamModel} from 'src/utils/models/stream_model';
 import {PublishService, SubscribeService} from 'src/utils/services/websocket_services';
@@ -126,13 +126,14 @@ export default {
     VideoPlayer
   },
   setup() {
-    const {t} = useI18n({useScope: 'global'});
+    const {t, locale} = useI18n({useScope: 'global'});
+    const localeOptions = createLongDateLocale();
     const $q = useQuasar();
     const router = useRouter();
     const recordEnabled = ref<boolean>(false);
     const nodeService = new NodeService();
     const storeService = new StoreService();
-    const locale = ref(nodeService.LocalService.getLang() === 'tr-TR' ? createTrDateLocale() : null);
+    const localeDates = ref(nodeService.LocalService.getLang() === 'tr-TR' ? createTrDateLocale() : null);
     const publishService = new PublishService();
     let connVideoMerge: WsConnection | null = null;
     const hours = ref<Hour[]>([]);
@@ -143,6 +144,7 @@ export default {
     const stream = ref<StreamModel>(nodeService.LocalService.createEmptyStream());
     const nodeAddress = ref<string>('');
     const viewHeight = ref<number>(window.innerHeight);
+    const toggleItems = ref<any>({});
 
     const sourceId = storeService.recordSourceId;
     watch(sourceId, async () => {
@@ -150,10 +152,19 @@ export default {
       await refresh();
     });
 
-    const selectedDate = ref<string>(getTodayString());
-    watch(selectedDate, () => {
+    const selectedDateStr = ref<string>(getTodayString());
+    watch(selectedDateStr, () => {
       restoreList();
       void dataBind();
+    });
+
+    const selectedData = computed(() => {
+     const splits = selectedDateStr.value.split('_');
+     if (!splits || splits.length !== 3){
+       return
+     }
+     const d = new Date(parseInt(splits[0]), Math.max(parseInt(splits[1]) - 1, 0), parseInt(splits[2]));
+     return d.toLocaleDateString(<any>locale, localeOptions);
     });
 
     const dataBindStream = async () => {
@@ -165,17 +176,25 @@ export default {
     let prevProps: any = null;
 
     const dataBind = async () => {
-      let dateStr = selectedDate.value;
+      let dateStr = selectedDateStr.value;
       if (!dateStr) {
         dateStr = getTodayString();
-        selectedDate.value = dateStr;
+        selectedDateStr.value = dateStr;
       }
       const hourStrings = await nodeService.getRecordHours(sourceId.value, dateStr);
       const _hours: Hour[] = [];
       for (const hs of hourStrings) {
         _hours.push({sourceId: sourceId.value, hour: hs, videoFiles: []});
+        toggleItems.value[hs] = false;
       }
       hours.value = _hours;
+    };
+
+    const toggleItemDataBind = (hour: string) =>{
+      for(const h in toggleItems.value){
+        toggleItems.value[h] = false;
+      }
+      toggleItems.value[hour] = true;
     };
 
     const refresh = async () => {
@@ -282,15 +301,17 @@ export default {
     const onRootClick = async (props: any) => {
       if (prevProps != null && prevProps.row.hour == props.row.hour) {
         props.expand = !props.expand;
+        toggleItems.value[props.row.hour] = props.expand;
         return;
       }
       restoreList();
       prevProps = props;
       props.expand = !props.expand;
+      toggleItemDataBind(props.row.hour);
       const hourStr = props.row.hour;
       const hour = getHour(hourStr);
       if (props.expand) {
-        const videos = await nodeService.getRecords(props.row.sourceId, selectedDate.value, hourStr);
+        const videos = await nodeService.getRecords(props.row.sourceId, selectedDateStr.value, hourStr);
         fixArrayDates(videos, 'created_at', 'modified_at');
         hour.videoFiles = videos;
       } else {
@@ -305,7 +326,7 @@ export default {
         cancel: true,
         persistent: true
       }).onOk(() => {
-        const splits = selectedDate.value.split('_')
+        const splits = selectedDateStr.value.split('_')
         const values: string[] = [];
         for (const split of splits) {
           values.push(parseInt(split).toString());
@@ -318,7 +339,7 @@ export default {
     };
 
     return {
-      hours, nodeAddress, selected, lastIndex, tableRef, filter, innerFilter, selectedDate, onMerge, showMergeLoading, locale, viewHeight,
+      hours, nodeAddress, selected, lastIndex, tableRef, filter, innerFilter, selectedDateStr, onMerge, showMergeLoading, localeDates, viewHeight,
       columns: [
         {name: 'hour', align: 'left', label: t('hour'), field: 'hour', sortable: false}
       ],
@@ -356,7 +377,7 @@ export default {
         rowsPerPage: 10
       },
 
-      recordEnabled, onPlay, onDownload, onDelete, showPlayer, selectedVideo, stream,
+      recordEnabled, onPlay, onDownload, onDelete, showPlayer, selectedVideo, stream, selectedData, toggleItems,
       onRefresh: refresh,
       onRootClick
     };

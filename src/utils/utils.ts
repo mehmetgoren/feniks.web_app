@@ -268,6 +268,10 @@ export function createTrDateLocale(): any {
   };
 }
 
+export function createLongDateLocale(): any {
+  return { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+}
+
 export function scrollbarInit(elemId: string): Scrollbar | null {
   const elm = document.querySelector('#' + elemId);
   if (elm) {

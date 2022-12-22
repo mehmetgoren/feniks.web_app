@@ -77,13 +77,14 @@ import { CpuInfo, DiskInfo, MemoryInfo, NetworkInfo } from 'src/utils/models/ser
 import { Node } from 'src/utils/entities';
 import { NodeRepository } from 'src/utils/db';
 import {useI18n} from 'vue-i18n';
+import {createLongDateLocale} from 'src/utils/utils';
 
 declare var $: any;
 export default {
   name: 'ServerStatsBar',
   setup() {
     const { locale } = useI18n({ useScope: 'global' });
-    const localeOptions = ref<any>({ weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const localeOptions = ref<any>(createLongDateLocale());
     const nodeService = new NodeService();
     const currentNode = ref<Node>(nodeService.LocalService.createEmptyNode());
     const cpu = ref<CpuInfo>();

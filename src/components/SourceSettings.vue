@@ -513,7 +513,11 @@ export default {
         if (onfn && onfn.results) {
           for (const r of onfn.results) {
             if (r.address) {
-              recommendedRtspAddresses.value.push(`rtsp://user:password@${r.address}/route`);
+              let addressValue = r.address;
+              if (r.port) {
+                addressValue += ':' + r.port;
+              }
+              recommendedRtspAddresses.value.push(`rtsp://user:password@${addressValue}/route`);
             }
           }
         }

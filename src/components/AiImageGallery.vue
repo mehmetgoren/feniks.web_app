@@ -115,6 +115,12 @@ export default {
       for (const folder of folders) {
         if (!folder) continue;
         folder.iconColor = 'yellow-14';
+        if (folder.children && folder.children.length) {
+          //@ts-ignore
+          folder.label = params.value.date.replaceAll('_','.');
+        }else{
+          folder.label += ':00';
+        }
         selectedKeys.value.push(folder.fullPath);
         walk(folder.children);
       }
