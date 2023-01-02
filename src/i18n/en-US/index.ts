@@ -340,7 +340,7 @@ export default {
   are_you_sure_load_optimal_settings: 'Are you sure you want to load optimal settings?',
   please_select_source_first: 'Please Select a Camera First',
   are_you_sure_copy_settings_from: 'Are you sure you want to copy settings from ',
-  daily_video_list: 'Daily Video List',
+  daily_playback_list: 'Daily Playback List',
   merge: 'Merge',
   hour: 'Hour',
   modified_at: 'Modified At',

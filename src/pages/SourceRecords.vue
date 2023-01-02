@@ -17,7 +17,7 @@
               <q-date v-model='selectedDateStr' color='purple' mask='YYYY_MM_DD' :locale="localeDates"/>
             </div>
             <div class='col-xs-12 col-sm-12 col-md-7 col-lg-9 col-xl-9'>
-              <q-table :title="$t('daily_video_list') + ' - ' + selectedData" :columns='columns'
+              <q-table :title="stream.name + ' -' + $t('daily_playback_list') + ' - ' + selectedData" :columns='columns'
                        :rows='hours' row-key='hour'
                        virtual-scroll :virtual-scroll-item-size='24' :pagination='pagination'
                        :rows-per-page-options='[0]' :rows-per-page-label="$t('rows_per_page')"

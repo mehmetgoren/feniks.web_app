@@ -2,7 +2,7 @@
   <div id="login-view" :style="{height:mainViewHeight.toString() + 'px'}">
     <div id='q-app'>
       <q-layout v-if='mode < 2' view='lHh Lpr fff'>
-        <q-page class='window-height window-width row justify-center items-center' style='background: linear-gradient(#8274C5, #5A4A9F);'>
+        <q-page-container class='window-height window-width row justify-center items-center' style='background: linear-gradient(#8274C5, #5A4A9F);'>
           <div v-if='mode===0' class='column q-pa-lg'>
             <div class='row'>
               <q-card square class='shadow-24' style='width:310px;height:auto;'>
@@ -100,7 +100,7 @@
               </q-card>
             </div>
           </div>
-        </q-page>
+        </q-page-container>
       </q-layout>
       <Nodes v-if='mode===2' @on-go-back='onNodesGoBack'/>
     </div>

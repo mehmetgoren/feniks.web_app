@@ -224,6 +224,7 @@ export default {
     const theme = ref<boolean>(false);
     const showRightDropDown = ref<boolean>(false);
     let editorConnection: WsConnection | null = null;
+    let sourceStatusInterval: NodeJS.Timer | null = null;
 
     const loadSources = async () => {
       const sources = await nodeService.getSourceList();
@@ -332,13 +333,23 @@ export default {
         storeService.setSourceLoading(<string>responseModel.id, false);
       });
 
+      sourceStatusInterval = setInterval(() => {
+        void sourceStreamDatabind();
+      }, 30000);
+
       await loadSources();
       await sourceStreamDatabind();
       await constInitDarkTheme();
     });
 
     onBeforeUnmount(() => {
-      editorConnection?.close();
+      try{
+        editorConnection?.close();
+      }finally {
+        if (sourceStatusInterval) {
+          clearInterval(sourceStatusInterval);
+        }
+      }
     });
 
     const currentUser = storeService.currentUser;

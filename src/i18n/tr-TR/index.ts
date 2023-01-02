@@ -340,7 +340,7 @@ export default {
   are_you_sure_load_optimal_settings: 'En Uygun Ayarları Yüklemek İstediğinizden Emin Misiniz?',
   please_select_source_first: 'Lütfen Öncelikle Bir Kamera Seçin',
   are_you_sure_copy_settings_from: 'Şu Kameradan Ayarları Yüklemek İstediğinize Emin Misiniz ',
-  daily_video_list: 'Günlük Video Listesi',
+  daily_playback_list: 'Günlük Video Listesi',
   merge: 'Birleştir',
   hour: 'Saat',
   modified_at: 'Değiştirilme Tarihi',
