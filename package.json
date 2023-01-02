@@ -23,13 +23,13 @@
     "quasar": "^2.11.3",
     "uuid": "^9.0.0",
     "v-viewer": "^3.0.11",
-    "video.js": "^7.20.2",
+    "video.js": "^7.20.3",
     "videojs-flvjs-es6": "^1.0.1",
     "vue-chart-3": "^3.1.8",
     "vue-i18n": "^9.2.2",
     "vuex": "^4.1.0",
     "smooth-scrollbar": "^8.8.1",
-    "mpegts.js": "^1.6.10",
+    "mpegts.js": "^1.7.2",
     "darkreader": "^4.9.58"
   },
   "devDependencies": {
