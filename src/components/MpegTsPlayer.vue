@@ -11,6 +11,7 @@
 import {onBeforeUnmount, onMounted, ref} from 'vue';
 import mpegts from 'mpegts.js'
 import {v4 as uuidv4} from 'uuid';
+import {isNullOrUndefined} from 'src/utils/utils';
 
 export default {
   name: 'MpegTsPlayer',
@@ -34,7 +35,11 @@ export default {
     galleryIndex: {
       type: Number,
       default: 0
-    }
+    },
+    liveBufferLatencyChasing: {
+      type: Boolean,
+      default: true
+    },
   },
   //@ts-ignore
   setup(props: any, {emit}) {
@@ -47,6 +52,11 @@ export default {
       if (props.enableLog) {
         console.log(`MpegTsPlayer(${props.sourceId}) isSupported: ${mpegts.isSupported()}`);
       }
+      let liveBufferLatencyChasing = true;
+      if (!isNullOrUndefined(props.liveBufferLatencyChasing) && props.liveBufferLatencyChasing === false) {
+        liveBufferLatencyChasing = false;
+      }
+
       if (featureList.mseLivePlayback) {
         const videoElement = document.getElementById(videoId.value);
         if (!videoElement) {
@@ -57,7 +67,7 @@ export default {
           isLive: true,
           url: props.src
         }, {
-          liveBufferLatencyChasing: true,
+          liveBufferLatencyChasing: liveBufferLatencyChasing,
           liveBufferLatencyMaxLatency: 3.,
           liveBufferLatencyMinRemain: 1.,
           enableStashBuffer: false,

@@ -494,4 +494,6 @@ export default {
   tt_vodeo_codec:'copy is the best option if your source is an IP camera.',
   tt_stream_quality:'This option must be between 2-31. Lower value means higher quality.',
   tt_motion_detection_type:'OpenCV provides best precision and accuracy. ImageHash is the fastest and most lightweight method.',
+  live_buffer_latency_chasing:'Live Buffer Latency Chasing',
+  tt_live_buffer_latency_chasing:'This option enables live buffer latency chasing. It will try to keep the latency as low as possible.',
 };

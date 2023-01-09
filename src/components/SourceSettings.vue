@@ -155,6 +155,12 @@
                           :disable="!source.enabled">
                   <q-tooltip>{{$t('tt_booster_enabled')}}</q-tooltip>
                 </q-toggle>
+                <q-toggle v-if='source.stream_type < 2 && source.stream_type === 0 && source.flv_player_type===0'
+                          dense v-model='source.live_buffer_latency_chasing' checked-icon='check' color='cyan'
+                          :label="$t('live_buffer_latency_chasing') + ' ' + (source.booster_enabled ? $t('enabled') : $t('disabled'))"
+                          :disable="!source.enabled">
+                  <q-tooltip>{{$t('tt_live_buffer_latency_chasing')}}</q-tooltip>
+                </q-toggle>
                 <q-select dense emit-value map-options filled v-model='source.stream_video_codec' color='cyan'
                           :options='streamVideoCodecs' :label="$t('video_codec')" transition-show='scale' transition-hide='scale'
                           :disable="!source.enabled">

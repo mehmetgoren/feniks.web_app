@@ -407,6 +407,7 @@ export class LocalService {
 
       flv_player_type: 0, // 0 is MpegTsJs, 1 is FlvJs
       booster_enabled: false,
+      live_buffer_latency_chasing: true,
 
       black_screen_check_enabled: false,
       created_at: ''
@@ -460,6 +461,7 @@ export class LocalService {
 
       flv_player_type: 0, // 0 is MpegTsJs, 1 is FlvJs
       booster_enabled: false,
+      live_buffer_latency_chasing: true,
 
       concat_demuxer_pid: 0,
       concat_demuxer_args: ''

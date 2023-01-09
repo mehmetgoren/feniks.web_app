@@ -80,6 +80,7 @@ export interface SourceModel {
 
   flv_player_type?: number | null;
   booster_enabled?: boolean | null;
+  live_buffer_latency_chasing?: boolean | null;
 
   black_screen_check_enabled?: boolean | null;
   created_at?: string | null;

@@ -494,4 +494,6 @@ export default {
   tt_vodeo_codec:'kaynağınız bir IP kamera ise copy en iyi seçenektir.',
   tt_stream_quality:'Bu seçenek 2-31 arasında olmalıdır. Daha düşük değer, daha yüksek kalite anlamına gelir.',
   tt_motion_detection_type:'OpenCV en iyi hassasiyeti ve doğruluğu sağlar. ImageHash, en hızlı ve en hafif yöntemdir.',
+  live_buffer_latency_chasing:'Canlı Akış Gecikmesi Takibi',
+  tt_live_buffer_latency_chasing:'Bu seçenek, canlı akışın gecikmesini takip eder ve gecikmeyi azaltmak için gerekli olan akış kalitesini artırır.',
 };

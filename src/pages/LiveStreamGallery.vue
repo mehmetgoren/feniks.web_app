@@ -6,7 +6,8 @@
          :gs-x='stream.loc.x' :gs-y='stream.loc.y' :gs-id='stream.id' :gs-min-w='minWidth'>
       <div :id='"ctx" + stream.id' class='grid-stack-item-content' style='overflow: hidden !important;background-color: black'>
         <MpegTsPlayer v-if='stream.show&&stream.stream_type===0&&stream.flv_player_type===0' :src='stream.src' :source-id='stream.id'
-                      :enable-log='false' :ref='setStreamPlayers' :gallery-index='index' @user-activity='onUserActivity'/>
+                      :enable-log='false' :ref='setStreamPlayers' :gallery-index='index' @user-activity='onUserActivity'
+                      :live-buffer-latency-chasing="stream.live_buffer_latency_chasing" />
         <FlvPlayer v-if='stream.show&&stream.stream_type===0&&stream.flv_player_type===1'
                    v-show="!stream.showHtml2Canvas" :src='stream.src' :source-id='stream.id' :enable-log='false' :ref='setStreamPlayers'
                    :enable-booster='stream.booster_enabled' :seek-to-live-edge-internal='config.ui.seek_to_live_edge_internal' :gallery-index='index'
@@ -312,7 +313,7 @@ export default {
     async function initActiveStreamsFirstTime() {
       const streamModels: StreamModel[] = await nodeService.getStreamList();
       if (!isNullOrUndefined(streamModels) && streamModels.length > 0) {
-        if (storeService.readonlyMode){
+        if (storeService.readonlyMode.value){
           for (const streamModel of streamModels) {
             addPlayer(streamModel, false);
           }

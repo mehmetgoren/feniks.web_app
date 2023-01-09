@@ -45,6 +45,7 @@ export interface StreamModel {
 
   flv_player_type: number;
   booster_enabled: boolean;
+  live_buffer_latency_chasing: boolean;
 
   concat_demuxer_pid: number;
   concat_demuxer_args: string;
