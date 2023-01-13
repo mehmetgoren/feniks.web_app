@@ -157,7 +157,7 @@
                 </q-toggle>
                 <q-toggle v-if='source.stream_type < 2 && source.stream_type === 0 && source.flv_player_type===0'
                           dense v-model='source.live_buffer_latency_chasing' checked-icon='check' color='cyan'
-                          :label="$t('live_buffer_latency_chasing') + ' ' + (source.booster_enabled ? $t('enabled') : $t('disabled'))"
+                          :label="$t('live_buffer_latency_chasing') + ' ' + (source.live_buffer_latency_chasing ? $t('enabled') : $t('disabled'))"
                           :disable="!source.enabled">
                   <q-tooltip>{{$t('tt_live_buffer_latency_chasing')}}</q-tooltip>
                 </q-toggle>
