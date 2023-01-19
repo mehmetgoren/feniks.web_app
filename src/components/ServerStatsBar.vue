@@ -28,13 +28,29 @@
   </div>
 
   <div class='q-pa-md q-gutter-sm' v-if='showDisk'>
-    <div v-if='disk' class='row'>
-      <label style='float: left;width: 80%;color: #455a64'> {{ disk.used_human }} / {{ disk.total_human }} {{$t('disk')}}</label>
-      <label style='float: right;color: #455a64'>{{ disk.usage_percent_human }}</label>
-    </div>
-    <div v-if='disk' class='row'>
-      <q-linear-progress size='15px' :value='disk.usage_percent' style='width: 250px;' color='blue-grey-14' />
-    </div>
+    <table style="margin-bottom: -5px">
+      <tr>
+        <td style="text-align: left" v-if="disks.length > 1">
+          <q-btn-dropdown style="margin-bottom: -7px" color="blue-grey-14" :label="'disk:' + (selectedDiskIndex+1).toString()"
+                          split push dense>
+            <q-list>
+              <q-item v-for="(disk, index) in disks" :key="index" clickable v-close-popup @click="selectedDiskIndex = index">
+                <q-item-section>{{ disk.mount_point }}</q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
+        </td>
+        <td>
+          <div v-if='disks[selectedDiskIndex]' class='row'>
+            <label style='float: left;width: 80%;color: #455a64'> {{ disks[selectedDiskIndex].used_human }} / {{ disks[selectedDiskIndex].total_human }} {{$t('disk')}}</label>
+            <label style='float: right;color: #455a64'>{{ disks[selectedDiskIndex].usage_percent_human }}</label>
+          </div>
+          <div v-if='disks[selectedDiskIndex]' class='row'>
+            <q-linear-progress size='15px' :value='disks[selectedDiskIndex].usage_percent' style='width: 250px;' color='blue-grey-14' />
+          </div>
+        </td>
+      </tr>
+    </table>
   </div>
 
   <div class='q-pa-md q-gutter-sm' v-if='showNetwork'>
@@ -62,8 +78,8 @@
 
   <div class='q-pa-md q-gutter-sm' v-if='showCurrentTime'>
     <div v-if='currentTime' class='row'>
-      <label style='float: left;width: 100%;color: #455a64;font-size: 12px;text-align: center;display: block;'>{{ currentTime.toLocaleDateString(locale, localeOptions) }} </label>
-      <label style='float: left;width: 100%;color: #455a64;font-size: 24px;text-align: center;display: block;'>{{ currentTime.toLocaleTimeString(locale)
+      <label style='float: left;width: 100%;color: #455a64;font-size: 11px;text-align: center;display: block;'>{{ currentTime.toLocaleDateString(locale, localeOptions) }} </label>
+      <label style='float: left;width: 100%;color: #455a64;font-size: 20px;text-align: center;display: block;'>{{ currentTime.toLocaleTimeString(locale)
         }} </label>
     </div>
   </div>
@@ -89,7 +105,8 @@ export default {
     const currentNode = ref<Node>(nodeService.LocalService.createEmptyNode());
     const cpu = ref<CpuInfo>();
     const memory = ref<MemoryInfo>();
-    const disk = ref<DiskInfo>();
+    const disks = ref<DiskInfo[]>([]);
+    const selectedDiskIndex = ref<number>(0);
     const network = ref<NetworkInfo>();
     let mineInterval: NodeJS.Timer | null = null;
     const currentTime = ref(new Date());
@@ -114,9 +131,14 @@ export default {
       stats.memory.total_human = stats.memory.total_human.replace('GiB', 'GB');
       memory.value = stats.memory;
 
-      stats.disk.usage_percent /= 100.0;
-      stats.disk.usage_percent_human = fixSingleDigitWidth(stats.disk.usage_percent_human);
-      disk.value = stats.disk;
+      disks.value = [];
+      if (stats.disks&&stats.disks.length){
+        stats.disks.forEach(disk => {
+          disk.usage_percent /= 100.0;
+          disk.usage_percent_human = fixSingleDigitWidth(disk.usage_percent_human);
+          disks.value.push(disk);
+        });
+      }
 
       network.value = stats.network;
     };
@@ -166,7 +188,7 @@ export default {
     });
 
     return {
-      locale, localeOptions, currentNode, cpu, memory, disk, network, currentTime, showLoading,
+      locale, localeOptions, currentNode, cpu, memory, disks, selectedDiskIndex, network, currentTime, showLoading,
       showNetwork, showCurrentTime, showDisk, showMemory, showCpu
     };
   }

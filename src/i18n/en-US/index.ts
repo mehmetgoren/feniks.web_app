@@ -496,4 +496,8 @@ export default {
   tt_motion_detection_type:'OpenCV provides best precision and accuracy. ImageHash is the fastest and most lightweight method.',
   live_buffer_latency_chasing:'Live Buffer Latency Chasing',
   tt_live_buffer_latency_chasing:'This option enables live buffer latency chasing. It will try to keep the latency as low as possible.',
+  v_min_disk:'You should specify at least one disk path',
+  add:'Add',
+  delete_disk_path:'Delete Disk Path',
+  add_new_disk_path:'Add New Disk Path',
 };

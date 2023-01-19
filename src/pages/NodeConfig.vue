@@ -38,7 +38,32 @@
           </q-card-section>
           <q-separator/>
           <q-card-section>
-            <q-input v-model.trim='general.root_folder_path' filled dense :label="$t('rootfolderpath')"/>
+            <q-table dense :title="'Disks'" :rows='disks' color="bg-cyan"
+                     :columns='disksColumns' row-key='name' :rows-per-page-options="[0]" :pagination='noPagination'>
+                     :loading-label="$t('loading')" :no-data-label="$t('no_data')" :no-results-label="$t('no_results')"
+                     :selected-rows-label="$t('selected_rows')" :rows-per-page-label="$t('rows_per_page')">
+              <template v-slot:body="props">
+                <q-tr :props="props">
+                  <q-td key="no" :props="props">
+                    {{ props.row.no }}
+                  </q-td>
+                  <q-td key="path" :props="props">
+                    <q-input dense v-model="props.row.path" filled />
+                  </q-td>
+                  <q-td key="delete" :props='props'>
+                    <q-btn dense round color='cyan' icon='delete' @click='onDeleteDisk(props.row.no-1)'>
+                      <q-tooltip>{{ $t('delete_disk_path') }}</q-tooltip>
+                    </q-btn>
+                  </q-td>
+                </q-tr>
+              </template>
+
+              <template v-slot:top-left>
+                <q-btn dense icon='add' :label="$t('add')" color='cyan' style='margin-right: 15px;' @click='onAddNewDisk'>
+                  <q-tooltip>{{ $t('add_new_disk_path') }}</q-tooltip>
+                </q-btn>
+              </template>
+            </q-table>
             <q-space style='height: 10px;'/>
             <q-input type="number" v-model.number='general.heartbeat_interval' filled dense :label="$t('heartbeat_interval')"/>
           </q-card-section>
@@ -92,24 +117,6 @@
             <q-input type="number" v-model.number='ui.booster_interval' filled dense :label="$t('booster_interval')"/>
             <q-space style='height: 10px;'/>
             <q-input type="number" v-model.number='ui.seek_to_live_edge_internal' filled dense :label="$t('seek_to_live_edge_internal')"/>
-          </q-card-section>
-        </q-card>
-        <q-space style='height: 10px;'/>
-
-        <q-card class="my-card" flat bordered style="margin: 0 5px 0 5px;">
-          <q-card-section class="bg-cyan text-white">
-            <div class="text-subtitle2">
-              <label style='text-transform: uppercase;font-size: medium'>{{ $t('recurring_jobs') }}</label>
-            </div>
-          </q-card-section>
-          <q-separator/>
-          <q-card-section>
-            <q-toggle v-model='jobs.mac_ip_matching_enabled' filled dense :label="$t('mac_ip_match_enabled')"/>
-            <q-space style='height: 10px;'/>
-            <q-input type="number" v-model.number='jobs.mac_ip_matching_interval' filled dense :label="$t('mac_ip_matching_interval')"/>
-            <q-toggle v-model='jobs.black_screen_monitor_enabled' filled dense :label="$t('black_screen_monitor_enabled')"/>
-            <q-space style='height: 10px;'/>
-            <q-input type="number" v-model.number='jobs.black_screen_monitor_interval' filled dense :label="$t('black_screen_monitor_interval')"/>
           </q-card-section>
         </q-card>
         <q-space style='height: 10px;'/>
@@ -180,6 +187,24 @@
             <q-input v-model.number='ffmpeg.rtmp_server_port_start' type='number' filled dense :label="$t('rtmp_server_port_start')"/>
             <q-space style='height: 10px;'/>
             <q-input v-model.number='ffmpeg.rtmp_server_port_end' type='number' filled dense :label="$t('rtmp_server_port_end')"/>
+          </q-card-section>
+        </q-card>
+        <q-space style='height: 10px;'/>
+
+        <q-card class="my-card" flat bordered style="margin: 0 5px 0 5px;">
+          <q-card-section class="bg-cyan text-white">
+            <div class="text-subtitle2">
+              <label style='text-transform: uppercase;font-size: medium'>{{ $t('recurring_jobs') }}</label>
+            </div>
+          </q-card-section>
+          <q-separator/>
+          <q-card-section>
+            <q-toggle v-model='jobs.mac_ip_matching_enabled' filled dense :label="$t('mac_ip_match_enabled')"/>
+            <q-space style='height: 10px;'/>
+            <q-input type="number" v-model.number='jobs.mac_ip_matching_interval' filled dense :label="$t('mac_ip_matching_interval')"/>
+            <q-toggle v-model='jobs.black_screen_monitor_enabled' filled dense :label="$t('black_screen_monitor_enabled')"/>
+            <q-space style='height: 10px;'/>
+            <q-input type="number" v-model.number='jobs.black_screen_monitor_interval' filled dense :label="$t('black_screen_monitor_interval')"/>
           </q-card-section>
         </q-card>
         <q-space style='height: 10px;'/>
@@ -563,6 +588,7 @@ import ImportExportSource from 'components/ImportExportSource.vue';
 import {SelectOption} from 'src/utils/services/local_service';
 import {useI18n} from 'vue-i18n';
 import {StoreService} from 'src/utils/services/store_service';
+import {List} from 'linqts';
 
 export default {
   name: 'NodeConfig',
@@ -631,6 +657,7 @@ export default {
     const variousInfos = ref<VariousInfos>({rtmp_port_counter: 0, rtmp_container_zombies: [], ffmpeg_process_zombies: []});
     const loadingVariousInfo = ref<boolean>(false);
     const ods = ref<OdModel[]>([]);
+    const disks = ref<Disk[]>([]);
     const loadingOds = ref<boolean>(false);
     const readonlyMode = storeService.readonlyMode;
 
@@ -649,6 +676,12 @@ export default {
       deepstack.value = c.deep_stack;
       archive.value = c.archive;
       snapshot.value = c.snapshot;
+
+      if(c.general.dir_paths?.length){
+        disks.value = c.general.dir_paths.map((dir, index) => {
+          return {no: index+1, path:dir};
+        });
+      }
     };
 
     const configDatabind = async () => {
@@ -754,6 +787,18 @@ export default {
     });
 
     const onSave = async () => {
+      if (!disks.value.length){
+        $q.notify({
+          message: t('v_min_disk'),
+          caption: t('invalid'),
+          color: 'red',
+          position: 'bottom-right'
+        });
+        return;
+      }
+      //@ts-ignore
+      config.value.general.dir_paths = new List(disks.value).Select(x => x.path.trim()).ToArray();
+      console.warn(JSON.stringify(config.value));
       const prevConfig = await nodeService.getConfig();
       const validationResult = validateModel(t, prevConfig, config.value);
       if (validationResult.length > 0) {
@@ -855,7 +900,7 @@ export default {
       config, device, optDeviceTypes, snapshot, sourceReader,
       jetson, jetsonFilter, ffmpeg, tf, ai, general, ui, jobs, db, dbTypes, deepstack, archive,
       torch, torchFilter, tfFilter, showScanLoading, users, restartLoading, startLoading, stopLoading, loadingConfig,
-      deepStackPerOpts, deepStackDockerTypes, archiveActionTypes,
+      deepStackPerOpts, deepStackDockerTypes, archiveActionTypes, disks,
       loadingFailedStreams, loadingRecStucks, loadingOds, loadingVariousInfo,
       filterServices, loadingServices, loadingUsers, filterUsers, filterNetworkScanResults,
       currentNode, tab: ref<string>('config'),
@@ -886,12 +931,42 @@ export default {
       failedStreams, failedStreamsColumns: createFailedStreamsColumns(t),
       recStucks, recStucksColumns: createRecStucksColumns(t),
       variousInfos, loadingRtmpTemplates, filterRtmpTemplates, readonlyMode,
-      ods, odColumns: createOdColumns(t),
+      ods, odColumns: createOdColumns(t), disksColumns: createDisksColumns(),
       onRestartService, onStartService, onStopService, serviceDataBind, userDataBind, rtmpTemplatesDataBind,
-      failedStreamsDatabind, recStucksDatabind, odsDatabind, variousInfosDataBind, configDatabind
+      failedStreamsDatabind, recStucksDatabind, odsDatabind, variousInfosDataBind, configDatabind,
+      onAddNewDisk(){
+        disks.value.push({
+          no: -1,
+          path: '',
+        });
+        disks.value.forEach((disk, index) => {
+          disk.no = index + 1;
+        });
+      },
+      noPagination: {
+        page: 1,
+        rowsPerPage: 0
+      },
+      onDeleteDisk(index: number){
+        if (disks.value.length < 2){
+          $q.notify({
+            message: t('v_min_disk'),
+            caption: t('invalid'),
+            color: 'red',
+            position: 'bottom-right'
+          });
+          return;
+        }
+        const list = new List(disks.value);
+        list.RemoveAt(index);
+        disks.value = list.ToArray();
+        disks.value.forEach((disk, index) => {
+          disk.no = index + 1;
+        });
+      },
     };
   }
-};
+}
 
 function getDeviceTypes() {
   return [{value: 0, label: 'PC'}, {value: 1, label: 'IoT'}];
@@ -1024,6 +1099,20 @@ function createOdColumns(t: any) {
     {name: 'start_time', align, label: t('start_time'), field: 'start_time', sortable: true},
     {name: 'end_time', align, label: t('end_time'), field: 'end_time', sortable: true}
   ];
+}
+
+function createDisksColumns(){
+  const align = 'left';
+  return [
+    {name: 'no', align, label: 'Disk No', field: 'no', sortable: false},
+    {name: 'path', align, label: 'Disk Path', field: 'path', sortable: false},
+    {name: 'delete', align: 'center', label: '', field: 'delete'}
+  ];
+}
+
+interface Disk {
+  no: number;
+  path: string;
 }
 
 </script>

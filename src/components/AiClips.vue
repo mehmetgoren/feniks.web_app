@@ -179,7 +179,7 @@ export default {
     };
 
     onMounted(async () => {
-      webMngrAddress.value = await nodeService.LocalService.getNodeAddress('') + '/';
+      webMngrAddress.value = await nodeService.LocalService.getNodeAddress('');
       stream.value = await nodeService.getStream(props.sourceId);
       await databind();
     });

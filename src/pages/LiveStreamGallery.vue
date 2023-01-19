@@ -161,7 +161,7 @@ export default {
             url = flvAddress;
             break;
           case 1: //HLS
-            url = localService.getHlsAddress(serverIp, serverPort, streamModel.id);
+            url = localService.getHlsAddress(<Config>config.value, streamModel, serverIp, serverPort);
             break;
           case 2: //Websockets
             break;

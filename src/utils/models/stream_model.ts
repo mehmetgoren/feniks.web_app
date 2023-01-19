@@ -49,4 +49,6 @@ export interface StreamModel {
 
   concat_demuxer_pid: number;
   concat_demuxer_args: string;
+
+  root_dir_path: string;
 }

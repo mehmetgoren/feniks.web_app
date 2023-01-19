@@ -46,6 +46,6 @@ export interface NetworkInfo {
 export interface ServerStats {
   cpu: CpuInfo;
   memory: MemoryInfo;
-  disk: DiskInfo;
+  disks: DiskInfo[];
   network: NetworkInfo;
 }

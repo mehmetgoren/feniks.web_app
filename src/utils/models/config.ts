@@ -25,7 +25,7 @@ export interface SourceReaderConfig {
 }
 
 export interface GeneralConfig {
-  root_folder_path: string;
+  dir_paths: string[];
   heartbeat_interval: number;
 }
 

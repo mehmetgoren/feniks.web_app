@@ -48,6 +48,8 @@ export interface SourceModel {
   record_enabled?: boolean | null;
   ai_clip_enabled?: boolean | null;
 
+  root_dir_path?: string | null;
+
   log_level?: number | null;
   // FFmpegModel section ends
 

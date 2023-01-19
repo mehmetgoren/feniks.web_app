@@ -312,8 +312,8 @@ export async function databindWithLoading(loading: any, fn: () => Promise<void>)
 
 export function validateModel<T>(t:any, empty: T, viewModel:T): string[]{
   const ret: string[] = [];
-  for (const [field, value] of Object.entries(empty)){
-    if (!value) continue; // means nullable
+  for (const [field, value] of Object.entries(<any>empty)){
+    if (!value || Array.isArray(value)) continue; // means nullable or array
 
     const typeName = typeof value;
     if (typeName === 'object'){

@@ -23,6 +23,8 @@ export interface AiClipViewModel {
   video_file_name: string;
   video_base_file_name: string;
   duration: number;
+
+  source_id: string;
 }
 
 export interface AiClipQueryViewModel{

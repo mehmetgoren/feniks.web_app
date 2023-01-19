@@ -338,6 +338,8 @@
 
             <q-step v-if='source.record_enabled' id='step5' :name='5' :title="$t('recording')" icon='radio_button_checked' color='cyan'>
               <q-form class='q-gutter-md'>
+                <q-select dense emit-value map-options filled v-model='source.root_dir_path' color='cyan' :options='dirPaths'
+                          label="Disk" transition-show='scale' transition-hide='scale' :disable="!source.enabled"/>
                 <q-select dense emit-value map-options filled v-model='source.record_file_type' color='cyan' :options='recordFileTypes'
                           :label="$t('record_file_type')" transition-show='scale' transition-hide='scale' :disable="!source.enabled"/>
                 <q-select dense emit-value map-options filled v-model='source.record_video_codec' :options='recordVideoCodecs'
@@ -436,7 +438,7 @@ import {NodeService} from 'src/utils/services/node_service';
 import {useQuasar} from 'quasar';
 import {PublishService, SubscribeService} from 'src/utils/services/websocket_services';
 import {databindWithLoading, findBestSettings, isNullOrEmpty, isNullOrUndefined} from 'src/utils/utils';
-import {LocalService} from 'src/utils/services/local_service';
+import {LocalService, SelectOption} from 'src/utils/services/local_service';
 import {StoreService} from 'src/utils/services/store_service';
 import {WsConnection} from 'src/utils/ws/connection';
 import {ProbeResponseEvent, ProbeResult} from 'src/utils/models/various';
@@ -499,6 +501,7 @@ export default {
     const loadingMakeEnabledOrDisabled = ref<boolean>(false);
     const motionDetectionTypes = ref(localService.createMotionDetectionTypes(t));
     const needReloadModel: NeedReloadModel = {};
+    const dirPaths = ref<SelectOption[]>([]);
 
     const insertMode = computed(() => {
       return isNullOrEmpty(source.value.id);
@@ -515,9 +518,9 @@ export default {
         needReloadModel.streamType = source.value.stream_type;
         needReloadModel.flvPlayerType = source.value.flv_player_type;
       } else {
-        const onfn = await nodeService.getOnvifNetwork();
-        if (onfn && onfn.results) {
-          for (const r of onfn.results) {
+        const onvif = await nodeService.getOnvifNetwork();
+        if (onvif && onvif.results) {
+          for (const r of onvif.results) {
             if (r.address) {
               let addressValue = r.address;
               if (r.port) {
@@ -530,6 +533,15 @@ export default {
       }
 
       copyPrevSources.value = await nodeService.getSourceList();
+      const config = await nodeService.getConfig();
+      if (config?.general?.dir_paths?.length > 0){
+        dirPaths.value = config.general.dir_paths.map((d: string) => {
+          return {value: d, label: d};
+        });
+        if (isNullOrEmpty(source.value.root_dir_path)){
+          source.value.root_dir_path = config.general.dir_paths[0];
+        }
+      }
 
       const subscribeService = new SubscribeService(await nodeService.LocalService.getNodeIP(),
         await nodeService.LocalService.getNodePort());
@@ -771,7 +783,7 @@ export default {
       accelerationEngines, videoDecoders, streamTypes,
       audioCodecs, streamVideoCodecs, presets, recommendedRtspAddresses,
       streamRotations, rtmpServerTypes, audioChannels, inactives, showOnvif,
-      audioQualities, audioSampleRates, recordFileTypes, recordVideoCodecs, motionDetectionTypes,
+      audioQualities, audioSampleRates, recordFileTypes, recordVideoCodecs, motionDetectionTypes, dirPaths,
       recordPresets, recordRotations, showFindOptimalSettings, snapshotTypes, flvPlayerTypes, sourceStates, loadingMakeEnabledOrDisabled,
       onSave, onDelete, onStep1Click, onRecordChange, onStreamTypeChanged, onFindOptimalSettings, onMakeEnabledOrDisabled,
       insertMode, showQuickWizard, quickWizardShowing,

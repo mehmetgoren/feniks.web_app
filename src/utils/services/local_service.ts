@@ -6,13 +6,31 @@ import {User} from 'src/utils/models/user_model';
 import {NodeRepository} from 'src/utils/db';
 import {Node} from 'src/utils/entities';
 import {GalleryLocationsService} from 'src/utils/services/gallery_locations_service';
+import {Config} from 'src/utils/models/config';
 
 export class LocalService {
 
   private readonly rep: NodeRepository = new NodeRepository();
 
-  public getHlsAddress(nodeIp: string, nodePort: number, sourceId: string) {
-    return `${this.nodeHttpProtocol}://${nodeIp}:${nodePort}/livestream/${sourceId}/stream.m3u8`;
+  private getDefaultDirPath(config: Config): string{
+    const dirPaths = config?.general?.dir_paths;
+    if (dirPaths?.length > 0) {
+      return dirPaths[0];
+    }
+    return '';
+  }
+
+  private getSourceDirPath(config: Config, streamModel: StreamModel | SourceModel): string {
+    const sourceDirPath = streamModel.root_dir_path;
+    if (!isNullOrEmpty(sourceDirPath)) {
+      return <string>sourceDirPath;
+    }
+    return this.getDefaultDirPath(config);
+  }
+
+  public getHlsAddress(config: Config, streamModel: StreamModel | SourceModel, nodeIp: string, nodePort: number): string {
+    const route = `${this.getSourceDirPath(config, streamModel)}/stream/${streamModel.id}/stream.m3u8`
+    return `${this.nodeHttpProtocol}://${nodeIp}:${nodePort}${route}`;
   }
 
   get hubHttpProtocol(): string {
@@ -55,9 +73,10 @@ export class LocalService {
   public async getNodeAddress(route: string): Promise<string> {
     const nodeIp = await this.getNodeIP();
     const nodePort = await this.getNodePort();
-    if (isNullOrEmpty(route))
+    if (isNullOrEmpty(route) || route == '/')
       return `${this.nodeHttpProtocol}://${nodeIp}:${nodePort}`;
-    return `${this.nodeHttpProtocol}://${nodeIp}:${nodePort}/${route}`;
+    route = route.startsWith('/') ? route : '/' + route;
+    return `${this.nodeHttpProtocol}://${nodeIp}:${nodePort}${route}`;
   }
 
   public setCurrentUser(user: User | null) {
@@ -410,7 +429,8 @@ export class LocalService {
       live_buffer_latency_chasing: true,
 
       black_screen_check_enabled: false,
-      created_at: ''
+      created_at: '',
+      root_dir_path: ''
       // Source model ends
     };
   }
@@ -464,7 +484,9 @@ export class LocalService {
       live_buffer_latency_chasing: true,
 
       concat_demuxer_pid: 0,
-      concat_demuxer_args: ''
+      concat_demuxer_args: '',
+
+      root_dir_path: ''
     };
   }
 

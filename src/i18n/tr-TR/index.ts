@@ -496,4 +496,8 @@ export default {
   tt_motion_detection_type:'OpenCV en iyi hassasiyeti ve doğruluğu sağlar. ImageHash, en hızlı ve en hafif yöntemdir.',
   live_buffer_latency_chasing:'Canlı Akış Gecikmesi Takibi',
   tt_live_buffer_latency_chasing:'Bu seçenek, canlı akışın gecikmesini takip eder ve gecikmeyi azaltmak için gerekli olan akış kalitesini artırır.',
+  v_min_disk:'En Az Bir Adet Disk Yolu Belirtmelisiniz',
+  add:'Ekle',
+  delete_disk_path:'Disk Yolu Sil',
+  add_new_disk_path:'Yeni Disk Yolu Ekle',
 };
