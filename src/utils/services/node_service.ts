@@ -19,6 +19,7 @@ import {FailedStreamModel, RecStuckModel, RtspTemplateModel, VariousInfos} from 
 import {NvidiaGpuModel} from 'src/utils/models/gpu';
 import {GdriveViewModel, TelegramViewModel} from 'src/utils/models/cloud_models';
 import {AiDataDeleteOptions, AiDataDto, QueryAiDataAdvancedParams, QueryAiDataParams} from 'src/utils/models/ai_data_dtos';
+import {SmartSearchParams} from 'src/utils/models/smart_search';
 
 
 export class NodeService extends BaseService {
@@ -319,6 +320,11 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
+  public async smartSearch(model: SmartSearchParams): Promise<AiDataDto[]> {
+    const resp = await api.post(await this.LocalService.getNodeAddress('smartsearch'), model);
+    return resp.data;
+  }
+
   public async queryAiDataCount(model: QueryAiDataAdvancedParams): Promise<number> {
     const resp = await api.post(await this.LocalService.getNodeAddress('queryaidatacount'), model);
     return resp.data;
@@ -341,8 +347,8 @@ export class NodeService extends BaseService {
       return obj[pairs[0]] = pairs[1], obj;
     }, {});
 
-    let ret : any = null;
-    if (data && data.ip){
+    let ret: any = null;
+    if (data && data.ip) {
       ret = {};
       ret.ip = data.ip;
       ret.uag = data.uag;

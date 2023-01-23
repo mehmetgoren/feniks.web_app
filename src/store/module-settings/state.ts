@@ -70,6 +70,9 @@ function state(): ISettingsState {
     ai_data:[
       { route: 'ai_data', icon: 'lens_blur', text: 'AI Data', name:'ai_data' }
     ],
+    smart_search:[
+      { route: 'smart_search', icon: 'workspaces', text: 'Smart Search', name:'smart_search' }
+    ],
     cameras:[]
   };
   return {

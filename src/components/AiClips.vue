@@ -4,9 +4,9 @@
       <q-btn flat round dense :icon="selectedFeature.icon" class="q-mr-sm"/>
       <q-toolbar-title>{{$t('ai_video_clips')}}</q-toolbar-title>
       <q-tabs v-model="tab" shrink :active-bg-color="color">
-        <q-tab name="od" icon="collections" :label="$t('object_detection')"/>
-        <q-tab name="fr" icon="face" :label="$t('face_recognition')"/>
-        <q-tab name="alpr" icon="drive_eta" :label="$t('license_plate_recognition')"/>
+        <q-tab name="od" icon="collections" :label="$t('object_detection')" :disable="refreshLoading"/>
+        <q-tab name="fr" icon="face" :label="$t('face_recognition')" :disable="refreshLoading"/>
+        <q-tab name="alpr" icon="drive_eta" :label="$t('license_plate_recognition')" :disable="refreshLoading"/>
       </q-tabs>
       <q-space/>
     </q-toolbar>
@@ -78,7 +78,7 @@
               <template v-slot:top-right>
                 <q-btn class="gt-xs" icon='refresh' :label="$t('refresh')" :color='color' style='margin-right: 15px;' @click='onRefresh'/>
                 <DateTimeSelector :dense="true" :color='color' :show-hour='true' :label-date="$t('date')" :label-time="$t('time')"
-                                  @date-changed='onDateChanged' @hour-changed='onHourChanged'/>
+                                  @date-changed='onDateChanged' @hour-changed='onHourChanged' :disable="refreshLoading"/>
               </template>
             </q-table>
             <q-inner-loading :showing='refreshLoading' :color='color' size='128px'/>

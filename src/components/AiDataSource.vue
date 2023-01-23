@@ -4,9 +4,9 @@
       <q-btn flat dense icon="lens_blur" class="q-mr-sm"/>
       <q-toolbar-title>{{$t('ai_event_data_history')}}</q-toolbar-title>
       <q-tabs v-model="tab" shrink :active-bg-color="color">
-        <q-tab name="od" icon="collections" :label="$t('object_detection')"/>
-        <q-tab name="fr" icon="face" :label="$t('face_recognition')"/>
-        <q-tab name="alpr" icon="drive_eta" :label="$t('license_plate_recognition')"/>
+        <q-tab name="od" icon="collections" :label="$t('object_detection')" :disable="leftPanelLoading"/>
+        <q-tab name="fr" icon="face" :label="$t('face_recognition')" :disable="leftPanelLoading"/>
+        <q-tab name="alpr" icon="drive_eta" :label="$t('license_plate_recognition')" :disable="leftPanelLoading"/>
       </q-tabs>
       <q-space/>
     </q-toolbar>
@@ -14,7 +14,7 @@
       <div class="row">
         <div class="col-3">
           <DateTimeSelector width-date="187" :dense="true" :color='color' :show-hour='true' :label-date="$t('date')" :label-time="$t('time')"
-                            @date-changed='onDateChanged' @hour-changed='onHourChanged' class="gt-sm"/>
+                            @date-changed='onDateChanged' @hour-changed='onHourChanged' class="gt-sm" :disable="leftPanelLoading"/>
           <q-toggle dense v-model='params.no_preparing_video_file' :color='color' @update:model-value='onNoPreparingVideoFileChanged' class="gt-sm"
                     :label="params.no_preparing_video_file ? $t('include_preparing_video_file') : $t('do_not_include_preparing_video_file') " />
           <q-input dense filled v-model.trim='params.pred_class_name' :label="$t('label')" :color='color' @update:model-value="onLabelChanged" style="width: 300px" />

@@ -5,6 +5,7 @@ import AiSettings from 'pages/AiSettings.vue';
 import FrTraining from 'pages/FrTraining.vue';
 import AiDataGeneral from 'pages/AiDataGeneral.vue';
 import SourceRecords from 'pages/SourceRecords.vue';
+import SmartSearch from 'pages/SmartSearch.vue';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -18,6 +19,7 @@ const routes: RouteRecordRaw[] = [
       {path: 'fr_training', component: FrTraining},
       {path: 'ai_data', component: AiDataGeneral},
       {path: 'source_records', component: SourceRecords},
+      {path:'smart_search', component: SmartSearch }
     ],
   },
 

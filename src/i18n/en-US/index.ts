@@ -500,4 +500,11 @@ export default {
   add:'Add',
   delete_disk_path:'Delete Disk Path',
   add_new_disk_path:'Add New Disk Path',
+  meta_color_enabled:'Meta Color Enabled',
+  meta_color_count:'Meta Color Count',
+  meta_color_quality:'Meta Color Quality',
+  smart_search:'Smart Search',
+  color_difference_method:'Color Difference Method',
+  threshold:'Threshold',
+  no_meta_color_enabled:'No meta color enabled, please enable it first from the configuration to use the object detection color search',
 };

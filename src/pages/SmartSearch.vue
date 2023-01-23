@@ -1,52 +1,68 @@
 <template>
   <div class="q-pa-md">
+
     <div class="row">
       <div class="col-12">
         <q-toolbar :class="'bg-' + color + ' text-white'">
           <q-btn flat round dense :icon="selectedFeature.icon" class="q-mr-sm"/>
-          <q-toolbar-title autocapitalize="characters">{{ selectedFeature.name.toLocaleUpperCase() }}</q-toolbar-title>
-          <q-tabs v-model="tab" shrink :active-bg-color="color">
-            <q-tab name="od" icon="collections" :label="$t('object_detection')" :disable="loading"/>
-            <q-tab name="fr" icon="face" :label="$t('face_recognition')" :disable="loading"/>
-            <q-tab name="alpr" icon="drive_eta" :label="$t('license_plate_recognition')" :disable="loading"/>
-          </q-tabs>
+          <q-toolbar-title autocapitalize="characters">{{ selectedFeature.title.toLocaleUpperCase() }}</q-toolbar-title>
           <q-space/>
         </q-toolbar>
       </div>
     </div>
+
     <div class="row" style="margin-top: 15px;">
       <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 col-xl-3">
         <DateTimeSelector :width-date="200" :width-time="125" :label-date="$t('start_date')" :label-time="$t('start_time')"
                           :color='color' :dense="true" :show-hour='true' :allow-minute-selection="true" @date-time-changed='onStartDateTimeChanged'
                           :date-string="parseDate(params.start_date_time_str)" :time-string="parseTime(params.start_date_time_str)"
-                          :disable="loading" />
+                          :disable="loading"/>
       </div>
       <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 col-xl-3">
         <DateTimeSelector :width-date="200" :width-time="125" :label-date="$t('end_date')" :label-time="$t('end_time')"
                           :color='color' :dense="true" :show-hour='true' :allow-minute-selection="true" @date-time-changed='onEndDateTimeChanged'
                           :date-string="parseDate(params.end_date_time_str)" :time-string="parseTime(params.end_date_time_str)"
-                          :disable="loading" />
+                          :disable="loading"/>
       </div>
       <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 col-xl-3">
         <q-select emit-value map-options filled style="max-width: 300px;margin-top: 3px;" @update:model-value="onSourceIdChanged"
                   v-model='params.source_id' :color='color' option-value="id" option-label="name"
-                  :options='sources' :label="$t('camera')" clearable dense :disable="loading" />
+                  :options='sources' :label="$t('camera')" clearable dense :disable="loading"/>
       </div>
       <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 col-xl-3">
         <q-input filled v-model.trim='params.pred_class_name' :label="$t('label')" :color='color' @update:model-value="onLabelChanged"
-                 style="max-width: 300px;margin-top: 3px;" dense :disable="loading" >
+                 style="max-width: 300px;margin-top: 3px;" dense :disable="loading">
           <template v-if="params.pred_class_name" v-slot:append>
             <q-icon name="cancel" @click="onLabelClear" class="cursor-pointer"/>
           </template>
         </q-input>
       </div>
     </div>
-    <q-space style="margin-bottom: 5px;"/>
+    <q-space style="margin-bottom: 15px;"/>
     <div class="row">
-      <div class="col-12">
-        <q-table :title="$t('ai_data')" :color="color" :rows="rows" :columns="columns" row-key="id" v-model:pagination="pagination"
-                 :loading="loading" @request="onRequest" binary-state-sort
-                 :rows-per-page-label="$t('rows_per_page')" :no-data-label="$t('no_data')">
+      <div class="col-2">
+        <table>
+          <tr>
+            <td>
+              <q-color v-model="params.color.hex_color" :disable="loading" @update:model-value="dataBind"/>
+            </td>
+          </tr>
+          <q-space style="margin-bottom: 15px;"/>
+          <tr>
+            <td>
+              <q-select outlined :color="color" :label="$t('color_difference_method')" v-model="params.color.difference_method"
+                        :options="colorDifferenceMethods" emit-value map-options :disable="loading"/>
+              <q-space style="margin-bottom: 15px;"/>
+              <q-input type="number" outlined :color="color" :label="$t('threshold')" v-model.number="params.color.threshold" :disable="loading"/>
+              <q-space style="margin-bottom: 15px;"/>
+              <q-btn :label="$t('ok')" :color='color' icon="done" @click='dataBind' :disable="loading"/>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="col-10">
+        <q-table :title="$t('ai_data')" :color="color" :rows="rows" :columns="columns" row-key="id" :pagination="clientSidePagination"
+                 :loading="loading" :rows-per-page-label="$t('rows_per_page')" :no-data-label="$t('no_data')">
           <template v-slot:body='props'>
             <q-tr :props='props' @click='onRowClick(props.row)' :style='{"backgroundColor": props.expand ? color:"white", "cursor":"pointer"}'>
               <q-td key='base64_image'>
@@ -59,19 +75,20 @@
             </q-tr>
           </template>
           <template v-slot:top-right>
-            <q-btn :color="color" icon="archive" :label="$t('export_to_csv')" no-caps @click="onExportData">
-              <q-inner-loading :color="color" :showing="loadingExport"/>
-            </q-btn>
-            <q-space style="margin-left: 5px;"/>
             <q-btn icon='refresh' :label="$t('refresh')" :color='color' @click='dataBind'/>
           </template>
           <template v-slot:loading>
-            <q-inner-loading showing :color="color" />
+            <q-inner-loading showing :color="color"/>
           </template>
         </q-table>
+        <q-space style="margin-bottom: 15px;"/>
+        <div v-if="!config?.snapshot.meta_color_enabled">
+          <label class='blink_me'>{{$t('no_meta_color_enabled')}}</label>
+        </div>
       </div>
     </div>
   </div>
+
   <q-dialog v-model="showDialog" transition-show="rotate" transition-hide="rotate">
     <q-layout view='lHh lpr lFf' container class='shadow-2 rounded-borders' style="max-height: 70%;max-width: 85%;">
       <q-header elevated :class="'bg-' + color">
@@ -95,11 +112,10 @@
             <div class="col-4">
               <div style="margin-left: 15px;">
                 <div style="float: left;width: 100%">
-                  <q-img v-if="selectedItem" :src="selectedItem.image_file_name">
-                  </q-img>
+                  <q-img v-if="selectedItem" :src="selectedItem.image_file_name"/>
                 </div>
                 <div style="float: left;width: 100%;margin-top: 5px;">
-                  <q-table :rows="detailRows" :color="color" :columns="detailColumns" :hide-pagination="true" :hide-header="true"
+                  <q-table :rows="detailRows" :color="color" :columns="detailColumns" :hide-header="true"
                            :rows-per-page-label="$t('rows_per_page')" :no-data-label="$t('no_data')">
                     <template v-slot:top-left>
                       <q-btn :color='color' dense icon-right='theaters' :label="$t('download_video')"
@@ -145,99 +161,59 @@
 </template>
 
 <script lang="ts">
-import {nextTick, onMounted, ref, watch} from 'vue';
-import {AiDataDeleteOptions, AiDataDto, QueryAiDataAdvancedParams, SelectedAiFeature, SortBy} from 'src/utils/models/ai_data_dtos';
+import {nextTick, onMounted, ref} from 'vue';
+import {AiDataDeleteOptions, AiDataDto} from 'src/utils/models/ai_data_dtos';
 import VideoPlayer from 'src/components/VideoPlayer.vue';
 import DateTimeSelector from 'components/DateTimeSelector.vue';
 import {SourceModel} from 'src/utils/models/source_model';
 import {NodeService} from 'src/utils/services/node_service';
-import {databindWithLoading, deepCopy, downloadFile, getAddedHour, getPrevHourDatetime, getTodayString, myDateToJsDate} from 'src/utils/utils';
+import {databindWithLoading, downloadFile, getAddedHour, getPrevHourDatetime, getTodayString} from 'src/utils/utils';
 import {setUpDatesAndPaths} from 'src/utils/path_utils';
-import {useQuasar, exportFile} from 'quasar';
+import {useQuasar} from 'quasar';
 import {useI18n} from 'vue-i18n';
+import {SmartSearchParams} from 'src/utils/models/smart_search';
+import {SelectOption} from 'src/utils/services/local_service';
+import {Config} from 'src/utils/models/config';
 
 export default {
-  name: 'AiDataGeneral',
+  name: 'SmartSearch',
   components: {DateTimeSelector, VideoPlayer},
   setup() {
     const {t} = useI18n({useScope: 'global'});
     const $q = useQuasar();
-    const color = ref<string>('deep-purple-14');
-    const tab = ref<string>('od');
+    const color = ref<string>('light-blue-6');
     const sources = ref<SourceModel[]>([]);
     const sourceDic = ref<any>({});
-    const params = ref<QueryAiDataAdvancedParams>({
-      ai_type: 0,
+    const params = ref<SmartSearchParams>({
       source_id: '',
       start_date_time_str: getPrevHourDatetime(1),
       end_date_time_str: `${getTodayString()}_${getAddedHour(1)}`,
       pred_class_name: '',
-      no_preparing_video_file: true,
-      sort: {
-        enabled: true,
-        field: 'created_date',
-        sort: SortBy.Descending
-      },
-      paging: {
-        enabled: true,
-        page: 1,
-        take: 10
-      }
+      color: {hex_color: '#000000', difference_method: 'CIEDE2000', threshold: 0.15}
     });
+    const selectedFeature = ref({title: t('smart_search'), name: t('object_detection'), icon: 'workspaces'});
     const nodeService = new NodeService();
-    const selectedFeature = ref<SelectedAiFeature>({name: t('object_detection'), icon: 'collections'});
-    watch(tab, (newValue: string) => {
-      switch (newValue) {
-        case 'od':
-          color.value = 'deep-purple-14';
-          params.value.ai_type = 0;
-          selectedFeature.value.name = t('object_detection');
-          selectedFeature.value.icon = 'collections';
-          void dataBind();
-          break;
-        case 'fr':
-          color.value = 'deep-orange-7';
-          params.value.ai_type = 1;
-          selectedFeature.value.name = t('face_recognition');
-          selectedFeature.value.icon = 'face';
-          void dataBind();
-          break;
-        case 'alpr':
-          color.value = 'blue-grey-6';
-          params.value.ai_type = 2;
-          selectedFeature.value.name = t('license_plate_recognition');
-          selectedFeature.value.icon = 'drive_eta';
-          void dataBind();
-          break;
-      }
-    })
+    const config = ref<Config>();
     const rows = ref<AiDataDto[]>([]);
-    const pagination = ref({
-      sortBy: 'created_date',
-      descending: true,
-      page: 1,
-      rowsPerPage: 10,
-      rowsNumber: 0
-    })
     const loading = ref<boolean>(false);
     const showDialog = ref<boolean>(false);
     const selectedItem = ref<AiDataDto | null>(null);
     const detailRows = ref<KeyValuePair[]>([]);
     const downloadVideoLoading = ref<boolean>(false);
     const showDelete = ref<boolean>(false);
-    const loadingExport = ref<boolean>(false);
+    const colorDifferenceMethods = ref<SelectOption[]>(nodeService.LocalService.createColorDifferenceMethods());
     const dlt = ref<AiDataDeleteOptions>({delete_image: false, delete_video: false});
     let videoPlayer: any = null;
 
     async function dataBind() {
       await databindWithLoading(loading, async () => {
-        pagination.value.rowsNumber = await nodeService.queryAiDataCount(params.value);
-        const items = await nodeService.queryAiDataAdvanced(params.value);
+        const items = await nodeService.smartSearch(params.value);
         rows.value = await setUpDatesAndPaths(nodeService.LocalService, items);
       });
     }
 
     onMounted(async () => {
+      config.value = await nodeService.getConfig();
       const sourceList = await nodeService.getSourceList();
       for (const s of sourceList) {
         sourceDic.value[<string>s.id] = s;
@@ -342,7 +318,7 @@ export default {
       showDelete.value = false;
       loading.value = true;
       try {
-        dlt.value.ai_type = params.value.ai_type;
+        dlt.value.ai_type = 0; // means Od
         dlt.value.id = selectedItem.value.id;
         await nodeService.deleteAiData(dlt.value);
         await dataBind();
@@ -353,108 +329,39 @@ export default {
       }
     }
 
-    function wrapCsvValue(val: any, formatFn?: any, row?: AiDataDto): string {
-      let formatted = formatFn !== void 0
-        ? formatFn(val, row)
-        : val
-
-      formatted = formatted === void 0 || formatted === null
-        ? ''
-        : String(formatted)
-
-      formatted = formatted.split('"').join('""')
-
-      return `"${formatted}"`
-    }
-
-    async function onExportData() {
-      loadingExport.value = true;
-      try {
-        const copyParams: QueryAiDataAdvancedParams = deepCopy(params.value);
-        copyParams.paging.enabled = false;
-        const records = await nodeService.queryAiDataAdvanced(copyParams);
-        for (const record of records) {
-          record.created_at = myDateToJsDate(record.created_at).toUTCString();
-          record.source_id = sourceDic.value[record.source_id].name;
-        }
-        const columns = createColumns(false);
-        const content = [columns.map(col => wrapCsvValue(col.label))].concat(
-          records.map(record => columns.map(col => wrapCsvValue(
-            typeof col.field === 'function'
-              //@ts-ignore
-              ? col.field(record)
-              //@ts-ignore
-              : record[col.field === void 0 ? col.name : col.field],
-            //@ts-ignore
-            col.format,
-            record
-          )).join(','))
-        ).join('\r\n')
-
-        const status = exportFile(
-          'table-export.csv',
-          content,
-          'text/csv'
-        )
-
-        if (status !== true) {
-          $q.notify({
-            message: t('browser_no_allow_download'),
-            color: 'negative',
-            icon: 'warning'
-          })
-        }
-      } finally {
-        loadingExport.value = false;
-      }
-    }
-
     const onVideoPlayerReady = (player: any) => {
       videoPlayer = player;
     }
 
-    async function onRequest(props: any) {
-      pagination.value = props.pagination;
-      const {page, rowsPerPage, sortBy, descending} = pagination.value;
-      loading.value = true;
-      try {
-        const p = params.value.paging;
-        p.page = page
-        p.take = rowsPerPage;
-
-        const s = params.value.sort;
-        s.field = sortBy
-        s.sort = descending ? SortBy.Descending : SortBy.Ascending;
-
-        await dataBind();
-      } finally {
-        loading.value = false;
-      }
-    }
-
-    function createColumns(includeImageColumn: boolean): any[] {
-      const align = 'center';
-      const ret = [];
-      if (includeImageColumn) {
-        ret.push({name: 'image_file_name', align: 'left', label: '', field: 'image_file_name', sortable: false});
-      }
-      ret.push({name: 'source_id', align, label: t('camera'), field: 'source_id', sortable: true});
-      ret.push({name: 'pred_cls_name', align, label: t('label'), field: 'pred_cls_name', sortable: true});
-      ret.push({name: 'pred_score', align, label: t('score'), field: 'pred_score', sortable: true});
-      ret.push({name: 'created_at', align, label: t('created_at'), field: 'created_at', sortable: true});
-
-      return ret;
-    }
-
     return {
-      tab, color, params, sources, selectedFeature, sourceDic, rows, pagination, loading, showDialog, selectedItem, detailRows, downloadVideoLoading,
-      showDelete, dlt, loadingExport,
-      onStartDateTimeChanged, onEndDateTimeChanged, onSourceIdChanged, onLabelChanged, parseDate, parseTime, onRequest, dataBind, onLabelClear,
-      onRowClick, onVideoPlayerReady, handleDownloadVideo, handleOpenSnapshot, handleDelete, onDoDelete, onExportData,
-      columns: createColumns(true), detailColumns: createDetailColumns(),
-      deleteRecordTemp: ref<boolean>(true)
+      color, params, sources, selectedFeature, sourceDic, rows, loading, showDialog, selectedItem, detailRows, downloadVideoLoading,
+      showDelete, dlt, colorDifferenceMethods, config,
+      onStartDateTimeChanged, onEndDateTimeChanged, onSourceIdChanged, onLabelChanged, parseDate, parseTime, dataBind, onLabelClear,
+      onRowClick, onVideoPlayerReady, handleDownloadVideo, handleOpenSnapshot, handleDelete, onDoDelete,
+      columns: createColumns(true, t), detailColumns: createDetailColumns(),
+      deleteRecordTemp: ref<boolean>(true),
+      clientSidePagination: {
+        sortBy: 'desc',
+        descending: false,
+        page: 1,
+        rowsPerPage: 10
+      }
     }
   }
+}
+
+function createColumns(includeImageColumn: boolean, t: any): any[] {
+  const align = 'center';
+  const ret = [];
+  if (includeImageColumn) {
+    ret.push({name: 'image_file_name', align: 'left', label: '', field: 'image_file_name', sortable: false});
+  }
+  ret.push({name: 'source_id', align, label: t('camera'), field: 'source_id', sortable: true});
+  ret.push({name: 'pred_cls_name', align, label: t('label'), field: 'pred_cls_name', sortable: true});
+  ret.push({name: 'pred_score', align, label: t('score'), field: 'pred_score', sortable: true});
+  ret.push({name: 'created_at', align, label: t('created_at'), field: 'created_at', sortable: true});
+
+  return ret;
 }
 
 function createDetailColumns(): any[] {
@@ -472,5 +379,21 @@ interface KeyValuePair {
 </script>
 
 <style scoped>
+.blink_me {
+  animation: blinker 1s linear infinite;
+  color: red;
+  font-size: medium;
+}
 
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes blink {
+  50% {
+    border-color: #fff;
+  }
+}
 </style>

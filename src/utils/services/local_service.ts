@@ -749,6 +749,20 @@ export class LocalService {
       {value: 3, label: 'PSNR'}
     ];
   }
+
+  public createColorDifferenceMethods():SelectOption[]{
+    return [
+      {value: 'CIE76', label: 'CIE76'},
+      {value: 'CIE94', label: 'CIE94'},
+      {value: 'CIEDE2000', label: 'CIEDE2000'},
+      {value: 'Rgb', label: 'Rgb'},
+      {value: 'Lab', label: 'Lab'},
+      {value: 'Luv', label: 'Luv'},
+      {value: 'LinearRGB', label: 'LinearRGB'},
+      {value: 'HPLuv', label: 'HPLuv'},
+      {value: 'HSLuv', label: 'HSLuv'},
+    ];
+  }
 }
 
 

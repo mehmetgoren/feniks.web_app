@@ -39,7 +39,7 @@
           <q-separator/>
           <q-card-section>
             <q-table dense :title="'Disks'" :rows='disks' color="bg-cyan"
-                     :columns='disksColumns' row-key='name' :rows-per-page-options="[0]" :pagination='noPagination'>
+                     :columns='disksColumns' row-key='name' :rows-per-page-options="[0]" :pagination='noPagination'
                      :loading-label="$t('loading')" :no-data-label="$t('no_data')" :no-results-label="$t('no_results')"
                      :selected-rows-label="$t('selected_rows')" :rows-per-page-label="$t('rows_per_page')">
               <template v-slot:body="props">
@@ -134,6 +134,15 @@
           <q-separator/>
           <q-card-section>
             <q-input v-model.number='snapshot.process_count' type='number' filled dense :label="$t('process_count')"/>
+            <q-space style='height: 10px;'/>
+            <q-toggle v-model='snapshot.overlay' filled dense :label="$t('overlay')"/>
+            <q-space style='height: 10px;'/>
+            <q-toggle v-model='snapshot.meta_color_enabled' filled dense :label="$t('meta_color_enabled')" />
+            <q-space style='height: 10px;'/>
+            <q-input v-model.number='snapshot.meta_color_count' type='number' filled dense :label="$t('meta_color_count')"/>
+            <q-space style='height: 10px;'/>
+            <q-input v-model.number='snapshot.meta_color_quality' type='number' filled dense :label="$t('meta_color_quality')"/>
+            <q-space style='height: 10px;'/>
           </q-card-section>
         </q-card>
         <q-space style='height: 10px;'/>
@@ -221,8 +230,6 @@
           </q-card-section>
           <q-separator/>
           <q-card-section>
-            <q-toggle v-model='ai.overlay' filled dense :label="$t('overlay')"/>
-            <q-space style='height: 10px;'/>
             <q-input type="number" v-model.number='ai.video_clip_duration' filled dense :label="$t('video_clip_duration')"/>
             <q-space style='height: 10px;'/>
             <q-input type="number" v-model.number='ai.face_recog_mtcnn_threshold' filled dense :label="$t('face_recog_mtcnn_threshold')"/>

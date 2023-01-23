@@ -3,9 +3,9 @@
     <tr>
       <td>
         <q-input :label="labelDate" v-model='selectedDate' mask='YYYY-MM-DD' type='date' filled :dense="dense" :color='color' readonly
-                 style='cursor: pointer;width: 155px;' :style="{width:widthDate<1?'155px':widthDate.toString() + 'px'}">
+                 style='cursor: pointer;width: 155px;' :style="{width:widthDate<1?'155px':widthDate.toString() + 'px'}" :disable="disable">
           <q-popup-proxy v-model='showSelectedDate' cover transition-show='scale' transition-hide='scale'>
-            <q-date v-model='selectedDate' :color='color' mask='YYYY-MM-DD'>
+            <q-date v-model='selectedDate' :color='color' mask='YYYY-MM-DD' :disable="disable">
               <div class='row items-center justify-end q-gutter-sm'>
                 <q-btn label='OK' :color='color' flat v-close-popup/>
               </div>
@@ -18,9 +18,9 @@
       </td>
       <td v-if='showHour'>
         <q-input :label="labelTime" filled v-model="selectedHour" mask="time" :dense="dense" :color='color' readonly
-                 style='margin-left: 5px;width: 100px;cursor: pointer;' :style="{width:widthTime<1?'100px':widthTime.toString() + 'px'}">
+                 style='margin-left: 5px;width: 100px;cursor: pointer;' :style="{width:widthTime<1?'100px':widthTime.toString() + 'px'}" :disable="disable">
           <q-popup-proxy v-model='showSelectedHour' cover transition-show="scale" transition-hide="scale">
-            <q-time v-model="selectedHour" format24h :minute-options='minuteOptions' :color='color'>
+            <q-time v-model="selectedHour" format24h :minute-options='minuteOptions' :color='color' :disable="disable">
               <div class="row items-center justify-end">
                 <q-btn v-close-popup label="Close" :color='color' flat/>
               </div>
@@ -84,6 +84,11 @@ export default {
     timeString: {
       type: String,
       default: ''
+    },
+    disable: {
+      type: Boolean,
+      default: false,
+      required: true
     }
   },
   //@ts-ignore

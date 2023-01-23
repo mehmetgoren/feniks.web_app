@@ -25,7 +25,6 @@ export interface DetectedFace {
   pred_score: number;
   pred_cls_idx: number;
   pred_cls_name: string;
-  crop_base64_image: string;
   x1: number;
   y1: number;
   x2: number;

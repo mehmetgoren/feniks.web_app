@@ -6,15 +6,16 @@
           <q-btn flat round dense :icon="selectedFeature.icon" class="q-mr-sm"/>
           <q-toolbar-title>{{$t('ai_images')}}</q-toolbar-title>
           <q-tabs v-model="tab" shrink :active-bg-color="color">
-            <q-tab name="od" icon="collections" :label="$t('object_detection')"/>
-            <q-tab name="fr" icon="face" :label="$t('face_recognition')"/>
-            <q-tab name="alpr" icon="drive_eta" :label="$t('license_plate_recognition')"/>
+            <q-tab name="od" icon="collections" :label="$t('object_detection')" :disable="treeLoading||imagesLoading"/>
+            <q-tab name="fr" icon="face" :label="$t('face_recognition')" :disable="treeLoading||imagesLoading"/>
+            <q-tab name="alpr" icon="drive_eta" :label="$t('license_plate_recognition')" :disable="treeLoading||imagesLoading"/>
           </q-tabs>
           <q-space/>
           <div style='background-color: whitesmoke;margin-right: 5px;'>
-            <DateTimeSelector :dense="true" :color='color' :show-hour='false' :label-date="$t('date')" @date-changed='onDateChanged'/>
+            <DateTimeSelector :dense="true" :color='color' :show-hour='false' :label-date="$t('date')" :disable="treeLoading"
+                              @date-changed='onDateChanged'/>
           </div>
-          <q-btn class="gt-xs" :color='color' :label="$t('refresh')" icon='restore_page' @click='onRefresh' :disable='refreshLoading'>
+          <q-btn class="gt-xs" :color='color' :label="$t('refresh')" icon='restore_page' @click='onRefresh' :disable='refreshLoading||imagesLoading'>
             <q-inner-loading :showing='refreshLoading' />
           </q-btn>
         </q-toolbar>

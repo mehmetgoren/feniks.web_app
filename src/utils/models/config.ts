@@ -48,7 +48,6 @@ export interface FFmpegConfig {
 }
 
 export interface AiConfig {
-  overlay: boolean;
   video_clip_duration: number;
   face_recog_mtcnn_threshold: number;
   face_recog_prob_threshold: number;
@@ -89,6 +88,10 @@ export interface ArchiveConfig {
 
 export interface SnapshotConfig {
   process_count: number;
+  overlay: boolean;
+  meta_color_enabled: boolean;
+  meta_color_count: number;
+  meta_color_quality: number;
 }
 
 export interface Config {

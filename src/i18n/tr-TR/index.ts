@@ -500,4 +500,11 @@ export default {
   add:'Ekle',
   delete_disk_path:'Disk Yolu Sil',
   add_new_disk_path:'Yeni Disk Yolu Ekle',
+  meta_color_enabled:'Meta Renk',
+  meta_color_count:'Meta Renk Sayısı',
+  meta_color_quality:'Meta Renk Kalitesi',
+  smart_search:'Akıllı Arama',
+  color_difference_method:'Renk Farkı Yöntemi',
+  threshold:'Eşik',
+  no_meta_color_enabled:'Meta renk etkin değil, nesne algılama renk aramasını kullanmak için lütfen önce onu etkinleştirin'
 };
