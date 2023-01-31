@@ -8,5 +8,5 @@ gokalpgoren
       docker build -t gokalpgoren/webapp:v1.0.0-amd64 .
       docker run -it --restart unless-stopped --name webapp-instance -p 8080:80 -e TZ=Europe/Istanbul gokalpgoren/webapp:v1.0.0-amd64
     raspi4:
-      docker build -t gokalpgoren/webapp:v1.0.0-raspi4 .
-      docker run -it --restart unless-stopped --name webapp-instance -p 8080:80 -e TZ=Europe/Istanbul gokalpgoren/webapp:v1.0.0-raspi4
+      docker build -t gokalpgoren/webapp:v1.0.0-arm64v8 .
+      docker run -it --restart unless-stopped --name webapp-instance -p 80:80 -e TZ=Europe/Istanbul gokalpgoren/webapp:v1.0.0-raspi4

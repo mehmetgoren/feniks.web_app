@@ -499,7 +499,7 @@
         </template>
       </q-table>
     </div>
-    <div v-if='otherTabs==="recstucks"' style="margin-top: 25px;">onceDetector
+    <div v-if='otherTabs==="recstucks"' style="margin-top: 25px;">
       <q-table :pagination='initialPagination' :rows='recStucks' row-key='id' :columns='recStucksColumns' color='lime-6'
                :rows-per-page-label="$t('rows_per_page')" :loading="loadingRecStucks">
         <template v-slot:top-right>

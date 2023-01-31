@@ -7,9 +7,6 @@ db.version(1).stores({
   nodes: 'node_address, name, description, active'
 });
 
-
-console.log('Using Dexie v' + Dexie.semVer);
-
 export class NodeRepository {
   private readonly nodes: Table<Node>;
 
