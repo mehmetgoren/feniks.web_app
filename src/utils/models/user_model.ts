@@ -25,3 +25,7 @@ export interface LoginUserViewModel {
   username: string;
   password: string;
 }
+
+export interface LoginUserByTokenViewModel{
+  token: string;
+}

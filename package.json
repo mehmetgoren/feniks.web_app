@@ -25,7 +25,6 @@
     "v-viewer": "^3.0.11",
     "video.js": "^7.20.3",
     "videojs-flvjs-es6": "^1.0.1",
-    "vue-chart-3": "^3.1.8",
     "vue-i18n": "^9.2.2",
     "vuex": "^4.1.0",
     "smooth-scrollbar": "^8.8.1",

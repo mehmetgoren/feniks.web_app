@@ -130,6 +130,12 @@ export function isNullOrEmpty(val: string | undefined | null) {
   return isNullOrUndefined(val) ? true : val.length === 0;
 }
 
+export function parseQueryString(queryString: string = window.location.search): any {
+  return new Proxy(new URLSearchParams(queryString), {
+    get: (searchParams, prop) => searchParams.get(<any>prop),
+  });
+}
+
 export function startStream(storeService: StoreService, publishService: PublishService, gls: GalleryLocationsService,  source: SourceModel) {
   if (isNullOrEmpty(source?.id)) {
     return;

@@ -12,7 +12,7 @@ export class LocalService {
 
   private readonly rep: NodeRepository = new NodeRepository();
 
-  private getDefaultDirPath(config: Config): string{
+  private getDefaultDirPath(config: Config): string {
     const dirPaths = config?.general?.dir_paths;
     if (dirPaths?.length > 0) {
       return dirPaths[0];
@@ -31,23 +31,6 @@ export class LocalService {
   public getHlsAddress(config: Config, streamModel: StreamModel | SourceModel, nodeIp: string, nodePort: number): string {
     const route = `${this.getSourceDirPath(config, streamModel)}/stream/${streamModel.id}/stream.m3u8`
     return `${this.nodeHttpProtocol}://${nodeIp}:${nodePort}${route}`;
-  }
-
-  get hubHttpProtocol(): string {
-    return 'http';
-  }
-
-  //todo: move to the config(Redis)
-  get hubIP(): string {
-    return 'localhost';
-  }
-
-  get hubPort(): string {
-    return '7242';
-  }
-
-  public getHubAddress(route: string): string {
-    return `${this.hubHttpProtocol}://${this.hubIP}:${this.hubPort}/${route}`;
   }
 
   get nodeHttpProtocol(): string {
@@ -750,7 +733,7 @@ export class LocalService {
     ];
   }
 
-  public createColorDifferenceMethods():SelectOption[]{
+  public createColorDifferenceMethods(): SelectOption[] {
     return [
       {value: 'CIE76', label: 'CIE76'},
       {value: 'CIE94', label: 'CIE94'},

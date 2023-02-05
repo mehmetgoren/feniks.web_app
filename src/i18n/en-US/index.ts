@@ -507,4 +507,10 @@ export default {
   color_difference_method:'Color Difference Method',
   threshold:'Threshold',
   no_meta_color_enabled:'No meta color enabled, please enable it first from the configuration to use the object detection color search',
+  hub:'Hub',
+  hub_enabled:'Hub Enabled',
+  hub_address:'Hub Address',
+  hub_token:'Hub Token',
+  hub_max_retry:'Hub Max Retry',
+hub_web_app_address:'Hub Web App Address',
 };

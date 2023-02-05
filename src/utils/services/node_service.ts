@@ -12,8 +12,8 @@ import {ImagesParams, FolderTreeItem, ImageItem} from 'src/utils/models/detected
 import {AiClipViewModel, AiClipQueryViewModel} from 'src/utils/models/ai_clip_view_models';
 import {NetworkDiscoveryModel, OnvifModel} from 'src/utils/models/onvif_models';
 import {FrTrainRename, FrTrainName, FrTrainScreenshotViewModel, FrTrainViewModel} from 'src/utils/models/fr_models';
-import {ClientInfoModel, LoginUserViewModel, RegisterUserViewModel, User} from 'src/utils/models/user_model';
-import {ServiceModel, ServiceViewModel} from 'src/utils/models/service_model';
+import {ClientInfoModel, LoginUserViewModel, RegisterUserViewModel, User, LoginUserByTokenViewModel} from 'src/utils/models/user_model';
+import {RegisterWebAppServiceModel, ServiceModel, ServiceViewModel} from 'src/utils/models/service_model';
 import {ServerStats} from 'src/utils/models/server_stats';
 import {FailedStreamModel, RecStuckModel, RtspTemplateModel, VariousInfos} from 'src/utils/models/others_models';
 import {NvidiaGpuModel} from 'src/utils/models/gpu';
@@ -186,6 +186,11 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
+  public async loginByToken(tokenModel: LoginUserByTokenViewModel): Promise<User> {
+    const resp = await api.post(await this.LocalService.getNodeAddress('loginbytoken'), tokenModel);
+    return resp.data;
+  }
+
   public async registerUser(user: RegisterUserViewModel): Promise<boolean> {
     const resp = await api.post(await this.LocalService.getNodeAddress('registeruser'), user);
     return resp.data;
@@ -196,8 +201,8 @@ export class NodeService extends BaseService {
     return resp.data;
   }
 
-  public async registerWebAppService(): Promise<boolean> {
-    const resp = await api.post(await this.LocalService.getNodeAddress('registerwebappservice'));
+  public async registerWebAppService(model: RegisterWebAppServiceModel): Promise<boolean> {
+    const resp = await api.post(await this.LocalService.getNodeAddress('registerwebappservice'), model);
     return resp.data;
   }
 

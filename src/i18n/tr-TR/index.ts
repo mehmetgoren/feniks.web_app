@@ -506,5 +506,11 @@ export default {
   smart_search:'Akıllı Arama',
   color_difference_method:'Renk Farkı Yöntemi',
   threshold:'Eşik',
-  no_meta_color_enabled:'Meta renk etkin değil, nesne algılama renk aramasını kullanmak için lütfen önce onu etkinleştirin'
+  no_meta_color_enabled:'Meta renk etkin değil, nesne algılama renk aramasını kullanmak için lütfen önce onu etkinleştirin',
+  hub:'Hub',
+  hub_enabled:'Hub Etkin',
+  hub_address:'Hub Adresi',
+  hub_token:'Hub Token',
+  hub_max_retry:'Hub Max Retry',
+  hub_web_app_address:'Hub Web App Adresi',
 };

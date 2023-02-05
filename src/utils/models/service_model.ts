@@ -21,3 +21,7 @@ export interface ServiceViewModel extends ServiceModel{
   start_button_enabled:boolean;
   stop_button_enabled: boolean
 }
+
+export interface RegisterWebAppServiceModel{
+  app_address: string;
+}

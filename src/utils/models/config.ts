@@ -94,6 +94,14 @@ export interface SnapshotConfig {
   meta_color_quality: number;
 }
 
+export interface HubConfig{
+  enabled: boolean;
+  address: string;
+  token: string;
+  web_app_address: string;
+  max_retry: number;
+}
+
 export interface Config {
   device: DeviceConfig;
   jetson: JetsonConfig;
@@ -109,4 +117,5 @@ export interface Config {
   deep_stack: DeepStackConfig;
   archive: ArchiveConfig;
   snapshot: SnapshotConfig;
+  hub: HubConfig;
 }

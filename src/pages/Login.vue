@@ -119,7 +119,6 @@ import {StoreService} from 'src/utils/services/store_service';
 import {useI18n} from 'vue-i18n';
 import {getImgSrc, scrollbarInit, setupLocale} from 'src/utils/utils';
 import {auto as followSystemColorScheme, disable as disableDarkMode, exportGeneratedCSS as collectCSS} from 'darkreader';
-import {Node} from 'src/utils/entities';
 
 export default {
   name: 'Login',
@@ -155,7 +154,6 @@ export default {
 
     onMounted(async () => {
       setupLocale(nodeService.LocalService, locale, $q);
-      await addDefaultNodeIfNotExist();
       mode.value = await nodeRepository.hasAnyNode() ? Mode.Login : Mode.Nodes;
 
       scrollbarInit('login-view');
@@ -230,14 +228,6 @@ export default {
       }
       const result = await nodeService.registerUser(u);
       mode.value = result ? Mode.Login : Mode.Register;
-    };
-
-    const addDefaultNodeIfNotExist = async () => {
-      if (!await nodeRepository.hasAnyNode()) {
-        const hostName = window.location.hostname;
-        const node: Node = {node_address: hostName, node_port: 8072, name: hostName, description: 'Default  Node', active: true};
-        await nodeRepository.save(node);
-      }
     };
 
     return {

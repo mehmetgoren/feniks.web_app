@@ -121,6 +121,26 @@
         </q-card>
         <q-space style='height: 10px;'/>
 
+        <q-card class="my-card" flat bordered>
+          <q-card-section class="bg-cyan text-white">
+            <div class="text-subtitle2">
+              <label style='text-transform: uppercase;font-size: medium'>{{ $t('hub') }}</label>
+            </div>
+          </q-card-section>
+          <q-separator/>
+          <q-card-section>
+            <q-toggle v-model='hub.enabled' filled dense :label="$t('hub_enabled')" />
+            <q-input v-model.trim='hub.address' filled dense :label="$t('hub_address')"/>
+            <q-space style='height: 10px;'/>
+            <q-input v-model.trim='hub.token' filled dense :label="$t('hub_token')"/>
+            <q-space style='height: 10px;'/>
+            <q-input v-model.trim='hub.web_app_address' filled dense :label="$t('hub_web_app_address')"/>
+            <q-space style='height: 10px;'/>
+            <q-input type="number" v-model.number='hub.max_retry' filled dense :label="$t('hub_max_retry')"/>
+          </q-card-section>
+        </q-card>
+        <q-space style='height: 10px;'/>
+
       </div>
 
       <div class='col-4'>
@@ -557,16 +577,6 @@
       </q-list>
     </div>
   </div>
-  <!--  <div class='q-pa-md q-gutter-sm' v-if='config&&tab==="others"'>-->
-  <!--    <div class='row'>-->
-  <!--      <div class='col-6'>-->
-  <!--        <Dashboard/>-->
-  <!--      </div>-->
-  <!--      <div class='col-6'>-->
-  <!--        <Hub/>-->
-  <!--      </div>-->
-  <!--    </div>-->
-  <!--  </div>-->
 </template>
 
 <script lang='ts'>
@@ -575,7 +585,7 @@ import {onBeforeUnmount, onMounted, ref} from 'vue';
 import {
   Config, JetsonConfig, DeviceConfig, TorchConfig, SourceReaderConfig,
   FFmpegConfig, TensorflowConfig, AiConfig, GeneralConfig, UiConfig, DbConfig, JobsConfig,
-  DeepStackConfig, ArchiveConfig, SnapshotConfig
+  DeepStackConfig, ArchiveConfig, SnapshotConfig, HubConfig
 } from 'src/utils/models/config';
 import {PublishService, SubscribeService} from 'src/utils/services/websocket_services';
 import {NetworkDiscoveryModel, OnvifAction, OnvifEvent} from 'src/utils/models/onvif_models';
@@ -619,6 +629,8 @@ export default {
     const ffmpeg = ref<FFmpegConfig>();
     const ai = ref<AiConfig>();
     const ui = ref<UiConfig>();
+    //@ts-ignore
+    const hub =ref<HubConfig>({});
     const jobs = ref<JobsConfig>();
     const deepstack = ref<DeepStackConfig>();
     const deepStackPerOpts = ref<SelectOption[]>(nodeService.LocalService.createDeepStackPerformanceModes());
@@ -679,6 +691,7 @@ export default {
       jetson.value = c.jetson;
       ai.value = c.ai;
       ui.value = c.ui;
+      hub.value = c.hub;
       jobs.value = c.jobs;
       deepstack.value = c.deep_stack;
       archive.value = c.archive;
@@ -905,7 +918,7 @@ export default {
 
     return {
       config, device, optDeviceTypes, snapshot, sourceReader,
-      jetson, jetsonFilter, ffmpeg, tf, ai, general, ui, jobs, db, dbTypes, deepstack, archive,
+      jetson, jetsonFilter, ffmpeg, tf, ai, general, ui, hub, jobs, db, dbTypes, deepstack, archive,
       torch, torchFilter, tfFilter, showScanLoading, users, restartLoading, startLoading, stopLoading, loadingConfig,
       deepStackPerOpts, deepStackDockerTypes, archiveActionTypes, disks,
       loadingFailedStreams, loadingRecStucks, loadingOds, loadingVariousInfo,
