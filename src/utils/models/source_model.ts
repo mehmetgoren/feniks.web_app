@@ -14,7 +14,7 @@ export interface SourceModel {
   hwaccel_device?: string | null;
 
   stream_type?: number | null;
-  rtmp_address?: string | null;
+  ms_address?: string | null;
   stream_video_codec?: number | null;
   preset?: number | null;
   hls_time?: number | null;
@@ -63,7 +63,7 @@ export interface SourceModel {
 
   enabled?: boolean | null;
   state?: number | null;
-  rtmp_server_type?: number | null;
+  ms_type?: number | null;
 
   snapshot_enabled: boolean | null;
   snapshot_type: number | null;
@@ -83,6 +83,8 @@ export interface SourceModel {
   flv_player_type?: number | null;
   booster_enabled?: boolean | null;
   live_buffer_latency_chasing?: boolean | null;
+
+  go2rtc_player_mode?: number | null;
 
   black_screen_check_enabled?: boolean | null;
   created_at?: string | null;

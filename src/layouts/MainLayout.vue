@@ -428,7 +428,7 @@ export default {
           id: source.id,
           brand: source.brand,
           name: source.name,
-          address: source.rtmp_address,
+          address: source.ms_address,
           event_type: 1
         });
         storeService.setSourceLoading(<string>source.id, true);

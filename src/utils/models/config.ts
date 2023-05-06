@@ -37,14 +37,14 @@ export interface DbConfig {
 export interface FFmpegConfig {
   use_double_quotes_for_path: boolean;
   max_operation_retry_count: number;
-  rtmp_server_init_interval: number;
+  ms_init_interval: number;
   watch_dog_interval: number;
   watch_dog_failed_wait_interval: number;
   start_task_wait_for_interval: number;
   record_concat_limit: number;
   record_video_file_indexer_interval: number;
-  rtmp_server_port_start: number;
-  rtmp_server_port_end: number;
+  ms_port_start: number;
+  ms_port_end: number;
 }
 
 export interface AiConfig {

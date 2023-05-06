@@ -209,10 +209,10 @@ export default {
       let reason = '';
       const item: NotificationViewModel = setUpTimes(notifyFailed, 3);
       switch (notifyFailed.failure_reason) {
-        case 'check_rtmp_container':
-          reason = `RTMP ${t('server')} ${t('failed')}`;
+        case 'check_ms_container':
+          reason = `Media Server ${t('server')} ${t('failed')}`;
           break;
-        case 'check_rtmp_feeder_process':
+        case 'check_ms_feeder_process':
           reason = `Feeder ${t('process')} ${t('failed')}`;
           break;
         case 'check_hls_process':

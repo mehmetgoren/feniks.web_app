@@ -5,19 +5,23 @@
          :key='stream.id' :gs-w='stream.loc.w' :gs-h='stream.loc.h'
          :gs-x='stream.loc.x' :gs-y='stream.loc.y' :gs-id='stream.id' :gs-min-w='minWidth'>
       <div :id='"ctx" + stream.id' class='grid-stack-item-content' style='overflow: hidden !important;background-color: black'>
-        <MpegTsPlayer v-if='stream.show&&stream.stream_type===0&&stream.flv_player_type===0' :src='stream.src' :source-id='stream.id'
+        <Go2RtcPlayer v-if="stream.show&&stream.ms_type===0" :src="stream.src" :source-id="stream.id" :mode="stream.go2rtc_player_mode"
+                      v-show="!stream.showHtml2Canvas" :ref='setStreamPlayers' :gallery-index='index' @user-activity='onUserActivity'/>
+        <MpegTsPlayer v-if='stream.show&&stream.ms_type>0&&stream.stream_type===0&&stream.flv_player_type===0' :src='stream.src'
+                      v-show="!stream.showHtml2Canvas" :source-id='stream.id'
                       :enable-log='false' :ref='setStreamPlayers' :gallery-index='index' @user-activity='onUserActivity'
-                      :live-buffer-latency-chasing="stream.live_buffer_latency_chasing" />
-        <FlvPlayer v-if='stream.show&&stream.stream_type===0&&stream.flv_player_type===1'
+                      :live-buffer-latency-chasing="stream.live_buffer_latency_chasing"/>
+        <FlvPlayer v-if='stream.show&&stream.ms_type>0&&stream.stream_type===0&&stream.flv_player_type===1'
                    v-show="!stream.showHtml2Canvas" :src='stream.src' :source-id='stream.id' :enable-log='false' :ref='setStreamPlayers'
                    :enable-booster='stream.booster_enabled' :seek-to-live-edge-internal='config.ui.seek_to_live_edge_internal' :gallery-index='index'
                    @user-activity='onUserActivity' :booster-interval="config.ui.booster_interval" @need-refresh="onNeedRefresh"/>
-        <HlsPlayer v-if='stream.show&&stream.stream_type===1' v-show="!stream.showHtml2Canvas" :src='stream.src' :source-id='stream.id'
+        <HlsPlayer v-if='stream.show&&stream.ms_type>0&&stream.stream_type===1' v-show="!stream.showHtml2Canvas" :src='stream.src'
+                   :source-id='stream.id'
                    :enable-log='false' :ref='setStreamPlayers'
                    :enable-booster='stream.booster_enabled' :seek-to-live-edge-internal='config.ui.seek_to_live_edge_internal' :gallery-index='index'
                    @user-activity='onUserActivity' @need-refresh="onNeedRefresh"/>
-        <WebSocketPlayer v-if='stream.show&&stream.stream_type===2' :source-id='stream.id' :ref='setStreamPlayers'
-                            @user-activity='onUserActivity'/>
+        <WebSocketPlayer v-if='stream.show&&stream.ms_type>0&&stream.stream_type===2' :source-id='stream.id' :ref='setStreamPlayers'
+                         @user-activity='onUserActivity'/>
 
         <StreamCommandBar v-if='stream.show' v-show="!stream.showHtml2Canvas" :stream='stream' :hide='stream.hide' @full-screen='onFullScreen'
                           @stream-stop='onStreamStop' @connect='onConnect' @take-screenshot='onTakeScreenshot' @refresh='onRefresh'
@@ -64,12 +68,13 @@ import {StreamCommandBarActions, StreamCommandBarInfo} from 'src/store/module-se
 import html2canvas from 'html2canvas';
 import {GsLocation} from 'src/utils/services/gallery_locations_service';
 import {StopStreamResponseEvent} from 'src/utils/models/various';
+import Go2RtcPlayer from 'src/components/Go2RtcPlayer/Index.vue';
 
 // https://v3.vuejs.org/guide/migration/array-refs.html
 export default {
   name: 'LiveStreamGallery',
   components: {
-    HlsPlayer, FlvPlayer, WebSocketPlayer, MpegTsPlayer, StreamCommandBar
+    Go2RtcPlayer, MpegTsPlayer, FlvPlayer, HlsPlayer, WebSocketPlayer, StreamCommandBar
   },
   setup() {
     const open = ref<boolean>(false);
@@ -87,7 +92,8 @@ export default {
     let serverIp = '';
     let serverPort = 8072;
     let isRemoteServer = false;
-    const config = ref<Config>();
+    //@ts-ignore
+    const config = ref<Config>({});
     const minWidth = ref<number>(4);
     const marginTop = ref<any>({});
 
@@ -157,7 +163,7 @@ export default {
         let url = '';
         switch (streamModel.stream_type) {
           case 0: //FLV
-            const flvAddress = isRemoteServer ? streamModel.rtmp_flv_address.replace('127.0.0.1', serverIp) : streamModel.rtmp_flv_address;
+            const flvAddress = isRemoteServer ? streamModel.ms_stream_address.replace('127.0.0.1', serverIp) : streamModel.ms_stream_address;
             url = flvAddress;
             break;
           case 1: //HLS
@@ -202,16 +208,16 @@ export default {
       }
     };
 
-    function calculateMarginTopAll(){
-      for(const stream of streamList){
+    function calculateMarginTopAll() {
+      for (const stream of streamList) {
         calculateMarginTop(stream.id);
       }
     }
 
-    function calculateMarginTop(sourceId: string){
+    function calculateMarginTop(sourceId: string) {
       const defaultValue = -77;
       const parentHeight: number = $('#ctx' + sourceId).width();
-      if (!parentHeight){
+      if (!parentHeight) {
         marginTop.value[sourceId] = defaultValue;
         return;
       }
@@ -220,7 +226,7 @@ export default {
       const meHeight = 79.9688;
       let top = (meHeight / parentHeight * multiplier) + multiplier + 2.0;
       top *= -1.0
-      if (top > -defaultValue){
+      if (top > -defaultValue) {
         top = defaultValue;
       }
       marginTop.value[sourceId] = top;
@@ -313,11 +319,11 @@ export default {
     async function initActiveStreamsFirstTime() {
       const streamModels: StreamModel[] = await nodeService.getStreamList();
       if (!isNullOrUndefined(streamModels) && streamModels.length > 0) {
-        if (storeService.readonlyMode.value){
+        if (storeService.readonlyMode.value) {
           for (const streamModel of streamModels) {
             addPlayer(streamModel, false);
           }
-        }else {
+        } else {
           for (const streamModel of streamModels) {
             const loc = gls.getGsLocation(streamModel.id);
             if (loc) {
@@ -443,7 +449,7 @@ export default {
         id: stream.id,
         brand: stream.brand,
         name: stream.name,
-        address: stream.rtmp_address,
+        address: stream.ms_address,
         event_type: 1
       });
     }

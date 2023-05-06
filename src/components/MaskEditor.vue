@@ -147,7 +147,7 @@ export default {
         id: s.id,
         brand: s.brand,
         name: s.name,
-        address: s.rtmp_address,
+        address: s.ms_address,
         event_type: maskScreenshotType
       });
       loadingObject.value = true;

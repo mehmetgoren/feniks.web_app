@@ -1,7 +1,7 @@
 <template>
   <div v-show='!hide' :id="containerId">
     <q-chip square :class='{"transparent": transparent}' color='primary' text-color='white' icon='videocam'>
-      {{ stream.name }} ({{ rtmpType }} / {{ streamType }}{{ (enableBooster ? ' / Boosted' : '') }}{{ (stream.snapshot_enabled ? ' / AI' : '') }})
+      {{ stream.name }} ({{ msType }} / {{ streamType }}{{ (enableBooster ? ' / Boosted' : '') }}{{ (stream.snapshot_enabled ? ' / AI' : '') }})
     </q-chip>
     <q-icon style="margin-left: 5px;" v-if='stream.record_enabled' name='fiber_manual_record' size='sm' color='red' class='blink_me'>
       <label style='font-size: x-small; color: black;'>REC</label>
@@ -51,6 +51,7 @@
 
 <script lang='ts'>
 import {ref, computed, onMounted, onBeforeUnmount} from 'vue';
+import type { PropType } from 'vue'
 import {PublishService} from 'src/utils/services/websocket_services';
 import {NodeService} from 'src/utils/services/node_service';
 import {SourceModel} from 'src/utils/models/source_model';
@@ -67,7 +68,7 @@ export default {
   emits: ['full-screen', 'stream-stop', 'connect', 'take-screenshot', 'refresh', 'restart', 'close'],
   props: {
     stream: {
-      type: Object, // type is StreamModel
+      type: Object as PropType<StreamModel>, // type is StreamModel
       required: true
     },
     showFullScreenButton: {
@@ -101,13 +102,17 @@ export default {
     const localService = new LocalService();
     const storeService = new StoreService();
     const cloneStream: StreamModel = {...props.stream};
-    const rtmpType = computed(() => {
-      return new List<SelectOption>(localService.createRtmpServerTypes())
-        .FirstOrDefault(x => x?.value === props.stream.rtmp_server_type)?.label ?? '';
+    const msType = computed(() => {
+      return new List<SelectOption>(localService.createMediaServerTypes())
+        .FirstOrDefault(x => x?.value === props.stream.ms_type)?.label ?? '';
     });
     const streamType = computed(() => {
+      const s: StreamModel = props.stream;
+      if (s.ms_type === 0){// Go 2 RTC
+        return s.go2rtc_player_mode === 0 ? 'MSE' : 'WebRTC';
+      }
       return new List<SelectOption>(localService.createStreamTypes())
-        .FirstOrDefault(x => x?.value == props.stream.stream_type)?.label ?? '';
+        .FirstOrDefault(x => x?.value == s.stream_type)?.label ?? '';
     });
     const publishService = new PublishService();
     const nodeService = new NodeService();
@@ -197,7 +202,7 @@ export default {
       },
       dense, visibilityList, containerId,
       onRecordClick,
-      rtmpType, streamType
+      msType, streamType
     };
   }
 };

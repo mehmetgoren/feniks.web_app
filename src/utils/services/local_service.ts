@@ -226,10 +226,10 @@ export class LocalService {
     ];
   }
 
-  public createRtmpServerTypes(): SelectOption[] {
+  public createMediaServerTypes(): SelectOption[] {
     return [
-      {value: 0, label: 'SRS'},
-      {value: 1, label: 'SRS Realtime'},
+      {value: 0, label: 'Go 2 RTC'},
+      {value: 1, label: 'SRS'},
       {value: 2, label: 'LiveGo'},
       {value: 3, label: 'Node Media Server'}
     ];
@@ -343,7 +343,7 @@ export class LocalService {
       hwaccel_device: '',
 
       stream_type: 0, //FLV
-      rtmp_address: '',
+      ms_address: '',
       stream_video_codec: 3, // copy
       preset: 0,
       hls_time: 2,
@@ -387,7 +387,7 @@ export class LocalService {
 
       enabled: true,
       state: 0, //NotStartedYet
-      rtmp_server_type: 1, //SRS Realtime
+      ms_type: 0, //Go 2 RTC
 
       snapshot_enabled: false,
       snapshot_type: 0, // 0 is FFmpeg, 1 is OpenCV Persistent
@@ -411,6 +411,8 @@ export class LocalService {
       booster_enabled: false,
       live_buffer_latency_chasing: true,
 
+      go2rtc_player_mode: 0, // 0 is MSE, 1 is WebRTC
+
       black_screen_check_enabled: false,
       created_at: '',
       root_dir_path: ''
@@ -425,21 +427,21 @@ export class LocalService {
       name: '',
       address: '',
 
-      rtmp_feeder_pid: 0,
-      rtmp_feeder_args: '',
+      ms_feeder_pid: 0,
+      ms_feeder_args: '',
       hls_pid: 0,
       hls_args: '',
       created_at: '',
 
+      ms_type: 0, //Go 2 RTC
       stream_type: 0, //FLV
-      rtmp_server_initialized: false,
-      rtmp_server_type: 0, //SRS
-      rtmp_image_name: '',
-      rtmp_container_name: '',
-      rtmp_address: '',
-      rtmp_flv_address: '',
-      rtmp_container_ports: '',
-      rtmp_container_commands: '',
+      ms_initialized: false,
+      ms_image_name: '',
+      ms_container_name: '',
+      ms_address: '',
+      ms_stream_address: '',
+      ms_container_ports: '',
+      ms_container_commands: '',
 
       mp_ffmpeg_reader_owner_pid: 0,
       ffmpeg_reader_frame_rate: 1,
@@ -465,6 +467,8 @@ export class LocalService {
       flv_player_type: 0, // 0 is MpegTsJs, 1 is FlvJs
       booster_enabled: false,
       live_buffer_latency_chasing: true,
+
+      go2rtc_player_mode: 0, // 0 is MSE, 1 is WebRTC
 
       concat_demuxer_pid: 0,
       concat_demuxer_args: '',
@@ -744,6 +748,13 @@ export class LocalService {
       {value: 'LinearRGB', label: 'LinearRGB'},
       {value: 'HPLuv', label: 'HPLuv'},
       {value: 'HSLuv', label: 'HSLuv'},
+    ];
+  }
+
+  public createGo2RtcModes(t: any): SelectOption[] {
+    return [
+      {value: 0, label: t('mse')},
+      {value: 1, label: t('webrtc')}
     ];
   }
 }

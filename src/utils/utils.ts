@@ -374,7 +374,7 @@ export function findBestSettings(source: SourceModel, probeResult: ProbeResult):
   if (f.format_name === 'rtsp') {
     source.rtsp_transport = 1; //TCP
   }
-  source.rtmp_server_type = 1; //SRS Realtime
+  source.ms_type = 1; //SRS Realtime
   source.stream_type = 0; //FLV
   // if (parseFloat(v.start_time) > 0.) {
   //   source.booster_enabled = true;

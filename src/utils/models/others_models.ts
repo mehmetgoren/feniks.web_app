@@ -16,8 +16,8 @@ export interface FailedStreamModel {
   name: string;
   address: string;
 
-  rtmp_container_failed_count: number;
-  rtmp_feeder_failed_count: number;
+  ms_container_failed_count: number;
+  ms_feeder_failed_count: number;
   hls_failed_count: number;
   ffmpeg_reader_failed_count: number;
   record_failed_count: number;
@@ -43,8 +43,8 @@ export interface RecStuckModel {
   last_check_at: string;
 }
 
-export interface VariousInfos{
-  rtmp_port_counter: number;
-  rtmp_container_zombies:string[];
-  ffmpeg_process_zombies:number[];
+export interface VariousInfos {
+  ms_port_counter: number;
+  ms_container_zombies: string[];
+  ffmpeg_process_zombies: number[];
 }

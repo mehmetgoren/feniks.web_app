@@ -138,24 +138,30 @@
             <q-step id='step3' :name='3' :title="$t('stream')" icon='live_tv' color='cyan' :done='step > 3'>
               <q-form class='q-gutter-md'>
                 <q-select dense emit-value map-options filled
-                          v-model='source.rtmp_server_type' color='cyan'
-                          :options='rtmpServerTypes' :label="$t('rtmp_server')" transition-show='flip-up'
+                          v-model='source.ms_type' color='cyan'
+                          :options='msTypes' :label="$t('ms_server')" transition-show='flip-up'
+                          transition-hide='flip-down' :disable="!source.enabled">
+                  <q-tooltip>{{ $t('select_go2rtc_mode') }}</q-tooltip>
+                </q-select>
+                <q-select v-if="source.ms_type===0" dense emit-value map-options filled
+                          v-model='source.go2rtc_player_mode' color='cyan'
+                          :options='go2RtcModes' :label="$t('go2RtcModes')" transition-show='flip-up'
                           transition-hide='flip-down' :disable="!source.enabled"/>
-                <q-select dense emit-value map-options filled
+                <q-select v-if="source.ms_type>0" dense emit-value map-options filled
                           v-model='source.stream_type' color='cyan' @update:model-value='onStreamTypeChanged'
                           :options='streamTypes' :label="$t('stream_type')" transition-show='flip-up'
                           transition-hide='flip-down' :disable="!source.enabled"/>
-                <q-select v-if="source.stream_type===0" dense emit-value map-options filled
+                <q-select v-if="source.ms_type>0&&source.stream_type===0" dense emit-value map-options filled
                           v-model='source.flv_player_type' color='cyan'
                           :options='flvPlayerTypes' :label="$t('flv_player')" transition-show='flip-up'
                           transition-hide='flip-down' :disable="!source.enabled"/>
-                <q-toggle v-if='source.stream_type < 2&&(source.stream_type === 1 || source.flv_player_type===1)'
+                <q-toggle v-if='source.ms_type>0&&source.stream_type < 2&&(source.stream_type === 1 || source.flv_player_type===1)'
                           dense v-model='source.booster_enabled' checked-icon='check' color='cyan'
                           :label="$t('booster') + ' ' + (source.booster_enabled ? $t('enabled') : $t('disabled'))"
                           :disable="!source.enabled">
                   <q-tooltip>{{$t('tt_booster_enabled')}}</q-tooltip>
                 </q-toggle>
-                <q-toggle v-if='source.stream_type < 2 && source.stream_type === 0 && source.flv_player_type===0'
+                <q-toggle v-if='source.ms_type>0 && source.stream_type < 2 && source.stream_type === 0 && source.flv_player_type===0'
                           dense v-model='source.live_buffer_latency_chasing' checked-icon='check' color='cyan'
                           :label="$t('live_buffer_latency_chasing') + ' ' + (source.live_buffer_latency_chasing ? $t('enabled') : $t('disabled'))"
                           :disable="!source.enabled">
@@ -479,7 +485,7 @@ export default {
     const audioCodecs = ref(localService.createAudioCodecs());
     const presets = ref(localService.createPresets(t));
     const streamRotations = ref(localService.createRotations(t));
-    const rtmpServerTypes = ref(localService.createRtmpServerTypes());
+    const msTypes = ref(localService.createMediaServerTypes());
     const audioChannels = ref(localService.createAudioChannels());
     const audioQualities = ref(localService.createAudioQualities());
     const audioSampleRates = ref(localService.createAudioSampleRates());
@@ -502,6 +508,7 @@ export default {
     const motionDetectionTypes = ref(localService.createMotionDetectionTypes(t));
     const needReloadModel: NeedReloadModel = {};
     const dirPaths = ref<SelectOption[]>([]);
+    const go2RtcModes = ref<SelectOption[]>(localService.createGo2RtcModes(t));
 
     const insertMode = computed(() => {
       return isNullOrEmpty(source.value.id);
@@ -517,6 +524,7 @@ export default {
         source.value = await nodeService.getSource(props.sourceId);
         needReloadModel.streamType = source.value.stream_type;
         needReloadModel.flvPlayerType = source.value.flv_player_type;
+        needReloadModel.ms_type = source.value.ms_type;
       } else {
         const onvif = await nodeService.getOnvifNetwork();
         if (onvif && onvif.results) {
@@ -644,7 +652,8 @@ export default {
       storeService.setNotifySourceStreamStatusChanged();
 
       if (needReloadModel.streamType !== source.value.stream_type
-        || needReloadModel.flvPlayerType !== source.value.flv_player_type) {
+        || needReloadModel.flvPlayerType !== source.value.flv_player_type
+        || needReloadModel.ms_type !== source.value.ms_type) {
         $q.notify({
           message: t('page_will_refresh_in'),
           color: 'green',
@@ -780,9 +789,9 @@ export default {
 
     return {
       source, showRecordDetail, step, rtspTransports, logLevels,
-      accelerationEngines, videoDecoders, streamTypes,
+      accelerationEngines, videoDecoders, streamTypes, go2RtcModes,
       audioCodecs, streamVideoCodecs, presets, recommendedRtspAddresses,
-      streamRotations, rtmpServerTypes, audioChannels, inactives, showOnvif,
+      streamRotations, msTypes, audioChannels, inactives, showOnvif,
       audioQualities, audioSampleRates, recordFileTypes, recordVideoCodecs, motionDetectionTypes, dirPaths,
       recordPresets, recordRotations, showFindOptimalSettings, snapshotTypes, flvPlayerTypes, sourceStates, loadingMakeEnabledOrDisabled,
       onSave, onDelete, onStep1Click, onRecordChange, onStreamTypeChanged, onFindOptimalSettings, onMakeEnabledOrDisabled,
@@ -837,6 +846,7 @@ export default {
 interface NeedReloadModel {
   streamType?: number | null;
   flvPlayerType?: number | null;
+  ms_type?: number | null;
 }
 </script>
 

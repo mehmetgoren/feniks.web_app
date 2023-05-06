@@ -200,7 +200,7 @@
             <q-space style='height: 10px;'/>
             <q-input v-model.number='ffmpeg.max_operation_retry_count' type='number' filled dense :label="$t('max_retry_count')"/>
             <q-space style='height: 10px;'/>
-            <q-input v-model.number='ffmpeg.rtmp_server_init_interval' type='number' filled dense :label="$t('rtmp_server_init_interval')"/>
+            <q-input v-model.number='ffmpeg.ms_init_interval' type='number' filled dense :label="$t('ms_init_interval')"/>
             <q-space style='height: 10px;'/>
             <q-input v-model.number='ffmpeg.watch_dog_interval' type='number' filled dense :label="$t('watch_dog_interval')"/>
             <q-space style='height: 10px;'/>
@@ -213,9 +213,9 @@
             <q-input v-model.number='ffmpeg.record_video_file_indexer_interval' type='number' filled dense
                      :label="$t('record_video_file_indexer_interval')"/>
             <q-space style='height: 10px;'/>
-            <q-input v-model.number='ffmpeg.rtmp_server_port_start' type='number' filled dense :label="$t('rtmp_server_port_start')"/>
+            <q-input v-model.number='ffmpeg.ms_port_start' type='number' filled dense :label="$t('ms_port_start')"/>
             <q-space style='height: 10px;'/>
-            <q-input v-model.number='ffmpeg.rtmp_server_port_end' type='number' filled dense :label="$t('rtmp_server_port_end')"/>
+            <q-input v-model.number='ffmpeg.ms_port_end' type='number' filled dense :label="$t('ms_port_end')"/>
           </q-card-section>
         </q-card>
         <q-space style='height: 10px;'/>
@@ -476,11 +476,11 @@
         </div>
       </q-card-section>
       <q-separator/>
-      <q-table :pagination='initialPagination' :rows='rtmpTemplates' row-key='id' :columns='rtmpTemplatesColumns' color='light-blue-6'
-               :rows-per-page-label="$t('rows_per_page')" :loading="loadingRtmpTemplates" :filter="filterRtmpTemplates">
+      <q-table :pagination='initialPagination' :rows='msTemplates' row-key='id' :columns='msTemplatesColumns' color='light-blue-6'
+               :rows-per-page-label="$t('rows_per_page')" :loading="loadingMsTemplates" :filter="filterMsTemplates">
         <template v-slot:top-right>
-          <q-btn icon='refresh' :label="$t('refresh')" color='light-blue-6' style='margin-right: 15px;' @click='rtmpTemplatesDataBind'/>
-          <q-input borderless dense debounce='300' v-model='filterRtmpTemplates' :placeholder="$t('search')">
+          <q-btn icon='refresh' :label="$t('refresh')" color='light-blue-6' style='margin-right: 15px;' @click='msTemplatesDataBind'/>
+          <q-input borderless dense debounce='300' v-model='filterMsTemplates' :placeholder="$t('search')">
             <template v-slot:append>
               <q-icon name='search'/>
             </template>
@@ -547,7 +547,7 @@
       <table style='width: 500px;' class="bg-teal-1">
         <tr>
           <td>
-            <q-input v-model='variousInfos.rtmp_port_counter' type='number' :label="$t('rtmp_counter')" readonly/>
+            <q-input v-model='variousInfos.ms_port_counter' type='number' :label="$t('ms_counter')" readonly/>
           </td>
           <td>
             <q-btn icon='refresh' :label="$t('refresh')" color='lime-6' style='margin-right: 15px;' @click='variousInfosDataBind'
@@ -565,8 +565,8 @@
       </table>
       <q-separator style="margin: 15px 0 15px 0;" />
       <q-list bordered class='rounded-borders bg-teal-1' style="max-width: 300px;margin-top: 15px;">
-        <q-item-label header>{{ $t('zombie_rtmp_containers') }}</q-item-label>
-        <q-item clickable v-ripple v-for='zr in variousInfos.rtmp_container_zombies' :key='zr'>
+        <q-item-label header>{{ $t('zombie_ms_containers') }}</q-item-label>
+        <q-item clickable v-ripple v-for='zr in variousInfos.ms_container_zombies' :key='zr'>
           <q-item-section>
             <q-item-label caption lines='2'>
               {{ zr }}
@@ -618,34 +618,48 @@ export default {
     const storeService = new StoreService();
     const config = ref<Config>();
     const loadingConfig = ref<boolean>(false);
-    const device = ref<DeviceConfig>();
-    const general = ref<GeneralConfig>();
-    const db = ref<DbConfig>();
+    // @ts-ignore
+    const device = ref<DeviceConfig>({});
+    // @ts-ignore
+    const general = ref<GeneralConfig>({});
+    // @ts-ignore
+    const db = ref<DbConfig>({});
     const dbTypes = ref(nodeService.LocalService.createDbTypes());
 
 
     const optDeviceTypes = ref(getDeviceTypes());
-    const sourceReader = ref<SourceReaderConfig>();
-    const ffmpeg = ref<FFmpegConfig>();
-    const ai = ref<AiConfig>();
-    const ui = ref<UiConfig>();
+    // @ts-ignore
+    const sourceReader = ref<SourceReaderConfig>({});
+    //@ts-ignore
+    const ffmpeg = ref<FFmpegConfig>({});
+    // @ts-ignore
+    const ai = ref<AiConfig>({});
+    // @ts-ignore
+    const ui = ref<UiConfig>({});
     //@ts-ignore
     const hub =ref<HubConfig>({});
-    const jobs = ref<JobsConfig>();
-    const deepstack = ref<DeepStackConfig>();
+    // @ts-ignore
+    const jobs = ref<JobsConfig>({});
+    // @ts-ignore
+    const deepstack = ref<DeepStackConfig>({});
     const deepStackPerOpts = ref<SelectOption[]>(nodeService.LocalService.createDeepStackPerformanceModes());
     const deepStackDockerTypes = ref<SelectOption[]>(nodeService.LocalService.createDeepStackDockerTypes());
-    const archive = ref<ArchiveConfig>();
-    const snapshot = ref<SnapshotConfig>();
+    // @ts-ignore
+    const archive = ref<ArchiveConfig>({});
+    // @ts-ignore
+    const snapshot = ref<SnapshotConfig>({});
     const archiveActionTypes = ref<SelectOption[]>(nodeService.LocalService.createArchiveActionTypes(t));
 
     //jetson
-    const jetson = ref<JetsonConfig>();
+    // @ts-ignore
+    const jetson = ref<JetsonConfig>({});
     const jetsonFilter = ref<string>();
 
     //torch
-    const torch = ref<TorchConfig>();
-    const tf = ref<TensorflowConfig>();
+    // @ts-ignore
+    const torch = ref<TorchConfig>({});
+    // @ts-ignore
+    const tf = ref<TensorflowConfig>({});
     const torchFilter = ref<string>();
     const tfFilter = ref<string>();
 
@@ -665,15 +679,15 @@ export default {
     const users = ref<User[]>([]);
     const loadingUsers = ref<boolean>(false);
     const filterUsers = ref<string>('');
-    const rtmpTemplates = ref<RtspTemplateModel[]>([]);
-    const loadingRtmpTemplates = ref<boolean>(false);
-    const filterRtmpTemplates = ref<string>('');
+    const msTemplates = ref<RtspTemplateModel[]>([]);
+    const loadingMsTemplates = ref<boolean>(false);
+    const filterMsTemplates = ref<string>('');
 
     const failedStreams = ref<FailedStreamModel[]>([]);
     const loadingFailedStreams = ref<boolean>(false);
     const recStucks = ref<RecStuckModel[]>([]);
     const loadingRecStucks = ref<boolean>(false);
-    const variousInfos = ref<VariousInfos>({rtmp_port_counter: 0, rtmp_container_zombies: [], ffmpeg_process_zombies: []});
+    const variousInfos = ref<VariousInfos>({ms_port_counter: 0, ms_container_zombies: [], ffmpeg_process_zombies: []});
     const loadingVariousInfo = ref<boolean>(false);
     const ods = ref<OdModel[]>([]);
     const disks = ref<Disk[]>([]);
@@ -760,9 +774,9 @@ export default {
       });
     };
 
-    const rtmpTemplatesDataBind = async () => {
-      await databindWithLoading(loadingRtmpTemplates, async () => {
-        rtmpTemplates.value = await nodeService.getRtspTemplates();
+    const msTemplatesDataBind = async () => {
+      await databindWithLoading(loadingMsTemplates, async () => {
+        msTemplates.value = await nodeService.getRtspTemplates();
       });
     };
 
@@ -785,7 +799,7 @@ export default {
       await serviceDataBind();
       await userDataBind();
 
-      await rtmpTemplatesDataBind();
+      await msTemplatesDataBind();
 
       await failedStreamsDatabind();
       await recStucksDatabind();
@@ -832,28 +846,28 @@ export default {
         }
         return;
       }
-      const portDiff = (config.value?.ffmpeg.rtmp_server_port_end ?? 0) - (config.value?.ffmpeg.rtmp_server_port_start ?? 0);
+      const portDiff = (config.value?.ffmpeg.ms_port_end ?? 0) - (config.value?.ffmpeg.ms_port_start ?? 0);
       if (portDiff < 1){
         $q.notify({
-          message: t('v_rtmp_server_port_start'),
+          message: t('v_ms_server_port_start'),
           caption: t('invalid'),
           color: 'red',
           position: 'bottom-right'
         });
         return;
       }
-      if ((config.value?.ffmpeg.rtmp_server_port_start ?? 0)< 1024){
+      if ((config.value?.ffmpeg.ms_port_start ?? 0)< 1024){
         $q.notify({
-          message: t('v_l_rtmp_server_port_start'),
+          message: t('v_l_ms_server_port_start'),
           caption: t('invalid'),
           color: 'red',
           position: 'bottom-right'
         });
         return;
       }
-      if ((config.value?.ffmpeg.rtmp_server_port_end ?? 0)> 65535){
+      if ((config.value?.ffmpeg.ms_port_end ?? 0)> 65535){
         $q.notify({
-          message: t('v_g_rtmp_server_port_end'),
+          message: t('v_g_ms_port_end'),
           caption: t('invalid'),
           color: 'red',
           position: 'bottom-right'
@@ -863,7 +877,7 @@ export default {
       const source = await nodeService.getSourceList();
       if (source.length * 5 > portDiff){
         $q.notify({
-          message: t('v_rtmp_server_port_start_source'),
+          message: t('v_ms_port_start_source'),
           caption: t('invalid'),
           color: 'red',
           position: 'bottom-right'
@@ -946,13 +960,13 @@ export default {
           void onDoDeleteUser(user);
         });
       },
-      rtmpTemplates, rtmpTemplatesColumns: createRtmpTemplatesColumns(t),
+      msTemplates, msTemplatesColumns: createMsTemplatesColumns(t),
       otherTabs: ref<string>('gpu'),
       failedStreams, failedStreamsColumns: createFailedStreamsColumns(t),
       recStucks, recStucksColumns: createRecStucksColumns(t),
-      variousInfos, loadingRtmpTemplates, filterRtmpTemplates, readonlyMode,
+      variousInfos, loadingMsTemplates, filterMsTemplates, readonlyMode,
       ods, odColumns: createOdColumns(t), disksColumns: createDisksColumns(),
-      onRestartService, onStartService, onStopService, serviceDataBind, userDataBind, rtmpTemplatesDataBind,
+      onRestartService, onStartService, onStopService, serviceDataBind, userDataBind, msTemplatesDataBind,
       failedStreamsDatabind, recStucksDatabind, odsDatabind, variousInfosDataBind, configDatabind,
       onAddNewDisk(){
         disks.value.push({
@@ -1051,7 +1065,7 @@ function createUserColumns(t: any) {
   ];
 }
 
-function createRtmpTemplatesColumns(t: any) {
+function createMsTemplatesColumns(t: any) {
   const align = 'left';
   return [
     {name: 'name', align, label: t('name'), field: 'name', sortable: true},
@@ -1072,8 +1086,8 @@ function createFailedStreamsColumns(t: any) {
     {name: 'name', align, label: t('name'), field: 'name', sortable: true},
     {name: 'address', align, label: t('address'), field: 'address', sortable: true},
 
-    {name: 'rtmp_container_failed_count', align, label: t('rtmp_container_failed_count'), field: 'rtmp_container_failed_count', sortable: true},
-    {name: 'rtmp_feeder_failed_count', align, label: t('rtmp_feeder_failed_count'), field: 'rtmp_feeder_failed_count', sortable: true},
+    {name: 'ms_container_failed_count', align, label: t('ms_container_failed_count'), field: 'ms_container_failed_count', sortable: true},
+    {name: 'ms_feeder_failed_count', align, label: t('ms_feeder_failed_count'), field: 'ms_feeder_failed_count', sortable: true},
     {name: 'hls_failed_count', align, label: t('hls_failed_count'), field: 'hls_failed_count', sortable: true},
     {name: 'ffmpeg_reader_failed_count', align, label: t('ffmpeg_reader_failed_count'), field: 'ffmpeg_reader_failed_count', sortable: true},
     {name: 'record_failed_count', align, label: t('record_failed_count'), field: 'record_failed_count', sortable: true},
