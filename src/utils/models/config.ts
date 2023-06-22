@@ -17,6 +17,11 @@ export interface TensorflowConfig {
   cache_folder: string;
 }
 
+export interface CoralTPUConfig {
+  model_path: string;
+  labels_path: string;
+}
+
 export interface SourceReaderConfig {
   resize_img: boolean;
   buffer_size: number;
@@ -107,6 +112,7 @@ export interface Config {
   jetson: JetsonConfig;
   torch: TorchConfig;
   tensorflow: TensorflowConfig;
+  coral: CoralTPUConfig
   source_reader: SourceReaderConfig;
   general: GeneralConfig;
   db: DbConfig;

@@ -99,6 +99,8 @@ export default {
   face_recog_prob_threshold: 'Face Recognition Probability Threshold',
   plate_recog_instance_count: 'Automatic Plate Recognition Instance Count',
   model_name: 'Model Name',
+  model_path: 'Model Path',
+  labels_path: 'Labels Path',
   specific_model_name: 'Specific Model Name',
   cache_folder: 'Cache Directory',
   server_url: 'Server URL',

@@ -307,6 +307,21 @@
         <q-card class="my-card" flat bordered>
           <q-card-section class="bg-cyan text-white">
             <div class="text-subtitle2">
+              <label style='text-transform: uppercase;font-size: medium'>Coral TPU</label>
+            </div>
+          </q-card-section>
+          <q-separator/>
+          <q-card-section>
+            <q-input v-model.trim='coral.model_path' filled dense :label="$t('model_path')"/>
+            <q-space style='height: 10px;'/>
+            <q-input v-model='coral.labels_path' filled dense :label="$t('labels_path')"/>
+          </q-card-section>
+        </q-card>
+        <q-space style='height: 10px;'/>
+
+        <q-card class="my-card" flat bordered>
+          <q-card-section class="bg-cyan text-white">
+            <div class="text-subtitle2">
               <label style='text-transform: uppercase;font-size: medium'>DeepStack</label>
             </div>
           </q-card-section>
@@ -655,6 +670,11 @@ export default {
     const jetson = ref<JetsonConfig>({});
     const jetsonFilter = ref<string>();
 
+    //coral
+    // @ts-ignore
+    const coral = ref<CoralTPUConfig>({});
+    const coralFilter = ref<string>();
+
     //torch
     // @ts-ignore
     const torch = ref<TorchConfig>({});
@@ -703,6 +723,7 @@ export default {
       torch.value = c.torch;
       tf.value = c.tensorflow;
       jetson.value = c.jetson;
+      coral.value = c.coral;
       ai.value = c.ai;
       ui.value = c.ui;
       hub.value = c.hub;
@@ -932,7 +953,7 @@ export default {
 
     return {
       config, device, optDeviceTypes, snapshot, sourceReader,
-      jetson, jetsonFilter, ffmpeg, tf, ai, general, ui, hub, jobs, db, dbTypes, deepstack, archive,
+      jetson, jetsonFilter, ffmpeg, tf, ai, general, ui, hub, jobs, db, dbTypes, deepstack, archive, coral, coralFilter,
       torch, torchFilter, tfFilter, showScanLoading, users, restartLoading, startLoading, stopLoading, loadingConfig,
       deepStackPerOpts, deepStackDockerTypes, archiveActionTypes, disks,
       loadingFailedStreams, loadingRecStucks, loadingOds, loadingVariousInfo,
