@@ -99,6 +99,8 @@ export default {
   face_recog_prob_threshold: 'Yüz Tanıma Olasılık Eşiği',
   plate_recog_instance_count: 'Otomatil Plaka Tanıma İşlem Sayısı',
   model_name: 'Model Adı',
+  model_path: 'Model Yolu',
+  labels_path: 'Etiket Yolu',
   specific_model_name: 'Spesifik Model Adı',
   cache_folder: 'Önbellek Dosyası',
   server_url: 'Sunucu URL',
