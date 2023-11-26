@@ -1,5 +1,10 @@
+/* eslint-disable */
 import {VideoRTC} from './video-rtc.js';
 
+/**
+ * This is example, how you can extend VideoRTC player for your app.
+ * Also you can check this example: https://github.com/AlexxIT/WebRTC
+ */
 class VideoStream extends VideoRTC {
   set divMode(value) {
     this.querySelector('.mode').innerText = value;
@@ -37,13 +42,13 @@ class VideoStream extends VideoRTC {
             pointer-events: none;
         }
         </style>
-        <div class='info'>
-            <div class='status'></div>
-            <div class='mode'></div>
+        <div class="info">
+            <div class="status"></div>
+            <div class="mode"></div>
         </div>
         `;
 
-    const info = this.querySelector('.info')
+    const info = this.querySelector('.info');
     this.insertBefore(this.video, info);
   }
 
@@ -70,12 +75,13 @@ class VideoStream extends VideoRTC {
           this.divError = msg.value;
           break;
         case 'mse':
+        case 'hls':
         case 'mp4':
         case 'mjpeg':
           this.divMode = msg.type.toUpperCase();
           break;
       }
-    }
+    };
 
     return result;
   }

@@ -1,6 +1,6 @@
 <template>
   <div class="row">
-    <div class="col-6" v-if="gdriveModel">
+    <div class="col-xs-12 col-sm-6" v-if="gdriveModel">
       <q-card class='my-card' style="margin-right: 5px;">
         <q-card-section class='bg-blue-grey-6 text-white'>
           <div class='row items-center no-wrap'>
@@ -32,7 +32,7 @@
         </q-card-actions>
       </q-card>
     </div>
-    <div class="col-6" v-if="telegramModel">
+    <div class="col-xs-12 col-sm-6" v-if="telegramModel">
       <q-card class='my-card'>
         <q-card-section class='bg-blue-grey-6 text-white'>
           <div class='row items-center no-wrap'>
