@@ -12,7 +12,7 @@
           </q-tabs>
           <q-space/>
           <div style='background-color: whitesmoke;margin-right: 5px;'>
-            <DateTimeSelector :dense="true" :color='color' :show-hour='false' :label-date="$t('date')" :disable="treeLoading"
+            <DateTimeSelector :dense="true" :color='color' :show-date="true" :show-hour='false' :label-date="$t('date')" :disable="treeLoading"
                               @date-changed='onDateChanged'/>
           </div>
           <q-btn class="gt-xs" :color='color' :label="$t('refresh')" icon='restore_page' @click='onRefresh' :disable='refreshLoading||imagesLoading'>

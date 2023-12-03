@@ -1,7 +1,7 @@
 <template>
   <table>
     <tr>
-      <td>
+      <td v-if="showDate">
         <q-input :label="labelDate" v-model='selectedDate' mask='YYYY-MM-DD' type='date' filled :dense="dense" :color='color' readonly
                  style='cursor: pointer;width: 155px;' :style="{width:widthDate<1?'155px':widthDate.toString() + 'px'}" :disable="disable">
           <q-popup-proxy v-model='showSelectedDate' cover transition-show='scale' transition-hide='scale'>
@@ -47,6 +47,11 @@ export default {
       type: String,
       required: true,
       default: 'primary'
+    },
+    showDate: {
+      type: Boolean,
+      required:true,
+      default: true
     },
     showHour: {
       type: Boolean,

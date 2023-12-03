@@ -2,7 +2,7 @@
   <div>
     <q-toolbar :class="'bg-' + color + ' text-white'">
       <q-btn flat dense icon="lens_blur" class="q-mr-sm"/>
-      <q-toolbar-title>{{$t('ai_event_data_history')}}</q-toolbar-title>
+      <q-toolbar-title>{{ $t('ai_event_data_history') }}</q-toolbar-title>
       <q-tabs v-model="tab" shrink :active-bg-color="color">
         <q-tab name="od" icon="collections" :label="$t('object_detection')" :disable="leftPanelLoading"/>
         <q-tab name="fr" icon="face" :label="$t('face_recognition')" :disable="leftPanelLoading"/>
@@ -13,16 +13,17 @@
     <div class='q-pa-md q-gutter-sm' style='margin-top: -15px;'>
       <div class="row">
         <div class="col-3">
-          <DateTimeSelector width-date="187" :dense="true" :color='color' :show-hour='true' :label-date="$t('date')" :label-time="$t('time')"
+          <DateTimeSelector width-date="187" :dense="true" :color='color' :show-date="showDate" :show-hour='showHour' :label-date="$t('date')" :label-time="$t('time')"
                             @date-changed='onDateChanged' @hour-changed='onHourChanged' class="gt-sm" :disable="leftPanelLoading"/>
           <q-toggle dense v-model='params.no_preparing_video_file' :color='color' @update:model-value='onNoPreparingVideoFileChanged' class="gt-sm"
-                    :label="params.no_preparing_video_file ? $t('include_preparing_video_file') : $t('do_not_include_preparing_video_file') " />
-          <q-input dense filled v-model.trim='params.pred_class_name' :label="$t('label')" :color='color' @update:model-value="onLabelChanged" style="width: 300px" />
+                    :label="params.no_preparing_video_file ? $t('include_preparing_video_file') : $t('do_not_include_preparing_video_file') "/>
+          <q-input dense filled v-model.trim='params.pred_class_name' :label="$t('label')" :color='color' @update:model-value="onLabelChanged"
+                   style="width: 300px"/>
         </div>
         <div class="col-9">
           <q-toolbar :class="'bg-' + color + ' text-white'">
-            <q-icon :name="selectedFeature.icon" size="24px" />
-            <q-toolbar-title style="width: 100%">{{selectedFeature.name}}</q-toolbar-title>
+            <q-icon :name="selectedFeature.icon" size="24px"/>
+            <q-toolbar-title style="width: 100%">{{ selectedFeature.name }}</q-toolbar-title>
           </q-toolbar>
         </div>
       </div>
@@ -57,7 +58,7 @@
                 </q-item>
               </q-intersection>
               <q-inner-loading :showing="leftPanelLoading">
-                <q-spinner-gears size="50px" :color="color" />
+                <q-spinner-gears size="50px" :color="color"/>
               </q-inner-loading>
             </q-scroll-area>
           </div>
@@ -66,11 +67,12 @@
           <VideoPlayer v-show="selectedItem" :auto-play="true" @on-player-ready="onVideoPlayerReady" style="float: left;width: 50%"/>
           <q-img v-if="selectedItem" :src="selectedItem.image_file_name" style="float: left;width: 50%">
             <div class="absolute-bottom text-center">
-              {{selectedItem.pred_cls_name}} ({{selectedItem.pred_score}}) at {{selectedItem.created_at?.toLocaleTimeString()}} / {{selectedItem.video_file.object_appears_at}} sec.
+              {{ selectedItem.pred_cls_name }} ({{ selectedItem.pred_score }}) at {{ selectedItem.created_at?.toLocaleTimeString() }} /
+              {{ selectedItem.video_file.object_appears_at }} sec.
             </div>
           </q-img>
           <q-inner-loading :showing="leftPanelLoading">
-            <q-spinner-gears  size="150px" :color="color" />
+            <q-spinner-gears size="150px" :color="color"/>
           </q-inner-loading>
         </div>
       </div>
@@ -78,7 +80,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import {onMounted, ref, watch} from 'vue';
 import {getCurrentHour, getTodayString} from 'src/utils/utils';
 import DateTimeSelector from 'src/components/DateTimeSelector.vue';
@@ -88,127 +90,136 @@ import VideoPlayer from 'components/VideoPlayer.vue';
 import {setUpDatesAndPaths} from 'src/utils/path_utils';
 import {useI18n} from 'vue-i18n';
 
-export default {
-  name: 'AiDataSource',
-  props: {
-    sourceId: {
-      type: String,
-      required: true
-    }
-  },
-  components: {
-    VideoPlayer,
-    DateTimeSelector
-  },
-  setup(props: any) {
-    const { t } = useI18n({ useScope: 'global' });
-    const tab = ref<string>('od')
-    const params = ref<QueryAiDataParams>({
-      ai_type: 0,
-      source_id: props.sourceId,
-      date_time_str: '',
-      pred_class_name: '',
-      no_preparing_video_file: true,
-    });
-    watch(tab, (newValue: string) => {
-      switch (newValue) {
-        case 'od':
-          color.value = 'deep-purple-14';
-          params.value.ai_type = 0;
-          selectedFeature.value.name = t('object_detection');
-          selectedFeature.value.icon = 'collections';
-          void databind();
-          break;
-        case 'fr':
-          color.value = 'deep-orange-7';
-          params.value.ai_type = 1;
-          selectedFeature.value.name = t('face_recognition');
-          selectedFeature.value.icon = 'face';
-          void databind();
-          break;
-        case 'alpr':
-          color.value = 'blue-grey-6';
-          params.value.ai_type = 2;
-          selectedFeature.value.name = t('license_plate_recognition');
-          selectedFeature.value.icon = 'drive_eta';
-          void databind();
-          break;
-      }
-    })
-    const color = ref<string>('deep-purple-14')
-    let selectedDate = getTodayString();
-    let selectedHour = getCurrentHour();
-    const nodeService = new NodeService();
-    const leftItems = ref<AiDataDto[]>([]);
-    const selectedItem = ref<AiDataDto | null>(null);
-    const leftPanelLoading = ref<boolean>(false);
-    const selectedFeature = ref<SelectedAiFeature>({name:t('object_detection'), icon:'collections'});
-    let videoPlayer: any = null;
+const props = defineProps({
+  sourceId: {
+    type: String,
+    required: true
+  }
+});
 
-    const databind = async () => {
-      leftPanelLoading.value = true;
-      try{
-        params.value.date_time_str = `${selectedDate}_${selectedHour}`;
-        const items = await nodeService.queryAiData(params.value);
-        leftItems.value = await setUpDatesAndPaths(nodeService.LocalService, items);
-        if (items.length > 0) {
-          const firstItem = leftItems.value[0];
-          selectedItem.value = firstItem;
-          onLeftItemChanged(firstItem);
-        }else{
-          selectedItem.value = null;
-          if (videoPlayer){
-            videoPlayer.pause();
-          }
-        }
-      }finally {
-        leftPanelLoading.value = false;
-      }
-    };
+const {t} = useI18n({useScope: 'global'});
+const tab = ref<string>('od')
+const params = ref<QueryAiDataParams>({
+  ai_type: 0,
+  source_id: props.sourceId,
+  date_time_str: '',
+  pred_class_name: '',
+  no_preparing_video_file: true,
+});
+watch(tab, (newValue: string) => {
+  switch (newValue) {
+    case 'od':
+      color.value = 'deep-purple-14';
+      params.value.ai_type = 0;
+      selectedFeature.value.name = t('object_detection');
+      selectedFeature.value.icon = 'collections';
+      void databind();
+      break;
+    case 'fr':
+      color.value = 'deep-orange-7';
+      params.value.ai_type = 1;
+      selectedFeature.value.name = t('face_recognition');
+      selectedFeature.value.icon = 'face';
+      void databind();
+      break;
+    case 'alpr':
+      color.value = 'blue-grey-6';
+      params.value.ai_type = 2;
+      selectedFeature.value.name = t('license_plate_recognition');
+      selectedFeature.value.icon = 'drive_eta';
+      void databind();
+      break;
+  }
+})
+const color = ref<string>('deep-purple-14')
+let selectedDate = getTodayString();
+let selectedHour = getCurrentHour();
+const nodeService = new NodeService();
+const leftItems = ref<AiDataDto[]>([]);
+const selectedItem = ref<AiDataDto | null>(null);
+const leftPanelLoading = ref<boolean>(false);
+const showDate = ref<boolean>(true);
+const showHour = ref<boolean>(true);
+const selectedFeature = ref<SelectedAiFeature>({name: t('object_detection'), icon: 'collections'});
+let videoPlayer: any = null;
 
-    onMounted(async () => {
-      await databind();
-    });
-
-    const onLeftItemChanged = (leftItem: AiDataDto) => {
-      if (isVfAvailable(leftItem)) {
-        selectedItem.value = leftItem;
-        if (videoPlayer != null){
-          videoPlayer.src(leftItem.video_file.name);
-          videoPlayer.currentTime(Math.max(leftItem.video_file.object_appears_at-2, 0));
-          videoPlayer.play();
-        }
+const databind = async () => {
+  leftPanelLoading.value = true;
+  try {
+    params.value.date_time_str = `${selectedDate}_${selectedHour}`;
+    const items = await nodeService.queryAiData(params.value);
+    leftItems.value = await setUpDatesAndPaths(nodeService.LocalService, items);
+    if (items.length > 0) {
+      const firstItem = leftItems.value[0];
+      selectedItem.value = firstItem;
+      onLeftItemChanged(firstItem);
+    } else {
+      selectedItem.value = null;
+      if (videoPlayer) {
+        videoPlayer.pause();
       }
     }
+  } finally {
+    leftPanelLoading.value = false;
+  }
+};
 
-    const isVfAvailable = (item: AiDataDto): boolean => {
-      return (item?.video_file?.name?.length ?? 0) > 0;
-    };
+onMounted(async () => {
+  setResponsiveElements();
+  await databind();
+});
 
-    const onVideoPlayerReady = (player: any) => {
-      videoPlayer = player;
-    }
-
-    return {
-      tab, color, selectedDate, selectedHour, leftItems, selectedItem, params, leftPanelLoading, selectedFeature,
-      onDateChanged(dateStr: string) {
-        selectedDate = dateStr;
-        void databind();
-      },
-      onHourChanged(hour: string) {
-        selectedHour = hour;
-        void databind();
-      },
-      onNoPreparingVideoFileChanged() {
-        void databind();
-      },
-      onLabelChanged(){
-        void databind();
-      },
-      onLeftItemChanged, isVfAvailable, onVideoPlayerReady
+const onLeftItemChanged = (leftItem: AiDataDto) => {
+  if (isVfAvailable(leftItem)) {
+    selectedItem.value = leftItem;
+    if (videoPlayer != null) {
+      videoPlayer.src(leftItem.video_file.name);
+      videoPlayer.currentTime(Math.max(leftItem.video_file.object_appears_at - 2, 0));
+      videoPlayer.play();
     }
   }
 }
+
+const isVfAvailable = (item: AiDataDto): boolean => {
+  return (item?.video_file?.name?.length ?? 0) > 0;
+};
+
+const onVideoPlayerReady = (player: any) => {
+  videoPlayer = player;
+}
+
+
+function onDateChanged(dateStr: string) {
+  selectedDate = dateStr;
+  void databind();
+}
+
+function onHourChanged(hour: string) {
+  selectedHour = hour;
+  void databind();
+}
+
+function onNoPreparingVideoFileChanged() {
+  void databind();
+}
+
+function onLabelChanged() {
+  void databind();
+}
+
+function setResponsiveElements() {
+  console.log('window.innerWidth: ' + window.innerWidth)
+  if (window.innerWidth < 1200) {
+    showDate.value = false;
+  } else {
+    showDate.value = true;
+  }
+}
+
+window.onresize = () => {
+  setResponsiveElements();
+}
+
 </script>
 
 <style lang="sass" scoped>

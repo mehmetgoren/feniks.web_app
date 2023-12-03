@@ -16,13 +16,13 @@
         <DateTimeSelector :width-date="200" :width-time="125" :label-date="$t('start_date')" :label-time="$t('start_time')"
                           :color='color' :dense="true" :show-hour='true' :allow-minute-selection="true" @date-time-changed='onStartDateTimeChanged'
                           :date-string="parseDate(params.start_date_time_str)" :time-string="parseTime(params.start_date_time_str)"
-                          :disable="loading"/>
+                          :disable="loading" :show-date="true"/>
       </div>
       <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 col-xl-3">
         <DateTimeSelector :width-date="200" :width-time="125" :label-date="$t('end_date')" :label-time="$t('end_time')"
                           :color='color' :dense="true" :show-hour='true' :allow-minute-selection="true" @date-time-changed='onEndDateTimeChanged'
                           :date-string="parseDate(params.end_date_time_str)" :time-string="parseTime(params.end_date_time_str)"
-                          :disable="loading"/>
+                          :disable="loading" :show-date="true"/>
       </div>
       <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 col-xl-3">
         <q-select emit-value map-options filled style="max-width: 300px;margin-top: 3px;" @update:model-value="onSourceIdChanged"

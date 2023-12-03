@@ -77,7 +77,7 @@
               </template>
               <template v-slot:top-right>
                 <q-btn class="gt-xs" icon='refresh' :label="$t('refresh')" :color='color' style='margin-right: 15px;' @click='onRefresh'/>
-                <DateTimeSelector :dense="true" :color='color' :show-hour='true' :label-date="$t('date')" :label-time="$t('time')"
+                <DateTimeSelector :dense="true" :color='color' :show-date="true" :show-hour='true' :label-date="$t('date')" :label-time="$t('time')"
                                   @date-changed='onDateChanged' @hour-changed='onHourChanged' :disable="refreshLoading"/>
               </template>
             </q-table>
