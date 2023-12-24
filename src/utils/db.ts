@@ -45,6 +45,20 @@ export class NodeRepository {
     return (await this.nodes.toArray()).length > 0;
   }
 
+  public async setLocalHostIfNoNode(): Promise<boolean> {
+    if (!(await this.hasAnyNode())) {
+      await this.save({
+        node_address: '127.0.0.1',
+        node_port:8072,
+        name: 'Localhost',
+        description: 'Localhost',
+        active: true
+      });
+      return true;
+    }
+    return false;
+  }
+
   public async getActiveNode(): Promise<Node | null> {
     let found: Node | null = null;
     const all = await this.nodes.toArray();

@@ -154,7 +154,7 @@ export default {
 
     onMounted(async () => {
       setupLocale(nodeService.LocalService, locale, $q);
-      mode.value = await nodeRepository.hasAnyNode() ? Mode.Login : Mode.Nodes;
+      await nodeRepository.setLocalHostIfNoNode();
 
       scrollbarInit('login-view');
 
