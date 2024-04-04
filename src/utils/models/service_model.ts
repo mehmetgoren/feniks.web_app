@@ -13,7 +13,6 @@ export interface ServiceModel {
   instance_type: number;
   instance_name: string;
   created_at: string;
-  heartbeat: string;
 }
 
 export interface ServiceViewModel extends ServiceModel{

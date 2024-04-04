@@ -5,5 +5,5 @@
 /.quasar
 /node_modules
 .eslintrc.js
-babel.config.js
+babel.server.ts
 /src-ssr

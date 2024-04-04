@@ -15,5 +15,5 @@ export interface ImageItem{
 export interface ImagesParams{
   rootPath: string;
   sourceId: string;
-  ai_type:number;
+  module:string;
 }

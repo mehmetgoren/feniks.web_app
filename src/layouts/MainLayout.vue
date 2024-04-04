@@ -9,6 +9,12 @@
         <q-space/>
         <!--  left panel panel-->
         <div class='q-gutter-sm row items-center no-wrap'>
+          <q-btn flat round dense icon='widgets' >
+            <q-tooltip>{{ $t('open_ui_config') }}</q-tooltip>
+            <q-popup-proxy v-model="showUiSettings">
+              <UiConfig @on-save="onUiConfigSave" />
+            </q-popup-proxy>
+          </q-btn>
           <Notifier style="margin-right: -8px"/>
           <q-btn-dropdown icon='account_circle' round flat :label='currentUser?.username' v-model="showRightDropDown">
             <q-list>
@@ -110,19 +116,10 @@
                   </q-item>
                   <q-item clickable v-close-popup @click='onAiClick(link.id)'>
                     <q-item-section side>
-                      <q-icon name='psychology' color='orange'/>
+                      <q-icon name='auto_awesome' color='orange'/>
                     </q-item-section>
                     <q-item-section>
                       <q-item-label>{{ $t('ai') }}</q-item-label>
-                    </q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup @click='onOnvifClick(link)'
-                          :disable="sourceStreamStatus[link.id]&&!sourceStreamStatus[link.id].enabled">
-                    <q-item-section side>
-                      <q-icon name='settings_ethernet' color='brown-5'/>
-                    </q-item-section>
-                    <q-item-section>
-                      <q-item-label>{{ $t('onvif') }}</q-item-label>
                     </q-item-section>
                   </q-item>
                   <q-item clickable v-close-popup @click='onTakeScreenshotClicked(link)'>
@@ -164,9 +161,6 @@
     <SourceSettings :source-id='selectedSourceId' @on-save='onSourceSettingsSave' @on-delete='onSourceDelete'/>
   </q-dialog>
 
-  <q-dialog v-model='showOnvif' full-width full-height transition-show='flip-down' transition-hide='flip-up'>
-    <OnvifSettings :address='selectedSourceAddress' :color='"brown-5"'/>
-  </q-dialog>
 </template>
 
 <script lang='ts'>
@@ -177,11 +171,10 @@ import {LoadingInfo, MenuLink, StreamCommandBarActions, StreamCommandBarInfo} fr
 import {PublishService, SubscribeService} from 'src/utils/services/websocket_services';
 import {EditorImageResponseModel} from 'src/utils/entities';
 import SourceSettings from 'components/SourceSettings.vue';
-import OnvifSettings from 'components/OnvifSettings.vue';
 import ServerStatsBar from 'components/ServerStatsBar.vue';
 import {SourceModel} from 'src/utils/models/source_model';
 import {
-  createEmptyBase64Image, doUserLogout, getImgSrc, listenWindowSizeChangesForScrollBar, scrollbarInit,
+  createEmptyBase64Image, doUserLogout, getImageSrc, listenWindowSizeChangesForScrollBar, scrollbarInit,
   setupLocale, startStream, stopStream
 } from 'src/utils/utils';
 import {StoreService} from 'src/utils/services/store_service';
@@ -191,11 +184,13 @@ import {useI18n} from 'vue-i18n';
 import {useQuasar} from 'quasar';
 import {auto as followSystemColorScheme, disable as disableDarkMode, enable as enableDarkMode, exportGeneratedCSS as collectCSS} from 'darkreader';
 import {Themes} from 'src/utils/services/local_service';
+import UiConfig from 'components/UiConfig.vue';
 
 export default {
   name: 'Ionix Layout',
   components: {
-    SourceSettings, OnvifSettings,
+    UiConfig,
+    SourceSettings,
     ServerStatsBar, Notifier
   },
   setup() {
@@ -218,13 +213,13 @@ export default {
     const emptyBase64Image = ref<string>(createEmptyBase64Image());
     const activeLeftMenu = ref<string>('config');
     const selectedSourceAddress = ref<string>('');
-    const showOnvif = ref<boolean>(false);
     const menus = ref(storeService.getNode());
     const mainViewHeight = ref<number>(window.innerHeight);
     const theme = ref<boolean>(false);
     const showRightDropDown = ref<boolean>(false);
     let editorConnection: WsConnection | null = null;
     let sourceStatusInterval: NodeJS.Timer | null = null;
+    const showUiSettings = ref<boolean>(false);
 
     const loadSources = async () => {
       const sources = await nodeService.getSourceList();
@@ -260,10 +255,6 @@ export default {
         case  StreamCommandBarActions.ShowSourceSettings:
           selectedSourceId.value = info.source.id;
           showSettings.value = true;
-          break;
-        case StreamCommandBarActions.ShowOnvifSettings:
-          selectedSourceAddress.value = info.source.address;
-          showOnvif.value = true;
           break;
         case StreamCommandBarActions.CloseSourceSettings:
           selectedSourceId.value = info.source.id;
@@ -316,9 +307,7 @@ export default {
       if (currentPath) {
         activeLeftMenu.value = currentPath.replace('/', '');
       }
-      const nodeIp = await nodeService.LocalService.getNodeIP();
-      const nodePort = await nodeService.LocalService.getNodePort();
-      const subscribeService = new SubscribeService(nodeIp, nodePort);
+      const subscribeService = new SubscribeService();
       editorConnection = subscribeService.subscribeEditor('ml', (event: MessageEvent) => {
         const responseModel: EditorImageResponseModel = JSON.parse(event.data);
         switch (responseModel.event_type) {
@@ -406,7 +395,7 @@ export default {
 
     return {
       leftDrawerOpen, menus, currentUser, loadingObject, sourceStreamStatus, showSettings, selectedSourceId, emptyBase64Image,
-      activeLeftMenu, selectedSourceAddress, showOnvif, mainViewHeight, theme, showRightDropDown, locale,
+      activeLeftMenu, selectedSourceAddress, mainViewHeight, theme, showRightDropDown, locale, showUiSettings,
       localeOptions: [
         {value: 'en-US', label: 'English'},
         {value: 'tr-TR', label: 'Türkçe'}
@@ -447,13 +436,13 @@ export default {
           action: StreamCommandBarActions.DeleteSource
         });
       },
-      onOnvifClick(link: MenuLink) {
-        selectedSourceAddress.value = <string>link.source?.address;
-        showOnvif.value = true;
-      },
       getImgSrc() {
-        return getImgSrc(locale);
-      }
+        return getImageSrc(locale);
+      },
+      onUiConfigSave() {
+        showUiSettings.value = false;
+        window.location.reload();
+      },
     };
   },
   methods: {

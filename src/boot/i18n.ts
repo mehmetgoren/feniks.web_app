@@ -27,6 +27,7 @@ export default boot(({ app }) => {
     // locale: 'tr-TR',
     locale:'',
     legacy: false,
+    //@ts-ignore
     messages
   })
 

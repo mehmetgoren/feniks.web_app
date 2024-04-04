@@ -1,16 +1,16 @@
-<template>
+
+,<template>
   <div class='q-pa-md q-gutter-sm'>
     <q-toolbar class='bg-orange text-white shadow-2 rounded-borders' style='width: 99.5%'>
-      <q-icon name='psychology' size='28px'/>
+      <q-icon name='auto_awesome' size='28px'/>
       <q-toolbar-title>
-        <label style='text-transform: uppercase;font-size: medium;'> {{ od.name }}</label>
+        <label style='text-transform: uppercase;font-size: medium;'> {{ smartVision.name }}</label>
       </q-toolbar-title>
       <q-tabs v-model='tab' narrow-indicator inline-label align='left'>
         <q-tab :disable='!enabled' name='cocoList' icon='fact_check' :label="'Coco ' + $t('list') "/>
         <q-tab :disable='!enabled' name='zoneList' icon='format_shapes' :label="$t('zones')"/>
         <q-tab :disable='!enabled' name='detectedList' icon='collections' :label="$t('ai_images')"/>
         <q-tab :disable='!enabled' name='videoClipList' icon='featured_video' :label="$t('ai_clips')"/>
-        <q-tab :disable='!enabled' name='aidata' icon='lens_blur' :label="$t('ai_data')"/>
       </q-tabs>
       <q-space/>
     </q-toolbar>
@@ -45,13 +45,17 @@
                 </q-input>
               </div>
             </template>
-            <template v-slot:top-right>
 
-              <q-input filled v-model='od.start_time' mask='time' :label="$t('start_time')" dense clearable color='orange'>
+            <template v-slot:top-right>
+              <q-input v-model.number="allThreshold" type="number" filled dense style="margin: 0 5px 0 0"/>
+              <q-btn color='orange' :label="$t('set_all_thresholds')" icon='done' @click='setAllThresholds' dense style="margin: 0 5px 0 0"/>
+
+
+              <q-input filled v-model='smartVision.start_time' mask='time' :label="$t('start_time')" dense clearable color='orange'>
                 <template v-slot:append>
                   <q-icon name='access_time' class='cursor-pointer'>
                     <q-popup-proxy cover transition-show='scale' transition-hide='scale'>
-                      <q-time v-model='od.start_time' format24h color='orange'>
+                      <q-time v-model='smartVision.start_time' format24h color='orange'>
                         <div class='row items-center justify-end'>
                           <q-btn v-close-popup label='Close' dense flat color='orange'/>
                         </div>
@@ -61,11 +65,11 @@
                 </template>
               </q-input>
               <q-space style='margin-left: 5px;'/>
-              <q-input filled v-model='od.end_time' mask='time' :label="$t('end_time')" dense clearable color='orange'>
+              <q-input filled v-model='smartVision.end_time' mask='time' :label="$t('end_time')" dense clearable color='orange'>
                 <template v-slot:append>
                   <q-icon name='access_time' class='cursor-pointer'>
                     <q-popup-proxy cover transition-show='scale' transition-hide='scale'>
-                      <q-time v-model='od.end_time' format24h color='orange'>
+                      <q-time v-model='smartVision.end_time' format24h color='orange'>
                         <div class='row items-center justify-end'>
                           <q-btn v-close-popup label='Close' dense flat color='orange'/>
                         </div>
@@ -87,17 +91,14 @@
           </q-table>
         </div>
         <div v-if='tab==="zoneList"' class='div_margin'>
-          <MaskEditor :od-model='od' :separator='separator'
+          <MaskEditor :smart-vision-model='smartVision' :separator='separator'
                       @zones-coordinates-changed='handleZonesCoordinatesChanged' @masks-coordinates-changed='handleMasksCoordinatesChanged'/>
         </div>
         <div v-if='tab==="detectedList"' class='div_margin'>
-          <AiImageGallery :od-model='od'/>
+          <AiImageGallery :smart-vision-model='smartVision'/>
         </div>
         <div v-if='tab==="videoClipList"'>
-          <AiClips :source-id='od.id'/>
-        </div>
-        <div v-if='tab==="aidata"'>
-          <AiDataSource :source-id='od.id'/>
+          <AiClips :source-id='smartVision.id'/>
         </div>
       </div>
       <div v-else>
@@ -109,19 +110,18 @@
 </template>
 
 <script lang='ts' setup>
-import {OdModel} from 'src/utils/models/od_model';
 import {onMounted, ref, watch} from 'vue';
 import {LocalService} from 'src/utils/services/local_service';
-import {isNullOrEmpty, isNullOrUndefined} from 'src/utils/utils';
+import {isNullOrEmpty} from 'src/utils/utils';
 import {NodeService} from 'src/utils/services/node_service';
 import {Config} from 'src/utils/models/config';
 import MaskEditor from 'components/MaskEditor.vue';
 import AiImageGallery from 'components/AiImageGallery.vue';
 import AiClips from 'components/AiClips.vue';
-import AiDataSource from 'components/AiDataSource.vue';
 import {StoreService} from 'src/utils/services/store_service';
 import {useRouter} from 'vue-router';
 import {useI18n} from 'vue-i18n';
+import { SmartVisionModel } from '../utils/models/ai_model';
 
 const {t} = useI18n({useScope: 'global'});
 const router = useRouter();
@@ -129,10 +129,10 @@ const localService = new LocalService();
 const nodeService = new NodeService();
 const storeService = new StoreService();
 const tab = ref<string>('cocoList');
-const od = ref<OdModel>(localService.createEmptyOd());
+const smartVision = ref<SmartVisionModel>(localService.createEmptySmartVisionModel());
 const enabled = ref<boolean>(true);
 const config = ref<Config>();
-const cocoList = ref<any[]>([]);
+const cocoList = ref<Coco[]>([]);
 const columns = [
   {name: 'selected', align: 'left', label: t('selection'), field: 'selected'},
   {name: 'label', align: 'left', label: t('name'), field: 'label'},
@@ -143,6 +143,7 @@ const selectAll = ref<boolean>(false);
 const inactiveSave = ref<boolean>(false);
 const inactiveRefresh = ref<boolean>(false);
 const separator = 'º';
+const allThreshold = ref<number>(.4);
 
 const sourceId = storeService.aiSettingsSourceId;
 watch(sourceId, () => {
@@ -165,26 +166,22 @@ onMounted(async () => {
 
   inactiveRefresh.value = true;
   config.value = await nodeService.getConfig();
-  cocoList.value = convertToCoco(config.value?.device.device_type === 0 ? localService.getCoco80Names() : localService.getCoco91Names());
+  cocoList.value = convertToCoco(localService.getCoco91Names());
   await onRefresh();
 });
 
 async function onSave() {
   try {
     inactiveSave.value = true;
-    const selectedList: string[] = [];
-    const thresholdList: string[] = [];
+    const selectedDic = {};
     for (const cocoItem of cocoList.value) {
       if (cocoItem.selected) {
-        selectedList.push(cocoItem.value);
-        const value = isNullOrUndefined(cocoItem.threshold) || isNullOrEmpty(cocoItem.threshold.toString())
-        || cocoItem.threshold < 0 ? .1 : cocoItem.threshold;
-        thresholdList.push(value);
+        // @ts-ignore
+        selectedDic[cocoItem.label] = parseFloat(cocoItem.threshold);
       }
     }
-    od.value.selected_list = selectedList.join(separator);
-    od.value.threshold_list = thresholdList.join(separator);
-    await nodeService.saveOd(od.value);
+    smartVision.value.selected_list_json = JSON.stringify(selectedDic);
+    await nodeService.saveSmartVision(smartVision.value);
   } finally {
     inactiveSave.value = false;
   }
@@ -197,19 +194,20 @@ async function onRefresh() {
       item.selected = false;
     }
     if (!isNullOrEmpty(sourceId.value)) {
-      const odModel = await nodeService.getOd(sourceId.value);
-      if (odModel === null) {
+      const smModel = await nodeService.getSmartVision(sourceId.value);
+      if (smModel === null) {
         enabled.value = false;
         return;
       }
-      od.value = odModel;
-      const selectedList = od.value.selected_list.split(separator);
-      const thresholdList = od.value.threshold_list.split(separator);
-      let index = 0;
-      for (const selected of selectedList) {
-        const cocoItem = cocoList.value[parseInt(selected)];
+      smartVision.value = smModel;
+      const selectedDict = JSON.parse(smartVision.value.selected_list_json);
+      for (const selectedText in selectedDict) {
+        const cocoItem = cocoList.value.find(x => x.label == selectedText) //.value[parseInt(selected)];
+        if (!cocoItem) {
+          continue;
+        }
         cocoItem.selected = true;
-        cocoItem.threshold = parseFloat(thresholdList[index++]);
+        cocoItem.threshold = parseFloat(selectedDict[selectedText]);
       }
     }
   } finally {
@@ -218,13 +216,13 @@ async function onRefresh() {
 }
 
 function handleZonesCoordinatesChanged(newZones: string) {
-  od.value.zones_list = newZones.replace(',', separator);
-  void nodeService.saveOd(od.value);
+  smartVision.value.zones_list = newZones.replace(',', separator);
+  void nodeService.saveSmartVision(smartVision.value);
 }
 
 function handleMasksCoordinatesChanged(newMasks: string) {
-  od.value.masks_list = newMasks.replace(',', separator);
-  void nodeService.saveOd(od.value);
+  smartVision.value.masks_list = newMasks.replace(',', separator);
+  void nodeService.saveSmartVision(smartVision.value);
 }
 
 const initialPagination = {
@@ -240,6 +238,14 @@ function convertToCoco(options: any[]): Coco[] {
   }
   return items;
 }
+
+const setAllThresholds = () => {
+  for (const item of cocoList.value) {
+    if (item.selected) {
+      item.threshold = allThreshold.value;
+    }
+  }
+};
 
 interface Coco {
   value: number;

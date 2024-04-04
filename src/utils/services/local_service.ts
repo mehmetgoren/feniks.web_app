@@ -1,16 +1,12 @@
-import {isNullOrEmpty} from 'src/utils/utils';
+import { checkIpIsLoopBack, isNullOrEmpty, parseIP, parsePort } from 'src/utils/utils';
 import {SourceModel} from 'src/utils/models/source_model';
 import {StreamModel} from 'src/utils/models/stream_model';
-import {OdModel} from 'src/utils/models/od_model';
+import {SmartVisionModel} from 'src/utils/models/ai_model';
 import {User} from 'src/utils/models/user_model';
-import {NodeRepository} from 'src/utils/db';
-import {Node} from 'src/utils/entities';
 import {GalleryLocationsService} from 'src/utils/services/gallery_locations_service';
 import {Config} from 'src/utils/models/config';
-
+import { UiConfig, createDefaultUiConfig } from '../models/ui_config';
 export class LocalService {
-
-  private readonly rep: NodeRepository = new NodeRepository();
 
   private getDefaultDirPath(config: Config): string {
     const dirPaths = config?.general?.dir_paths;
@@ -28,38 +24,48 @@ export class LocalService {
     return this.getDefaultDirPath(config);
   }
 
-  public getHlsAddress(config: Config, streamModel: StreamModel | SourceModel, nodeIp: string, nodePort: number): string {
+  public getHlsAddress(config: Config, streamModel: StreamModel | SourceModel): string {
     const route = `${this.getSourceDirPath(config, streamModel)}/stream/${streamModel.id}/stream.m3u8`
-    return `${this.nodeHttpProtocol}://${nodeIp}:${nodePort}${route}`;
+    return this.getServerAddress(route);
   }
 
-  get nodeHttpProtocol(): string {
-    return 'http';
-  }
 
-  async getNodeIP(): Promise<string> {
-    const node = await this.rep.getActiveNode();
-    if (node) {
-      return node.node_address;
+  public getServerAddress(route: string): string {
+    let nodeAddress = `http://${this.getNodeServerIp()}:8072`;
+    if (nodeAddress.endsWith('/')) {
+      nodeAddress = nodeAddress.slice(0, -1);
     }
-    return '';
+    return `${nodeAddress}/${route}`;
   }
 
-  async getNodePort(): Promise<number> {
-    const node = await this.rep.getActiveNode();
-    if (node) {
-      return node.node_port;
+  public getServerAddressWithoutDash(route: string): string {
+    return this.getServerAddress('').slice(0, -1) + route;
+  }
+
+  public getServerIp(): string {
+    const serverAddress = this.getServerAddress('');
+    return parseIP(serverAddress) ?? '127.0.0.1';
+  }
+
+  public getServerPort(): number {
+    const serverAddress = this.getServerAddress('');
+    return parsePort(serverAddress) ?? 8072;
+  }
+
+  public isRemoteServer(): boolean {
+    const serverIp = this.getServerIp();
+    return !checkIpIsLoopBack(serverIp);
+  }
+
+  public getNodeServerIp(): string {
+    let nodeIp = localStorage.getItem('feniks_node_server_ip') ?? '';
+    if (!nodeIp){
+      nodeIp = window.location.hostname || '127.0.0.1'
     }
-    return 8072;
+    return nodeIp;
   }
-
-  public async getNodeAddress(route: string): Promise<string> {
-    const nodeIp = await this.getNodeIP();
-    const nodePort = await this.getNodePort();
-    if (isNullOrEmpty(route) || route == '/')
-      return `${this.nodeHttpProtocol}://${nodeIp}:${nodePort}`;
-    route = route.startsWith('/') ? route : '/' + route;
-    return `${this.nodeHttpProtocol}://${nodeIp}:${nodePort}${route}`;
+  public setNodeServerIp(address: string) {
+    localStorage.setItem('feniks_node_server_ip', address);
   }
 
   public setCurrentUser(user: User | null) {
@@ -101,8 +107,33 @@ export class LocalService {
     return <Themes>parseInt(themeStr);
   }
 
+  public setUiConfig(uiConfig: UiConfig) {
+    localStorage.setItem('ui_config', JSON.stringify(uiConfig));
+  }
+  public getUiConfig(): UiConfig {
+    const json = localStorage.getItem('ui_config');
+    if (json) {
+      return JSON.parse(json);
+    }
+    return createDefaultUiConfig();
+  }
+
   public createGalleryLocationService(): GalleryLocationsService {
     return new GalleryLocationsService(this);
+  }
+
+  public getDeviceArchitectures(): SelectOption[] {
+    return [{value: 0, label: 'x86'}, {value: 1, label: 'Arm'}];
+  }
+
+  public createSenseAiImages(): SelectOption[] {
+    return [
+      {value:0, label:'CPU'},
+      {value:1, label:'GPU_CUDA_11_7'},
+      {value:2, label:'GPU_CUDA_12_2'},
+      {value:3, label:'ARM64'},
+      {value:4, label:'RPI64'}
+    ];
   }
 
   public createRtspTransport(): SelectOption[] {
@@ -111,21 +142,6 @@ export class LocalService {
       {value: 1, label: 'TCP'},
       {value: 2, label: 'UDP'},
       {value: 3, label: 'HTTP'}
-    ];
-  }
-
-  public createLogLevels(t: any): SelectOption[] {
-    return [
-      {value: 0, label: t('none')},
-      {value: 1, label: t('quiet')},
-      {value: 2, label: t('panic')},
-      {value: 3, label: t('fatal')},
-      {value: 4, label: t('error')},
-      {value: 5, label: t('warning')},
-      {value: 6, label: t('info')},
-      {value: 7, label: t('verbose')},
-      {value: 8, label: t('debug')},
-      {value: 9, label: t('trace')}
     ];
   }
 
@@ -198,17 +214,6 @@ export class LocalService {
       {value: 8, label: t('slower')},
       {value: 9, label: t('very_slow')},
       {value: 10, label: t('placebo')}
-    ];
-  }
-
-  public createRotations(t: any): SelectOption[] {
-    return [
-      {value: 0, label: t('no_rotation')},
-      {value: 1, label: '180 ' + t('degrees')},
-      {value: 2, label: '90 ' + t('vertical_flip')},
-      {value: 3, label: '90 ' + t('clockwise')},
-      {value: 4, label: '90 ' + t('clockwise_and_vertical_flip')},
-      {value: 5, label: '90 ' + t('counter')}
     ];
   }
 
@@ -312,12 +317,6 @@ export class LocalService {
     ];
   }
 
-  public createSnapshotTypes(): SelectOption[] {
-    return [
-      {value: 0, label: 'Standard'},
-      {value: 1, label: 'OpenCV Persistent'},
-    ];
-  }
 
   public createDbTypes(): SelectOption[] {
     return [
@@ -390,7 +389,6 @@ export class LocalService {
       ms_type: 0, //Go 2 RTC
 
       snapshot_enabled: false,
-      snapshot_type: 0, // 0 is FFmpeg, 1 is OpenCV Persistent
       snapshot_frame_rate: 1,
       snapshot_width: 640,
       snapshot_height: 360,
@@ -455,7 +453,6 @@ export class LocalService {
 
       snapshot_enabled: false,
       snapshot_pid: 0,
-      snapshot_type: 0, // 0 is FFmpeg, 1 is OpenCV Persistent
       snapshot_frame_rate: 1,
       snapshot_width: 1280,
       snapshot_height: 720,
@@ -477,93 +474,19 @@ export class LocalService {
     };
   }
 
-  public createEmptyOd(): OdModel {
+  public createEmptySmartVisionModel(): SmartVisionModel {
     return {
       id: '',
       brand: '',
       name: '',
       address: '',
       created_at: '',
-      threshold_list: '0.1',
-      selected_list: '0',
+      selected_list_json: '{"person":0.8}',
       zones_list: '',
       masks_list: '',
       start_time: '',
       end_time: ''
     };
-  }
-
-  public getCoco80Names() {
-    return [{label: 'person', value: 0}, {label: 'bicycle', value: 1}, {
-      label: 'car',
-      value: 2
-    }, {label: 'motorbike', value: 3}, {label: 'aeroplane', value: 4}, {label: 'bus', value: 5}, {
-      label: 'train',
-      value: 6
-    }, {label: 'truck', value: 7}, {label: 'boat', value: 8}, {
-      label: 'traffic light',
-      value: 9
-    }, {label: 'fire hydrant', value: 10}, {label: 'stop sign', value: 11}, {
-      label: 'parking meter',
-      value: 12
-    }, {label: 'bench', value: 13}, {label: 'bird', value: 14}, {label: 'cat', value: 15}, {
-      label: 'dog',
-      value: 16
-    }, {label: 'horse', value: 17}, {label: 'sheep', value: 18}, {label: 'cow', value: 19}, {
-      label: 'elephant',
-      value: 20
-    }, {label: 'bear', value: 21}, {label: 'zebra', value: 22}, {
-      label: 'giraffe',
-      value: 23
-    }, {label: 'backpack', value: 24}, {label: 'umbrella', value: 25}, {
-      label: 'handbag',
-      value: 26
-    }, {label: 'tie', value: 27}, {label: 'suitcase', value: 28}, {label: 'frisbee', value: 29}, {
-      label: 'skis',
-      value: 30
-    }, {label: 'snowboard', value: 31}, {label: 'sports ball', value: 32}, {
-      label: 'kite',
-      value: 33
-    }, {label: 'baseball bat', value: 34}, {label: 'baseball glove', value: 35}, {
-      label: 'skateboard',
-      value: 36
-    }, {label: 'surfboard', value: 37}, {label: 'tennis racket', value: 38}, {
-      label: 'bottle',
-      value: 39
-    }, {label: 'wine glass', value: 40}, {label: 'cup', value: 41}, {label: 'fork', value: 42}, {
-      label: 'knife',
-      value: 43
-    }, {label: 'spoon', value: 44}, {label: 'bowl', value: 45}, {label: 'banana', value: 46}, {
-      label: 'apple',
-      value: 47
-    }, {label: 'sandwich', value: 48}, {label: 'orange', value: 49}, {
-      label: 'broccoli',
-      value: 50
-    }, {label: 'carrot', value: 51}, {label: 'hot dog', value: 52}, {label: 'pizza', value: 53}, {
-      label: 'donut',
-      value: 54
-    }, {label: 'cake', value: 55}, {label: 'chair', value: 56}, {
-      label: 'sofa',
-      value: 57
-    }, {label: 'pottedplant', value: 58}, {label: 'bed', value: 59}, {
-      label: 'diningtable',
-      value: 60
-    }, {label: 'toilet', value: 61}, {label: 'tvmonitor', value: 62}, {
-      label: 'laptop',
-      value: 63
-    }, {label: 'mouse', value: 64}, {label: 'remote', value: 65}, {
-      label: 'keyboard',
-      value: 66
-    }, {label: 'cell phone', value: 67}, {label: 'microwave', value: 68}, {
-      label: 'oven',
-      value: 69
-    }, {label: 'toaster', value: 70}, {label: 'sink', value: 71}, {
-      label: 'refrigerator',
-      value: 72
-    }, {label: 'book', value: 73}, {label: 'clock', value: 74}, {label: 'vase', value: 75}, {
-      label: 'scissors',
-      value: 76
-    }, {label: 'teddy bear', value: 77}, {label: 'hair drier', value: 78}, {label: 'toothbrush', value: 79}];
   }
 
   public getCoco91Names() {
@@ -678,34 +601,6 @@ export class LocalService {
     return base64;
   }
 
-  public createEmptyNode(): Node {
-    return {
-      name: '',
-      node_port: 8072,
-      node_address: '',
-      description: '',
-      active: false
-    };
-  }
-
-  public createDeepStackPerformanceModes(): SelectOption[] {
-    return [
-      {value: 0, label: 'Low'},
-      {value: 1, label: 'Medium'},
-      {value: 2, label: 'High'}
-    ];
-  }
-
-  public createDeepStackDockerTypes(): SelectOption[] {
-    return [
-      {value: 0, label: 'CPU'},
-      {value: 1, label: 'GPU'},
-      {value: 2, label: 'NVIDIA JETSON'},
-      {value: 3, label: 'ARM64'},
-      {value: 4, label: 'ARM64_SERVER'}
-    ];
-  }
-
   public createArchiveActionTypes(t: any): SelectOption[] {
     return [
       {value: 0, label: t('delete')},
@@ -734,20 +629,6 @@ export class LocalService {
       {value: 1, label: 'Open CV'},
       {value: 2, label: t('image_hash')},
       {value: 3, label: 'PSNR'}
-    ];
-  }
-
-  public createColorDifferenceMethods(): SelectOption[] {
-    return [
-      {value: 'CIE76', label: 'CIE76'},
-      {value: 'CIE94', label: 'CIE94'},
-      {value: 'CIEDE2000', label: 'CIEDE2000'},
-      {value: 'Rgb', label: 'Rgb'},
-      {value: 'Lab', label: 'Lab'},
-      {value: 'Luv', label: 'Luv'},
-      {value: 'LinearRGB', label: 'LinearRGB'},
-      {value: 'HPLuv', label: 'HPLuv'},
-      {value: 'HSLuv', label: 'HSLuv'},
     ];
   }
 

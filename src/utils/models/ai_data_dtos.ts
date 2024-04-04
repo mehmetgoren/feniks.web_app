@@ -1,10 +1,4 @@
-export interface QueryAiDataParams {
-  ai_type: number;
-  source_id: string;
-  date_time_str: string;
-  pred_class_name: string;
-  no_preparing_video_file: boolean;
-}
+import { DetectedObjectDto } from 'src/utils/models/ai_model';
 
 export interface VideoFileDto {
   name: string;
@@ -27,16 +21,10 @@ export interface AiDataDto {
   group_id: string;
   source_id: string;
   created_at: string;
-  pred_cls_name: string;
-  pred_score: number;
+  detected_object:DetectedObjectDto;
   image_file_name: string;
   video_file: VideoFileDto;
   ai_clip: AiClip;
-}
-
-export interface SelectedAiFeature {
-  name: string;
-  icon: string;
 }
 
 export enum SortBy {
@@ -56,25 +44,19 @@ export interface PagingInfo {
   take: number;
 }
 
-export enum AiDataType{
-  Od = 0,
-  Fr = 1,
-  Alpr = 2
-}
-
 export interface QueryAiDataAdvancedParams {
-  ai_type: AiDataType;
+  module: string;
   source_id: string;
   start_date_time_str: string;
   end_date_time_str: string;
-  pred_class_name: string;
+  label: string;
   no_preparing_video_file: boolean;
   sort: SortInfo;
   paging: PagingInfo;
 }
 
 export interface AiDataDeleteOptions{
-  ai_type?: AiDataType;
+  module?: string;
   id?: string;
   delete_image:boolean;
   delete_video:boolean;

@@ -1,7 +1,6 @@
 export interface AiObjectViewModel {
-  pred_score: number;
-  pred_cls_idx: number;
-  pred_cls_name: string;
+  score: number;
+  label: string;
 }
 
 export interface AiPreviewViewModel {
@@ -28,7 +27,7 @@ export interface AiClipViewModel {
 }
 
 export interface AiClipQueryViewModel{
-  ai_type: number;
+  module: string;
   source_id: string;
   date: string;
 }

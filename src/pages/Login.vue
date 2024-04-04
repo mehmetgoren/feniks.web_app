@@ -16,6 +16,16 @@
                 </q-card-section>
                 <q-card-section>
                   <q-form class='q-px-sm q-pt-xl' style="margin-top: -40px;">
+                    <q-btn dense :label="$t('web_server_ip') + ': ' + nodeServerIp" color='purple-4'
+                           style="width:100% ">
+                      <q-popup-edit v-model="nodeServerIp" auto-save v-slot="scope">
+                        <q-input v-model="scope.value" dense autofocus counter/>
+                        <q-btn flat dense color="purple-4" label="Save" icon="save" @click="onSaveNodeServerIp(scope.value)"
+                        aut
+                        />
+                      </q-popup-edit>
+                    </q-btn>
+                    <q-space style="margin-bottom: 5px"/>
                     <q-select v-model="locale" :options="localeOptions" :label="$t('language')"
                               square dense borderless emit-value map-options options-dense style="min-width: 150px">
                       <template v-slot:prepend>
@@ -46,7 +56,6 @@
                 </q-card-actions>
                 <q-card-section class='text-center q-pa-sm'>
                   <p class='text-grey-6' style='cursor: pointer;' @click='onGoRegister'>{{ $t('register') }}</p>
-                  <p class='text-grey-6' style='cursor: pointer;' @click='onGoNodes'>{{ $t('nodes') }}</p>
                 </q-card-section>
               </q-card>
             </div>
@@ -102,166 +111,172 @@
           </div>
         </q-page-container>
       </q-layout>
-      <Nodes v-if='mode===2' @on-go-back='onNodesGoBack'/>
     </div>
   </div>
 </template>
 
-<script lang='ts'>
-import {onMounted, ref, watch} from 'vue';
+<script lang='ts' setup>
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import {ClientInfoModel, LoginUserViewModel, RegisterUserViewModel, User} from 'src/utils/models/user_model';
 import {NodeService} from 'src/utils/services/node_service';
 import {useQuasar} from 'quasar';
-import Nodes from 'src/pages/Nodes.vue';
-import {NodeRepository} from 'src/utils/db';
 import {useRouter} from 'vue-router';
 import {StoreService} from 'src/utils/services/store_service';
 import {useI18n} from 'vue-i18n';
-import {getImgSrc, scrollbarInit, setupLocale} from 'src/utils/utils';
+import {getImageSrc, scrollbarInit, setupLocale} from 'src/utils/utils';
 import {auto as followSystemColorScheme, disable as disableDarkMode, exportGeneratedCSS as collectCSS} from 'darkreader';
-
-export default {
-  name: 'Login',
-  components: {Nodes},
-  setup() {
-    const {locale} = useI18n({useScope: 'global'});
-    const $q = useQuasar();
-    const router = useRouter();
-    const mode = ref<Mode>(Mode.Login);
-    const loginUser = ref<LoginUserViewModel>({username: 'admin', password: 'admin'});
-    const registerUser = ref<RegisterUserViewModel>({
-      email: 'admin@feniks.com', password: 'admin',
-      re_password: 'admin', username: 'admin', ip: '', uag: '', location: '', data_center_location: ''
-    });
-    const nodeService = new NodeService();
-    const nodeRepository = new NodeRepository();
-    const storeService = new StoreService();
-    const showLoginLoading = ref<boolean>(false);
-    const mainViewHeight = ref<number>(window.innerHeight);
-    let clientInfo: ClientInfoModel | null = null;
-
-    watch(locale, newValue => {
-      nodeService.LocalService.setLang(<any>newValue);
-    });
-
-    const constInitDarkTheme = async () => {
-      //@ts-ignore
-      followSystemColorScheme(true);
-      await collectCSS();
-
-      disableDarkMode();
-    };
-
-    onMounted(async () => {
-      setupLocale(nodeService.LocalService, locale, $q);
-      await nodeRepository.setLocalHostIfNoNode();
-
-      scrollbarInit('login-view');
-
-      await constInitDarkTheme();
-
-      nodeService.getClientInfo().then(ci => {
-        if (!ci) return;
-        clientInfo = ci
-        const ru = registerUser.value;
-        ru.ip = ci.ip
-        ru.uag = ci.uag;
-        ru.location = ci.location;
-        ru.data_center_location = ci.data_center_location;
-
-      }).catch(console.error);
-
-      const readOnlyMode = await nodeService.getIsReadOnlyMode();
-      if (readOnlyMode) {
-        setTimeout(() => {
-          if (clientInfo && clientInfo.ip) {
-            //@ts-ignore
-            const uniqueName = `user_${clientInfo.ip.replaceAll('.', '_')}`;
-            const ru = registerUser.value;
-            ru.username = uniqueName;
-            ru.password = clientInfo.ip;
-            ru.re_password = ru.password;
-            ru.email = `${ru.username}@feniks.com`;
-            onRegister().then(() => {
-              setTimeout(() => {
-                const u = loginUser.value;
-                u.username = ru.username;
-                u.password = ru.password;
-                void onLogin();
-              }, 500);
-            }).catch(console.error);
-          }
-        }, 1000);
-      }
-    });
-
-    const onLogin = async () => {
-      showLoginLoading.value = true;
-      try {
-        const u = loginUser.value;
-        if (!u.username || !u.password) {
-          $q.notify({message: 'Please enter credentials', color: 'red'});
-          return;
-        }
-        const user: User = await nodeService.login(loginUser.value);
-        const token = user?.token;
-        if (token && token.length && token.length === 8) {
-          storeService.setCurrentUser(user);
-          await router.push('stream_gallery');
-        } else {
-          $q.notify({message: 'Username and/or Password are incorrect', color: 'red'});
-        }
-      } finally {
-        showLoginLoading.value = false;
-      }
-    };
-
-    const onRegister = async () => {
-      const u = registerUser.value;
-      if (!u.email || !u.username || !u.password || !u.re_password) {
-        $q.notify({message: 'Please enter all fields', color: 'red'});
-        return;
-      }
-      if (u.password !== u.re_password) {
-        $q.notify({message: 'Please enter all fields', color: 'red'});
-        return;
-      }
-      const result = await nodeService.registerUser(u);
-      mode.value = result ? Mode.Login : Mode.Register;
-    };
-
-    return {
-      locale,
-      localeOptions: [
-        {value: 'en-US', label: 'English'},
-        {value: 'tr-TR', label: 'Türkçe'}
-      ],
-      mode, loginUser, registerUser, showLoginLoading, mainViewHeight,
-      onLogin, onRegister,
-      onGoRegister() {
-        mode.value = Mode.Register;
-      },
-      onReturnLogin() {
-        mode.value = Mode.Login;
-      },
-      onGoNodes() {
-        mode.value = Mode.Nodes;
-      },
-      onNodesGoBack() {
-        mode.value = Mode.Login;
-      },
-      getImgSrc() {
-        return getImgSrc(locale);
-      }
-    };
-  }
-};
 
 enum Mode {
   Login = 0,
-  Register = 1,
-  Nodes = 2
+  Register = 1
 }
+
+const {locale} = useI18n({useScope: 'global'});
+const $q = useQuasar();
+const router = useRouter();
+const mode = ref<Mode>(Mode.Login);
+const loginUser = ref<LoginUserViewModel>({username: 'admin', password: 'admin'});
+const registerUser = ref<RegisterUserViewModel>({
+  email: 'admin@feniks.com', password: 'admin',
+  re_password: 'admin', username: 'admin', ip: '', uag: '', location: '', data_center_location: ''
+});
+const nodeService = new NodeService();
+const localService = nodeService.LocalService;
+const storeService = new StoreService();
+const showLoginLoading = ref<boolean>(false);
+const mainViewHeight = ref<number>(window.innerHeight);
+const nodeServerIp = ref<string>('');
+let clientInfo: ClientInfoModel | null = null;
+
+watch(locale, newValue => {
+  localService.setLang(<any>newValue);
+});
+
+const constInitDarkTheme = async () => {
+  //@ts-ignore
+  followSystemColorScheme(true);
+  await collectCSS();
+
+  disableDarkMode();
+};
+
+onMounted(async () => {
+  setupLocale(localService, locale, $q);
+  nodeServerIp.value = localService.getNodeServerIp();
+  scrollbarInit('login-view');
+
+  await constInitDarkTheme();
+
+  nodeService.getClientInfo().then(ci => {
+    if (!ci) return;
+    clientInfo = ci
+    const ru = registerUser.value;
+    ru.ip = ci.ip
+    ru.uag = ci.uag;
+    ru.location = ci.location;
+    ru.data_center_location = ci.data_center_location;
+
+  }).catch(console.error);
+
+  const readOnlyMode = await nodeService.getIsReadOnlyMode();
+  if (readOnlyMode) {
+    setTimeout(() => {
+      if (clientInfo && clientInfo.ip) {
+        //@ts-ignore
+        const uniqueName = `user_${clientInfo.ip.replaceAll('.', '_')}`;
+        const ru = registerUser.value;
+        ru.username = uniqueName;
+        ru.password = clientInfo.ip;
+        ru.re_password = ru.password;
+        ru.email = `${ru.username}@feniks.com`;
+        onRegister().then(() => {
+          setTimeout(() => {
+            const u = loginUser.value;
+            u.username = ru.username;
+            u.password = ru.password;
+            void onLogin();
+          }, 500);
+        }).catch(console.error);
+      }
+    }, 1000);
+  }
+
+  //listen enter key
+  document.addEventListener('keydown', onKeyEnter);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown',onKeyEnter);
+});
+
+function onKeyEnter(e: any){
+  if (e.key === 'Enter') {
+    if (mode.value === Mode.Login) {
+      void onLogin();
+    } else {
+      void onRegister();
+    }
+  }
+}
+
+
+const onLogin = async () => {
+  showLoginLoading.value = true;
+  try {
+    const u = loginUser.value;
+    if (!u.username || !u.password) {
+      $q.notify({message: 'Please enter credentials', color: 'red'});
+      return;
+    }
+    const user: User = await nodeService.login(loginUser.value);
+    const token = user?.token;
+    if (token && token.length && token.length === 8) {
+      storeService.setCurrentUser(user);
+      await router.push('stream_gallery');
+    } else {
+      $q.notify({message: 'Username and/or Password are incorrect', color: 'red'});
+    }
+  } finally {
+    showLoginLoading.value = false;
+  }
+};
+
+const onRegister = async () => {
+  const u = registerUser.value;
+  if (!u.email || !u.username || !u.password || !u.re_password) {
+    $q.notify({message: 'Please enter all fields', color: 'red'});
+    return;
+  }
+  if (u.password !== u.re_password) {
+    $q.notify({message: 'Please enter all fields', color: 'red'});
+    return;
+  }
+  const result = await nodeService.registerUser(u);
+  mode.value = result ? Mode.Login : Mode.Register;
+};
+
+
+const localeOptions = [
+  {value: 'en-US', label: 'English'},
+  {value: 'tr-TR', label: 'Türkçe'}
+];
+
+function onGoRegister() {
+  mode.value = Mode.Register;
+}
+
+function onReturnLogin() {
+  mode.value = Mode.Login;
+}
+
+function getImgSrc() {
+  return getImageSrc(locale);
+}
+
+const onSaveNodeServerIp = (newNodeIp: string) => {
+  localService.setNodeServerIp(newNodeIp);
+};
+
 </script>
 
 <style scoped>

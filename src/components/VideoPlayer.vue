@@ -48,10 +48,8 @@ export default {
     }
 
     if (isNullOrEmpty(this.src)) {
-      const me = this;
-      new LocalService().getNodeAddress('blank.mp4').then(addr => {
-        initPlayer(me, addr);
-      }).catch(console.error);
+      const addr = new LocalService().getServerAddress('blank.mp4');
+      initPlayer(this, addr);
     } else {
       initPlayer(this, this.src);
     }

@@ -1,11 +1,3 @@
-export interface Node {
-  node_address: string;
-  node_port: number;
-  name: string;
-  description?: string;
-  active: boolean;
-}
-
 export interface BaseEntity {
   id?: string | null;
   createdAt?: string | null;
@@ -19,11 +11,6 @@ export interface Camera extends BaseEntity {
   description?: string | null;
   rtspPort?: number | null;
   rtspRoute?: string | null;
-}
-
-export interface CameraDto extends Camera {
-  brandName?: string | null;
-  modelName?: string | null;
 }
 
 export interface VideoFile{

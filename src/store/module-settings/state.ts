@@ -3,10 +3,9 @@ import { User } from 'src/utils/models/user_model';
 
 export enum StreamCommandBarActions{
   ShowSourceSettings = 0,
-  ShowOnvifSettings = 1,
-  CloseSourceSettings = 2,
-  SaveSource = 3,
-  DeleteSource = 4
+  CloseSourceSettings = 1,
+  SaveSource = 2,
+  DeleteSource = 3
 }
 
 export interface StreamCommandBarInfo{
@@ -64,14 +63,11 @@ function state(): ISettingsState {
     add_source:[
       { route: 'add_source', icon: 'add_box', text: 'Add Source', name:'add_source' }
     ],
-    fr_training:[
-      { route: 'fr_training', icon: 'face', text: 'Face Training', name:'fr_training' }
+    face_training:[
+      { route: 'face_training', icon: 'face', text: 'Face Training', name:'face_training' }
     ],
     ai_data:[
-      { route: 'ai_data', icon: 'lens_blur', text: 'AI Data', name:'ai_data' }
-    ],
-    smart_search:[
-      { route: 'smart_search', icon: 'workspaces', text: 'Smart Search', name:'smart_search' }
+      { route: 'ai_data', icon: 'auto_awesome', text: 'AI Data', name:'ai_data' }
     ],
     cameras:[]
   };

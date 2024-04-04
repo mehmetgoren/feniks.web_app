@@ -1,37 +1,10 @@
 export interface DeviceConfig {
   device_name: string;
-  device_type: number;
-}
-
-export interface JetsonConfig {
-  model_name: string;
-}
-
-export interface TorchConfig {
-  model_name: string;
-  model_name_specific: string;
-}
-
-export interface TensorflowConfig {
-  model_name: string;
-  cache_folder: string;
-}
-
-export interface CoralTPUConfig {
-  model_path: string;
-  labels_path: string;
-}
-
-export interface SourceReaderConfig {
-  resize_img: boolean;
-  buffer_size: number;
-  max_retry: number;
-  max_retry_in: number;
+  device_arch: number;
 }
 
 export interface GeneralConfig {
   dir_paths: string[];
-  heartbeat_interval: number;
 }
 
 export interface DbConfig {
@@ -54,16 +27,12 @@ export interface FFmpegConfig {
 
 export interface AiConfig {
   video_clip_duration: number;
-  face_recog_mtcnn_threshold: number;
-  face_recog_prob_threshold: number;
-  plate_recog_instance_count: number;
 }
 
-export interface UiConfig {
-  gs_width: number;
-  gs_height: number;
-  booster_interval: number;
-  seek_to_live_edge_internal: number;
+export interface SenseAIConfig {
+  image: number;
+  host: string;
+  port: number;
 }
 
 export interface JobsConfig {
@@ -71,18 +40,6 @@ export interface JobsConfig {
   mac_ip_matching_interval: number;
   black_screen_monitor_enabled: boolean;
   black_screen_monitor_interval: number;
-}
-
-export interface DeepStackConfig {
-  server_url: string;
-  server_port: number;
-  performance_mode: number;
-  api_key: string;
-  od_enabled: boolean;
-  od_threshold: number;
-  fr_enabled: boolean;
-  fr_threshold: number;
-  docker_type: number;
 }
 
 export interface ArchiveConfig {
@@ -94,12 +51,9 @@ export interface ArchiveConfig {
 export interface SnapshotConfig {
   process_count: number;
   overlay: boolean;
-  meta_color_enabled: boolean;
-  meta_color_count: number;
-  meta_color_quality: number;
 }
 
-export interface HubConfig{
+export interface HubConfig {
   enabled: boolean;
   address: string;
   token: string;
@@ -109,18 +63,12 @@ export interface HubConfig{
 
 export interface Config {
   device: DeviceConfig;
-  jetson: JetsonConfig;
-  torch: TorchConfig;
-  tensorflow: TensorflowConfig;
-  coral: CoralTPUConfig
-  source_reader: SourceReaderConfig;
   general: GeneralConfig;
   db: DbConfig;
   ffmpeg: FFmpegConfig;
   ai: AiConfig;
-  ui: UiConfig;
+  sense_ai: SenseAIConfig;
   jobs: JobsConfig;
-  deep_stack: DeepStackConfig;
   archive: ArchiveConfig;
   snapshot: SnapshotConfig;
   hub: HubConfig;

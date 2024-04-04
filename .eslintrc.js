@@ -96,5 +96,7 @@ module.exports = {
     '@typescript-eslint/restrict-template-expressions':'off',
     '@typescript-eslint/no-unsafe-argument':'off',
     '@typescript-eslint/ban-ts-comment':'off',
+    '@typescript-eslint/no-floating-promises':'off',
+    '@typescript-eslint/no-empty-function':'off',
   }
 }

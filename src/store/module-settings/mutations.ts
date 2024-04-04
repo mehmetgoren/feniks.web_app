@@ -82,7 +82,7 @@ const mutation: MutationTree<ISettingsState> = {
     n['config'][0].text = t('config');
     n['stream_gallery'][0].text = t('stream_gallery');
     n['add_source'][0].text = t('add_source');
-    n['fr_training'][0].text = t('fr_training');
+    n['face_training'][0].text = t('face_training');
     n['ai_data'][0].text = t('ai_data');
   }
 };

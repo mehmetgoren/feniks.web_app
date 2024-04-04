@@ -9,6 +9,8 @@ import Scrollbar from 'smooth-scrollbar';
 import {GalleryLocationsService} from 'src/utils/services/gallery_locations_service';
 
 
+export const localIp = '127.0.0.1';
+
 export function myDateToJsDate(dateString: string): Date {
   if (dateString) {
     const splits = dateString.split('_');
@@ -195,11 +197,31 @@ export function downloadObjectAsJson(exportObj: any, exportName:string){
   downloadAnchorNode.remove();
 }
 
-export function parseIP(address: string): string | null {
+export function parseIP(address: string | null | undefined): string | null {
+  if (address === null || address === undefined) {
+    return null;
+  }
+  if (address.indexOf('localhost') !== -1) {
+    return 'localhost';
+  }
+
   const r = /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/; //http://www.regular-expressions.info/examples.html
   const results = address.match(r);
   if (results && results.length) {
     return results[0];
+  }
+  return null;
+}
+
+
+export function parsePort(address: string | null | undefined): number | null {
+  if (address === null || address === undefined) {
+    return null;
+  }
+  const r = /:\d{1,5}/;
+  const results = address.match(r);
+  if (results && results.length) {
+    return parseInt(results[0].substring(1));
   }
   return null;
 }
@@ -219,21 +241,9 @@ export function deepCopy(source: any): any {
   return JSON.parse(JSON.stringify(source));
 }
 
-export function isFrDirNameValid(name: string): boolean {
+export function isFaceDirNameValid(name: string): boolean {
   const re = '/^[^\s^\x00-\x1f\\?*:"";<>|\/.][^\x00-\x1f\\?*:"";<>|\/]*[^\s^\x00-\x1f\\?*:"";<>|\/.]+$/g';
   return name.match(re) === null;
-}
-
-export function generateHtmlColor(): string {
-  return '#' + (Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0');
-}
-
-export function cutFloatString(val: number, size = 4): string {
-  if (val) {
-    const str = val.toString();
-    return str.substring(0, size);
-  }
-  return '';
 }
 
 export function formatJson(json: string): string {
@@ -249,7 +259,7 @@ export function setupLocale(localService: LocalService, locale: any, $q: any) {
   locale.value = localeTemp;
 }
 
-export function getImgSrc(locale: any) {
+export function getImageSrc(locale: any) {
   if (locale.value === 'tr-TR') {
     return 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGlkPSJmbGFnLWljb25zLXRyIiB2aWV3Qm94PSIwIDAgNjQwIDQ4MCI+CiAgPGcgZmlsbC1ydWxlPSJldmVub2RkIj4KICAgIDxwYXRoIGZpbGw9IiNlMzBhMTciIGQ9Ik0wIDBoNjQwdjQ4MEgweiIvPgogICAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTQwNyAyNDcuNWMwIDY2LjItNTQuNiAxMTkuOS0xMjIgMTE5LjlzLTEyMi01My43LTEyMi0xMjAgNTQuNi0xMTkuOCAxMjItMTE5LjggMTIyIDUzLjcgMTIyIDExOS45eiIvPgogICAgPHBhdGggZmlsbD0iI2UzMGExNyIgZD0iTTQxMyAyNDcuNWMwIDUzLTQzLjYgOTUuOS05Ny41IDk1LjlzLTk3LjYtNDMtOTcuNi05NiA0My43LTk1LjggOTcuNi05NS44IDk3LjYgNDIuOSA5Ny42IDk1Ljl6Ii8+CiAgICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJtNDMwLjcgMTkxLjUtMSA0NC4zLTQxLjMgMTEuMiA0MC44IDE0LjUtMSA0MC43IDI2LjUtMzEuOCA0MC4yIDE0LTIzLjItMzQuMSAyOC4zLTMzLjktNDMuNSAxMi0yNS44LTM3eiIvPgogIDwvZz4KPC9zdmc+Cg==';
   }

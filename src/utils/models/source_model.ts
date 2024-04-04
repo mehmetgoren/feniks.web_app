@@ -66,7 +66,6 @@ export interface SourceModel {
   ms_type?: number | null;
 
   snapshot_enabled: boolean | null;
-  snapshot_type: number | null;
   snapshot_frame_rate: number | null;
   snapshot_width: number | null;
   snapshot_height: number | null;
