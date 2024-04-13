@@ -9,6 +9,10 @@
       </q-btn>
     </template>
     <template v-slot:top-right>
+      <q-btn color='orange' :label="$t('restart_senseai_service')" icon='miscellaneous_services' @click='onRestartSenseAiService' :disable='showLoading'
+      style="margin-right: 5px">
+        <q-inner-loading :showing='showLoading' />
+      </q-btn>
       <q-btn color='primary' :label="$t('refresh')" icon='restore_page' @click='dataBind' :disable='showLoading'>
         <q-inner-loading :showing='showLoading' />
       </q-btn>
@@ -149,6 +153,15 @@ const onDeleteAiModule = (aiModule: AiModuleModel) => {
         dataBind();
       });
   });
+};
+
+const onRestartSenseAiService = () => {
+  showLoading.value = true;
+  nodeService.restartSenseAiService()
+    .then(() => {
+      $q.notify({ type: 'positive', message: 'SenseAI service restarted successfully' });
+      showLoading.value = false;
+    });
 };
 
 const aiModuleColumns = createAiModuleColumns(t);

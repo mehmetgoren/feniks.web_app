@@ -506,4 +506,5 @@ export default {
   select_ai_module:'Select an AI Module',
   all:'All',
   web_server_ip:'Web Server IP',
+  restart_senseai_service:'Restart SenseAI Service',
 };

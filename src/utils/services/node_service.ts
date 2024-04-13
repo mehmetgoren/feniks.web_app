@@ -359,4 +359,8 @@ export class NodeService extends BaseService {
     const resp = await api.delete(this.LocalService.getServerAddress(`aimodule/${id}`));
     return resp.data;
   }
+
+  public async restartSenseAiService(): Promise<void>{
+    await api.post(this.LocalService.getServerAddress('aimodulerestartsenseai'));
+  }
 }

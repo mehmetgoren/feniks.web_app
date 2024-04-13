@@ -6,6 +6,7 @@
         <q-toolbar-title>
           {{ stream.name }} {{ $t('playback_list') }}
         </q-toolbar-title>
+        <q-btn icon="arrow_back" :label="$t('back')" glossy style='margin-right: 15px;' @click='router.back()' />
       </q-toolbar>
       <q-page-container>
         <q-page padding style='background-color: whitesmoke;'>

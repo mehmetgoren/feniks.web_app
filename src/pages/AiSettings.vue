@@ -13,6 +13,7 @@
         <q-tab :disable='!enabled' name='videoClipList' icon='featured_video' :label="$t('ai_clips')"/>
       </q-tabs>
       <q-space/>
+      <q-btn icon="arrow_back" :label="$t('back')" glossy style='margin-right: 15px;'  @click='router.back()'/>
     </q-toolbar>
   </div>
   <div class='q-pa-md q-gutter-sm' style='margin-top: -35px;'>

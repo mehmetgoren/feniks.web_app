@@ -117,7 +117,8 @@
                              style="margin-left: 5px;" />
                     </template>
                     <template v-slot:top-right>
-                      <q-btn color='red' dense icon-right='delete' :label="$t('delete_event')" @click='handleDelete()' />
+                      <q-btn color='red' dense icon-right='delete' :label="$t('delete_event')" @click='handleDelete()'
+                             style="margin-top: 5px" />
                     </template>
                   </q-table>
                 </div>

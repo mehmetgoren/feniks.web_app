@@ -506,4 +506,5 @@ export default {
   select_ai_module:'Bir YZ Modülü Seçin',
   all:'Hepsi',
   web_server_ip:'Web Sunucu IP',
+  restart_senseai_service:'SenseAI Servisini Yeniden Başlat',
 };

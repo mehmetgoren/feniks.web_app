@@ -199,7 +199,7 @@
             <q-select emit-value map-options filled dense v-model='sense_ai.image' :options='senseAiImages'
                       :label="$t('sense_ai_image')" />
             <q-space style='height: 10px;' />
-            <q-input type="number" v-model='sense_ai.host' filled dense :label="$t('sense_ai_host')" />
+            <q-input v-model='sense_ai.host' filled dense :label="$t('sense_ai_host')" />
             <q-space style='height: 10px;' />
             <q-input type="number" v-model.number='sense_ai.port' filled dense :label="$t('sense_ai_port')" />
             <q-space style='height: 10px;' />
