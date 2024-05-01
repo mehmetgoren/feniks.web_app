@@ -25,7 +25,10 @@ export class LocalService {
   }
 
   public getHlsAddress(config: Config, streamModel: StreamModel | SourceModel): string {
-    const route = `${this.getSourceDirPath(config, streamModel)}/stream/${streamModel.id}/stream.m3u8`
+    let route = `${this.getSourceDirPath(config, streamModel)}/stream/${streamModel.id}/stream.m3u8`
+    if (route.startsWith('/')) {
+      route = route.slice(1);
+    }
     return this.getServerAddress(route);
   }
 

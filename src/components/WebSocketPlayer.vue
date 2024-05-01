@@ -42,7 +42,7 @@ onMounted(async () => {
 
     conn = subscribeService.subscribeFFmpegRead(props.sourceId, (evt: MessageEvent) => {
       const data = JSON.parse(evt.data);
-      src.value = `data:image/jpg;base64, ${data.img}`;
+      src.value = `data:image/jpg;base64, ${data.base64_image}`;
     });
 
     setTimeout(() => {
