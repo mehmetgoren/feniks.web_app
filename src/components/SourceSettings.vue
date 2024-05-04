@@ -214,13 +214,13 @@
                          v-model.number='source.stream_audio_volume'
                          :label="$t('audio_volume')" color='cyan' :disable="!source.enabled" />
 
-                <q-input v-if='source.stream_type>1' dense filled
+                <q-input v-if='source.ms_type !== 0 && source.stream_type>1' dense filled
                          v-model.number='source.ffmpeg_reader_frame_rate'
                          type='number' :label="$t('reader_frame_rate')" color='cyan' :disable="!source.enabled" />
-                <q-input v-if='source.stream_type>1' dense filled
+                <q-input v-if='source.ms_type !== 0 && source.stream_type>1' dense filled
                          v-model.number='source.ffmpeg_reader_width' color='cyan'
                          type='number' :label="$t('reader_width')" :disable="!source.enabled" />
-                <q-input v-if='source.stream_type>1' dense filled
+                <q-input v-if='source.ms_type !== 0 && source.stream_type>1' dense filled
                          v-model.number='source.ffmpeg_reader_height' color='cyan'
                          type='number' :label="$t('reader_height')" :disable="!source.enabled" />
 

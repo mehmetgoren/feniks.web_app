@@ -53,7 +53,7 @@ export interface SnapshotConfig {
   overlay: boolean;
 }
 
-export interface HubConfig {
+export interface DesimaConfig {
   enabled: boolean;
   address: string;
   token: string;
@@ -71,5 +71,5 @@ export interface Config {
   jobs: JobsConfig;
   archive: ArchiveConfig;
   snapshot: SnapshotConfig;
-  hub: HubConfig;
+  desima: DesimaConfig;
 }

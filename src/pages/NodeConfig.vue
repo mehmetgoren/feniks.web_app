@@ -210,19 +210,19 @@
         <q-card class="my-card" flat bordered>
           <q-card-section class="bg-cyan text-white">
             <div class="text-subtitle2">
-              <label style='text-transform: uppercase;font-size: medium'>{{ $t('hub') }}</label>
+              <label style='text-transform: uppercase;font-size: medium'>{{ $t('desima') }}</label>
             </div>
           </q-card-section>
           <q-separator />
           <q-card-section>
-            <q-toggle v-model='hub.enabled' filled dense :label="$t('hub_enabled')" />
-            <q-input v-model.trim='hub.address' filled dense :label="$t('hub_address')" />
+            <q-toggle v-model='desima.enabled' filled dense :label="$t('desima_enabled')" />
+            <q-input v-model.trim='desima.address' filled dense :label="$t('desima_address')" />
             <q-space style='height: 10px;' />
-            <q-input v-model.trim='hub.token' filled dense :label="$t('hub_token')" />
+            <q-input v-model.trim='desima.token' filled dense :label="$t('desima_token')" />
             <q-space style='height: 10px;' />
-            <q-input v-model.trim='hub.web_app_address' filled dense :label="$t('hub_web_app_address')" />
+            <q-input v-model.trim='desima.web_app_address' filled dense :label="$t('desima_web_app_address')" />
             <q-space style='height: 10px;' />
-            <q-input type="number" v-model.number='hub.max_retry' filled dense :label="$t('hub_max_retry')" />
+            <q-input type="number" v-model.number='desima.max_retry' filled dense :label="$t('desima_max_retry')" />
           </q-card-section>
         </q-card>
         <q-space style='height: 10px;' />
@@ -444,7 +444,7 @@ import { NodeService } from 'src/utils/services/node_service';
 import { onMounted, ref } from 'vue';
 import {
   Config, DeviceConfig,
-  FFmpegConfig, AiConfig, GeneralConfig, DbConfig, JobsConfig, ArchiveConfig, SnapshotConfig, HubConfig, SenseAIConfig
+  FFmpegConfig, AiConfig, GeneralConfig, DbConfig, JobsConfig, ArchiveConfig, SnapshotConfig, DesimaConfig, SenseAIConfig
 } from 'src/utils/models/config';
 import { databindWithLoading, fixArrayDates, validateModel } from 'src/utils/utils';
 import { ServiceModel } from 'src/utils/models/service_model';
@@ -487,7 +487,7 @@ const ai = ref<AiConfig>({});
 // @ts-ignore
 const sense_ai = ref<SenseAIConfig>({});
 //@ts-ignore
-const hub = ref<HubConfig>({});
+const desima = ref<DesimaConfig>({});
 // @ts-ignore
 const jobs = ref<JobsConfig>({});
 
@@ -529,7 +529,7 @@ const setConfigValue = (c: Config) => {
   ffmpeg.value = c.ffmpeg;
   ai.value = c.ai;
   sense_ai.value = c.sense_ai;
-  hub.value = c.hub;
+  desima.value = c.desima;
   jobs.value = c.jobs;
   archive.value = c.archive;
   snapshot.value = c.snapshot;
