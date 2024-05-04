@@ -1,12 +1,12 @@
 DO NOT forget the RUN "quasar build" before you run this script
 
-docker build -t webapp:v1.0.2 .
-docker run -it --restart unless-stopped --name webapp-instance -p 8080:80 -e TZ=Europe/Istanbul webapp:v1.0.2
+docker build -t webapp:v1.0.3 .
+docker run -it --restart unless-stopped --name webapp-instance -p 8080:80 -e TZ=Europe/Istanbul webapp:v1.0.3
 
 gokalpgoren
     amd64:
-      docker build -t gokalpgoren/webapp:v1.0.2-amd64 .
-      docker run -it --restart unless-stopped --name webapp-instance -p 8080:80 -e TZ=Europe/Istanbul gokalpgoren/webapp:v1.0.2-amd64
+      docker build -t gokalpgoren/webapp:v1.0.3-amd64 .
+      docker run -it --restart unless-stopped --name webapp-instance -p 8080:80 -e TZ=Europe/Istanbul gokalpgoren/webapp:v1.0.3-amd64
     raspi4:
-      docker build -t gokalpgoren/webapp:v1.0.2-arm64v8 .
-      docker run -it --restart unless-stopped --name webapp-instance -p 80:80 -e TZ=Europe/Istanbul gokalpgoren/webapp:v1.0.2-raspi4
+      docker build -t gokalpgoren/webapp:v1.0.3-arm64v8 .
+      docker run -it --restart unless-stopped --name webapp-instance -p 80:80 -e TZ=Europe/Istanbul gokalpgoren/webapp:v1.0.3-raspi4
