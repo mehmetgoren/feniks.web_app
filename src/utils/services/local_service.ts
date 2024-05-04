@@ -337,7 +337,7 @@ export class LocalService {
 
       analyzation_duration: 1000000, // or set to 100000 if you are using RTSP and having stream issues.
       probe_size: 1000000, //or set to 100000 if you are using RTSP and having stream issues.
-      input_frame_rate: 0,
+      input_frame_rate: 0.0,
       use_camera_timestamp: false,
       use_hwaccel: false,
       hwaccel_engine: 0,
@@ -351,7 +351,7 @@ export class LocalService {
       hls_time: 2,
       hls_list_size: 3,
       stream_quality: 0,
-      stream_frame_rate: 0,
+      stream_frame_rate: 0.0,
       stream_width: 0,
       stream_height: 0,
       stream_rotate: 0,
@@ -365,7 +365,7 @@ export class LocalService {
       record_video_codec: 6, //copy
       record_quality: 0,
       record_preset: 0,
-      record_frame_rate: 0,
+      record_frame_rate: 0.0,
       record_width: 0,
       record_height: 0,
       record_segment_interval: 15,
@@ -392,7 +392,7 @@ export class LocalService {
       ms_type: 0, //Go 2 RTC
 
       snapshot_enabled: false,
-      snapshot_frame_rate: 1,
+      snapshot_frame_rate: 1.0,
       snapshot_width: 640,
       snapshot_height: 360,
       md_type: 1, // OpenCV
@@ -401,7 +401,7 @@ export class LocalService {
       md_imagehash_threshold: 3,
       md_psnr_threshold: 0.2,
 
-      ffmpeg_reader_frame_rate: 5,
+      ffmpeg_reader_frame_rate: 5.0,
       ffmpeg_reader_width: 640,
       ffmpeg_reader_height: 360,
 
@@ -445,7 +445,7 @@ export class LocalService {
       ms_container_commands: '',
 
       mp_ffmpeg_reader_owner_pid: 0,
-      ffmpeg_reader_frame_rate: 1,
+      ffmpeg_reader_frame_rate: 1.0,
       ffmpeg_reader_width: 640,
       ffmpeg_reader_height: 360,
 
@@ -456,7 +456,7 @@ export class LocalService {
 
       snapshot_enabled: false,
       snapshot_pid: 0,
-      snapshot_frame_rate: 1,
+      snapshot_frame_rate: 1.0,
       snapshot_width: 1280,
       snapshot_height: 720,
 

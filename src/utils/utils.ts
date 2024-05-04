@@ -380,7 +380,7 @@ export function findBestSettings(source: SourceModel, probeResult: ProbeResult):
   }
   const hasAudio = f.nb_streams > 1;
   const v = probeResult.streams[0]; //video
-  const fps = parseInt(v.avg_frame_rate.split('/')[0]);
+  const fps = parseFloat(v.avg_frame_rate.split('/')[0]);
   if (f.format_name === 'rtsp') {
     source.rtsp_transport = 1; //TCP
   }
@@ -415,7 +415,7 @@ export function findBestSettings(source: SourceModel, probeResult: ProbeResult):
     source.stream_audio_volume = 100;
   }
 
-  source.snapshot_frame_rate = 1;
+  source.snapshot_frame_rate = 1.0;
   source.snapshot_width = 1280;
   source.snapshot_height = 720;
 
@@ -423,7 +423,7 @@ export function findBestSettings(source: SourceModel, probeResult: ProbeResult):
   source.record_preset = 1; //ultra fast
   source.record_video_codec = 6; //copy
   source.record_segment_interval = 15;
-  source.record_frame_rate = 0;
+  source.record_frame_rate = 0.0;
   if (hasAudio) {
     source.record_audio_codec = source.stream_audio_codec;
     source.record_audio_channel = source.stream_audio_channel;
