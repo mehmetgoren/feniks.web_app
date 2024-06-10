@@ -490,7 +490,7 @@ export default {
   go2RtcModes:'Go2RTC Modları',
   select_go2rtc_mode:'Kameranız H.265 video sıkıştırma standardını kullanıyorsa, lütfen Go2RTC modunu seçin.',
   architecture:'Mimari',
-  sense_ai_config:'SenseAI Konfigürasyon',
+  sense_ai:'Code Project AI Sunucusu',
   sense_ai_image:'SenseAI İmajı',
   sense_ai_host:'SenseAI Host',
   sense_ai_port:'SenseAI Port',

@@ -191,7 +191,7 @@
         <q-card class="my-card" flat bordered>
           <q-card-section class="bg-cyan text-white">
             <div class="text-subtitle2">
-              <label style='text-transform: uppercase;font-size: medium'>{{ $t('sense_ai_config') }}</label>
+              <label style='text-transform: uppercase;font-size: medium'>{{ $t('sense_ai') }}</label>
             </div>
           </q-card-section>
           <q-separator />

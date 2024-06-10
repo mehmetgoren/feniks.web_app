@@ -490,7 +490,7 @@ export default {
   go2RtcModes:'Go2RTC Modes',
   select_go2rtc_mode:'If your camera uses the H.265 video compression standard, please select the Go2RTC mode.',
   architecture:'Architecture',
-  sense_ai_config:'SenseAI Configuration',
+  sense_ai:'Code Project AI Server',
   sense_ai_image:'SenseAI Image',
   sense_ai_host:'SenseAI Host',
   sense_ai_port:'SenseAI Port',
