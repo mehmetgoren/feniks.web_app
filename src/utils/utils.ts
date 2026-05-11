@@ -201,6 +201,14 @@ export function parseIP(address: string | null | undefined): string | null {
   if (address === null || address === undefined) {
     return null;
   }
+
+  try {
+    const url = new URL(address)
+    return url.hostname
+  } catch (error) {
+    /* ignore parse error */
+  }
+
   if (address.indexOf('localhost') !== -1) {
     return 'localhost';
   }
